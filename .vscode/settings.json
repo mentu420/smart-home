@@ -1,0 +1,37 @@
+{
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[less]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.configPath": "prettier.config.cjs",
+  "editor.formatOnSave": true,
+  // 编辑器：保存时候的动作
+  "editor.codeActionsOnSave": {
+    // 保存的时候执行一次eslint校验
+    "source.fixAll.eslint": true
+    // 保存的时候调整import顺序，按引入包字母顺序
+    // "source.organizeImports": true
+  },
+  "scss.lint.unknownAtRules": "ignore"
+}

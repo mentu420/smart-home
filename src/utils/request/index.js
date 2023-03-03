@@ -1,3 +1,5 @@
+import md5 from 'js-md5'
+
 import useUserStore from '@/store/userStore.js'
 import { getStorage } from '@/utils/storage.js'
 
@@ -10,9 +12,10 @@ export const request = async (axiosOptions = {}, customOptions = {}) => {
 
   const {
     withUserId = false,
-    withToken = true,
+    withToken = false,
     withUserInfoFn = false,
     withShowErrorMsg = true,
+    withParams = true,
   } = customOptions
 
   const { token, id } = useGetToken() || {}
@@ -31,6 +34,21 @@ export const request = async (axiosOptions = {}, customOptions = {}) => {
 
   // 带token
   if (withToken) config = { ...config, headers: authSign(headers, token) }
+  if (withParams) {
+    config = {
+      ...config,
+      [dataKey]: {
+        ...config[dataKey],
+        appid: import.meta.env.VITE_APP_APP_NAME,
+        shijianchuo: new Date().valueOf() + '',
+        yanzheng: md5(
+          import.meta.env.VITE_APP_APP_NAME +
+            new Date().valueOf() +
+            'upqvk54gneu0jwcnivlfhsr2efwoywey'
+        ),
+      },
+    }
+  }
 
   return useRequest(config)
 }
