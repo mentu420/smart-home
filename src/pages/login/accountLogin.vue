@@ -8,44 +8,44 @@ const checked = ref(false) // 是否记住账号密码
 const show = ref(false) //是否展示记住的账号
 const accountList = ref([])
 
+const onSubmit = async () => {}
+
 const goForget = () => {
-  router.push({ path: '/' })
+  router.push({ path: '/forgetPassword' })
 }
 const goOtherLogin = () => {
-  router.push({ path: '/' })
+  router.push({ path: '/phoneLogin' })
 }
 </script>
 
 <template>
-  <div>
-    <h1>密码登录</h1>
-    <van-form @submit="onSubmit">
-      <van-cell-group inset>
+  <div class="p-4">
+    <h1 class="mt-10 ml-2 mb-10">密码登录</h1>
+    <van-form class="m-2" @submit="onSubmit">
+      <van-cell-group>
         <van-field
           v-model="form.username"
           name="username"
-          label="用户名"
           placeholder="用户名"
           :rules="[{ required: true, message: '请填写用户名' }]"
         >
           <template #extra>
             <span @click="show = !show">
-              <van-icon v-if="show" name="arrow-down" />
-              <van-icon v-else name="arrow" />
+              <van-icon :name="show ? 'arrow-down' : 'arrow'" />
             </span>
           </template>
         </van-field>
-        <transition name="van-slide-down">
+        <transition name="van-fade">
           <van-cell-group v-if="show">
-            <van-cell title="单元格" right-icon="clear" />
-            <van-cell title="单元格" right-icon="clear" />
+            <van-cell class="account-item" title="单元格">
+              <van-icon name="clear" />
+            </van-cell>
           </van-cell-group>
         </transition>
         <van-field
           v-model="form.password"
           type="password"
           name="password"
-          label="密码"
           placeholder="密码"
           :rules="[{ required: true, message: '请填写密码' }]"
         >
@@ -54,11 +54,19 @@ const goOtherLogin = () => {
           </template>
         </van-field>
       </van-cell-group>
-      <van-checkbox v-model="checked">记住密码</van-checkbox>
-      <div style="margin: 16px">
+      <div class="mt-10 ml-2">
+        <van-checkbox v-model="checked">记住密码</van-checkbox>
+      </div>
+      <div class="my-4">
         <van-button round block type="primary" native-type="submit"> 提交 </van-button>
       </div>
-      <div @click="goOtherLogin">其他方式登录</div>
+      <div class="text-center" @click="goOtherLogin">其他方式登录</div>
     </van-form>
   </div>
 </template>
+
+<style scoped lang="scss">
+.account-item {
+  background: #f5f5f5;
+}
+</style>

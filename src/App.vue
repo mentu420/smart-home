@@ -1,13 +1,21 @@
 <script setup>
 import VConsole from 'vconsole'
-import { ref, watch } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import useRem from '@/utils/flexible/useRem.js'
 
 const route = useRoute()
 const router = useRouter()
-const includeList = ref(['TabNavigator'])
+const includeList = ref([])
+const theme = ref('light')
+
+const themeVars = reactive({
+  sliderActiveBackground: '#ff976a',
+  buttonPrimaryBackground: '#ff976a',
+  buttonPrimaryBorderColor: '#ff976a',
+  navBarIconColor: '#999',
+})
 
 useRem()
 
@@ -22,13 +30,15 @@ watch(
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
-    <transition>
-      <keep-alive :include="includeList" :max="10">
-        <component :is="Component" />
-      </keep-alive>
-    </transition>
-  </router-view>
+  <van-config-provider :theme="theme" :theme-vars="themeVars">
+    <router-view v-slot="{ Component }">
+      <transition>
+        <keep-alive :include="includeList" :max="10">
+          <component :is="Component" />
+        </keep-alive>
+      </transition>
+    </router-view>
+  </van-config-provider>
 </template>
 
 <style>

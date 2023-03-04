@@ -27,12 +27,22 @@ const Router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login',
+      redirect: '/accountLogin',
     },
     {
       path: '/login',
       name: 'Login',
       component: () => import('@/pages/login/loginPage.vue'),
+    },
+    {
+      path: '/accountLogin',
+      name: 'AccountLogin',
+      component: () => import('@/pages/login/accountLogin.vue'),
+    },
+    {
+      path: '/phoneLogin',
+      name: 'PhoneLogin',
+      component: () => import('@/pages/login/phoneLogin.vue'),
     },
     {
       path: '/forgetPassword',

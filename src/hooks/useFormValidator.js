@@ -86,3 +86,10 @@ export function validKeyboard(value) {
   keyboardReg.lastIndex = 0
   return keyboardReg.test(value)
 }
+
+export const trimFormat = (value) => {
+  return value.replace(/\s+/g, '')
+}
+export const textFormat = (value) => {
+  return value.replace(textReg, '')
+}
