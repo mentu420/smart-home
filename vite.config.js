@@ -18,6 +18,14 @@ export default defineConfig({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
     }),
     visualizer({ open: true, brotliSize: true, filename: 'report.html' }),
+    [
+      'import',
+      {
+        libraryName: '@icon-park/vue-next',
+        libraryDirectory: 'es/icons',
+        camel2DashComponentName: false,
+      },
+    ],
   ],
   base: './',
   resolve: {

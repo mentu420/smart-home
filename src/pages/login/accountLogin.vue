@@ -1,14 +1,30 @@
 <script setup>
+import md5 from 'js-md5'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { trimFormat } from '@/hooks/useFormValidator.js'
+import { getStorage, setStorage } from '@/utils/storage.js'
+
 const router = useRouter()
 const form = ref({})
-const checked = ref(false) // 是否记住账号密码
+const checked = ref(true) // 是否记住账号密码
 const show = ref(false) //是否展示记住的账号
+const showPassword = ref(false)
 const accountList = ref([])
 
-const onSubmit = async () => {}
+const onSubmit = async (values) => {
+  if (checked.value) {
+    setStorage('account-list', [...accountList.value, values])
+  }
+  router.push({ path: '/tabbar' })
+}
+
+const init = () => {
+  accountList.value = getStorage('account-list') || []
+}
+
+init()
 
 const goForget = () => {
   router.push({ path: '/forgetPassword' })
@@ -25,8 +41,11 @@ const goOtherLogin = () => {
       <van-cell-group>
         <van-field
           v-model="form.username"
+          center
           name="username"
           placeholder="用户名"
+          :formatter="trimFormat"
+          maxlength="30"
           :rules="[{ required: true, message: '请填写用户名' }]"
         >
           <template #extra>
@@ -37,20 +56,33 @@ const goOtherLogin = () => {
         </van-field>
         <transition name="van-fade">
           <van-cell-group v-if="show">
-            <van-cell class="account-item" title="单元格">
+            <van-cell
+              v-for="(accountItem, accountIndex) in accountList"
+              :key="accountIndex"
+              class="account-item"
+              :title="accountItem.username"
+            >
               <van-icon name="clear" />
             </van-cell>
           </van-cell-group>
         </transition>
         <van-field
           v-model="form.password"
-          type="password"
+          center
+          :type="showPassword ? 'text' : 'password'"
           name="password"
           placeholder="密码"
+          maxlength="18"
           :rules="[{ required: true, message: '请填写密码' }]"
         >
+          <template #right-icon>
+            <van-icon
+              :name="showPassword ? 'eye-o' : 'closed-eye'"
+              @click="showPassword = !showPassword"
+            />
+          </template>
           <template #extra>
-            <label @click="goForget">忘记密码</label>
+            <label class="ml-4" @click="goForget">忘记密码</label>
           </template>
         </van-field>
       </van-cell-group>

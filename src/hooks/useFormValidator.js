@@ -93,3 +93,13 @@ export const trimFormat = (value) => {
 export const textFormat = (value) => {
   return value.replace(textReg, '')
 }
+
+export const useFormVaildator = (value, reg) => {
+  reg.lastIndex = 0
+  return reg.test(value)
+}
+
+// 设置表单格式化输出
+export const setFormFormat = (value, reg) => {
+  return value.replace(reg, '')
+}

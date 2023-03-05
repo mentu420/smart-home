@@ -55,8 +55,7 @@ export default {
 
     const sendSms = async () => {
       if (countTime.value > 0) return
-      const { code } = await props.request()
-      if (code != 0) return
+      await props.request()
       countTime.value = props.duration * 1000
       codeStatus.value = 1
     }
@@ -73,13 +72,7 @@ export default {
 </script>
 
 <template>
-  <van-button
-    v-loading-click="sendSms"
-    size="small"
-    type="primary"
-    native-type="button"
-    v-bind="$attrs"
-  >
+  <van-button size="small" type="primary" native-type="button" v-bind="$attrs" @click="sendSms">
     <van-count-down
       v-if="countTime > 0"
       class="count-time"

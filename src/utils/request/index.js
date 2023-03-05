@@ -15,7 +15,6 @@ export const request = async (axiosOptions = {}, customOptions = {}) => {
     withToken = false,
     withUserInfoFn = false,
     withShowErrorMsg = true,
-    withParams = true,
   } = customOptions
 
   const { token, id } = useGetToken() || {}
@@ -34,17 +33,17 @@ export const request = async (axiosOptions = {}, customOptions = {}) => {
 
   // 带token
   if (withToken) config = { ...config, headers: authSign(headers, token) }
-  if (withParams) {
+  if (method.toLowerCase() === 'get') {
     config = {
       ...config,
       [dataKey]: {
         ...config[dataKey],
-        appid: import.meta.env.VITE_APP_APP_NAME,
+        appid: import.meta.env.VITE_APP_APP_ID,
         shijianchuo: new Date().valueOf() + '',
         yanzheng: md5(
-          import.meta.env.VITE_APP_APP_NAME +
+          import.meta.env.VITE_APP_APP_ID +
             new Date().valueOf() +
-            'upqvk54gneu0jwcnivlfhsr2efwoywey'
+            import.meta.env.VITE_APP_REQUEST_SIGN
         ),
       },
     }

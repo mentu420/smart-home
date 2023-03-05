@@ -2,7 +2,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { vaildPhone, trimFormat } from '@/hooks/useFormValidator.js'
+import CountDown from '@/components/common/CountDown.vue'
+import { vaildPhone, phoneReg, setFormFormat } from '@/hooks/useFormValidator.js'
 
 const router = useRouter()
 const form = ref({})
@@ -26,18 +27,24 @@ const goOtherLogin = () => {
         <van-field
           v-model="form.phone"
           name="phone"
-          placeholder="用户名"
-          :rules="[{ required: true, message: '请填写用户名' }]"
+          placeholder="手机号码"
+          maxlength="11"
+          type="tel"
+          :formatter="(value) => setFormFormat(value, phoneReg)"
+          :rules="[
+            { required: true, message: '请填写手机号码' },
+            { validator: (value) => vaildPhone(value), message: '手机号码格式有误' },
+          ]"
         />
         <van-field
-          v-model="form.password"
-          type="password"
-          name="password"
-          placeholder="密码"
-          :rules="[{ required: true, message: '请填写密码' }]"
+          v-model="form.code"
+          name="code"
+          placeholder="验证码"
+          maxlength="6"
+          :rules="[{ required: true, message: '请填写验证码' }]"
         >
           <template #extra>
-            <label @click="goForget">获取验证码</label>
+            <CountDown :disabled="!form.phone" :duration="60" />
           </template>
         </van-field>
       </van-cell-group>

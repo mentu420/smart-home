@@ -15,12 +15,14 @@
     "format": "prettier --write \"./**/*.{html,vue,ts,js,json,md}\""
   },
   "dependencies": {
+    "@icon-park/vue-next": "^1.4.2",
     "@vant/area-data": "^1.4.0",
     "@vant/touch-emulator": "^1.4.0",
     "@vant/use": "^1.4.3",
     "axios": "^1.2.2",
     "gsap": "^3.11.3",
     "html2canvas": "^1.4.1",
+    "js-md5": "^0.7.3",
     "nprogress": "^0.2.0",
     "pinia": "^2.0.26",
     "qs": "^6.11.0",

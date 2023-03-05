@@ -7,7 +7,7 @@ import useRem from '@/utils/flexible/useRem.js'
 
 const route = useRoute()
 const router = useRouter()
-const includeList = ref([])
+const includeList = ref(['Tabbar'])
 const theme = ref('light')
 
 const themeVars = reactive({
