@@ -15,9 +15,20 @@ const accountList = ref([])
 
 const onSubmit = async (values) => {
   if (checked.value) {
-    setStorage('account-list', [...accountList.value, values])
+    accountList.value = accountList.value.map((accountItem) => {
+      if (accountItem.username == values.username) return values
+      return accountItem
+    })
+    setStorage('account-list', accountList.value)
   }
-  router.push({ path: '/tabbar' })
+  router.replace({ path: '/tabbar/tabbarHome' })
+}
+
+const selectAccountItem = (item) => {
+  form.value = item
+}
+const delectAccountItem = (index) => {
+  accountList.value = accountList.value.filter((item, i) => index != i)
 }
 
 const init = () => {
@@ -61,8 +72,9 @@ const goOtherLogin = () => {
               :key="accountIndex"
               class="account-item"
               :title="accountItem.username"
+              @click="selectAccountItem(accountItem)"
             >
-              <van-icon name="clear" />
+              <van-icon name="clear" @click="delectAccountItem(accountIndex)" />
             </van-cell>
           </van-cell-group>
         </transition>
@@ -90,7 +102,7 @@ const goOtherLogin = () => {
         <van-checkbox v-model="checked">记住密码</van-checkbox>
       </div>
       <div class="my-4">
-        <van-button round block type="primary" native-type="submit"> 提交 </van-button>
+        <van-button round block type="primary" native-type="submit"> 登录 </van-button>
       </div>
       <div class="text-center" @click="goOtherLogin">其他方式登录</div>
     </van-form>
