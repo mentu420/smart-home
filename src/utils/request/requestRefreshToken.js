@@ -29,7 +29,7 @@ export const refreshTokenRequest = async (response, useRequest) => {
         retryRequests.forEach((cb) => cb(tokenRes.token))
         // 重试完清空这个队列
         retryRequests = []
-        config = { ...config, headers: authSign(config.headers, tokenRes.token) }
+        config = authSign(config)
         return useRequest(config)
       })
       .catch(() => {
@@ -43,7 +43,7 @@ export const refreshTokenRequest = async (response, useRequest) => {
     return new Promise((resolve) => {
       // 将resolve放进队列，用一个函数形式来保存，等token刷新后直接执行
       retryRequests.push((token) => {
-        config = { ...config, headers: authSign(config.headers, token) }
+        config = authSign(config)
         resolve(againRequest({ ...response, config }, useRequest))
       })
     })

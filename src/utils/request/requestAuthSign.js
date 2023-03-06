@@ -1,37 +1,23 @@
 import md5 from 'blueimp-md5'
-import qs from 'qs'
 
-export let getSign = (obj) => {
-  const str = qs.stringify(obj)
-  return md5(str).toUpperCase()
-}
+import userStore from '@/store/userStore.js'
 
-const getHeader = () => {
-  return {
-    api_client_code: import.meta.env.VITE_APP_CLIENT_CODE,
-    api_version: import.meta.env.VITE_APP_API_VERSION,
-    api_timestamp: (+new Date()).toString(),
+export function authSign(config) {
+  const { useGetToken } = userStore()
+  const { token } = useGetToken() || {}
+  // 带固定参数
+  config = {
+    ...config,
+    headers: { ...config.headers, Authorization: token },
+    params: {
+      ...config.params,
+      appid: import.meta.env.VITE_APP_APP_ID,
+      shijianchuo: new Date().valueOf() + '',
+      yanzheng: md5(
+        import.meta.env.VITE_APP_APP_ID +
+          new Date().valueOf() +
+          import.meta.env.VITE_APP_REQUEST_SIGN
+      ),
+    },
   }
-}
-
-export function authSign(headers, token) {
-  headers = {
-    ...getHeader(),
-    ...headers,
-  }
-  let signObj = {
-    api_client_code: headers.api_client_code,
-    api_version: headers.api_version,
-    api_timestamp: headers.api_timestamp,
-  }
-  if (token) {
-    headers.api_token = token
-    signObj = {
-      api_token: token,
-      ...signObj,
-    }
-  }
-  headers.api_sign = getSign(signObj)
-
-  return headers
 }
