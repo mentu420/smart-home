@@ -2,6 +2,8 @@
 import { IconPark } from '@icon-park/vue-next/es/all'
 import { ref } from 'vue'
 
+import image1 from '@/assets/images/home-card-bg.png'
+
 const homeList = ref([
   { text: '选项一', index: 0 },
   { text: '选项二', index: 1 },
@@ -12,6 +14,7 @@ const configList = ref([
   { text: '选项二', index: 1 },
   { text: '选项三', index: 2 },
 ])
+const roomList = ref([{ text: '全屋' }, { text: '客厅' }])
 const showHomeList = ref(false)
 const homeAction = ref(0)
 const showConfig = ref(false)
@@ -27,8 +30,8 @@ const onConfigSelect = (action) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 p-4">
-    <div class="flex justify-between">
+  <div class="min-h-screen bg-gray-100">
+    <div class="flex justify-between p-4">
       <van-popover
         v-model:show="showHomeList"
         :actions="homeList"
@@ -50,8 +53,65 @@ const onConfigSelect = (action) => {
     <div class="h-10"></div>
     <van-sticky>
       <van-tabs v-model:active="tabActive" background="transparent" shrink sticky line-width="0">
-        <van-tab title="标签 1">内容 1</van-tab>
-        <van-tab title="标签 2">内容 2</van-tab>
+        <van-tab v-for="(roomItem, roomIndex) in roomList" :key="roomIndex" :title="roomItem.text">
+          <section class="p-4">
+            <h4 class="mb-2 text-gray-600">照明</h4>
+            <ul class="grid grid-cols-2 gap-4">
+              <li
+                v-for="(lightItem, lightIndex) in 4"
+                :key="lightIndex"
+                :style="{ background: 'url(' + image1 + ')' }"
+                class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
+              >
+                <div>
+                  <h4 class="space-x-2 text-white">
+                    <label>一楼</label>
+                    <label>客厅</label>
+                  </h4>
+                  <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+                </div>
+              </li>
+            </ul>
+          </section>
+          <section class="p-4">
+            <h4 class="mb-2 text-gray-600">常用场景</h4>
+            <ul class="grid grid-cols-2 gap-4">
+              <li
+                v-for="(lightItem, lightIndex) in 4"
+                :key="lightIndex"
+                :style="{ background: 'url(' + image1 + ')' }"
+                class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
+              >
+                <div>
+                  <h4 class="space-x-2 text-white">
+                    <label>一楼</label>
+                    <label>客厅</label>
+                  </h4>
+                  <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+                </div>
+              </li>
+            </ul>
+          </section>
+          <section class="p-4">
+            <h4 class="mb-2 text-gray-600">常用设备</h4>
+            <ul class="grid grid-cols-2 gap-4">
+              <li
+                v-for="(lightItem, lightIndex) in 4"
+                :key="lightIndex"
+                :style="{ background: 'url(' + image1 + ')' }"
+                class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
+              >
+                <div>
+                  <h4 class="space-x-2 text-white">
+                    <label>一楼</label>
+                    <label>客厅</label>
+                  </h4>
+                  <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+                </div>
+              </li>
+            </ul>
+          </section>
+        </van-tab>
         <template #nav-right>
           <div class="flex flex-auto items-center justify-end">
             <van-popover
@@ -68,17 +128,5 @@ const onConfigSelect = (action) => {
         </template>
       </van-tabs>
     </van-sticky>
-    <van-cell title="照明"></van-cell>
-    <ul class="grid-4 grid grid-cols-2">
-      <li v-for="lightItem in 4" :key="lightItem">
-        <div class="flex">
-          <p class="space-x-2">
-            <label>一楼</label>
-            <label>客厅</label>
-          </p>
-          <p>2个灯亮</p>
-        </div>
-      </li>
-    </ul>
   </div>
 </template>
