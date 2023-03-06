@@ -1,9 +1,8 @@
 <script setup>
+import { BaseTree, Draggable, pro } from '@he-tree/vue'
+import '@he-tree/vue/style/default.css'
 import { IconPark } from '@icon-park/vue-next/es/all'
 import { ref } from 'vue'
-import Vue3DraggableResizable, { DraggableContainer } from 'vue3-draggable-resizable'
-//需引入默认样式
-import 'vue3-draggable-resizable/dist/Vue3DraggableResizable.css'
 
 import image1 from '@/assets/images/home-card-bg.png'
 
@@ -30,10 +29,12 @@ const onHomeSelect = (action) => {
 const onConfigSelect = (action) => {
   console.log(action)
 }
+
+const treeData = ref([{ text: 'Projects' }, { text: 'Photos' }, { text: 'Videos' }])
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="min-h-screen bg-page-gray">
     <div class="flex justify-between p-4">
       <van-popover
         v-model:show="showHomeList"
@@ -54,86 +55,82 @@ const onConfigSelect = (action) => {
       </div>
     </div>
     <div class="h-10"></div>
-    <DraggableContainer>
-      <Vue3DraggableResizable> Test </Vue3DraggableResizable>
-      <Vue3DraggableResizable> Another test </Vue3DraggableResizable>
-    </DraggableContainer>
-    <van-sticky>
-      <van-tabs v-model:active="tabActive" background="transparent" shrink sticky line-width="0">
-        <van-tab v-for="(roomItem, roomIndex) in roomList" :key="roomIndex" :title="roomItem.text">
-          <section class="p-4">
-            <h4 class="mb-2 text-gray-600">照明</h4>
-            <ul class="grid grid-cols-2 gap-4">
-              <li
-                v-for="(lightItem, lightIndex) in 4"
-                :key="lightIndex"
-                :style="{ background: 'url(' + image1 + ')' }"
-                class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
-              >
-                <div>
-                  <h4 class="space-x-2 text-white">
-                    <label>一楼</label>
-                    <label>客厅</label>
-                  </h4>
-                  <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
-                </div>
-              </li>
-            </ul>
-          </section>
-          <section class="p-4">
-            <h4 class="mb-2 text-gray-600">常用场景</h4>
-            <ul class="grid grid-cols-2 gap-4">
-              <li
-                v-for="(lightItem, lightIndex) in 4"
-                :key="lightIndex"
-                :style="{ background: 'url(' + image1 + ')' }"
-                class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
-              >
-                <div>
-                  <h4 class="space-x-2 text-white">
-                    <label>一楼</label>
-                    <label>客厅</label>
-                  </h4>
-                  <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
-                </div>
-              </li>
-            </ul>
-          </section>
-          <section class="p-4">
-            <h4 class="mb-2 text-gray-600">常用设备</h4>
-            <ul class="grid grid-cols-2 gap-4">
-              <li
-                v-for="(lightItem, lightIndex) in 4"
-                :key="lightIndex"
-                :style="{ background: 'url(' + image1 + ')' }"
-                class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
-              >
-                <div>
-                  <h4 class="space-x-2 text-white">
-                    <label>一楼</label>
-                    <label>客厅</label>
-                  </h4>
-                  <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
-                </div>
-              </li>
-            </ul>
-          </section>
-        </van-tab>
-        <template #nav-right>
-          <div class="flex flex-auto items-center justify-end">
-            <van-popover
-              v-model:show="showConfig"
-              :actions="configList"
-              placement="bottom-end"
-              @select="onConfigSelect"
+    <van-tabs v-model:active="tabActive" background="#f7f7f7" shrink sticky line-width="0">
+      <van-tab v-for="(roomItem, roomIndex) in roomList" :key="roomIndex" :title="roomItem.text">
+        <section class="p-4">
+          <h4 class="mb-2 text-gray-600">照明</h4>
+          <ul class="grid grid-cols-2 gap-4">
+            <li
+              v-for="(lightItem, lightIndex) in 4"
+              :key="lightIndex"
+              :style="{ backgroundImage: 'url(' + image1 + ')' }"
+              class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
             >
-              <template #reference>
-                <icon-park type="setting-config" theme="outline" />
-              </template>
-            </van-popover>
-          </div>
-        </template>
-      </van-tabs>
-    </van-sticky>
+              <div>
+                <h4 class="space-x-2 text-white">
+                  <label>一楼</label>
+                  <label>客厅</label>
+                </h4>
+                <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+              </div>
+            </li>
+          </ul>
+        </section>
+        <section class="p-4">
+          <h4 class="mb-2 text-gray-600">常用场景</h4>
+          <ul class="grid grid-cols-2 gap-4">
+            <li
+              v-for="(lightItem, lightIndex) in 4"
+              :key="lightIndex"
+              :style="{ backgroundImage: 'url(' + image1 + ')' }"
+              class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
+            >
+              <div class="flex h-12 items-center">
+                <h4 class="space-x-2 text-white">
+                  <label>一楼</label>
+                  <label class="rounded bg-gray-200 px-2 py-1 text-xs">客厅</label>
+                </h4>
+              </div>
+            </li>
+          </ul>
+        </section>
+        <section class="p-4">
+          <h4 class="mb-2 text-gray-600">常用设备</h4>
+          <ul class="grid grid-cols-2 gap-4">
+            <li
+              v-for="(lightItem, lightIndex) in 4"
+              :key="lightIndex"
+              class="flex items-center rounded-lg bg-gray-300 p-3"
+            >
+              <div class="relative h-full w-full">
+                <div class="absolute top-0 right-0">
+                  <IconPark type="more" />
+                </div>
+                <IconPark size="30" type="tips" theme="filled" fill="#ff976a" />
+                <h4 class="space-x-2 text-white">
+                  <label>一楼</label>
+                  <label>客厅</label>
+                </h4>
+                <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </van-tab>
+      <template #nav-right>
+        <div class="flex flex-auto items-center justify-end">
+          <van-popover
+            v-model:show="showConfig"
+            :actions="configList"
+            placement="bottom-end"
+            @select="onConfigSelect"
+          >
+            <template #reference>
+              <icon-park type="setting-config" theme="outline" />
+            </template>
+          </van-popover>
+        </div>
+      </template>
+    </van-tabs>
   </div>
 </template>
