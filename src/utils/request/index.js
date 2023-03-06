@@ -7,37 +7,24 @@ import { authSign } from './requestAuthSign.js'
 import useRequest from './useRequest'
 
 export const request = async (axiosOptions = {}, customOptions = {}) => {
-  const { useUserInfoSync, useGetToken } = useUserStore()
+  const { useGetToken } = useUserStore()
   const { method = 'get', headers, ...args } = axiosOptions
 
-  const {
-    withUserId = false,
-    withToken = false,
-    withUserInfoFn = false,
-    withShowErrorMsg = true,
-  } = customOptions
+  const { withToken = false, withShowErrorMsg = true } = customOptions
 
-  const { token, id } = useGetToken() || {}
   let config = { ...args, method, with_show_error_msg: withShowErrorMsg }
 
   const dataKey = { get: 'params', post: 'data' }[method.toLowerCase()]
-  // 带userId
-  if (withUserId) config = { ...config, [dataKey]: { ...config[dataKey], userId: id } }
-  // 自定义用户信息
-  if (withUserInfoFn) {
-    config = {
-      ...config,
-      [dataKey]: { ...config[dataKey], ...withUserInfoFn(await useUserInfoSync()) },
-    }
-  }
 
   // 带token
-  if (withToken) config = { ...config, headers: authSign(headers, token) }
-  if (method.toLowerCase() === 'get') {
+  if (withToken) {
+    const { token } = useGetToken() || {}
+    // 带固定参数
     config = {
       ...config,
-      [dataKey]: {
-        ...config[dataKey],
+      headers: { ...config.headers, Authorization: token },
+      params: {
+        ...config.params,
         appid: import.meta.env.VITE_APP_APP_ID,
         shijianchuo: new Date().valueOf() + '',
         yanzheng: md5(
