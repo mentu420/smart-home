@@ -68,5 +68,17 @@ const onConfigSelect = (action) => {
         </template>
       </van-tabs>
     </van-sticky>
+    <van-cell title="照明"></van-cell>
+    <ul class="grid-4 grid grid-cols-2">
+      <li v-for="lightItem in 4" :key="lightItem">
+        <div class="flex">
+          <p class="space-x-2">
+            <label>一楼</label>
+            <label>客厅</label>
+          </p>
+          <p>2个灯亮</p>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>

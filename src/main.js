@@ -7,7 +7,6 @@ import Vue3TouchEvents from 'vue3-touch-events'
 
 //重置样式
 import '@/assets/styles/reset.css'
-import IconFont from '@/components/base/IconFont.vue'
 import HeaderNavbar from '@/components/layout/HeaderNavbar.vue'
 import ListLoad from '@/components/layout/ListLoad.vue'
 import copy from '@/directive/copy.js'
@@ -23,10 +22,7 @@ const app = createApp(App)
 
 // useVant(app)
 
-app
-  .component(HeaderNavbar.name, HeaderNavbar)
-  .component('ListLoad', ListLoad)
-  .component(IconFont.name, IconFont)
+app.component(HeaderNavbar.name, HeaderNavbar).component('ListLoad', ListLoad)
 
 app
   .use(Router)

@@ -53,6 +53,7 @@
     "tailwindcss": "^3.2.4",
     "unplugin-vue-components": "^0.22.11",
     "vite": "^3.2.3",
-    "vite-plugin-eslint": "^1.8.1"
+    "vite-plugin-eslint": "^1.8.1",
+    "weapp-tailwindcss-children": "^0.1.0"
   }
 }
