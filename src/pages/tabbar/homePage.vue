@@ -1,6 +1,9 @@
 <script setup>
 import { IconPark } from '@icon-park/vue-next/es/all'
 import { ref } from 'vue'
+import Vue3DraggableResizable, { DraggableContainer } from 'vue3-draggable-resizable'
+//需引入默认样式
+import 'vue3-draggable-resizable/dist/Vue3DraggableResizable.css'
 
 import image1 from '@/assets/images/home-card-bg.png'
 
@@ -51,6 +54,10 @@ const onConfigSelect = (action) => {
       </div>
     </div>
     <div class="h-10"></div>
+    <DraggableContainer>
+      <Vue3DraggableResizable> Test </Vue3DraggableResizable>
+      <Vue3DraggableResizable> Another test </Vue3DraggableResizable>
+    </DraggableContainer>
     <van-sticky>
       <van-tabs v-model:active="tabActive" background="transparent" shrink sticky line-width="0">
         <van-tab v-for="(roomItem, roomIndex) in roomList" :key="roomIndex" :title="roomItem.text">
