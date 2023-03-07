@@ -13,7 +13,7 @@ const tabs = ref([
 </script>
 
 <template>
-  <div>
+  <div class="pb-sfa">
     <router-view v-slot="{ Component }">
       <transition>
         <keep-alive>
@@ -26,6 +26,7 @@ const tabs = ref([
       route
       active-color="#000"
       placeholder
+      z-index="99"
       :border="false"
       :safe-area-inset-bottom="true"
     >
