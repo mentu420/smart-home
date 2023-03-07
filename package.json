@@ -15,7 +15,6 @@
     "format": "prettier --write \"./**/*.{html,vue,ts,js,json,md}\""
   },
   "dependencies": {
-    "@he-tree/vue": "^2.2.7",
     "@icon-park/vue-next": "^1.4.2",
     "@vant/area-data": "^1.4.0",
     "@vant/touch-emulator": "^1.4.0",
@@ -33,7 +32,8 @@
     "vue-qr": "^4.0.9",
     "vue-router": "^4.1.6",
     "vue3-hash-calendar": "^1.1.1",
-    "vue3-touch-events": "^4.1.0"
+    "vue3-touch-events": "^4.1.0",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
