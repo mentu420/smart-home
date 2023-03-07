@@ -80,21 +80,21 @@ const treeData = ref([{ text: 'Projects' }, { text: 'Photos' }, { text: 'Videos'
     </div>
     <div class="h-10"></div>
     <van-tabs v-model:active="tabActive" background="#f7f7f7" shrink sticky line-width="0">
+      <template #nav-right>
+        <div class="flex flex-auto items-center justify-end pr-2">
+          <van-popover
+            v-model:show="showConfig"
+            :actions="configList"
+            placement="bottom-end"
+            @select="onConfigSelect"
+          >
+            <template #reference>
+              <IconPark type="setting-config" theme="outline" />
+            </template>
+          </van-popover>
+        </div>
+      </template>
       <van-tab v-for="(tabItem, tabIndex) in tabList" :key="tabIndex" :title="tabItem.text">
-        <template #nav-right>
-          <div class="flex flex-auto items-center justify-end pr-2">
-            <van-popover
-              v-model:show="showConfig"
-              :actions="configList"
-              placement="bottom-end"
-              @select="onConfigSelect"
-            >
-              <template #reference>
-                <icon-park type="setting-config" theme="outline" />
-              </template>
-            </van-popover>
-          </div>
-        </template>
         <transition-group>
           <draggable v-bind="dragOptions" key="dragggable" v-model="tabItem.dragList" item-key="id">
             <template #item="{ element }">
