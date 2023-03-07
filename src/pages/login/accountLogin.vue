@@ -21,7 +21,7 @@ const onSubmit = async (values) => {
     })
     setStorage('account-list', accountList.value)
   }
-  router.replace({ path: '/tabbar/tabbarHome' })
+  router.replace({ path: '/tabbar/tabbarHouse' })
 }
 
 const selectAccountItem = (item) => {

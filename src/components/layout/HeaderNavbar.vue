@@ -14,12 +14,11 @@ const useDefaultSlots = ['title', 'left', 'right']
 const slotsKeys = computed(() => Object.keys(slots).filter((key) => useDefaultSlots.includes(key)))
 
 const _attrs = computed(() => {
-  const leftArrow = !DeviceInfo.isWechat
   return {
     border: false,
     fixed: true,
     placeholder: true,
-    'left-arrow': leftArrow,
+    'left-arrow': true,
     'safe-area-inset-top': true,
     'z-index': 50,
     ...attrs,

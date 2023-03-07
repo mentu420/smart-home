@@ -6,7 +6,7 @@ import { ref } from 'vue'
 const tabIndex = ref(0)
 
 const tabs = ref([
-  { text: '家', icon: 'home', index: 0, path: '/tabbar/tabbarHome' },
+  { text: '家', icon: 'home', index: 0, path: '/tabbar/tabbarHouse' },
   { text: '智能', icon: 'config', index: 1, path: '/tabbar/tabbarSmart' },
   { text: '我的', icon: 'people', index: 2, path: '/tabbar/tabbarMe' },
 ])
