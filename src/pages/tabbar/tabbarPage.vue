@@ -12,6 +12,12 @@ const tabs = ref([
 ])
 </script>
 
+<script>
+export default {
+  name: 'TabbarPage',
+}
+</script>
+
 <template>
   <div class="pb-sfa">
     <router-view v-slot="{ Component }">

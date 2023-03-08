@@ -65,9 +65,9 @@ const afterRead = async (file) => {
         @click="router.push({ path: '/meRoomManage' })"
       />
     </van-cell-group>
-    <van-uploader ref="uploaderRef" class="invisible" :after-read="afterRead" />
     <div class="m-6">
       <van-button round block type="primary">删除家庭</van-button>
     </div>
+    <van-uploader ref="uploaderRef" class="invisible" :after-read="afterRead" />
   </div>
 </template>

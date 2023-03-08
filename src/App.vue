@@ -9,7 +9,7 @@ import useRem from '@/utils/flexible/useRem.js'
 
 const route = useRoute()
 const router = useRouter()
-const includeList = ref(['Tabbar'])
+const includeList = ref(['TabbarPage'])
 const theme = ref('light')
 
 const themeVars = reactive({})
@@ -53,6 +53,6 @@ watch(
 }
 
 :root:root {
-  --van-primary-color: red;
+  --van-primary-color: #e39334;
 }
 </style>

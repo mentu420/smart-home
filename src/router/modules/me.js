@@ -1,0 +1,80 @@
+export default [
+  {
+    path: '/meAgreement',
+    name: 'Agreement',
+    component: () => import('@/pages/me/meAgreement.vue'),
+    meta: { title: '软件许可与服务协议' },
+  },
+  {
+    path: '/meAbout',
+    name: 'MeAbout',
+    component: () => import('@/pages/me/meAbout.vue'),
+    meta: { title: '关于' },
+  },
+  {
+    path: '/meConceal',
+    name: 'MeConceal',
+    component: () => import('@/pages/me/meConceal.vue'),
+    meta: { title: '隐私' },
+  },
+  {
+    path: '/meHouse',
+    name: 'MeHouse',
+    component: () => import('@/pages/me/meHouse.vue'),
+    meta: { title: '家庭管理' },
+  },
+  {
+    path: '/meHouseName',
+    name: 'MeHouseName',
+    component: () => import('@/pages/me/meHouseName.vue'),
+    meta: { title: '家庭名称' },
+  },
+  {
+    path: '/meHouseMap',
+    name: 'MeHouseMap',
+    component: () => import('@/pages/me/meHouseMap.vue'),
+    meta: { title: '家庭位置' },
+  },
+  {
+    path: '/meHouseMemberList',
+    name: 'MeHouseMemberList',
+    component: () => import('@/pages/me/meHouseMemberList.vue'),
+    meta: { title: '成员与权限' },
+  },
+  {
+    path: '/meHouseMemberItem',
+    name: 'MeHouseMemberItem',
+    component: () => import('@/pages/me/meHouseMemberItem.vue'),
+    meta: { title: '家庭权限' },
+  },
+  {
+    path: '/meRoomManage',
+    name: 'MeRoomManage',
+    component: () => import('@/pages/me/meRoomManage.vue'),
+    meta: { title: '家庭管理' },
+  },
+  {
+    path: '/meInfo',
+    name: 'MeInfo',
+    component: () => import('@/pages/me/meInfo.vue'),
+    meta: { title: '个人信息' },
+  },
+  {
+    path: '/meNickname',
+    name: 'MeNickname',
+    component: () => import('@/pages/me/meNickname.vue'),
+    meta: { title: '昵称' },
+  },
+  {
+    path: '/mePhoneChange',
+    name: 'MePhoneChange',
+    component: () => import('@/pages/me/mePhoneChange.vue'),
+    meta: { title: '更换手机号' },
+  },
+  {
+    path: '/mePasswordChange',
+    name: 'MePasswordChange',
+    component: () => import('@/pages/me/mePasswordChange.vue'),
+    meta: { title: '修改密码' },
+  },
+]

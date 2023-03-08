@@ -1,9 +1,12 @@
 <script setup>
 import { IconPark } from '@icon-park/vue-next/es/all'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import image1 from '@/assets/images/home-card-bg.png'
+
+const router = useRouter()
 
 const homeList = ref([
   { text: '选项一', index: 0 },
@@ -75,11 +78,23 @@ const treeData = ref([{ text: 'Projects' }, { text: 'Photos' }, { text: 'Videos'
       </van-popover>
       <div class="space-x-4">
         <van-icon size="20" name="bell" />
-        <van-icon size="20" name="plus" />
+        <van-icon size="20" name="plus" @click="router.push({ path: '/houseAddDevice' })" />
       </div>
     </div>
-    <div class="h-10"></div>
-    <van-tabs v-model:active="tabActive" background="#f7f7f7" shrink sticky line-width="0">
+    <div class="min-h-10 flex items-end p-4">
+      <h2>26</h2>
+      <p class="ml-1 mr-6 text-sm">℃</p>
+      <IconPark type="moon" size="1.5em" theme="filled" />
+    </div>
+    <van-tabs
+      v-model:active="tabActive"
+      background="#f7f7f7"
+      shrink
+      sticky
+      line-width="0"
+      animated
+      swipeable
+    >
       <template #nav-right>
         <div class="flex flex-auto items-center justify-end pr-2">
           <van-popover
@@ -141,7 +156,7 @@ const treeData = ref([{ text: 'Projects' }, { text: 'Photos' }, { text: 'Videos'
                       <div class="absolute top-0 right-0">
                         <IconPark type="more" />
                       </div>
-                      <IconPark size="30" type="tips" theme="filled" fill="#ff976a" />
+                      <IconPark size="2em" type="tips" theme="filled" fill="#ff976a" />
                       <h4 class="space-x-2 text-white">
                         <label>一楼</label>
                         <label>客厅</label>

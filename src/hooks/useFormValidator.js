@@ -17,8 +17,8 @@ export const wechatReg = /^[a-zA-Z]([-_a-zA-Z0-9]{5,19})+$/
 export const cnWidthEnReg = /^[\u4e00-\u9fa5\u0020_a-zA-Z0-9]+$/
 //汉字名称
 export const chineNameReg = /^[\u4e00-\u9fa5·]{2,16}$/
-//密码
-export const passwordReg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,18}$/
+//密码 最少6位，包括至少1个大写字母，1个小写字母，1个数字
+export const passwordReg = /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/
 //正则匹配中文英文字符、数据及标点
 export const keyboardReg = /^([\u4E00-\uFA29]|[\uE7C7-\uE7F3]|[a-zA-Z0-9_.])*$/
 

@@ -4,6 +4,10 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 import { getStorage, setStorage, isObjectString } from '@/utils/storage.js'
 
+import commonRouters from './modules/common.js'
+import houseRouters from './modules/house.js'
+import meRouters from './modules/me.js'
+
 const redirect = (to) => {
   const token = getStorage(import.meta.env.VITE_APP_STORAGE_TOKEN)
   if (token) {
@@ -28,36 +32,6 @@ const Router = createRouter({
     {
       path: '/',
       redirect: '/accountLogin',
-    },
-    {
-      path: '/login',
-      name: 'Login',
-      component: () => import('@/pages/login/loginPage.vue'),
-      meta: { title: '登录' },
-    },
-    {
-      path: '/accountLogin',
-      name: 'AccountLogin',
-      component: () => import('@/pages/login/accountLogin.vue'),
-      meta: { title: '账号登录' },
-    },
-    {
-      path: '/phoneLogin',
-      name: 'PhoneLogin',
-      component: () => import('@/pages/login/phoneLogin.vue'),
-      meta: { title: '手机号登录' },
-    },
-    {
-      path: '/forgetPassword',
-      name: 'ForgetPassword',
-      component: () => import('@/pages/login/forgetPassword.vue'),
-      meta: { title: '忘记密码' },
-    },
-    {
-      path: '/forgetVaildator',
-      name: 'ForgetVaildator',
-      component: () => import('@/pages/login/forgetVaildator.vue'),
-      meta: { title: '设置密码' },
     },
     {
       path: '/webview',
@@ -89,60 +63,9 @@ const Router = createRouter({
         },
       ],
     },
-    {
-      path: '/meAgreement',
-      name: 'Agreement',
-      component: () => import('@/pages/me/meAgreement.vue'),
-      meta: { title: '软件许可与服务协议' },
-    },
-    {
-      path: '/meAbout',
-      name: 'MeAbout',
-      component: () => import('@/pages/me/meAbout.vue'),
-      meta: { title: '关于' },
-    },
-    {
-      path: '/meConceal',
-      name: 'MeConceal',
-      component: () => import('@/pages/me/meConceal.vue'),
-      meta: { title: '隐私' },
-    },
-    {
-      path: '/meHouse',
-      name: 'MeHouse',
-      component: () => import('@/pages/me/meHouse.vue'),
-      meta: { title: '家庭管理' },
-    },
-    {
-      path: '/meHouseName',
-      name: 'MeHouseName',
-      component: () => import('@/pages/me/meHouseName.vue'),
-      meta: { title: '家庭名称' },
-    },
-    {
-      path: '/meHouseMap',
-      name: 'MeHouseMap',
-      component: () => import('@/pages/me/meHouseMap.vue'),
-      meta: { title: '家庭位置' },
-    },
-    {
-      path: '/meHouseMemberList',
-      name: 'MeHouseMemberList',
-      component: () => import('@/pages/me/meHouseMemberList.vue'),
-      meta: { title: '成员与权限' },
-    },
-    {
-      path: '/meHouseMemberItem',
-      name: 'MeHouseMemberItem',
-      component: () => import('@/pages/me/meHouseMemberItem.vue'),
-      meta: { title: '家庭权限' },
-    },
-    {
-      path: '/meRoomManage',
-      name: 'MeRoomManage',
-      component: () => import('@/pages/me/meRoomManage.vue'),
-      meta: { title: '家庭管理' },
-    },
+    ...meRouters,
+    ...houseRouters,
+    ...commonRouters,
   ],
 })
 
@@ -156,5 +79,11 @@ Router.beforeEach(async (to, from, next) => {
 Router.afterEach((to, from) => {
   NProgress.done()
 })
+
+//清空路由历史
+export const resetRouter = () => {
+  const newRouter = createRouter({ history: createWebHashHistory(), routes: [] })
+  Router.matcher = newRouter.matcher // the relevant part
+}
 
 export default Router

@@ -22,6 +22,7 @@ const navList = ref([
         fit="cover"
         round
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
+        @click="router.push({ path: '/meInfo' })"
       />
       <h4 class="text-md ml-4">用户名称</h4>
     </div>

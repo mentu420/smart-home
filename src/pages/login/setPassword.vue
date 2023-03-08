@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { vaildPhone, trimFormat } from '@/hooks/useFormValidator.js'
+import { validPassword, trimFormat } from '@/hooks/useFormValidator.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -20,8 +20,11 @@ const onSubmit = async () => {}
         v-model="password"
         name="password"
         placeholder="密码"
-        maxlength="6"
-        :rules="[{ required: true, message: '请填写密码' }]"
+        maxlength="18"
+        :rules="[
+          { required: true, message: '请填写密码' },
+          { validator: (value) => validPassword(value), message: '密码必须包含大、小写字母和数字' },
+        ]"
       />
       <div class="my-10">
         <van-button round block type="primary" native-type="submit" :disabled="!password">
