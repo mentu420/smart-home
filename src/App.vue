@@ -12,12 +12,7 @@ const router = useRouter()
 const includeList = ref(['Tabbar'])
 const theme = ref('light')
 
-const themeVars = reactive({
-  sliderActiveBackground: '#ff976a',
-  buttonPrimaryBackground: '#ff976a',
-  buttonPrimaryBorderColor: '#ff976a',
-  navBarIconColor: '#999',
-})
+const themeVars = reactive({})
 
 useRem()
 
@@ -55,5 +50,9 @@ watch(
 }
 #app {
   font-size: 14px;
+}
+
+:root:root {
+  --van-primary-color: red;
 }
 </style>

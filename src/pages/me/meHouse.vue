@@ -55,7 +55,7 @@ const afterRead = async (file) => {
         clickable
         title="成员与权限"
         is-link
-        @click="router.push({ path: '/meHouseMember' })"
+        @click="router.push({ path: '/meHouseMemberList' })"
       />
       <van-cell
         center

@@ -126,10 +126,16 @@ const Router = createRouter({
       meta: { title: '家庭位置' },
     },
     {
-      path: '/meHouseMember',
-      name: 'MeHouseMember',
-      component: () => import('@/pages/me/meHouseMember.vue'),
+      path: '/meHouseMemberList',
+      name: 'MeHouseMemberList',
+      component: () => import('@/pages/me/meHouseMemberList.vue'),
       meta: { title: '成员与权限' },
+    },
+    {
+      path: '/meHouseMemberItem',
+      name: 'MeHouseMemberItem',
+      component: () => import('@/pages/me/meHouseMemberItem.vue'),
+      meta: { title: '家庭权限' },
     },
     {
       path: '/meRoomManage',
