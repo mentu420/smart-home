@@ -32,5 +32,5 @@
     "source.fixAll.eslint": true
     // 保存的时候调整import顺序，按引入包字母顺序
     // "source.organizeImports": true
-  },
+  }
 }

@@ -71,10 +71,10 @@ const isIncludeJs = (url) => {
  * @param url    要加载url
  */
 export const loadScript = (url, parentEl = document.head) => {
-  const src = `${url}?callback=onScriptLoad`
+  const src = `${url}&callback=initialize`
   if (isIncludeJs(src)) return Promise.resolve()
   return new Promise((resolve, reject) => {
-    window.onScriptLoad = function () {
+    window.initialize = function () {
       resolve()
     }
     const script = document.createElement('script')
