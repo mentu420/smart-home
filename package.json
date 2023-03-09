@@ -19,6 +19,7 @@
     "@vant/area-data": "^1.4.0",
     "@vant/touch-emulator": "^1.4.0",
     "@vant/use": "^1.4.3",
+    "animejs": "^3.2.1",
     "axios": "^1.2.2",
     "gsap": "^3.11.3",
     "html2canvas": "^1.4.1",
