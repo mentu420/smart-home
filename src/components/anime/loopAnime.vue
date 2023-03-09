@@ -1,7 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
 import anime from 'animejs/lib/anime.es.js'
-// import gsap from 'gsap'
+import { ref, onMounted } from 'vue'
 
 const tl = ref(null)
 
@@ -15,7 +14,7 @@ const init = () => {
     duration: delay,
     complete: function () {
       tl.value.restart()
-    }
+    },
   })
 
   function createEl(i) {
@@ -25,24 +24,20 @@ const init = () => {
     const hue = Math.round((360 / numberOfEls) * i)
     el.classList.add('el')
     el.style.backgroundColor = 'hsl(' + hue + ', 40%, 60%)'
-    el.style.transform =
-      'rotate(' + rotate + 'deg) translateY(' + translateY + '%)'
+    el.style.transform = 'rotate(' + rotate + 'deg) translateY(' + translateY + '%)'
     tl.value.add({
       begin: function () {
         anime({
           targets: el,
-          backgroundColor: [
-            'hsl(' + hue + ', 40%, 60%)',
-            'hsl(' + hue + ', 60%, 80%)'
-          ],
+          backgroundColor: ['hsl(' + hue + ', 40%, 60%)', 'hsl(' + hue + ', 60%, 80%)'],
           rotate: [rotate + 'deg', rotate + 10 + 'deg'],
           translateY: [translateY + '%', translateY + 10 + '%'],
           scale: [1, 1.25],
           easing: 'easeInOutSine',
           direction: 'alternate',
-          duration: duration * 0.1
+          duration: duration * 0.1,
         })
-      }
+      },
     })
     wrapperEl.appendChild(el)
   }

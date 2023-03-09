@@ -68,6 +68,6 @@ const afterRead = async (file) => {
     <div class="m-6">
       <van-button round block type="primary">删除家庭</van-button>
     </div>
-    <van-uploader ref="uploaderRef" class="invisible" :after-read="afterRead" />
+    <van-uploader ref="uploaderRef" class="invisible h-0" :after-read="afterRead" />
   </div>
 </template>

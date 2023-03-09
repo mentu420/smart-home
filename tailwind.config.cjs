@@ -56,6 +56,7 @@ module.exports = {
       colors: {
         'page-gray': '#f7f7f7',
         'text-primary': '#E9B065',
+        'theme-color': '#e39334',
       },
     },
   },

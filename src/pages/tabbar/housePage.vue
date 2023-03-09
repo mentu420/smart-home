@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
-import image1 from '@/assets/images/home-card-bg.png'
+import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 
 const router = useRouter()
 
@@ -120,14 +120,14 @@ const treeData = ref([{ text: 'Projects' }, { text: 'Photos' }, { text: 'Videos'
                     v-for="(lightItem, lightIndex) in 4"
                     :key="lightIndex"
                     :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                    class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
+                    class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
                   >
-                    <div>
+                    <div class="h-full w-full bg-black bg-opacity-50 p-3">
                       <h4 class="space-x-2 text-white">
                         <label>一楼</label>
                         <label>客厅</label>
                       </h4>
-                      <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+                      <p class="mt-2 text-sm text-gray-100">2个灯亮</p>
                     </div>
                   </li>
                 </ul>
@@ -136,10 +136,12 @@ const treeData = ref([{ text: 'Projects' }, { text: 'Photos' }, { text: 'Videos'
                     v-for="(lightItem, lightIndex) in 4"
                     :key="lightIndex"
                     :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                    class="flex items-center rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat p-3"
+                    class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
                   >
-                    <div class="flex h-12 items-center">
-                      <h4 class="space-x-2 text-white">
+                    <div class="flex w-full items-center">
+                      <h4
+                        class="h-full w-full space-x-2 bg-black bg-opacity-50 px-3 py-6 text-white"
+                      >
                         <label>一楼</label>
                         <label class="rounded bg-gray-200 px-2 py-1 text-xs">客厅</label>
                       </h4>

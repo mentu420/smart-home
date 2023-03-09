@@ -7,6 +7,7 @@ import { getStorage, setStorage, isObjectString } from '@/utils/storage.js'
 import commonRouters from './modules/common.js'
 import houseRouters from './modules/house.js'
 import meRouters from './modules/me.js'
+import smartRouters from './modules/smart.js'
 
 const redirect = (to) => {
   const token = getStorage(import.meta.env.VITE_APP_STORAGE_TOKEN)
@@ -64,6 +65,7 @@ const Router = createRouter({
       ],
     },
     ...meRouters,
+    ...smartRouters,
     ...houseRouters,
     ...commonRouters,
   ],
