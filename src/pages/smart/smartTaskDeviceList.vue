@@ -4,6 +4,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
+const deviceList = ref([{}])
 </script>
 
 <template>
@@ -16,6 +18,8 @@ const router = useRouter()
 
     <section class="p-4">
       <div
+        v-for="deviceItem in deviceList"
+        :key="deviceItem"
         class="mb-4 flex items-center justify-between rounded-lg bg-white p-3 active:opacity-50"
         @touchstart="() => {}"
       >
@@ -30,7 +34,7 @@ const router = useRouter()
         </div>
         <div class="flex space-x-2">
           <IconPark size="1.8em" type="switch-one" />
-          <van-checkbox v-model="checked"></van-checkbox>
+          <van-checkbox v-model="deviceItem.checked"></van-checkbox>
         </div>
       </div>
     </section>
