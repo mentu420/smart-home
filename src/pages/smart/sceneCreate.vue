@@ -58,11 +58,14 @@ const onSubmit = async () => {}
       </van-cell-group>
     </van-form>
     <ul class="space-y-4 p-4">
-      <li class="flex h-32 items-center justify-center rounded-lg bg-gray-300">
+      <li
+        class="flex h-28 items-center justify-center rounded-lg bg-white"
+        @click="router.push({ path: '/smartCondition' })"
+      >
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加条件</label>
       </li>
-      <li class="flex h-32 items-center justify-center rounded-lg bg-gray-300">
+      <li class="flex h-28 items-center justify-center rounded-lg bg-white">
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加任务</label>
       </li>

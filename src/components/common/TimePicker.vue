@@ -4,7 +4,7 @@ import { ref, reactive, computed, useAttrs, useSlots } from 'vue'
 const props = defineProps({
   modelValue: {
     type: [String, Array],
-    default: () => [],
+    default: () => ['12', '00', '00'],
   },
 })
 
@@ -15,7 +15,7 @@ const slots = useSlots()
 
 const showPicker = ref(false)
 
-const currentDate = computed({
+const currentTime = computed({
   get: () => props.modelValue,
   set: (val) => {
     if (attrs['onUpdate:modelValue']) emits('update:modelValue', val)
@@ -39,10 +39,10 @@ defineExpose({ show, close })
 
 <template>
   <van-popup v-model:show="showPicker" round position="bottom" teleport="body">
-    <van-date-picker v-model="currentDate" v-bind="attrs" @cancel="showPicker = false">
+    <van-time-picker v-model="currentTime" v-bind="attrs" @cancel="showPicker = false">
       <template v-for="slotName of slotsKeys" #[slotName]>
         <slot :name="slotName"></slot>
       </template>
-    </van-date-picker>
+    </van-time-picker>
   </van-popup>
 </template>
