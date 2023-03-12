@@ -1,11 +1,7 @@
 <script setup>
-import { computed, useAttrs } from 'vue'
+import { ref, useAttrs } from 'vue'
 
 const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false,
-  },
   title: {
     type: String,
     default: '',
@@ -16,24 +12,23 @@ const emits = defineEmits(['update:show', 'reset', 'confirm'])
 
 const attrs = useAttrs()
 
-const visible = computed({
-  get: () => props.show,
-  set: (val) => emits('update:show', val),
-})
+const visible = ref(false)
 
-const onClose = () => {
-  visible.value = false
-}
+const close = () => (visible.value = false)
+
+const open = () => (visible.value = true)
 
 const onRest = () => {
-  onClose()
+  close()
   emits('reset')
 }
 
 const onConfirm = () => {
-  onClose()
+  close()
   emits('confirm')
 }
+
+defineExpose({ open, close })
 </script>
 
 <template>
@@ -83,7 +78,6 @@ const onConfirm = () => {
 }
 .content {
   height: calc(100vh - 104px);
-  @include interior-scroll;
 }
 .footer {
   position: absolute;

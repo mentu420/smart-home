@@ -9,43 +9,34 @@ const router = useRouter()
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="添加条件" />
-    <div class="px-6 py-4">
-      <h4>触发事件</h4>
-      <p>满足所触发条件时，场景将会执行</p>
-    </div>
     <section class="p-4">
       <div
         class="mb-4 flex items-center rounded-lg bg-white p-3 active:opacity-50"
         @touchstart="() => {}"
         @click="
           router.push({
-            path: '/smartTaskList',
+            path: '/smartTaskDevices',
           })
         "
       >
         <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
-          <IconPark size="1.8em" type="press" theme="filled" fill="#fff" />
+          <IconPark size="1.8em" type="switch-one" fill="#fff" />
         </div>
         <div class="ml-3">
-          <p>手动点击</p>
-          <p class="text-sm text-gray-500">点击场景卡片时</p>
+          <p>智能设备</p>
+          <p class="text-sm text-gray-500">如“打开空调”“关闭空调”</p>
         </div>
       </div>
       <div
         class="flex items-center rounded-lg bg-white p-3 active:opacity-50"
         @touchstart="() => {}"
-        @click="
-          router.push({
-            path: '/smartCondtionTime',
-          })
-        "
       >
         <div class="h-10 w-10 rounded-full bg-orange-300 p-2">
-          <IconPark size="1.8em" type="time" fill="#fff" />
+          <IconPark size="1.8em" type="application-effect" fill="#fff" />
         </div>
         <div class="ml-3">
-          <p>时间日程</p>
-          <p class="text-sm text-gray-500">如：“每天8点时”</p>
+          <p>控制场景</p>
+          <p class="text-sm text-gray-500">如：“执行某个场景”</p>
         </div>
       </div>
     </section>

@@ -59,13 +59,17 @@ const onSubmit = async () => {}
     </van-form>
     <ul class="space-y-4 p-4">
       <li
-        class="flex h-28 items-center justify-center rounded-lg bg-white"
+        class="van-haptics-feedback flex h-28 items-center justify-center rounded-lg bg-white"
+        @touchstart="() => {}"
         @click="router.push({ path: '/smartCondition' })"
       >
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加条件</label>
       </li>
-      <li class="flex h-28 items-center justify-center rounded-lg bg-white">
+      <li
+        class="van-haptics-feedback flex h-28 items-center justify-center rounded-lg bg-white"
+        @touchstart="() => {}"
+      >
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加任务</label>
       </li>

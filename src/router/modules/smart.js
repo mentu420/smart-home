@@ -23,4 +23,22 @@ export default [
     component: () => import('@/pages/smart/smartCondtionTime.vue'),
     meta: { title: '添加条件' },
   },
+  {
+    path: '/smartTaskList',
+    name: 'SmartTaskList',
+    component: () => import('@/pages/smart/smartTaskList.vue'),
+    meta: { title: '任务列表' },
+  },
+  {
+    path: '/smartTaskDevices',
+    name: 'SmartTaskDevices',
+    component: () => import('@/pages/smart/smartTaskDevices.vue'),
+    meta: { title: '设备列表' },
+  },
+  {
+    path: '/smartTaskDeviceList',
+    name: 'SmartTaskDeviceList',
+    component: () => import('@/pages/smart/smartTaskDeviceList.vue'),
+    meta: { title: '设备列表' },
+  },
 ]
