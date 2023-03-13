@@ -2,12 +2,23 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { getSms } from '@/apis/commonApi.js'
 import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, phoneReg, setFormFormat } from '@/hooks/useFormValidator.js'
 
 const router = useRouter()
 const form = ref({})
 const checked = ref(false) // 是否记住账号密码
+const formRef = ref(null)
+
+const getRegisterCode = async () => {
+  try {
+    await formRef.value.validate(['phone'])
+    return getSms({ shouji: form.value.phone, leixing: 1 })
+  } catch (error) {
+    return error
+  }
+}
 
 const onSubmit = async () => {}
 
@@ -17,12 +28,14 @@ const goForget = () => {
 const goOtherLogin = () => {
   router.back()
 }
+
+const onValidPhone = (value) => vaildPhone(value)
 </script>
 
 <template>
   <div class="p-6">
     <h1 class="mt-10 mb-6">验证码登录</h1>
-    <van-form @submit="onSubmit">
+    <van-form ref="formRef" @submit="onSubmit">
       <van-cell-group>
         <van-field
           v-model="form.phone"
@@ -30,10 +43,9 @@ const goOtherLogin = () => {
           placeholder="手机号码"
           maxlength="11"
           type="tel"
-          :formatter="(value) => setFormFormat(value, phoneReg)"
           :rules="[
             { required: true, message: '请填写手机号码' },
-            { validator: (value) => vaildPhone(value), message: '手机号码格式有误' },
+            { validator: onValidPhone, message: '手机号码格式有误' },
           ]"
         />
         <van-field
@@ -44,7 +56,7 @@ const goOtherLogin = () => {
           :rules="[{ required: true, message: '请填写验证码' }]"
         >
           <template #extra>
-            <CountDown :disabled="!form.phone" :duration="60" />
+            <CountDown :disabled="!form.phone" :duration="60" :request="getRegisterCode" />
           </template>
         </van-field>
       </van-cell-group>

@@ -1,4 +1,3 @@
-import { getAuthToken } from '@/apis/common/user.js'
 import useUserStore from '@/store/userStore.js'
 
 import { againRequest } from './requestAgainSend.js' // 请求重发
@@ -14,9 +13,9 @@ const pendingRequest = new Map()
 export const refreshToken = async () => {
   const { useGetToken, useSetToken } = useUserStore()
   let tokenRes = useGetToken()
-  const { data } = await getAuthToken({ userId: tokenRes.id })
-  if (data) useSetToken(data)
-  return data
+  // const { data } = await getAuthToken({ userId: tokenRes.id })
+  // if (data) useSetToken(data)
+  return useGetToken()
 }
 
 export const refreshTokenRequest = async (response, useRequest) => {

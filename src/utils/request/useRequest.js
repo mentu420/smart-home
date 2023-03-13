@@ -9,10 +9,10 @@ import {
   responseInterceptor as cacheResInterceptor,
 } from './requestCache.js'
 import { addPendingRequest, removePendingRequest } from './requestCancelRepeat.js' // 取消重复请求
-import { refreshTokenRequest } from './requestRefreshToken.js'
+// import { refreshTokenRequest } from './requestRefreshToken.js'
 
 const useRequest = axios.create({
-  baseURL: import.meta.env.VITE_APP_CLOUD_BASE_URL,
+  baseURL: import.meta.env.VITE_APP_API_URL,
   timeout: 10 * 1000,
   headers: {
     contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -25,7 +25,7 @@ const useRequest = axios.create({
 const responseHandle = (response) => {
   const { useRemoveToken } = useUserStore()
   if ([101, 102].includes(response.data.code)) {
-    return refreshTokenRequest(response, useRequest)
+    // return refreshTokenRequest(response, useRequest)
   } else if ([10001, 10003].includes(response.data.code)) {
     useRemoveToken()
     //'账号异常，强制退出'
@@ -59,7 +59,8 @@ useRequest.interceptors.response.use(
     return responseHandle(response)
   },
   (error) => {
-    if (error.config.__retryCount === 3) {
+    console.log('response error', error)
+    if (error.config.__retryCount === 2) {
       if (error.code === 'ECONNABORTED')
         showNotify({ type: 'danger', message: '网络请求超时，请稍后重试！' })
       if (error.code === 'ERR_NETWORK')

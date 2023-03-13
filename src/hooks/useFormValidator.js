@@ -45,10 +45,7 @@ export function vaildMoney(value) {
 
 export function vaildPhone(value) {
   phoneReg.lastIndex = 0
-  if (phoneReg.test(value)) {
-    return true
-  }
-  return false
+  return phoneReg.test(value)
 }
 
 export function vaildWebsite(value) {

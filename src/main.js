@@ -1,7 +1,10 @@
 import '@vant/touch-emulator'
 import { createPinia } from 'pinia'
 /**vant-ui 函数式组件样式**/
-// import 'vant/lib/index.css'
+import 'vant/es/dialog/style'
+import 'vant/es/image-preview/style'
+import 'vant/es/notify/style'
+import 'vant/es/toast/style'
 import { createApp } from 'vue'
 import Vue3TouchEvents from 'vue3-touch-events'
 
