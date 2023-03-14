@@ -24,7 +24,7 @@ const onSubmit = async (values) => {
   }
   const { code } = await CommonApi.getUserConfig({ op: 0 })
   if (code != 0) return
-  // router.replace({ path: '/tabbar/tabbarHouse' })
+  router.replace({ path: '/tabbar/tabbarHouse' })
 }
 
 const selectAccountItem = (item) => {

@@ -23,14 +23,20 @@ const getRegisterCode = async () => {
 
 const onSubmit = async (value) => {
   const { code } = await setUserConfig({
-    shoujixinghao: DeviceInfo.appVersion,
-    shoujimingcheng: DeviceInfo.platform,
-    xitongleixing: DeviceInfo.system == 'ios' ? 1 : 2,
-    dengluleixing: 2,
-    shoujihaoma: value.phone,
-    mima: value.code,
+    params: { op: '0' },
+    data: {
+      shoujixinghao: DeviceInfo.platform,
+      shoujimingcheng: DeviceInfo.platform,
+      xitongleixing: DeviceInfo.system == 'ios' ? 1 : 2,
+      dengluleixing: 2,
+      shoujihaoma: value.phone,
+      mima: value.code,
+
+      tuisongtoken: 'tuisongtoken',
+    },
   })
   if (code != 0) return
+  router.replace({ path: '/tabbar/tabbarHouse' })
 }
 
 const goOtherLogin = () => {
