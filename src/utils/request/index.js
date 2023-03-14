@@ -1,22 +1,15 @@
-import md5 from 'js-md5'
+import { authSign, authToken } from './requestAuthSign.js'
+import useAxios from './useAxios'
 
-import userStore from '@/store/userStore.js'
-import { getStorage } from '@/utils/storage.js'
+export const request = async (axiosOptions = {}) => {
+  const { withShowErrorMsg = true, withToken = true, withParams = true, ...args } = axiosOptions
 
-import { authSign } from './requestAuthSign.js'
-import useRequest from './useRequest'
+  let config = { ...args, withShowErrorMsg, withToken, withParams }
 
-export const request = async (axiosOptions = {}, customOptions = {}) => {
-  const { method = 'get', headers, ...args } = axiosOptions
-
-  const { withToken = false, withShowErrorMsg = true } = customOptions
-
-  let config = { ...args, method, with_show_error_msg: withShowErrorMsg }
-
-  const dataKey = { get: 'params', post: 'data' }[method.toLowerCase()]
-
+  // 带固定参数
+  if (withParams) config = authSign(config)
   // 带token
-  if (withToken) config = authSign(config)
+  if (withToken) config = authToken(config)
 
-  return useRequest(config)
+  return useAxios(config)
 }

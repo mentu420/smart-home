@@ -1,6 +1,8 @@
 // 实现 请求错误时重新发送接口
 import { isJsonStr, mergingStep } from '@/utils/common.js'
 
+import { authSign, authToken } from './requestAuthSign.js'
+
 /**
  * @param {失败信息} err
  * @param {实例化的单例} axios
@@ -34,5 +36,9 @@ export const againRequest = async (err, axios) => {
   if (config.data && isJsonStr(config.data)) {
     config.data = JSON.parse(config.data)
   }
+  // 带固定参数
+  if (config.withParams) config = authSign(config)
+  // 带token
+  if (config.withToken) config = authToken(config)
   return axios(config)
 }

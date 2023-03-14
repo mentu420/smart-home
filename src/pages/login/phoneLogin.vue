@@ -2,13 +2,14 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { getSms } from '@/apis/commonApi.js'
+import { getSms, setUserConfig } from '@/apis/commonApi.js'
 import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, phoneReg, setFormFormat } from '@/hooks/useFormValidator.js'
+import DeviceInfo from '@/utils/deviceInfo.js'
 
 const router = useRouter()
 const form = ref({})
-const checked = ref(false) // 是否记住账号密码
+const checked = ref(true) // 是否记住账号密码
 const formRef = ref(null)
 
 const getRegisterCode = async () => {
@@ -20,11 +21,18 @@ const getRegisterCode = async () => {
   }
 }
 
-const onSubmit = async () => {}
-
-const goForget = () => {
-  router.push({ path: '/' })
+const onSubmit = async (value) => {
+  const { code } = await setUserConfig({
+    shoujixinghao: DeviceInfo.appVersion,
+    shoujimingcheng: DeviceInfo.platform,
+    xitongleixing: DeviceInfo.system == 'ios' ? 1 : 2,
+    dengluleixing: 2,
+    shoujihaoma: value.phone,
+    mima: value.code,
+  })
+  if (code != 0) return
 }
+
 const goOtherLogin = () => {
   router.back()
 }

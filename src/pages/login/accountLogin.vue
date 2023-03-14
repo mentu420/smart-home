@@ -3,6 +3,7 @@ import md5 from 'js-md5'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import * as CommonApi from '@/apis/commonApi.js'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import { getStorage, setStorage } from '@/utils/storage.js'
 
@@ -21,7 +22,9 @@ const onSubmit = async (values) => {
     })
     setStorage('account-list', accountList.value)
   }
-  router.replace({ path: '/tabbar/tabbarHouse' })
+  const { code } = await CommonApi.getUserConfig({ op: 0 })
+  if (code != 0) return
+  // router.replace({ path: '/tabbar/tabbarHouse' })
 }
 
 const selectAccountItem = (item) => {
