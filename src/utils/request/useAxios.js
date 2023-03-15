@@ -33,8 +33,6 @@ const responseHandle = (response) => {
   } else if (response.config.__retryCount === 2 && response.data.code != 0) {
     if (response.config.withShowErrorMsg)
       showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
-  } else {
-    return againRequest(response, useAxios)
   }
   return response.data || response
 }
