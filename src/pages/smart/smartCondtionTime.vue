@@ -16,7 +16,7 @@ const showRepeatAction = ref(false)
 const timePickerRef = ref(null)
 const repeatActions = ref([
   { id: 0, name: '每天', value: [0, 1, 2, 3, 4, 5, 6, 7] },
-  { id: 1, name: '工作日', value: [1, 2, 3, 4, 5, 6, 7] },
+  { id: 1, name: '工作日', value: [1, 2, 3, 4, 5, 6] },
   { id: 2, name: '周末', value: [0, 7] },
   { id: 3, name: '自定义日期', value: [] },
 ])
@@ -50,6 +50,13 @@ const toggle = (index) => {
 
 const onWeekConfirm = () => {
   showWeek.value = false
+  const repeatItem = repeatActions.value.find(
+    (action) => action.value.length == weekChecked.value.length
+  )
+  if (repeatItem && repeatItem.value.length != 0) {
+    repeatTime.value = repeatItem.name
+    return
+  }
   repeatTime.value = weekChecked.value.map((item) => weekData[item]).join('、')
 }
 
