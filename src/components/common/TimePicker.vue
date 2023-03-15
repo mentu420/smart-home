@@ -30,11 +30,11 @@ const slotsKeys = computed(() =>
   )
 )
 
-const show = () => (showPicker.value = true)
+const open = () => (showPicker.value = true)
 
 const close = () => (showPicker.value = false)
 
-defineExpose({ show, close })
+defineExpose({ open, close })
 </script>
 
 <template>

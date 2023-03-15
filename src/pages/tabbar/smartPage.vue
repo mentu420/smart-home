@@ -13,7 +13,7 @@ const sceneList = ref([
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <van-cell title="场景列表">
+    <van-cell title="我的场景">
       <template #right-icon>
         <van-icon size="20" name="plus" @click="router.push({ path: '/sceneCreate' })" />
       </template>

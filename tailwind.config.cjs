@@ -60,6 +60,11 @@ module.exports = {
       },
     },
   },
+  variants: {
+    extend: {
+      opacity: ['disabled'],
+    },
+  },
   plugins: [
     plugin(function ({ addBase, addUtilities, addComponents, matchUtilities, theme }) {
       addUtilities(newUtilities)
