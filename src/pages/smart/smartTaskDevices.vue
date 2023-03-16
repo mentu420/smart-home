@@ -8,7 +8,7 @@ const router = useRouter()
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="添加条件" />
+    <HeaderNavbar title="设备分类列表" />
     <div class="flex items-center justify-between p-4">
       <p class="text-gray-500">选择希望控制的设备</p>
       <van-dropdown-menu class="filter-bar">
@@ -34,7 +34,7 @@ const router = useRouter()
 
     <section class="p-4">
       <div
-        class="mb-4 flex items-center rounded-lg bg-white p-3 active:opacity-50"
+        class="mb-4 flex items-center justify-between rounded-lg bg-white p-3 active:opacity-50"
         @touchstart="() => {}"
         @click="
           router.push({
@@ -42,24 +42,18 @@ const router = useRouter()
           })
         "
       >
-        <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
-          <IconPark size="1.8em" type="switch-one" fill="#fff" />
+        <div class="flex flex-1 items-center">
+          <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
+            <IconPark size="1.8em" type="switch-one" fill="#fff" />
+          </div>
+          <div class="ml-3">
+            <p>智能设备</p>
+            <p class="text-sm text-gray-500">如“打开空调”“关闭空调”</p>
+          </div>
         </div>
-        <div class="ml-3">
-          <p>智能设备</p>
-          <p class="text-sm text-gray-500">如“打开空调”“关闭空调”</p>
-        </div>
-      </div>
-      <div
-        class="flex items-center rounded-lg bg-white p-3 active:opacity-50"
-        @touchstart="() => {}"
-      >
-        <div class="h-10 w-10 rounded-full bg-orange-300 p-2">
-          <IconPark size="1.8em" type="application-effect" fill="#fff" />
-        </div>
-        <div class="ml-3">
-          <p>控制场景</p>
-          <p class="text-sm text-gray-500">如：“执行某个场景”</p>
+        <div class="flex flex-shrink-0 items-center space-x-2">
+          <p>50</p>
+          <van-icon name="arrow" />
         </div>
       </div>
     </section>

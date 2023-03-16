@@ -1,10 +1,14 @@
 <script setup>
 import { IconPark } from '@icon-park/vue-next/es/all'
 import dayjs from 'dayjs'
-import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 import TimePicker from '@/components/common/TimePicker.vue'
+import sceneStore from '@/store/sceneStore'
+
+const { sceneCreateItem } = storeToRefs(sceneStore())
 
 const router = useRouter()
 const columsType = ref(['hour', 'minute'])
@@ -69,6 +73,27 @@ const onRepeatSelect = (detail) => {
   weekChecked.value = detail.value
   repeatTime.value = detail.name
 }
+
+const onSave = () => {
+  sceneCreateItem.value = {
+    ...sceneCreateItem.value,
+    events: conditionTimeList.value.map((timeItem) => ({
+      leixing: 2,
+      tiaojian: { time: timeItem },
+    })),
+  }
+  router.go(-2)
+}
+
+const init = () => {
+  const { events = [] } = sceneCreateItem.value
+  if (events.length == 0) return
+  conditionTimeList.value = events
+    .filter((item) => item.leixing == 2)
+    .map((item) => item.tiaojian.time)
+}
+
+init()
 </script>
 
 <template>
@@ -109,6 +134,9 @@ const onRepeatSelect = (detail) => {
       close-on-click-action
       @select="onRepeatSelect"
     />
+    <div class="p-6">
+      <van-button type="primary" block round @click="onSave"> 下一步 </van-button>
+    </div>
     <van-popup v-model:show="showWeek" safe-area-inset-bottom position="bottom">
       <div>
         <van-cell title="自定义日期">
