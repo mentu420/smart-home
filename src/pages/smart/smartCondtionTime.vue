@@ -77,6 +77,8 @@ const onRepeatSelect = (detail) => {
 const onSave = () => {
   sceneCreateItem.value = {
     ...sceneCreateItem.value,
+    youxiaoqileixing: weekChecked.value.join(','),
+    repeatTimeText: repeatTime.value,
     events: conditionTimeList.value.map((timeItem) => ({
       leixing: 2,
       tiaojian: { time: timeItem },
@@ -86,11 +88,19 @@ const onSave = () => {
 }
 
 const init = () => {
-  const { events = [] } = sceneCreateItem.value
-  if (events.length == 0) return
-  conditionTimeList.value = events
-    .filter((item) => item.leixing == 2)
-    .map((item) => item.tiaojian.time)
+  const { events = [], youxiaoqileixing, repeatTimeText } = sceneCreateItem.value
+  if (events.length > 0) {
+    conditionTimeList.value = events
+      .filter((item) => item.leixing == 2)
+      .map((item) => item.tiaojian.time)
+  }
+  if (youxiaoqileixing) {
+    weekChecked.value = youxiaoqileixing.split(',')
+    repeatTime.value = repeatTimeText
+  } else {
+    weekChecked.value = repeatActions.value[0].value
+    repeatTime.value = repeatActions.value[0].name
+  }
 }
 
 init()
@@ -135,7 +145,15 @@ init()
       @select="onRepeatSelect"
     />
     <div class="p-6">
-      <van-button type="primary" block round @click="onSave"> 下一步 </van-button>
+      <van-button
+        type="primary"
+        block
+        round
+        :disabled="conditionTimeList.length == 0"
+        @click="onSave"
+      >
+        下一步
+      </van-button>
     </div>
     <van-popup v-model:show="showWeek" safe-area-inset-bottom position="bottom">
       <div>

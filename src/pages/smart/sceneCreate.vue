@@ -94,14 +94,17 @@ const onSave = async () => {
           </p>
         </li>
         <li
+          v-for="(eventItem, eventIndex) in sceneCreateItem.events"
+          :key="eventIndex"
           class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
         >
           <p>
-            <label class="mr-2">或</label>
+            <label class="mr-2">
+              {{ sceneCreateItem.fenlei && sceneCreateItem.fenlei == 1 ? '或' : '当' }}
+            </label>
             <label class="space-x-2 rounded bg-gray-100 px-2 py-1">
-              <label>每天</label>
-              <label>晚上</label>
-              <label>07:46</label>
+              <label>{{ sceneCreateItem.repeatTimeText }}</label>
+              <label>{{ eventItem.tiaojian.time }}</label>
             </label>
             <label class="m-2">时</label>
           </p>
@@ -117,6 +120,7 @@ const onSave = async () => {
     </section>
     <ul class="space-y-4 p-4">
       <li
+        v-if="!sceneCreateItem.fenlei && !sceneCreateItem.events"
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @touchstart="() => {}"
         @click="goCondition"
