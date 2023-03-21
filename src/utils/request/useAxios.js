@@ -24,15 +24,15 @@ const useAxios = axios.create({
 // 返回结果处理
 // 自定义约定接口返回{code: xxx, data: xxx, msg:'err message'}
 const responseHandle = (response) => {
-  const { useRemoveToken } = useUserStore()
-  if ([101, 102].includes(response.data.code)) {
-    // TODO:刷新token
-  } else if ([10001, 10003].includes(response.data.code)) {
-    useRemoveToken()
-    //'账号异常，强制退出'
-  } else if (response.config.__retryCount === 2 && response.data.code != 0) {
-    if (response.config.withShowErrorMsg)
-      showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
+  console.log('responseHandle', response)
+  if (response.status === 200 && response.data.code != 0 && response.config.withShowErrorMsg) {
+    showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
+  } else if (
+    response.status !== 200 &&
+    response.config.__retryCount === 2 &&
+    response.data.code != 0
+  ) {
+    showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
   }
   return response.data || response
 }
@@ -40,7 +40,6 @@ const responseHandle = (response) => {
 // 添加请求拦截器
 useAxios.interceptors.request.use(
   (config) => {
-    console.log(config)
     // pendding 中的请求，后续请求不发送（由于存放的peddingMap 的key 和参数有关，所以放在参数处理之后）
     addPendingRequest(config) // 把当前请求信息添加到pendingRequest对象中
     //  请求缓存
