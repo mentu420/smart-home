@@ -34,6 +34,7 @@ const responseHandle = (response) => {
   ) {
     showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
   }
+  if (response.status !== 200 || response.data.code != 0) return Promise.reject(response)
   return response.data || response
 }
 
