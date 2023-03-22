@@ -3,6 +3,7 @@ import { showToast } from 'vant'
 import { reactive, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import { loadScript } from '@/utils/common.js'
 
 const route = useRoute()
@@ -11,145 +12,108 @@ const lnglat = ref(null)
 const formattedAddress = ref('')
 const search = ref('')
 const searchList = ref([])
-const bmap = ref(null) //百度地图SDK
-const state = reactive({
-  form: {},
-  map: null, // 地图对象
-  markerInfo: {}, // 标记地理信息
-})
+const map = ref(null)
+const AMap = ref(null)
 
-const getWebPoint = () =>
-  new Promise((resolve, reject) => {
-    const geolocation = new bmap.value.Geolocation()
-    console.log('getWebPoint', geolocation)
-    geolocation.getCurrentPosition(function (r) {
-      console.log(r)
-      if (this.getStatus() == window.BMAP_STATUS_SUCCESS) {
-        resolve(r)
-      } else {
-        reject(r)
+const setAdress = ([lng, lat]) => {
+  lnglat.value = { lng, lat }
+  var geocoder = new AMap.value.Geocoder()
+  geocoder.getAddress([lng, lat], function (status, result) {
+    if (status === 'complete' && result.regeocode) {
+      formattedAddress.value = result.regeocode.formattedAddress
+    } else {
+      showToast('根据经纬度查询地址失败')
+    }
+  })
+}
+
+const onMapDragend = (e) => {
+  const { lnglat } = e
+  setAdress([lnglat.lng, lnglat.lat])
+}
+
+const addMarker = (position = [116.406315, 39.908775]) => {
+  map.value.clearMap() // 清除地图覆盖物
+  const marker = new AMap.value.Marker({
+    position,
+    title: '北京',
+    draggable: true,
+    cursor: 'move',
+  })
+  marker.setMap(map.value)
+  marker.on('dragend', onMapDragend)
+}
+
+const onMapClick = (e) => {
+  const { lnglat } = e
+  const position = [lnglat.lng, lnglat.lat]
+  addMarker(position)
+  setAdress(position)
+}
+
+const onMapSearch = async () => {
+  var currentCenter = map.value.getCenter()
+
+  var placeSearch = new AMap.value.PlaceSearch({
+    map: map.value,
+  }) //构造地点查询类
+
+  placeSearch.searchNearBy(
+    search.value,
+    [currentCenter.lng, currentCenter.lat],
+    9999,
+    function (status, result) {
+      console.log(status, result.poiList)
+      if (status === 'complete') {
+        searchList.value = result.poiList?.pois
       }
-    })
-  })
-
-const onLoaclSearch = (value) => {
-  return new Promise((resolve, reject) => {
-    let local = new bmap.value.LocalSearch(state.map, {
-      renderOptions: {
-        map: state.map,
-        selectFirstResult: false,
-      },
-      onSearchComplete: function (res) {
-        if (res) {
-          resolve(res.Yr || [])
-          return
-        }
-        reject(res)
-      },
-    })
-    local.search(value)
-  })
+    }
+  )
 }
 
-const onSearch = async (value) => {
-  searchList.value = await onLoaclSearch(value)
-}
-
-const setLoacl = ({ point }) => {
+const selectSearchItem = (item) => {
+  console.log(item)
+  const { location } = item
+  const point = [location.lng, location.lat]
+  lnglat.value = { lng: location.lng, lat: location.lat }
+  addMarker(point)
   setAdress(point)
-  lnglat.value = point
-  setMarker(state.map, point)
-  state.map.panTo(point)
+  map.value.panTo(point)
   searchList.value = []
 }
 
-// 重新定位
-const onAgainLoaction = async () => {
-  try {
-    loading.value = true
-    const { point } = await getWebPoint()
-    console.log('onAgainLoaction point', point)
-    setAdress(point)
-    lnglat.value = point
-    setMarker(state.map, point)
-    state.map.panTo(point)
-  } catch (error) {
-    console.warn('onAgainLoaction', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const onMapConfirm = () => {
-  const { lng, lat } = lnglat.value
-  state.form = {
-    ...state.form,
-    longitude: lng,
-    latitude: lat,
-    locateTheAddress: formattedAddress.value,
-  }
-  // 保存位置
-}
-
-const setAdress = (point) =>
-  new Promise((resolve) => {
-    const gc = new bmap.value.Geocoder()
-    gc.getLocation(point, (rs) => {
-      const addComp = rs.addressComponents
-      formattedAddress.value = `${addComp.province} ${addComp.city} ${addComp.district} ${addComp.district} ${addComp.street} ${addComp.streetNumber}`
-      resolve(rs)
-    })
+const initMap = async (el = 'container', center = [116.404, 39.915]) => {
+  AMap.value = await mapLoad({
+    plugins: [
+      'AMap.Weather',
+      'AMap.CitySearch',
+      'AMap.PlaceSearch',
+      'AMap.AutoComplete',
+      'AMap.Geocoder',
+    ],
   })
-
-const setMarker = (map, point) => {
-  map.clearOverlays()
-  const marker = new bmap.value.Marker(point) // 创建标注
-  map.addOverlay(marker) // 将标注添加到地图中
-  marker.setAnimation(window.BMAP_ANIMATION_DROP) //跳动的动画
+  map.value = new AMap.value.Map(el, {
+    zoom: 13,
+    center,
+    resizeEnable: true,
+  })
+  map.value.on('click', onMapClick)
+  addMarker(center)
+  setAdress(center)
 }
 
-//初始化地图
-const initMap = (longitude, latitude, city) => {
-  try {
-    loading.value = true
-    // 百度地图API功能
-    const map = new bmap.value.Map('container')
-    map.addControl(new bmap.value.NavigationControl())
-
-    if (longitude == 0 && latitude == 0) map.centerAndZoom(city, 13)
-    const point = new bmap.value.Point(longitude, latitude)
-    map.centerAndZoom(point, 15)
-
-    setMarker(map, point)
-
-    // //单击获取点击的经纬度
-    map.addEventListener('click', (e) => {
-      setMarker(map, e.point)
-      setAdress(e.point)
-      lnglat.value = e.point
-    })
-    return map
-  } catch (error) {
-    showToast('地图初始化失败' + error.message)
-  } finally {
-    loading.value = false
-  }
+const onAgainLoaction = () => {}
+const onSearch = () => {
+  onMapSearch()
 }
+const onMapConfirm = () => {}
 
 onMounted(async () => {
-  try {
-    await loadScript('https://api.map.baidu.com/api?v=2.0&ak=p1O8Y4aGh217cGMP1GMnpDleXGPqkxKp')
-    bmap.value = window.BMap
-    const { longitude = 116.404, latitude = 39.915, city = '北京' } = state.form
-    state.map = initMap(longitude, latitude, city)
-  } catch (error) {
-    console.warn(error)
-  }
+  const { longitude = 116.404, latitude = 39.915, city = '北京' } = route.query
+  initMap()
 })
 
-onUnmounted(() => {
-  state.map = null
-})
+onUnmounted(() => {})
 </script>
 
 <template>
@@ -169,9 +133,9 @@ onUnmounted(() => {
         <van-cell
           v-for="(item, i) in searchList"
           :key="i"
-          :title="item.title"
+          :title="item.name"
           :label="item.address"
-          @click="setLoacl(item)"
+          @click="selectSearchItem(item)"
         />
       </div>
     </HeaderNavbar>
