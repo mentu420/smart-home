@@ -5,6 +5,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { getHouseMember } from '@/apis/houseApi'
+import { useAfterRead } from '@/hooks/useUploader'
 import houseStore from '@/store/houseStore'
 
 const router = useRouter()
@@ -39,7 +40,12 @@ const afterRead = async (file) => {
         title="家庭名称"
         :value="currentHouse.fangwumingcheng"
         is-link
-        @click="router.push({ path: '/meHouseName', query: { houseName: houseDetail.houseName } })"
+        @click="
+          router.push({
+            path: '/meHouseName',
+            query: { houseName: currentHouse.fangwumingcheng, id: currentHouse.bianhao },
+          })
+        "
       />
       <van-cell
         center
@@ -75,6 +81,11 @@ const afterRead = async (file) => {
     <div class="m-6">
       <van-button round block type="primary">删除家庭</van-button>
     </div>
-    <van-uploader ref="uploaderRef" class="invisible h-0" :after-read="afterRead" />
+    <van-uploader
+      ref="uploaderRef"
+      accept="image/*"
+      class="invisible h-0"
+      :after-read="afterRead"
+    />
   </div>
 </template>

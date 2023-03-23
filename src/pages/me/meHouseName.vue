@@ -1,9 +1,14 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { setHouseList } from '@/apis/houseApi'
+import houseStore from '@/store/houseStore'
+
 const route = useRoute()
 const houseName = ref('')
+const { houseList } = storeToRefs(houseStore())
 
 const init = () => {
   houseName.value = route.query.houseName
@@ -11,7 +16,15 @@ const init = () => {
 
 init()
 
-const onSubmit = async () => {}
+const onSubmit = async () => {
+  await setHouseList({ mingcheng: houseName.value, bianhao: route.query.id })
+  const payload = houseList.value.map((item) => {
+    if (item.bianhao == route.query.id) return { ...item, mingcheng: houseName.value }
+    return item
+  })
+  const { editHouseList } = houseStore()
+  editHouseList(payload)
+}
 </script>
 
 <template>

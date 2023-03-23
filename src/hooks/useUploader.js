@@ -1,6 +1,4 @@
-import { showToast } from 'vant'
-
-import { postFiles } from '@/apis/common/'
+import { uploadFile } from '@/apis/commonApi'
 import DealImg from '@/utils/dealImg'
 
 const setLoading = (file) => {
@@ -17,27 +15,18 @@ const setError = (file) => {
   file.message = '上传失败'
 }
 
-export const useAfterRead = async (files) => {
-  let fileArr = Array.isArray(files) ? files : [files]
-  fileArr.forEach((file) => setLoading(file))
+export const useAfterRead = async (file) => {
+  setLoading(file)
 
   //压缩base64
-  let base64 = await Promise.all(
-    fileArr.map(async (item) => await DealImg.compressBase64(item.content))
-  )
-  // //base64转文件
-  let compressFiles = base64.map((item) => DealImg.convertFiles(item))
+  let base64 = await DealImg.compressBase64(file.content)
 
-  let formData = new FormData()
-  compressFiles.forEach((item) => {
-    formData.append('dataFiles', item)
-  })
-  let { status, list } = await postFiles(formData)
-  if (status == 0) {
-    fileArr.forEach((file) => setError(file))
+  let { code, data } = await uploadFile({ file: base64.split('base64,')[1] })
+  if (code != 0) {
+    setError(file)
     return
   }
-  fileArr.forEach((file, i) => setFinish(file, list[i]))
+  setFinish(file, data)
 
-  return list
+  return data
 }

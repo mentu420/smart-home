@@ -10,14 +10,16 @@ export default defineStore('houseStore', () => {
   const currentHouse = ref({})
 
   const setCurrentHouse = (id) => {
-    currentHouse.value = houseList.value.find((item) => item.id == id)
+    currentHouse.value = houseList.value.find((item) => item.bianhao == id)
   }
+
+  const editHouseList = (payload) => (houseList.value = payload)
 
   const initHouse = async () => {
     const { data } = await getHouseList({ op: 1 })
-    houseList.value = data.map((item) => ({ ...item, text: item.fangwumingcheng }))
+    editHouseList(data.map((item) => ({ ...item, text: item.fangwumingcheng })))
     currentHouse.value = data[0]
   }
 
-  return { houseList, currentHouse, initHouse, setCurrentHouse }
+  return { houseList, currentHouse, initHouse, editHouseList, setCurrentHouse }
 })

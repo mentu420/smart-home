@@ -1,13 +1,28 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+import { setHouseList } from '@/apis/houseApi'
+import houseStore from '@/store/houseStore'
+const router = useRouter()
 const houseName = ref(null)
 const houseImage = ref('')
 const uploaderRef = ref(null)
 
 const openUploader = () => uploaderRef.value.chooseFile()
 
-const onSubmit = async () => {}
+const afterRead = () => {}
+
+const onSubmit = async () => {
+  const { setCurrentHouse, initHouse } = houseStore()
+  const { code, data } = await setHouseList({
+    bianhao: '',
+    mingcheng: houseName.value,
+    img: houseImage.value,
+  })
+  await initHouse()
+  router.back()
+}
 </script>
 
 <template>
@@ -18,8 +33,10 @@ const onSubmit = async () => {}
         <van-field
           v-model="houseName"
           name="houseName"
+          label="家庭名称"
           placeholder="请填写家庭名称"
           clearable
+          center
           maxlength="30"
           :rules="[{ required: true, message: '家庭名称必填项' }]"
         />
@@ -31,6 +48,11 @@ const onSubmit = async () => {}
         <van-button round block type="primary" native-type="submit"> 提交 </van-button>
       </div>
     </van-form>
-    <van-uploader ref="uploaderRef" class="invisible h-0" :after-read="afterRead" />
+    <van-uploader
+      ref="uploaderRef"
+      accept="image/*"
+      class="invisible h-0"
+      :after-read="afterRead"
+    />
   </div>
 </template>
