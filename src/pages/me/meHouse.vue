@@ -1,10 +1,17 @@
 <script setup>
 import { IconPark } from '@icon-park/vue-next/es/all'
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { getHouseMember } from '@/apis/houseApi'
+import houseStore from '@/store/houseStore'
+
 const router = useRouter()
 const uploaderRef = ref(null)
+const { currentHouse } = storeToRefs(houseStore())
+
+console.log('currentHouse', currentHouse)
 
 const houseDetail = ref({
   image: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg',
@@ -22,7 +29,7 @@ const afterRead = async (file) => {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="家庭管理">
       <template #right>
-        <van-icon size="20" name="plus" />
+        <van-icon size="20" name="plus" @click="router.push({ path: '/meHouseCreate' })" />
       </template>
     </HeaderNavbar>
     <van-cell-group>
@@ -30,7 +37,7 @@ const afterRead = async (file) => {
         center
         clickable
         title="家庭名称"
-        value="house"
+        :value="currentHouse.fangwumingcheng"
         is-link
         @click="router.push({ path: '/meHouseName', query: { houseName: houseDetail.houseName } })"
       />
@@ -38,12 +45,12 @@ const afterRead = async (file) => {
         center
         clickable
         title="家庭位置"
-        value="house"
+        :value="currentHouse.dizhi"
         is-link
         @click="router.push({ path: '/meHouseMap' })"
       />
       <van-cell center clickable title="家庭图片" is-link @click="openUploader">
-        <van-image width="3rem" height="3rem" fit="cover" round :src="houseDetail.image" />
+        <van-image width="3rem" height="3rem" fit="cover" round :src="currentHouse.img" />
       </van-cell>
       <van-cell center clickable title="家庭二维码" is-link>
         <IconPark size="24" type="two-dimensional-code" />

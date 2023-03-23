@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 
-// import { getUserInfo } from '@/apis/userApi.js'
+import { setUserConfig, getUserConfig } from '@/apis/commonApi.js'
 import { mergingStep } from '@/utils/common.js'
 import { getStorage, removeStorage, setStorage } from '@/utils/storage.js'
 
@@ -17,8 +17,14 @@ export default defineStore('useUserStore', () => {
 
   const setUserInfo = (palyload) => (userInfo.value = palyload)
 
-  // 返回userInfo
+  /**
+   * @params {reload} //reload 是否重新获取用户信息
+   * **/
   const useUserInfoSync = mergingStep(async (values = {}) => {
+    const { reload = false } = values
+    if (userInfo.value && !reload) return userInfo.value
+    const { data } = await getUserConfig({ params: { op: 1 }, options: { withToken: true } })
+    userInfo.value = data
     return userInfo.value
   })
 

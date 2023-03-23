@@ -24,7 +24,6 @@ const useAxios = axios.create({
 // 返回结果处理
 // 自定义约定接口返回{code: xxx, data: xxx, msg:'err message'}
 const responseHandle = (response) => {
-  console.log('responseHandle', response)
   if (response.status === 200 && response.data.code != 0 && response.config.withShowErrorMsg) {
     showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
   } else if (

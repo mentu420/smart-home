@@ -1,8 +1,11 @@
 <script setup>
 import { IconPark } from '@icon-park/vue-next/es/all'
 import { transformBind } from '@vue/compiler-core'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
+const route = useRoute()
+const router = useRouter()
 const tabIndex = ref(0)
 
 const tabs = ref([
@@ -10,6 +13,25 @@ const tabs = ref([
   { text: '智能', icon: 'config', index: 1, path: '/tabbar/tabbarSmart' },
   { text: '我的', icon: 'people', index: 2, path: '/tabbar/tabbarMe' },
 ])
+
+watch(
+  () => route.path,
+  (to, from) => {
+    console.log(to, from)
+  }
+)
+
+const onChange = (index) => {
+  console.log('onChange', index)
+}
+
+const init = () => {
+  const tabItem = tabs.value.find((item) => item.path == route.path)
+  if (route.path != tabItem.path) return
+  tabIndex.value = tabItem.index
+}
+
+init()
 </script>
 
 <script>
@@ -27,6 +49,7 @@ export default {
         </keep-alive>
       </transition>
     </router-view>
+
     <van-tabbar
       v-model="tabIndex"
       route
@@ -35,6 +58,7 @@ export default {
       z-index="99"
       :border="false"
       :safe-area-inset-bottom="true"
+      @change="onChange"
     >
       <van-tabbar-item
         v-for="tabItem in tabs"

@@ -5,6 +5,7 @@ import userStore from '@/store/userStore.js'
 export function authSign(config) {
   // 带固定参数
   const timespan = new Date().valueOf() + ''
+  console.log(config.params)
   return {
     ...config,
     params: {

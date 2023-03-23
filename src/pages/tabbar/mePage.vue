@@ -1,7 +1,10 @@
 <script setup>
 import { IconPark } from '@icon-park/vue-next/es/all'
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import userStore from '@/store/userStore'
 
 const router = useRouter()
 
@@ -11,6 +14,15 @@ const navList = ref([
   { path: '/meAgreement', text: '软件许可及服务协议', icon: 'agreement' },
   { path: '/meAbout', text: '关于', icon: 'tag-one' },
 ])
+
+const { userInfo = {} } = storeToRefs(userStore())
+
+const init = async () => {
+  const { useUserInfoSync } = userStore()
+  useUserInfoSync()
+}
+
+init()
 </script>
 
 <template>
@@ -21,15 +33,11 @@ const navList = ref([
         height="4rem"
         fit="cover"
         round
-        src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
+        :src="userInfo?.touxiang"
         @click="router.push({ path: '/meInfo' })"
       />
-      <h4 class="text-md ml-4">用户名称</h4>
+      <h4 class="text-md ml-4">{{ userInfo?.xingming }}</h4>
     </div>
-    <!-- <van-grid class="me-grid-list" :column-num="2" :gutter="10">
-      <van-grid-item icon="photo-o" text="文字" />
-      <van-grid-item icon="photo-o" text="文字" />
-    </van-grid> -->
 
     <ul class="m-3 overflow-hidden rounded-lg">
       <li

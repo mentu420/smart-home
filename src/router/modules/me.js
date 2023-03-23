@@ -51,7 +51,13 @@ export default [
     path: '/meRoomManage',
     name: 'MeRoomManage',
     component: () => import('@/pages/me/meRoomManage.vue'),
-    meta: { title: '家庭管理' },
+    meta: { title: '房间管理' },
+  },
+  {
+    path: '/meHouseCreate',
+    name: 'MeHouseCreate',
+    component: () => import('@/pages/me/meHouseCreate.vue'),
+    meta: { title: '创建家庭' },
   },
   {
     path: '/meInfo',

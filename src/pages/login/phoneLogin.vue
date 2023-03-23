@@ -24,18 +24,21 @@ const getRegisterCode = async () => {
 
 const onSubmit = async (value) => {
   const { useSetToken } = userStore()
-  const { code, data } = await setUserConfig({
-    params: { op: '0' },
-    data: {
-      shoujixinghao: DeviceInfo.platform,
-      shoujimingcheng: DeviceInfo.platform,
-      xitongleixing: DeviceInfo.system == 'ios' ? 1 : 2,
-      dengluleixing: 2,
-      shoujihaoma: value.phone,
-      mima: value.code,
-      tuisongtoken: 'tuisongtoken',
+  const { code, data } = await setUserConfig(
+    {
+      params: { op: '0' },
+      data: {
+        shoujixinghao: DeviceInfo.platform,
+        shoujimingcheng: DeviceInfo.platform,
+        xitongleixing: DeviceInfo.system == 'ios' ? 1 : 2,
+        dengluleixing: 2,
+        shoujihaoma: value.phone,
+        mima: value.code,
+        tuisongtoken: 'tuisongtoken',
+      },
     },
-  })
+    { withToken: false }
+  )
   if (code != 0) return
   useSetToken(data.acesstoken)
   router.replace({ path: '/tabbar/tabbarHouse' })
