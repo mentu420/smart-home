@@ -1,6 +1,7 @@
 <script setup>
 import { IconPark } from '@icon-park/vue-next/es/all'
 import dayjs from 'dayjs'
+import { storeToRefs } from 'pinia'
 import qs from 'qs'
 import { onMounted, ref, h } from 'vue'
 import { useRouter } from 'vue-router'
@@ -8,6 +9,7 @@ import draggable from 'vuedraggable'
 
 import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
+import houseStore from '@/store/houseStore.js'
 
 const router = useRouter()
 
@@ -44,7 +46,7 @@ const homeAction = ref(0)
 const showConfig = ref(false)
 const tabActive = ref(0)
 const drag = ref(false) // 是否可以拖拽
-
+const { houseList, currentHouse } = storeToRefs(houseStore())
 const dragOptions = ref({
   animation: 200,
   group: 'description',
@@ -58,15 +60,16 @@ const weatherInfo = ref({
 })
 const weatherRef = ref(null)
 
-const onHomeSelect = (action) => {
-  console.log(action)
-  homeAction.value = action.index
+const onHouseSelect = (action) => {
+  // console.log(action)
+  // homeAction.value = action.index
+  const { setCurrentHouse } = houseStore()
 }
 const onConfigSelect = (action) => {
   console.log(action)
 }
 
-const setWeatherIcon = (type) => h(IconPark, { type, size: '2em', theme: 'outline' })
+const setWeatherIcon = (type) => h(IconPark, { type, size: '1.5em', theme: 'outline' })
 
 const weatherIconList = [
   { icon: setWeatherIcon('cloudy'), list: ['少云', '晴间多云', '多云', '阴'] }, //多云
@@ -139,6 +142,8 @@ const getWeatherInfo = async () => {
 }
 
 const init = async () => {
+  const { initHouse } = houseStore()
+  initHouse()
   try {
     weatherInfo.value = await getWeatherInfo()
   } catch (error) {
@@ -156,13 +161,13 @@ onMounted(() => {
     <div class="flex justify-between p-4">
       <van-popover
         v-model:show="showHomeList"
-        :actions="homeList"
+        :actions="houseList"
         placement="bottom-start"
-        @select="onHomeSelect"
+        @select="onHouseSelect"
       >
         <template #reference>
           <div class="flex items-center space-x-4">
-            <h4>{{ homeList.find((homeItem, homeIndex) => homeIndex == homeAction).text }}</h4>
+            <h4>{{ currentHouse.fangwumingcheng }}</h4>
             <van-icon name="arrow-down" />
           </div>
         </template>
@@ -174,7 +179,8 @@ onMounted(() => {
     </div>
     <div ref="weatherRef" class="min-h-10 flex items-end p-4">
       <h2>{{ weatherInfo.temp }}</h2>
-      <p class="ml-1 mr-6 text-sm">℃</p>
+      <p class="ml-1 mr-4 text-sm">℃</p>
+      <h2 class="mr-2 text-lg">{{ weatherInfo.weather }}</h2>
       <component :is="weatherInfo.icon" />
     </div>
     <van-tabs
