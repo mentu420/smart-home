@@ -27,15 +27,8 @@ init()
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <div class="flex items-center px-6 py-10">
-      <van-image
-        width="4rem"
-        height="4rem"
-        fit="cover"
-        round
-        :src="userInfo?.touxiang"
-        @click="router.push({ path: '/meInfo' })"
-      />
+    <div class="flex items-center px-6 py-10" @click="router.push({ path: '/meInfo' })">
+      <van-image width="4rem" height="4rem" fit="cover" round :src="userInfo?.touxiang" />
       <h4 class="text-md ml-4">{{ userInfo?.xingming }}</h4>
     </div>
 
