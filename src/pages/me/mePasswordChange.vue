@@ -2,17 +2,30 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { setUserConfig } from '@/apis/commonApi.js'
+import userStore from '@/store/userStore'
+
 const router = useRouter()
 const password = ref('')
 const newPassword = ref('')
+const formRef = ref(null)
 
-const onSubmit = async () => {}
+const onSubmit = async () => {
+  await formRef.value.validate()
+  await setUserConfig({
+    params: { op: 3 },
+    data: { oldmima: password.value, mima: newPassword.value },
+  })
+  const { useUserInfoSync } = userStore()
+  await useUserInfoSync({ reload: true })
+  router.back()
+}
 </script>
 
 <template>
   <div class="min-h-screen">
     <HeaderNavbar title="修改密码" />
-    <van-form class="m-6" @submit="onSubmit">
+    <van-form ref="formRef" class="m-6" @submit="onSubmit">
       <van-field
         v-model="password"
         name="password"

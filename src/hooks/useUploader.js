@@ -15,13 +15,13 @@ const setError = (file) => {
   file.message = '上传失败'
 }
 
-export const useAfterRead = async (file) => {
+export const useUploader = async (file) => {
   setLoading(file)
 
   //压缩base64
   let base64 = await DealImg.compressBase64(file.content)
 
-  let { code, data } = await uploadFile({ file: base64.split('base64,')[1] })
+  let { code, data } = await uploadFile({ file: base64 })
   if (code != 0) {
     setError(file)
     return

@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { getHouseMember } from '@/apis/houseApi'
-import { useAfterRead } from '@/hooks/useUploader'
+import { useUploader } from '@/hooks/useUploader'
 import houseStore from '@/store/houseStore'
 
 const router = useRouter()

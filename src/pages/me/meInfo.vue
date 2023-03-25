@@ -2,7 +2,9 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { useUploader } from '@/hooks/useUploader'
 import { resetRouter } from '@/router/'
+import userStore from '@/store/userStore'
 
 const router = useRouter()
 const uploaderRef = ref(null)
@@ -12,13 +14,31 @@ const navList = ref([
   { text: '手机号', value: '1888888888', path: '/mePhoneChange' },
   { text: '修改密码', value: '', path: '/mePasswordChange' },
 ])
+const avatar = ref('')
 
 const chooseFile = () => uploaderRef.value.chooseFile()
-const afterRead = () => {}
+const afterRead = async (file) => {
+  const url = await useUploader(file)
+  console.log(url)
+}
 
 const onLogout = async () => {
   router.push({ path: '/accountLogin' })
 }
+
+const init = async () => {
+  const { useUserInfoSync } = userStore()
+  const userInfo = await useUserInfoSync()
+  console.log(userInfo)
+  navList.value = navList.value.map((item) => {
+    if (item.path === '/meNickname') return { ...item, value: userInfo.xingming }
+    if (item.path === '/mePhoneChange') return { ...item, value: userInfo.shouji }
+    return item
+  })
+  avatar.value = userInfo.touxiang
+}
+
+init()
 </script>
 
 <template>
@@ -26,14 +46,7 @@ const onLogout = async () => {
     <HeaderNavbar title="个人信息" />
     <div class="flex justify-center">
       <div class="px-6 py-10">
-        <van-image
-          width="4rem"
-          height="4rem"
-          fit="cover"
-          round
-          src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
-          @click="chooseFile"
-        />
+        <van-image width="4rem" height="4rem" fit="cover" round :src="avatar" @click="chooseFile" />
         <p class="text-md text-center">修改头像</p>
       </div>
     </div>
@@ -42,7 +55,7 @@ const onLogout = async () => {
         v-for="(navItem, nvaIndex) in navList"
         :key="nvaIndex"
         class="van-hairline--bottom mb-2 flex items-center justify-between rounded-lg bg-white p-4 active:opacity-30"
-        @click="router.push({ path: navItem.path })"
+        @click="router.push({ path: navItem.path, query: { value: navItem.value } })"
       >
         <div>{{ navItem.text }}</div>
         <div class="flex items-center">
