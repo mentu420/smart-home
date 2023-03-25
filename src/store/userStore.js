@@ -28,12 +28,6 @@ export default defineStore('useUserStore', () => {
     return userInfo.value
   })
 
-  const useClearUserStore = () => {
-    userInfo.value = null
-    dealerList.value = null
-    useRemoveToken()
-  }
-
   return {
     userInfo,
     dealerList,
@@ -42,6 +36,5 @@ export default defineStore('useUserStore', () => {
     useGetToken,
     useSetToken,
     useRemoveToken,
-    useClearUserStore,
   }
 })

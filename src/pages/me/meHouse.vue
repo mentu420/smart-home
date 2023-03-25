@@ -2,6 +2,7 @@
 import { IconPark } from '@icon-park/vue-next/es/all'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
+import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { useRouter } from 'vue-router'
 
 import { getHouseMember } from '@/apis/houseApi'
@@ -10,6 +11,7 @@ import houseStore from '@/store/houseStore'
 
 const router = useRouter()
 const uploaderRef = ref(null)
+const showQrCode = ref(false)
 const { currentHouse } = storeToRefs(houseStore())
 
 console.log('currentHouse', currentHouse)
@@ -58,7 +60,7 @@ const afterRead = async (file) => {
       <van-cell center clickable title="家庭图片" is-link @click="openUploader">
         <van-image width="3rem" height="3rem" fit="cover" round :src="currentHouse.img" />
       </van-cell>
-      <van-cell center clickable title="家庭二维码" is-link>
+      <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
         <IconPark size="24" type="two-dimensional-code" />
       </van-cell>
       <div class="h-4 bg-page-gray"></div>
@@ -87,5 +89,10 @@ const afterRead = async (file) => {
       class="invisible h-0"
       :after-read="afterRead"
     />
+    <van-popup v-model:show="showQrCode" round teleport="body" position="center">
+      <div>
+        <vue-qr text="Hello world!" :size="200"></vue-qr>
+      </div>
+    </van-popup>
   </div>
 </template>

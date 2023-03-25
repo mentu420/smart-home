@@ -4,11 +4,12 @@ import { useRouter } from 'vue-router'
 
 import { useUploader } from '@/hooks/useUploader'
 import { resetRouter } from '@/router/'
+import houseStore from '@/store/houseStore'
+import sceneStore from '@/store/sceneStore'
 import userStore from '@/store/userStore'
 
 const router = useRouter()
 const uploaderRef = ref(null)
-const form = ref({})
 const navList = ref([
   { text: '昵称', value: '李先生', path: '/meNickname' },
   { text: '手机号', value: '1888888888', path: '/mePhoneChange' },
@@ -23,6 +24,14 @@ const afterRead = async (file) => {
 }
 
 const onLogout = async () => {
+  const useHouseStore = houseStore()
+  const useSceneStore = sceneStore()
+  const useUserStore = userStore()
+  useUserStore.useRemoveToken()
+  useUserStore.$reset()
+  useHouseStore.$reset()
+  useSceneStore.$reset()
+
   router.push({ path: '/accountLogin' })
 }
 
