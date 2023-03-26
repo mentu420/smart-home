@@ -2,6 +2,15 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { getHouseMember } from '@/apis/houseApi'
+
+const init = async () => {
+  const { data } = await getHouseMember({ op: 4 })
+  console.log(data)
+}
+
+init()
+
 const router = useRouter()
 </script>
 

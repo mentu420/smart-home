@@ -1,17 +1,26 @@
 <script setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+
+import { setUserConfig } from '@/apis/commonApi.js'
+import userStore from '@/store/userStore'
 
 const route = useRoute()
+const router = useRouter()
 const nickname = ref('')
 
 const init = () => {
-  nickname.value = route.query.nickname
+  nickname.value = route.query.value
 }
 
 init()
 
-const onSubmit = async () => {}
+const onSubmit = async () => {
+  await setUserConfig({ params: { op: 2 }, data: { xingming: nickname.value } })
+  const { useUserInfoSync } = userStore()
+  await useUserInfoSync({ reload: true })
+  router.back()
+}
 </script>
 
 <template>

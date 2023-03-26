@@ -1,23 +1,30 @@
 <script setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
+import { getSms, setUserConfig } from '@/apis/commonApi.js'
 import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, trimFormat } from '@/hooks/useFormValidator.js'
+import userStore from '@/store/userStore'
 
 const route = useRoute()
+const router = useRouter()
 const form = ref({})
 const setp = ref(0) //记录是否点击更换手机号码
+const formRef = ref(null)
 
 const sendCode = async () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, 500)
-  })
+  await formRef.value.validate('phone')
+  return getSms({ shouji: form.value.phone, leixing: 3 })
 }
 
-const onSubmit = async () => {}
+const onSubmit = async () => {
+  await formRef.value.validate()
+  await setUserConfig({ params: { op: 2 }, data: { shouji: form.value.phone } })
+  const { useUserInfoSync } = userStore()
+  await useUserInfoSync({ reload: true })
+  router.back()
+}
 </script>
 
 <template>
@@ -25,15 +32,15 @@ const onSubmit = async () => {}
     <HeaderNavbar title="绑定手机号" />
     <div class="m-6 mb-20">
       <p class="my-4">已经绑定手机</p>
-      <h2>188888888888</h2>
+      <h2>{{ route.query.value }}</h2>
     </div>
     <div v-if="setp == 0" class="mx-6 mt-20">
       <van-button round block type="primary" @click="++setp"> 更换手机号 </van-button>
     </div>
-    <van-form v-else class="mx-6" @submit="onSubmit">
+    <van-form v-else ref="formRef" class="mx-6" @submit="onSubmit">
       <p class="my-4">绑定新手机号码</p>
       <van-field
-        v-model="form.phone"
+        v-model.trim="form.phone"
         name="phone"
         placeholder="新手机号码"
         :rules="[

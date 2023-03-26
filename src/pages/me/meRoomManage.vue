@@ -2,11 +2,12 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-const route = useRoute()
-const houseName = ref('')
+import { getRoomList } from '@/apis/houseApi'
 
-const init = () => {
-  houseName.value = route.query.houseName
+const route = useRoute()
+
+const init = async () => {
+  const { data } = await getRoomList({ op: 1 })
 }
 
 init()
@@ -14,6 +15,6 @@ init()
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="成语与权限" />
+    <HeaderNavbar title="房间管理" />
   </div>
 </template>
