@@ -141,6 +141,10 @@ const getWeatherInfo = async () => {
   })
 }
 
+const toggleDrag = () => {
+  dragOptions.value.disabled = !dragOptions.value.disabled
+}
+
 const init = async () => {
   const { initHouse } = houseStore()
   initHouse()
@@ -158,31 +162,33 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <div class="flex justify-between p-4">
-      <van-popover
-        v-model:show="showHomeList"
-        :actions="houseList"
-        placement="bottom-start"
-        @select="onHouseSelect"
-      >
-        <template #reference>
-          <div class="flex items-center space-x-4">
-            <h4>{{ currentHouse.fangwumingcheng }}</h4>
-            <van-icon name="arrow-down" />
-          </div>
-        </template>
-      </van-popover>
-      <div class="space-x-4">
-        <van-icon size="20" name="bell" />
-        <van-icon size="20" name="plus" @click="router.push({ path: '/houseAddDevice' })" />
+    <template v-if="dragOptions.disabled">
+      <div class="flex justify-between p-4">
+        <van-popover
+          v-model:show="showHomeList"
+          :actions="houseList"
+          placement="bottom-start"
+          @select="onHouseSelect"
+        >
+          <template #reference>
+            <div class="flex items-center space-x-4">
+              <h4>{{ currentHouse.fangwumingcheng }}</h4>
+              <van-icon name="arrow-down" />
+            </div>
+          </template>
+        </van-popover>
+        <div class="space-x-4">
+          <van-icon size="20" name="bell" />
+          <van-icon size="20" name="plus" @click="router.push({ path: '/houseAddDevice' })" />
+        </div>
       </div>
-    </div>
-    <div ref="weatherRef" class="min-h-10 flex items-end p-4">
-      <h2>{{ weatherInfo.temp }}</h2>
-      <p class="ml-1 mr-4 text-sm">℃</p>
-      <h2 class="mr-2 text-lg">{{ weatherInfo.weather }}</h2>
-      <component :is="weatherInfo.icon" />
-    </div>
+      <div ref="weatherRef" class="min-h-10 flex items-end p-4">
+        <h2>{{ weatherInfo.temp }}</h2>
+        <p class="ml-1 mr-4 text-sm">℃</p>
+        <h2 class="mr-2 text-lg">{{ weatherInfo.weather }}</h2>
+        <component :is="weatherInfo.icon" />
+      </div>
+    </template>
     <van-tabs
       v-model:active="tabActive"
       background="#f7f7f7"
@@ -193,77 +199,97 @@ onMounted(() => {
       swipeable
     >
       <template #nav-right>
-        <div class="flex flex-auto items-center justify-end pr-2">
-          <van-popover
-            v-model:show="showConfig"
-            :actions="configList"
-            placement="bottom-end"
-            @select="onConfigSelect"
-          >
-            <template #reference>
-              <IconPark type="setting-config" theme="outline" />
-            </template>
-          </van-popover>
+        <div class="flex flex-auto items-center justify-end space-x-4 pr-2">
+          <h3 v-if="!dragOptions.disabled" @click="toggleDrag">完成</h3>
+          <template v-else>
+            <IconPark type="add-item" theme="outline" size="20" @click="toggleDrag" />
+            <van-popover
+              v-model:show="showConfig"
+              :actions="configList"
+              placement="bottom-end"
+              @select="onConfigSelect"
+            >
+              <template #reference>
+                <IconPark type="setting-config" theme="outline" size="20" />
+              </template>
+            </van-popover>
+          </template>
         </div>
       </template>
-      <van-tab v-for="(tabItem, tabIndex) in tabList" :key="tabIndex" :title="tabItem.text">
+      <van-tab
+        v-for="(tabItem, tabIndex) in tabList"
+        :key="tabIndex"
+        :title="tabItem.text"
+        :disabled="!dragOptions.disabled"
+      >
         <transition-group>
           <draggable v-bind="dragOptions" key="dragggable" v-model="tabItem.dragList" item-key="id">
             <template #item="{ element }">
-              <section class="p-4">
-                <h4 class="mb-2 text-gray-600">{{ element.text }}</h4>
-                <ul v-if="element.id == 0" class="grid grid-cols-2 gap-4">
-                  <li
-                    v-for="(lightItem, lightIndex) in 4"
-                    :key="lightIndex"
-                    :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                    class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
-                  >
-                    <div class="h-full w-full bg-black bg-opacity-50 p-3">
-                      <h4 class="space-x-2 text-white">
-                        <label>一楼</label>
-                        <label>客厅</label>
-                      </h4>
-                      <p class="mt-2 text-sm text-gray-100">2个灯亮</p>
-                    </div>
-                  </li>
-                </ul>
-                <ul v-if="element.id == 1" class="grid grid-cols-2 gap-4">
-                  <li
-                    v-for="(lightItem, lightIndex) in 4"
-                    :key="lightIndex"
-                    :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                    class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
-                  >
-                    <div class="flex w-full items-center">
-                      <h4
-                        class="h-full w-full space-x-2 bg-black bg-opacity-50 px-3 py-6 text-white"
-                      >
-                        <label>一楼</label>
-                        <label class="rounded bg-gray-200 px-2 py-1 text-xs">客厅</label>
-                      </h4>
-                    </div>
-                  </li>
-                </ul>
-                <ul v-if="element.id == 2" class="grid grid-cols-2 gap-4">
-                  <li
-                    v-for="(lightItem, lightIndex) in 4"
-                    :key="lightIndex"
-                    class="flex items-center rounded-lg bg-gray-300 p-3"
-                  >
-                    <div class="relative h-full w-full">
-                      <div class="absolute top-0 right-0">
-                        <IconPark type="more" />
+              <section class="p-2">
+                <div
+                  class="p-2"
+                  :class="{
+                    'rounded-xl border border-dotted border-theme-color shadow':
+                      !dragOptions.disabled,
+                  }"
+                >
+                  <h4 class="mb-2 text-gray-600">{{ element.text }}</h4>
+                  <ul v-if="element.id == 0" class="grid grid-cols-2 gap-4">
+                    <li
+                      v-for="(lightItem, lightIndex) in 4"
+                      :key="lightIndex"
+                      :style="{ backgroundImage: 'url(' + image1 + ')' }"
+                      class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
+                    >
+                      <div class="h-full w-full bg-black bg-opacity-50 p-3">
+                        <h4 class="space-x-2 text-white">
+                          <label>一楼</label>
+                          <label>客厅</label>
+                        </h4>
+                        <p class="mt-2 text-sm text-gray-100">2个灯亮</p>
                       </div>
-                      <IconPark size="2em" type="tips" theme="filled" fill="#ff976a" />
-                      <h4 class="space-x-2 text-white">
-                        <label>一楼</label>
-                        <label>客厅</label>
-                      </h4>
-                      <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
-                    </div>
-                  </li>
-                </ul>
+                    </li>
+                  </ul>
+                  <ul v-if="element.id == 1" class="grid grid-cols-2 gap-4">
+                    <li
+                      v-for="(lightItem, lightIndex) in 4"
+                      :key="lightIndex"
+                      :style="{ backgroundImage: 'url(' + image1 + ')' }"
+                      class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
+                    >
+                      <div class="flex w-full items-center">
+                        <h4
+                          class="h-full w-full space-x-2 bg-black bg-opacity-50 px-3 py-6 text-white"
+                        >
+                          <label>一楼</label>
+                          <label class="rounded bg-gray-200 px-2 py-1 text-xs">客厅</label>
+                        </h4>
+                      </div>
+                    </li>
+                  </ul>
+                  <ul v-if="element.id == 2" class="grid grid-cols-2 gap-4">
+                    <li
+                      v-for="(lightItem, lightIndex) in 4"
+                      :key="lightIndex"
+                      class="flex items-center rounded-lg bg-gray-300 p-3"
+                    >
+                      <div class="relative h-full w-full">
+                        <div class="absolute top-0 right-0">
+                          <IconPark
+                            type="more"
+                            @click="router.push({ path: '/smartDeviceStatus' })"
+                          />
+                        </div>
+                        <IconPark size="2em" type="tips" theme="filled" fill="#ff976a" />
+                        <h4 class="space-x-2 text-white">
+                          <label>一楼</label>
+                          <label>客厅</label>
+                        </h4>
+                        <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </section>
             </template>
           </draggable>

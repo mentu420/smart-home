@@ -21,7 +21,7 @@ const afterRead = () => {}
 const onSelectAction = (action, index) => {
   switch (index) {
     case 0:
-      router.push({ path: '/sceneGallery' })
+      router.push({ path: '/smartSceneGallery' })
       break
     default:
       chooseFile()

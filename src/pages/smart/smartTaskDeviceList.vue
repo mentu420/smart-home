@@ -3,6 +3,8 @@ import { IconPark } from '@icon-park/vue-next/es/all'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { getDeviceList } from '@/apis/smartApi'
+
 const router = useRouter()
 const deviceChecked = ref([])
 const deviceList = ref([{ name: '1' }, { name: '2' }])
@@ -21,6 +23,10 @@ const onAllChecked = () => {
 
 const onCheckChange = (values) => {
   chedkAll.value = values.length == deviceList.value.length
+}
+
+const goDeviceConfig = () => {
+  router.push({ path: '/smartTaskDeviceConfig' })
 }
 </script>
 
@@ -41,7 +47,7 @@ const onCheckChange = (values) => {
           :key="deviceItem"
           class="mb-4 flex items-center justify-between rounded-lg bg-white p-3 active:opacity-50"
           @touchstart="() => {}"
-          @click="toggle(deviceIndex)"
+          @click="goDeviceConfig"
         >
           <div class="flex space-x-2">
             <div class="h-10 w-10 rounded-full bg-orange-400 p-2">

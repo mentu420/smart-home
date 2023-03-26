@@ -17,6 +17,7 @@
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
     "@icon-park/vue-next": "^1.4.2",
+    "@radial-color-picker/rotator": "^3.0.2",
     "@vant/area-data": "^1.4.0",
     "@vant/touch-emulator": "^1.4.0",
     "@vant/use": "^1.4.3",
