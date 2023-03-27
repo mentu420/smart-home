@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 
-import { getHouseList } from '@/apis/houseApi'
+import { getHouseList, getRoomList } from '@/apis/houseApi'
 import { getStorage, removeStorage, setStorage } from '@/utils/storage.js'
 
 export default defineStore('houseStore', () => {
   // 统一token处理
   const houseList = ref([])
+  const roomList = ref([])
   const currentHouse = ref({})
 
   const setCurrentHouse = (id) => {
@@ -21,5 +22,18 @@ export default defineStore('houseStore', () => {
     currentHouse.value = data[0]
   }
 
-  return { houseList, currentHouse, initHouse, editHouseList, setCurrentHouse }
+  const initRoomList = async () => {
+    const { data } = await getRoomList({ op: 1 })
+    roomList.value = data
+  }
+
+  return {
+    houseList,
+    roomList,
+    currentHouse,
+    initHouse,
+    editHouseList,
+    setCurrentHouse,
+    initRoomList,
+  }
 })

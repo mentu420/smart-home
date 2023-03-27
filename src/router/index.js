@@ -12,9 +12,9 @@ import smartRouters from './modules/smart.js'
 const redirect = (to) => {
   const token = getStorage(import.meta.env.VITE_APP_STORAGE_TOKEN)
   if (token) {
-    return '/tabNavigator/work'
+    return '/tabbar/tabbarHouse'
   } else {
-    return '/login'
+    return '/accountLogin'
   }
 }
 
@@ -32,7 +32,7 @@ const Router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/accountLogin',
+      redirect,
     },
     {
       path: '/webview',

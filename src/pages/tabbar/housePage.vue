@@ -46,7 +46,7 @@ const homeAction = ref(0)
 const showConfig = ref(false)
 const tabActive = ref(0)
 const drag = ref(false) // 是否可以拖拽
-const { houseList, currentHouse } = storeToRefs(houseStore())
+const { houseList, currentHouse, roomList } = storeToRefs(houseStore())
 const dragOptions = ref({
   animation: 200,
   group: 'description',
@@ -146,8 +146,9 @@ const toggleDrag = () => {
 }
 
 const init = async () => {
-  const { initHouse } = houseStore()
+  const { initHouse, initRoomList } = houseStore()
   initHouse()
+  initRoomList()
   try {
     weatherInfo.value = await getWeatherInfo()
   } catch (error) {
@@ -216,14 +217,14 @@ onMounted(() => {
           </template>
         </div>
       </template>
-      <van-tab
-        v-for="(tabItem, tabIndex) in tabList"
-        :key="tabIndex"
-        :title="tabItem.text"
-        :disabled="!dragOptions.disabled"
-      >
+      <van-tab title="全屋">
         <transition-group>
-          <draggable v-bind="dragOptions" key="dragggable" v-model="tabItem.dragList" item-key="id">
+          <draggable
+            v-bind="dragOptions"
+            key="dragggable"
+            v-model="tabList[0].dragList"
+            item-key="id"
+          >
             <template #item="{ element }">
               <section class="p-2">
                 <div
@@ -294,6 +295,9 @@ onMounted(() => {
             </template>
           </draggable>
         </transition-group>
+      </van-tab>
+      <van-tab v-for="(tabItem, tabIndex) in roomList" :key="tabIndex" :title="tabItem.mingcheng">
+        {{ tabItem }}
       </van-tab>
     </van-tabs>
   </div>
