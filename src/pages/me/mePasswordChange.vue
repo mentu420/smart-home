@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setUserConfig } from '@/apis/commonApi.js'
+import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
 
 const router = useRouter()
@@ -11,14 +12,11 @@ const newPassword = ref('')
 const formRef = ref(null)
 
 const onSubmit = async () => {
-  await formRef.value.validate()
   await setUserConfig({
     params: { op: 3 },
     data: { oldmima: password.value, mima: newPassword.value },
   })
-  const { useUserInfoSync } = userStore()
-  await useUserInfoSync({ reload: true })
-  router.back()
+  useLogout('密码修改成功，请使用新密码重新登录')
 }
 </script>
 

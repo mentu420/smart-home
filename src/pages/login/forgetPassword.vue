@@ -2,28 +2,28 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { getSms } from '@/apis/commonApi'
 import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, trimFormat } from '@/hooks/useFormValidator.js'
 
 const router = useRouter()
-const phone = ref(null)
-const code = ref(null)
-const time = ref(60 * 1000)
+const formRef = ref(null)
+const form = ref({})
 
 const onSubmit = async () => {
-  router.push({ path: '/setPassword', query: { phone: phone.value, code: code.value } })
-}
-
-const sendCode = async () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, 500)
+  router.push({
+    path: '/setPassword',
+    query: { ...form.value },
   })
 }
 
-const goOtherLogin = () => {
-  router.back()
+const sendCode = async () => {
+  try {
+    await formRef.value.validate(['phone'])
+    return getSms({ shouji: form.value.phone, leixing: 1 })
+  } catch (error) {
+    return error
+  }
 }
 </script>
 
@@ -31,9 +31,9 @@ const goOtherLogin = () => {
   <div class="p-6">
     <HeaderNavbar />
     <h1 class="my-8">忘记密码</h1>
-    <van-form @submit="onSubmit">
+    <van-form ref="formRef" @submit="onSubmit">
       <van-field
-        v-model="phone"
+        v-model.trim="form.phone"
         name="phone"
         placeholder="手机号码"
         :rules="[
@@ -42,7 +42,7 @@ const goOtherLogin = () => {
         ]"
       />
       <van-field
-        v-model="code"
+        v-model.trim="form.code"
         name="code"
         placeholder="短信验证码"
         maxlength="6"
@@ -53,7 +53,7 @@ const goOtherLogin = () => {
         </template>
       </van-field>
       <div class="my-10">
-        <van-button round block type="primary" native-type="submit" :disabled="!phone">
+        <van-button round block type="primary" native-type="submit" :disabled="!form.phone">
           下一步
         </van-button>
       </div>

@@ -18,13 +18,15 @@ export default defineStore('houseStore', () => {
 
   const initHouse = async () => {
     const { data } = await getHouseList({ op: 1 })
-    editHouseList(data.map((item) => ({ ...item, text: item.fangwumingcheng })))
+    editHouseList(
+      data.map((item) => ({ ...item, text: item.fangwumingcheng, value: item.bianhao }))
+    )
     currentHouse.value = data[0]
   }
 
   const initRoomList = async () => {
     const { data } = await getRoomList({ op: 1 })
-    roomList.value = data
+    roomList.value = data.map((item) => ({ ...item, text: item.mingcheng, id: item.bianhao }))
   }
 
   return {

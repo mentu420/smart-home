@@ -2,10 +2,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { useLogout } from '@/hooks/useLogout'
 import { useUploader } from '@/hooks/useUploader'
-import { resetRouter } from '@/router/'
-import houseStore from '@/store/houseStore'
-import sceneStore from '@/store/sceneStore'
 import userStore from '@/store/userStore'
 
 const router = useRouter()
@@ -23,17 +21,7 @@ const afterRead = async (file) => {
   console.log(url)
 }
 
-const onLogout = async () => {
-  const useHouseStore = houseStore()
-  const useSceneStore = sceneStore()
-  const useUserStore = userStore()
-  useUserStore.useRemoveToken()
-  useUserStore.$reset()
-  useHouseStore.$reset()
-  useSceneStore.$reset()
-
-  router.push({ path: '/accountLogin' })
-}
+const onLogout = () => useLogout('退出成功')
 
 const init = async () => {
   const { useUserInfoSync } = userStore()
