@@ -1,59 +1,72 @@
 <template>
-  <div
-    ref="el"
-    role="slider"
-    :aria-roledescription="ariaRoledescription"
-    :aria-label="ariaLabel"
-    :aria-expanded="isPaletteIn"
-    aria-valuemin="0"
-    aria-valuemax="359"
-    :aria-valuenow="angle"
-    :aria-valuetext="ariaValuetext || valuetext"
-    :aria-disabled="disabled"
-    class="rcp"
-    :class="{ dragging: isDragging, disabled: disabled }"
-    :tabindex="disabled ? -1 : 0"
-    :style="{ '--rcp-initial-angle': initialAngle }"
-    @keyup.enter="selectColor"
-    @keydown="onKeyDown"
-  >
-    <div class="rcp__palette" :class="isPaletteIn ? 'in' : 'out'" :style="rcpStyles" />
+  <van-popup v-model:show="show" round teleport="body" position="bottom">
+    <van-cell title="色温">
+      <template #right-icon>
+        <van-icon name="success" size="26" @click="close" />
+      </template>
+    </van-cell>
+    <div class="flex items-center justify-center p-8">
+      <div
+        ref="el"
+        role="slider"
+        :aria-roledescription="ariaRoledescription"
+        :aria-label="ariaLabel"
+        :aria-expanded="isPaletteIn"
+        aria-valuemin="0"
+        aria-valuemax="359"
+        :aria-valuenow="angle"
+        :aria-valuetext="ariaValuetext || valuetext"
+        :aria-disabled="disabled"
+        class="rcp"
+        :class="{ dragging: isDragging, disabled: disabled }"
+        :tabindex="disabled ? -1 : 0"
+        :style="{ '--rcp-initial-angle': initialAngle }"
+        @keyup.enter="selectColor"
+        @keydown="onKeyDown"
+      >
+        <div class="rcp__palette" :class="isPaletteIn ? 'in' : 'out'" :style="rcpStyles" />
 
-    <div
-      ref="rotator"
-      class="rcp__rotator"
-      :style="{
-        'pointer-events': disabled || isPressed || !isKnobIn ? 'none' : null,
-      }"
-      v-on="mouseScroll ? { wheel: onScroll } : {}"
-    >
-      <div class="rcp__knob" :class="isKnobIn ? 'in' : 'out'" @transitionend="hidePalette"></div>
-    </div>
-
-    <button
-      type="button"
-      class="rcp__well"
-      :aria-label="ariaLabelColorWell"
-      :disabled="disabled"
-      :tabindex="disabled ? -1 : 0"
-      :class="{ pressed: isPressed }"
-      @animationend="togglePicker"
-      @click="selectColor"
-    >
-      <slot :angle="angle">
         <div
-          class="rcp__ripple"
-          :class="{ rippling: isRippling }"
-          :style="{ borderColor: color }"
-        ></div>
-      </slot>
-    </button>
-  </div>
+          ref="rotator"
+          class="rcp__rotator"
+          :style="{
+            'pointer-events': disabled || isPressed || !isKnobIn ? 'none' : null,
+          }"
+          v-on="mouseScroll ? { wheel: onScroll } : {}"
+        >
+          <div
+            class="rcp__knob"
+            :class="isKnobIn ? 'in' : 'out'"
+            @transitionend="hidePalette"
+          ></div>
+        </div>
+
+        <button
+          type="button"
+          class="rcp__well"
+          :aria-label="ariaLabelColorWell"
+          :disabled="disabled"
+          :tabindex="disabled ? -1 : 0"
+          :class="{ pressed: isPressed }"
+          @animationend="togglePicker"
+          @click="selectColor"
+        >
+          <slot :angle="angle">
+            <div
+              class="rcp__ripple"
+              :class="{ rippling: isRippling }"
+              :style="{ borderColor: color }"
+            ></div>
+          </slot>
+        </button>
+      </div>
+    </div>
+  </van-popup>
 </template>
 
 <script>
 import Rotator from '@radial-color-picker/rotator'
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 
 const keys = {
   ArrowUp: (oldAngle, step) => oldAngle + step,
@@ -132,6 +145,7 @@ export default {
   },
   emits: ['select', 'input', 'change'],
   setup(props, { emit }) {
+    const show = ref(false)
     // template refs
     const el = ref(null)
     const rotator = ref(null)
@@ -177,23 +191,33 @@ export default {
       )
     }
 
+    watch(
+      () => show.value,
+      (val) => {
+        if (!val) return
+        nextTick(() => {
+          rcp = new Rotator(rotator.value, {
+            angle: angle.value,
+            onRotate(hue) {
+              angle.value = hue
+              emit('input', angle.value)
+            },
+            onDragStart() {
+              isDragging.value = true
+            },
+            onDragStop() {
+              isDragging.value = false
+              emit('change', angle.value)
+            },
+          })
+        })
+      },
+      { immediate: true }
+    )
+
     onMounted(() => {
       // the Rorator module already has an extensive test suite
       // istanbul ignore next
-      rcp = new Rotator(rotator.value, {
-        angle: angle.value,
-        onRotate(hue) {
-          angle.value = hue
-          emit('input', angle.value)
-        },
-        onDragStart() {
-          isDragging.value = true
-        },
-        onDragStop() {
-          isDragging.value = false
-          emit('change', angle.value)
-        },
-      })
     })
 
     onBeforeUnmount(() => {
@@ -260,7 +284,12 @@ export default {
       }
     }
 
+    const open = () => (show.value = true)
+
+    const close = () => (show.value = false)
+
     return {
+      show,
       // private API intented for testing memory leaks
       rcp,
 
@@ -289,6 +318,8 @@ export default {
       selectColor,
       togglePicker,
       hidePalette,
+      open,
+      close,
     }
   },
 }

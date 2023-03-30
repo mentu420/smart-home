@@ -11,12 +11,13 @@ const showConfig = ref(false)
 const configType = ref(0)
 const light = ref(0)
 const colorPickerRef = ref(null)
+const showLigth = ref(false)
 
-const openConfig = (index) => {
-  configType.value = index
-  showConfig.value = true
+const openColor = () => {
+  colorPickerRef.value.open()
 }
-const color = reactive({
+
+const colorConfig = reactive({
   hue: 90,
   saturation: 100,
   luminosity: 50,
@@ -42,8 +43,8 @@ onMounted(() => {
           </template>
         </van-cell>
         <div class="pl-2">
-          <van-cell clickable title="亮度" is-link @click="openConfig(0)"></van-cell>
-          <van-cell clickable title="色温" is-link @click="openConfig(1)"></van-cell>
+          <van-cell clickable title="亮度" is-link @click="showLigth = true"></van-cell>
+          <van-cell clickable title="色温" is-link @click="openColor"></van-cell>
         </div>
         <van-cell clickable title="关" @click="checked = '2'">
           <template #right-icon>
@@ -59,12 +60,12 @@ onMounted(() => {
       </van-button>
     </div>
 
-    <van-popup v-model:show="showConfig" round teleport="body" position="bottom">
+    <van-popup v-model:show="showLigth" round teleport="body" position="bottom">
       <ul class="py-4">
-        <li v-if="configType == 0">
+        <li>
           <van-cell title="亮度" :boder="false">
             <template #right-icon>
-              <van-icon name="success" size="26" @click="showConfig = false" />
+              <van-icon name="success" size="26" @click="showLigth = false" />
             </template>
           </van-cell>
           <div class="flex h-40 items-center justify-center p-8">
@@ -79,24 +80,15 @@ onMounted(() => {
             </div>
           </div>
         </li>
-        <li v-else>
-          <van-cell title="色温">
-            <template #right-icon>
-              <van-icon name="success" size="26" @click="showConfig = false" />
-            </template>
-          </van-cell>
-          <div class="flex items-center justify-center p-8">
-            <color-picker ref="colorPickerRef" v-bind="color">
-              <template #default="{ angle }">
-                <div>
-                  <p>颜色</p>
-                  <p>{{ Math.round(angle) }}</p>
-                </div>
-              </template>
-            </color-picker>
-          </div>
-        </li>
       </ul>
     </van-popup>
+    <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
+      <template #default="{ angle }">
+        <div>
+          <p>颜色</p>
+          <p>{{ Math.round(angle) }}</p>
+        </div>
+      </template>
+    </ColorPicker>
   </div>
 </template>
