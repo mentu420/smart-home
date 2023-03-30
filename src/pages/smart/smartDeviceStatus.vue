@@ -36,11 +36,8 @@ const colorConfig = reactive({
         fit="cover"
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
       />
-      <ul class="p-4">
-        <li
-          class="mb-4 flex items-center justify-between rounded-lg bg-white p-3 active:opacity-50"
-          @touchstart="() => {}"
-        >
+      <div class="p-4">
+        <ClickableOpacity class="mb-4 flex items-center justify-between rounded-lg bg-white p-3">
           <div>
             {{ status ? '已开启' : '已关闭' }}
           </div>
@@ -55,33 +52,62 @@ const colorConfig = reactive({
               <icon-park size="24" type="power" theme="filled" fill="#999" />
             </div>
           </div>
-        </li>
-        <li
-          class="mb-4 flex items-center justify-between rounded-lg bg-white p-3 active:opacity-50"
-          @touchstart="() => {}"
-        >
+        </ClickableOpacity>
+        <ClickableOpacity class="mb-4 flex items-center justify-between rounded-lg bg-white p-3">
           <div class="mr-4 flex-shrink-0">
             <p>亮度</p>
-            <p class="text-sm text-gray-400">{{ light }}%</p>
+            <p class="text-xs text-gray-400">{{ light }}%</p>
           </div>
           <div class="flex-1 px-4">
             <van-slider v-model="light" />
           </div>
-        </li>
-        <li
-          class="mb-4 flex items-center justify-between rounded-lg bg-white p-3 active:opacity-50"
-          @touchstart="() => {}"
+        </ClickableOpacity>
+        <ClickableOpacity
+          class="mb-4 flex items-center justify-between rounded-lg bg-white p-3"
           @click="colorPickerRef.open()"
         >
           <div class="mr-4 flex-shrink-0">
             <p>色温</p>
-            <p class="text-sm text-gray-400">{{ hue }}K</p>
+            <p class="text-xs text-gray-400">{{ hue }}K</p>
           </div>
           <div class="px-4">
             <p class="h-4 w-4 rounded-full bg-yellow-400"></p>
           </div>
-        </li>
-      </ul>
+        </ClickableOpacity>
+        <ClickableOpacity class="mb-4 flex items-center justify-around rounded-lg bg-white p-3">
+          <div>
+            <van-icon name="minus" />
+          </div>
+          <div class="mr-4 flex-shrink-0 text-center">
+            <p>16℃</p>
+            <p class="text-xs text-gray-400">目标温度</p>
+          </div>
+          <div>
+            <van-icon name="plus" />
+          </div>
+        </ClickableOpacity>
+        <div class="flex justify-between space-x-4">
+          <ClickableOpacity
+            class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white p-3"
+          >
+            <div class="mr-4 flex-shrink-0">风速</div>
+            <div class="px-4">
+              <icon-park type="windmill-two" />
+            </div>
+          </ClickableOpacity>
+          <ClickableOpacity
+            class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white p-3"
+          >
+            <div class="mr-4 flex-shrink-0">
+              <p>模式</p>
+              <p class="text-xs text-gray-400">通风</p>
+            </div>
+            <div class="px-4">
+              <icon-park type="air-conditioning" />
+            </div>
+          </ClickableOpacity>
+        </div>
+      </div>
     </section>
     <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
       <template #default="{ angle }">
