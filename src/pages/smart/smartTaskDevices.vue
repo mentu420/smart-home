@@ -1,5 +1,4 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -85,7 +84,7 @@ const onConfirm = () => {
         >
           <div class="flex flex-1 items-center">
             <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
-              <IconPark size="1.8em" type="switch-one" fill="#fff" />
+              <icon-park size="1.8em" type="switch-one" fill="#fff" />
             </div>
             <div class="ml-3">
               <p>智能设备</p>

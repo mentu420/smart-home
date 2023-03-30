@@ -1,5 +1,4 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
@@ -61,7 +60,7 @@ const afterRead = async (file) => {
         <van-image width="3rem" height="3rem" fit="cover" round :src="currentHouse.img" />
       </van-cell>
       <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
-        <IconPark size="24" type="two-dimensional-code" />
+        <icon-park size="24" type="two-dimensional-code" />
       </van-cell>
       <div class="h-4 bg-page-gray"></div>
       <van-cell center clickable title="我的权限" value="管理员" is-link />

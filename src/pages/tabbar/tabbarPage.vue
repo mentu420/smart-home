@@ -1,5 +1,4 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
 import { transformBind } from '@vue/compiler-core'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

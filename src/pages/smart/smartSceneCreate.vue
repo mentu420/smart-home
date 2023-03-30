@@ -1,19 +1,19 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import sceneStore from '@/store/sceneStore'
 
 const router = useRouter()
+const route = useRoute()
 
 const uploaderRef = ref(null)
 const form = ref({})
 const show = ref(false)
 const actions = [{ name: '默认图库' }, { name: '选择相机' }]
-const { sceneCreateItem } = storeToRefs(sceneStore())
+const { sceneCreateItem, sceneGallery } = storeToRefs(sceneStore())
 
 const chooseFile = () => uploaderRef.value.chooseFile()
 const afterRead = () => {}
@@ -37,6 +37,26 @@ const onSelect = () => {}
 
 const onSave = async () => {
   console.log('sceneCreateItem', sceneCreateItem.value)
+}
+
+const init = () => {
+  const { updateSceneCreateItem } = sceneStore()
+  updateSceneCreateItem({ img: sceneGallery.value[0].src })
+}
+
+init()
+
+watch(
+  () => route.path,
+  (to, from) => {
+    if (to == '/smartSceneCreate' && form.value === '/tabbar/tabbarSmart') init()
+  }
+)
+</script>
+
+<script>
+export default {
+  name: 'SmartSceneCreate',
 }
 </script>
 
@@ -63,14 +83,17 @@ const onSave = async () => {
             height="4rem"
             fit="cover"
             radius="10"
-            src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
+            :src="sceneCreateItem.img"
             @click="show = true"
           />
         </van-cell>
       </van-cell-group>
     </van-form>
     <section class="p-4">
-      <ul class="flex items-center justify-between p-2">
+      <ul
+        v-if="sceneCreateItem.fenlei || sceneCreateItem.events"
+        class="flex items-center justify-between p-2"
+      >
         <li>触发事件</li>
         <li @click="goCondition">
           <van-icon size="24" name="add" color="#e39334" />
@@ -88,7 +111,7 @@ const onSave = async () => {
           <p>
             <van-popover :actions="[{ text: '删除' }]" placement="bottom-end" @select="onSelect">
               <template #reference>
-                <IconPark type="more-one" />
+                <icon-park type="more-one" />
               </template>
             </van-popover>
           </p>
@@ -111,7 +134,7 @@ const onSave = async () => {
           <p>
             <van-popover :actions="[{ text: '删除' }]" placement="bottom-end" @select="onSelect">
               <template #reference>
-                <IconPark type="more-one" />
+                <icon-park type="more-one" />
               </template>
             </van-popover>
           </p>

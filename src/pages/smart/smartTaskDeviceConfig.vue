@@ -1,5 +1,4 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 

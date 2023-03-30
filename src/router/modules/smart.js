@@ -1,9 +1,9 @@
 export default [
   {
     path: '/smartSceneCreate',
-    name: 'SceneCreate',
+    name: 'SmartSceneCreate',
     component: () => import('@/pages/smart/smartSceneCreate.vue'),
-    meta: { title: '创建场景' },
+    meta: { title: '创建场景', keepAlive: true },
   },
   {
     path: '/smartSceneGallery',

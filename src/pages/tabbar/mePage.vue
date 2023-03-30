@@ -1,5 +1,4 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -40,7 +39,7 @@ init()
         @click="router.push({ path: navItem.path })"
       >
         <div class="flex items-center">
-          <IconPark size="24" :type="navItem.icon" />
+          <icon-park size="24" :type="navItem.icon" />
           <p class="ml-4">{{ navItem.text }}</p>
         </div>
         <van-icon name="arrow" />

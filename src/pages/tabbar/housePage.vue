@@ -14,7 +14,7 @@ import houseStore from '@/store/houseStore.js'
 const router = useRouter()
 // 全屋常用设备
 const commonList = ref([
-  { id: 1, text: '场景', list: [{}] },
+  { id: 1, text: '常用场景', list: [{}] },
   { id: 2, text: '常用设备', list: [{}] },
 ])
 const showHomeList = ref(false)
@@ -60,7 +60,7 @@ const weatherIconList = [
   }, //大风
   {
     icon: setWeatherIcon('light-rain'),
-    list: ['阵雨', '毛毛雨/细雨', '雨', '小雨-中雨', '中雨-大雨'],
+    list: ['阵雨', '毛毛雨/细雨', '雨', '小雨-中雨', '中雨-大雨', '小到中雨'],
   }, //小雨
   { icon: setWeatherIcon('moon'), list: ['冷'] }, //月亮
   { icon: setWeatherIcon('sandstorm'), list: ['浮尘', '扬沙', '沙尘暴', '强沙尘暴', ''] }, //沙尘暴
@@ -233,12 +233,12 @@ onMounted(() => {
                         >
                           <div class="relative h-full w-full">
                             <div class="absolute top-0 right-0">
-                              <IconPark
+                              <icon-park
                                 type="more"
                                 @click="router.push({ path: '/smartDeviceStatus' })"
                               />
                             </div>
-                            <IconPark size="2em" type="tips" theme="filled" fill="#ff976a" />
+                            <icon-park size="2em" type="tips" theme="filled" fill="#ff976a" />
                             <h4 class="space-x-2 text-white">
                               <label>一楼</label>
                               <label>客厅</label>
@@ -267,7 +267,7 @@ onMounted(() => {
                 完成
               </van-button> -->
             <!-- <template v-else> -->
-            <!-- <IconPark type="add-item" theme="outline" size="20" @click="toggleDrag" /> -->
+            <!-- <icon-park type="add-item" theme="outline" size="20" @click="toggleDrag" /> -->
             <van-popover
               v-model:show="showConfig"
               :actions="roomList"
@@ -275,7 +275,7 @@ onMounted(() => {
               @select="onConfigSelect"
             >
               <template #reference>
-                <IconPark type="setting-config" theme="outline" size="20" />
+                <icon-park type="setting-config" theme="outline" size="20" />
               </template>
             </van-popover>
             <!-- </template> -->

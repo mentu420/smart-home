@@ -1,5 +1,4 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'

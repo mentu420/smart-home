@@ -1,5 +1,4 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -12,7 +11,7 @@ const status = ref(true)
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="设备名称">
       <template #right>
-        <IconPark type="more" @click="router.push({ path: '/smartDeviceInfo' })" />
+        <icon-park type="more" @click="router.push({ path: '/smartDeviceInfo' })" />
       </template>
     </HeaderNavbar>
     <section>
@@ -31,8 +30,15 @@ const status = ref(true)
             {{ status ? '已开启' : '已关闭' }}
           </div>
           <div @click="status = !status">
-            <IconPark v-if="status" size="24" type="power" theme="filled" fill="#ff976a" />
-            <IconPark v-else size="24" type="power" theme="filled" fill="#999" />
+            <div
+              v-if="status"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-theme-color"
+            >
+              <icon-park size="24" type="power" theme="filled" fill="#fff" />
+            </div>
+            <div v-else class="flex h-10 w-10 items-center justify-center">
+              <icon-park size="24" type="power" theme="filled" fill="#999" />
+            </div>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { IconPark } from '@icon-park/vue-next/es/all'
 import '@vant/touch-emulator'
 import { createPinia } from 'pinia'
 /**vant-ui 函数式组件样式**/
@@ -25,7 +26,10 @@ const app = createApp(App)
 
 // useVant(app)
 
-app.component(HeaderNavbar.name, HeaderNavbar).component('ListLoad', ListLoad)
+app
+  .component(HeaderNavbar.name, HeaderNavbar)
+  .component('ListLoad', ListLoad)
+  .component(IconPark.name, IconPark)
 
 app
   .use(Router)
