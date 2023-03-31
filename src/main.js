@@ -15,6 +15,7 @@ import HeaderNavbar from '@/components/layout/HeaderNavbar.vue'
 import ListLoad from '@/components/layout/ListLoad.vue'
 import copy from '@/directive/copy.js'
 import loadingClick from '@/directive/loadingClick.js'
+import permission from '@/directive/permission.js'
 import press from '@/directive/press.js'
 
 import App from './App.vue'
@@ -38,4 +39,5 @@ app
   .directive('loading-click', loadingClick)
   .directive('copy', copy)
   .directive('press', press)
+  .directive('permission', permission)
   .mount('#app')

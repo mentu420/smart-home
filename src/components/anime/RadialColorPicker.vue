@@ -221,6 +221,7 @@ export default {
     })
 
     onBeforeUnmount(() => {
+      if (!rcp) return
       rcp.destroy()
       rcp = null
     })

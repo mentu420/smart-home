@@ -81,4 +81,5 @@ module.exports = {
   corePlugins: {
     preflight: false,
   },
+  darkMode: 'media', //深色模式
 }
