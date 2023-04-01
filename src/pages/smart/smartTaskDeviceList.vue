@@ -50,7 +50,7 @@ const goDeviceConfig = () => {
         >
           <div class="flex space-x-2">
             <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
-              <icon-park size="1.8em" type="switch-one" fill="#fff" />
+              <IconPark size="1.8em" type="switch-one" fill="#fff" />
             </div>
             <div>
               <p>智能设备</p>
@@ -58,7 +58,7 @@ const goDeviceConfig = () => {
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            <icon-park size="1.8em" type="switch-one" />
+            <IconPark size="1.8em" type="switch-one" />
             <van-checkbox
               :ref="(el) => (checkboxRefs[deviceIndex] = el)"
               v-model="deviceItem.checked"

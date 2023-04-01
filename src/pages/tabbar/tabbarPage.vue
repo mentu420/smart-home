@@ -66,8 +66,8 @@ export default {
         :to="tabItem.path"
       >
         <template #icon>
-          <icon-park v-if="tabIndex == tabItem.index" :type="tabItem.icon" theme="filled" />
-          <icon-park v-else :type="tabItem.icon" theme="outline" />
+          <IconPark v-if="tabIndex == tabItem.index" :type="tabItem.icon" theme="filled" />
+          <IconPark v-else :type="tabItem.icon" theme="outline" />
         </template>
         {{ tabItem.text }}
       </van-tabbar-item>

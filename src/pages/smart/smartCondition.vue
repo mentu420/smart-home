@@ -30,7 +30,7 @@ const addPressEvent = () => {
         @click="addPressEvent"
       >
         <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
-          <icon-park size="1.8em" type="press" theme="filled" fill="#fff" />
+          <IconPark size="1.8em" type="press" theme="filled" fill="#fff" />
         </div>
         <div class="ml-3 text-left">
           <p>手动点击</p>
@@ -47,7 +47,7 @@ const addPressEvent = () => {
         "
       >
         <div class="h-10 w-10 rounded-full bg-yellow-400 p-2">
-          <icon-park size="1.8em" type="time" fill="#fff" />
+          <IconPark size="1.8em" type="time" fill="#fff" />
         </div>
         <div class="ml-3 text-left">
           <p>时间日程</p>

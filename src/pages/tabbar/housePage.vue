@@ -1,5 +1,5 @@
 <script setup>
-import { IconPark } from '@icon-park/vue-next/es/all'
+import { IconPark } from '@IconPark/vue-next/es/all'
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import qs from 'qs'
@@ -233,12 +233,12 @@ onMounted(() => {
                         >
                           <div class="relative h-full w-full">
                             <div class="absolute top-0 right-0">
-                              <icon-park
+                              <IconPark
                                 type="more"
                                 @click="router.push({ path: '/smartDeviceStatus' })"
                               />
                             </div>
-                            <icon-park size="2em" type="tips" theme="filled" fill="#ff976a" />
+                            <IconPark size="2em" type="tips" theme="filled" fill="#ff976a" />
                             <h4 class="space-x-2 text-white">
                               <label>一楼</label>
                               <label>客厅</label>
@@ -267,7 +267,7 @@ onMounted(() => {
                 完成
               </van-button> -->
             <!-- <template v-else> -->
-            <!-- <icon-park type="add-item" theme="outline" size="20" @click="toggleDrag" /> -->
+            <!-- <IconPark type="add-item" theme="outline" size="20" @click="toggleDrag" /> -->
             <van-popover
               v-model:show="showConfig"
               :actions="roomList"
@@ -275,7 +275,7 @@ onMounted(() => {
               @select="onConfigSelect"
             >
               <template #reference>
-                <icon-park type="setting-config" theme="outline" size="20" />
+                <IconPark type="setting-config" theme="outline" size="20" />
               </template>
             </van-popover>
             <!-- </template> -->

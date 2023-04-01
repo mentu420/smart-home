@@ -111,7 +111,7 @@ export default {
           <p>
             <van-popover :actions="[{ text: '删除' }]" placement="bottom-end" @select="onSelect">
               <template #reference>
-                <icon-park type="more-one" />
+                <IconPark type="more-one" />
               </template>
             </van-popover>
           </p>
@@ -134,7 +134,7 @@ export default {
           <p>
             <van-popover :actions="[{ text: '删除' }]" placement="bottom-end" @select="onSelect">
               <template #reference>
-                <icon-park type="more-one" />
+                <IconPark type="more-one" />
               </template>
             </van-popover>
           </p>

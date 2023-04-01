@@ -1,9 +1,10 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
+import AirCoolerTrigger from '@/components/common/AirCoolerTrigger.vue'
 import ClickableOpacity from '@/components/layout/clickableOpacity.vue'
 import deviceStore from '@/store/deviceStore'
 
@@ -13,6 +14,8 @@ const status = ref(true)
 const light = ref(100)
 const hue = ref(3000)
 const colorPickerRef = ref(null)
+const pause = ref(false)
+const iconRef = ref(null)
 
 const { deviceClassify } = storeToRefs(deviceStore())
 
@@ -24,13 +27,19 @@ const colorConfig = reactive({
   gradientColors: ['to right', '#FB8C1A', '#FAF6F7'],
   gradientType: 'linear',
 })
+
+const temp = ref(18)
+
+onMounted(() => {
+  console.log('iconRef', iconRef.value.parentElement)
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="设备名称">
       <template #right>
-        <icon-park type="more" @click="router.push({ path: '/smartDeviceInfo' })" />
+        <IconPark type="more" @click="router.push({ path: '/smartDeviceInfo' })" />
       </template>
     </HeaderNavbar>
     <section>
@@ -44,21 +53,16 @@ const colorConfig = reactive({
         <van-cell
           class="mt-4 rounded-xl"
           center
-          clickable
           :title="status ? '已开启' : '已关闭'"
           :border="false"
         >
           <template #right-icon>
-            <div class="leading-none" @click="status = !status">
-              <div
-                v-if="status"
-                class="flex h-10 w-10 items-center justify-center rounded-full bg-theme-color"
-              >
-                <icon-park size="24" type="power" theme="filled" fill="#fff" />
-              </div>
-              <div v-else class="flex h-10 w-10 items-center justify-center">
-                <icon-park size="24" type="power" theme="filled" fill="#999" />
-              </div>
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full leading-none"
+              :class="{ 'bg-theme-color': status }"
+              @click="status = !status"
+            >
+              <IconPark size="24" type="power" theme="filled" :fill="status ? '#fff' : '#999'" />
             </div>
           </template>
         </van-cell>
@@ -67,28 +71,22 @@ const colorConfig = reactive({
         <van-cell
           class="mt-4 rounded-xl"
           center
-          clickable
           :title="status ? '已开启' : '已关闭'"
           :border="false"
         >
           <template #right-icon>
-            <div class="leading-none" @click="status = !status">
-              <div
-                v-if="status"
-                class="flex h-10 w-10 items-center justify-center rounded-full bg-theme-color"
-              >
-                <icon-park size="24" type="power" theme="filled" fill="#fff" />
-              </div>
-              <div v-else class="flex h-10 w-10 items-center justify-center">
-                <icon-park size="24" type="power" theme="filled" fill="#999" />
-              </div>
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full leading-none"
+              :class="{ 'bg-theme-color': status }"
+              @click="status = !status"
+            >
+              <IconPark size="24" type="power" theme="filled" :fill="status ? '#fff' : '#999'" />
             </div>
           </template>
         </van-cell>
         <van-cell
           class="mt-4 rounded-xl"
           center
-          clickable
           title="亮度"
           :label="`${light}%`"
           :border="false"
@@ -100,59 +98,81 @@ const colorConfig = reactive({
         </van-cell>
       </van-cell-group>
       <van-cell-group style="background: transparent" inset :border="false">
-        <van-cell class="mt-4 rounded-xl" center clickable :border="false">
-          <template #icon> </template>
-          <template #right-icon> </template>
+        <van-cell class="mt-4 rounded-xl" center :border="false">
+          <template #icon>
+            <iconpark-icon ref="iconRef" size="2em" name="tubiao-chuanglian"></iconpark-icon>
+          </template>
+          <div class="flex items-center justify-center">
+            <van-icon
+              size="3em"
+              name="pause-circle"
+              :color="pause ? '#e39334' : '#999'"
+              @click="pause = !pause"
+            />
+          </div>
+          <template #right-icon>
+            <iconpark-icon size="2em" name="chuanglianguanbi"></iconpark-icon>
+          </template>
+        </van-cell>
+        <van-cell
+          class="mt-4 rounded-xl"
+          center
+          title="开合度"
+          :label="`${light}%`"
+          :border="false"
+          title-style="flex:0 0 auto"
+        >
+          <div class="h-10 p-4 pl-8">
+            <van-slider v-model="light" @change="(value) => (status = value != 0)" />
+          </div>
         </van-cell>
       </van-cell-group>
-      <div class="p-4">
-        <ClickableOpacity
-          class="mb-4 flex items-center justify-between rounded-lg bg-white p-3"
+      <van-cell-group style="background: transparent" inset :border="false">
+        <van-cell
+          class="mt-4 rounded-xl"
+          center
+          :title="status ? '已开启' : '已关闭'"
+          :border="false"
+        >
+          <template #right-icon>
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full leading-none"
+              :class="{ 'bg-theme-color': status }"
+              @click="status = !status"
+            >
+              <IconPark size="24" type="power" theme="filled" :fill="status ? '#fff' : '#999'" />
+            </div>
+          </template>
+        </van-cell>
+        <van-cell
+          class="mt-4 rounded-xl"
+          center
+          title="亮度"
+          :label="`${light}%`"
+          :border="false"
+          title-style="flex:0 0 auto"
+        >
+          <div class="h-10 p-4 pl-8">
+            <van-slider v-model="light" @change="(value) => (status = value != 0)" />
+          </div>
+        </van-cell>
+        <van-cell
+          class="mt-4 rounded-xl"
+          center
+          title="色温"
+          :label="`${light}K`"
+          clickable
+          :border="false"
           @click="colorPickerRef.open()"
         >
-          <div class="mr-4 flex-shrink-0">
-            <p>色温</p>
-            <p class="text-xs text-gray-400">{{ hue }}K</p>
-          </div>
-          <div class="px-4">
-            <p class="h-4 w-4 rounded-full bg-yellow-400"></p>
-          </div>
-        </ClickableOpacity>
-        <ClickableOpacity class="mb-4 flex items-center justify-around rounded-lg bg-white p-3">
-          <div>
-            <van-icon name="minus" />
-          </div>
-          <div class="mr-4 flex-shrink-0 text-center">
-            <p>16℃</p>
-            <p class="text-xs text-gray-400">目标温度</p>
-          </div>
-          <div>
-            <van-icon name="plus" />
-          </div>
-        </ClickableOpacity>
-        <div class="flex justify-between space-x-4">
-          <ClickableOpacity
-            class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white p-3"
-          >
-            <div class="mr-4 flex-shrink-0">风速</div>
-            <div class="px-4">
-              <icon-park type="windmill-two" />
-            </div>
-          </ClickableOpacity>
-          <ClickableOpacity
-            class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white p-3"
-          >
-            <div class="mr-4 flex-shrink-0">
-              <p>模式</p>
-              <p class="text-xs text-gray-400">通风</p>
-            </div>
-            <div class="px-4">
-              <icon-park type="air-conditioning" />
-            </div>
-          </ClickableOpacity>
-        </div>
-      </div>
+          <template #right-icon>
+            <span class="h-6 w-6 rounded-full bg-yellow-400"></span>
+          </template>
+        </van-cell>
+      </van-cell-group>
+      <AirCoolerTrigger v-model="temp" />
     </section>
+
     <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
       <template #default="{ angle }">
         <div>

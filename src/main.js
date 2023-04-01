@@ -1,4 +1,3 @@
-import { IconPark } from '@icon-park/vue-next/es/all'
 import '@vant/touch-emulator'
 import { createPinia } from 'pinia'
 /**vant-ui 函数式组件样式**/
@@ -11,6 +10,7 @@ import Vue3TouchEvents from 'vue3-touch-events'
 
 //重置样式
 import '@/assets/styles/reset.css'
+import IconPark from '@/components/base/IconPark.vue'
 import HeaderNavbar from '@/components/layout/HeaderNavbar.vue'
 import ListLoad from '@/components/layout/ListLoad.vue'
 import copy from '@/directive/copy.js'
@@ -30,7 +30,7 @@ const app = createApp(App)
 app
   .component(HeaderNavbar.name, HeaderNavbar)
   .component('ListLoad', ListLoad)
-  .component(IconPark.name, IconPark)
+  .component('IconPark', IconPark)
 
 app
   .use(Router)

@@ -39,7 +39,7 @@ init()
         @click="router.push({ path: navItem.path })"
       >
         <div class="flex items-center">
-          <icon-park size="24" :type="navItem.icon" />
+          <IconPark size="24" :type="navItem.icon" />
           <p class="ml-4">{{ navItem.text }}</p>
         </div>
         <van-icon name="arrow" />
