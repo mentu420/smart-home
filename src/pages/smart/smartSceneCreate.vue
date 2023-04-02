@@ -14,7 +14,6 @@ const uploaderRef = ref(null)
 const form = ref({})
 const showGallery = ref(false)
 const showExecutionTime = ref(false)
-const actions = [{ name: '默认图库' }, { name: '选择相机' }]
 const { sceneCreateItem, sceneGallery } = storeToRefs(sceneStore())
 const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
 const executionTime = ref(['12', '00'])
@@ -22,25 +21,11 @@ const eventActive = ref(0) //记录将要改变的事件
 
 const { getRepeatTimeText } = sceneStore()
 
-const chooseFile = () => uploaderRef.value.chooseFile()
 const afterRead = () => {}
-
-const onSelectAction = (action, index) => {
-  switch (index) {
-    case 0:
-      router.push({ path: '/smartSceneGallery' })
-      break
-    default:
-      chooseFile()
-      break
-  }
-}
 
 const goCondition = () => {
   router.push({ path: '/smartCondition' })
 }
-
-const onSelect = () => {}
 
 const onSave = async () => {
   console.log('sceneCreateItem', sceneCreateItem.value)
@@ -130,6 +115,9 @@ export default {
             @click="showGallery = true"
           />
         </van-cell>
+        <van-cell center is-link title="房间编号" />
+        <van-cell center is-link title="有效时间" />
+        <WeekRepeat v-model="weekChecked" />
       </van-cell-group>
     </van-form>
     <section class="p-4">
@@ -218,18 +206,18 @@ export default {
         <label class="ml-4">添加任务</label>
       </li>
     </ul>
-
-    <van-uploader ref="uploaderRef" class="invisible h-0" :after-read="afterRead" />
     <div class="p-6">
       <van-button type="primary" block round @click="onSave"> 保存 </van-button>
     </div>
-    <van-action-sheet
-      v-model:show="showGallery"
-      :actions="actions"
-      cancel-text="取消"
-      close-on-click-action
-      @select="onSelectAction"
-    />
+
+    <van-action-sheet v-model:show="showGallery" cancel-text="取消" close-on-click-action>
+      <ul class="space-y-6 py-4 text-center">
+        <li @click="router.push({ path: '/smartSceneGallery' })">默认图库</li>
+        <van-uploader ref="uploaderRef" :after-read="afterRead">
+          <label> 选择相机 </label>
+        </van-uploader>
+      </ul>
+    </van-action-sheet>
     <van-popup v-model:show="showExecutionTime" round safe-area-inset-bottom position="bottom">
       <div class="py-4">
         <van-time-picker

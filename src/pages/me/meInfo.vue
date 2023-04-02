@@ -7,7 +7,7 @@ import { useUploader } from '@/hooks/useUploader'
 import userStore from '@/store/userStore'
 
 const router = useRouter()
-const uploaderRef = ref(null)
+
 const navList = ref([
   { text: '昵称', value: '李先生', path: '/meNickname' },
   { text: '手机号', value: '1888888888', path: '/mePhoneChange' },
@@ -15,7 +15,6 @@ const navList = ref([
 ])
 const avatar = ref('')
 
-const chooseFile = () => uploaderRef.value.chooseFile()
 const afterRead = async (file) => {
   const url = await useUploader(file)
   console.log(url)
@@ -43,7 +42,9 @@ init()
     <HeaderNavbar title="个人信息" />
     <div class="flex justify-center">
       <div class="px-6 py-10">
-        <van-image width="4rem" height="4rem" fit="cover" round :src="avatar" @click="chooseFile" />
+        <van-uploader :after-read="afterRead">
+          <van-image width="4rem" height="4rem" fit="cover" round :src="avatar" />
+        </van-uploader>
         <p class="text-md text-center">修改头像</p>
       </div>
     </div>
@@ -64,6 +65,5 @@ init()
     <div class="m-6">
       <van-button round block type="primary" @click="onLogout"> 退出登录 </van-button>
     </div>
-    <van-uploader ref="uploaderRef" class="invisible h-0" :after-read="afterRead" />
   </div>
 </template>

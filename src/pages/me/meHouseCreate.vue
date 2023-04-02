@@ -7,9 +7,6 @@ import houseStore from '@/store/houseStore'
 const router = useRouter()
 const houseName = ref(null)
 const houseImage = ref('')
-const uploaderRef = ref(null)
-
-const openUploader = () => uploaderRef.value.chooseFile()
 
 const afterRead = () => {}
 
@@ -40,19 +37,15 @@ const onSubmit = async () => {
           maxlength="30"
           :rules="[{ required: true, message: '家庭名称必填项' }]"
         />
-        <van-cell center clickable title="家庭图片" is-link @click="openUploader">
-          <van-image width="3rem" height="3rem" fit="cover" round :src="houseImage" />
+        <van-cell center clickable title="家庭图片" is-link>
+          <van-uploader accept="image/*" :after-read="afterRead">
+            <van-image width="3rem" height="3rem" fit="cover" round :src="houseImage" />
+          </van-uploader>
         </van-cell>
       </van-cell-group>
       <div class="m-6">
         <van-button round block type="primary" native-type="submit"> 提交 </van-button>
       </div>
     </van-form>
-    <van-uploader
-      ref="uploaderRef"
-      accept="image/*"
-      class="invisible h-0"
-      :after-read="afterRead"
-    />
   </div>
 </template>

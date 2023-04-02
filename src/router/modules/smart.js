@@ -30,9 +30,9 @@ export default [
     meta: { title: '任务列表' },
   },
   {
-    path: '/smartTaskDevices',
+    path: '/smartTaskDeviceClassify',
     name: 'SmartTaskDevices',
-    component: () => import('@/pages/smart/smartTaskDevices.vue'),
+    component: () => import('@/pages/smart/smartTaskDeviceClassify.vue'),
     meta: { title: '设备分类' },
   },
   {

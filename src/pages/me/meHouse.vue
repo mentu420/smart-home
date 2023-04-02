@@ -9,7 +9,6 @@ import { useUploader } from '@/hooks/useUploader'
 import houseStore from '@/store/houseStore'
 
 const router = useRouter()
-const uploaderRef = ref(null)
 const showQrCode = ref(false)
 const { currentHouse } = storeToRefs(houseStore())
 
@@ -18,8 +17,6 @@ console.log('currentHouse', currentHouse)
 const houseDetail = ref({
   image: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg',
 })
-
-const openUploader = () => uploaderRef.value.chooseFile()
 
 const afterRead = async (file) => {
   console.log('afterRead', file)
@@ -56,8 +53,10 @@ const afterRead = async (file) => {
         is-link
         @click="router.push({ path: '/meHouseMap' })"
       />
-      <van-cell center clickable title="家庭图片" is-link @click="openUploader">
-        <van-image width="3rem" height="3rem" fit="cover" round :src="currentHouse.img" />
+      <van-cell center clickable title="家庭图片" is-link>
+        <van-uploader accept="image/*" :after-read="afterRead">
+          <van-image width="3rem" height="3rem" fit="cover" round :src="currentHouse.img" />
+        </van-uploader>
       </van-cell>
       <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
         <IconPark size="24" type="two-dimensional-code" />
@@ -82,12 +81,7 @@ const afterRead = async (file) => {
     <div class="m-6">
       <van-button round block type="primary">删除家庭</van-button>
     </div>
-    <van-uploader
-      ref="uploaderRef"
-      accept="image/*"
-      class="invisible h-0"
-      :after-read="afterRead"
-    />
+
     <van-popup v-model:show="showQrCode" round teleport="body" position="center">
       <div>
         <vue-qr text="Hello world!" :size="200"></vue-qr>
