@@ -3,37 +3,15 @@
 </template>
 <script setup>
 import { IconPark } from '@icon-park/vue-next/es/all'
-import { h } from 'vue'
+import { h, useAttrs } from 'vue'
 
-const props = defineProps({
-  type: { type: String, required: true },
-  theme: { type: String, default: 'outline' },
-  size: {
-    type: [Number, String],
-    default: '1em',
-  },
-  spin: {
-    type: Boolean,
-    default: false,
-  },
-  fill: {
-    type: [String, Array],
-    default: () => ['currentColor'],
-  },
-  park: {
-    type: Boolean,
-    default: false,
-  },
-})
+const attrs = useAttrs()
 
 const render = () => {
-  const params = {
-    theme: props.theme,
-    size: props.size,
-    fill: Array.isArray(props.fill) ? props.fill : [props.fill],
-    spin: props.spin,
+  const config = {
+    ...attrs,
     key: new Date().valueOf(), //解决组件不更新
   }
-  return h(IconPark, { type: props.type, ...params })
+  return h(IconPark, config)
 }
 </script>

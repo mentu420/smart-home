@@ -1,5 +1,4 @@
 <script setup>
-import { IconPark } from '@IconPark/vue-next/es/all'
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import qs from 'qs'
@@ -45,34 +44,32 @@ const onConfigSelect = (action) => {
   tabActive.value = roomList.value.findIndex((value) => value.id == action.id) + 1
 }
 
-const setWeatherIcon = (type) => h(IconPark, { type, size: '1.5em', theme: 'outline' })
-
 const weatherIconList = [
-  { icon: setWeatherIcon('cloudy'), list: ['少云', '晴间多云', '多云', '阴'] }, //多云
+  { icon: 'cloudy', list: ['少云', '晴间多云', '多云', '阴'] }, //多云
   {
-    icon: setWeatherIcon('fog'),
+    icon: 'fog',
     list: ['霾', '中度霾', '重度霾', '严重霾', '雾', '浓雾', '强浓雾', '轻雾', '大雾', '特强浓雾'],
   }, //大雾
-  { icon: setWeatherIcon('heavy-rain'), list: ['小雨', '中雨', '大雨'] }, //大雨
+  { icon: 'heavy-rain', list: ['小雨', '中雨', '大雨'] }, //大雨
   {
-    icon: setWeatherIcon('heavy-wind'),
+    icon: 'heavy-wind',
     list: ['强风/劲风', '疾风', '大风', '烈风', '风暴', '狂爆风', '飓风', '热带风暴', '龙卷风'],
   }, //大风
   {
-    icon: setWeatherIcon('light-rain'),
+    icon: 'light-rain',
     list: ['阵雨', '毛毛雨/细雨', '雨', '小雨-中雨', '中雨-大雨', '小到中雨'],
   }, //小雨
-  { icon: setWeatherIcon('moon'), list: ['冷'] }, //月亮
-  { icon: setWeatherIcon('sandstorm'), list: ['浮尘', '扬沙', '沙尘暴', '强沙尘暴', ''] }, //沙尘暴
-  { icon: setWeatherIcon('snow'), list: ['雪', '阵雪', '大雪', '暴雪', '中雪-大雪', '大雪-暴雪'] }, //下雪
+  { icon: 'moon', list: ['冷'] }, //月亮
+  { icon: 'sandstorm', list: ['浮尘', '扬沙', '沙尘暴', '强沙尘暴', ''] }, //沙尘暴
+  { icon: 'snow', list: ['雪', '阵雪', '大雪', '暴雪', '中雪-大雪', '大雪-暴雪'] }, //下雪
   {
-    icon: setWeatherIcon('snowflake'),
+    icon: 'snowflake',
     list: ['雨雪天气', '雨夹雪', '阵雨夹雪', '冻雨', '小雪', '中雪', '小雪-中雪', '冷'],
   }, //雪花
-  { icon: setWeatherIcon('sun-one'), list: ['热'] }, //太阳
-  { icon: setWeatherIcon('sunny'), list: ['晴'] }, //晴
+  { icon: 'sun-one', list: ['热'] }, //太阳
+  { icon: 'sunny', list: ['晴'] }, //晴
   {
-    icon: setWeatherIcon('thunderstorm'),
+    icon: 'thunderstorm',
     list: [
       '雷阵雨',
       '雷阵雨并伴有冰雹',
@@ -87,7 +84,7 @@ const weatherIconList = [
       '大暴雨-特大暴雨',
     ],
   }, //雷雨
-  { icon: setWeatherIcon('wind'), list: ['有风', '微风', '和风', '清风'] }, //刮风
+  { icon: 'wind', list: ['有风', '微风', '和风', '清风'] }, //刮风
 ]
 
 const getWeatherInfo = async () => {
@@ -163,7 +160,7 @@ onMounted(() => {
           <h2>{{ weatherInfo.temp }}</h2>
           <p class="ml-1 mr-4 text-sm">℃</p>
           <h2 class="mr-2 text-lg">{{ weatherInfo.weather }}</h2>
-          <component :is="weatherInfo.icon" />
+          <IconPark :type="weatherInfo.icon" size="1.5em" />
         </div>
       </template>
       <div class="relative">

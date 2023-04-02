@@ -11,8 +11,8 @@ const props = defineProps({
     default: 32,
   },
   modelValue: {
-    type: [Number, String],
-    default: 25,
+    type: Object,
+    default: () => ({ temp: 26, speed: 0, model: 0 }),
   },
 })
 
@@ -23,26 +23,29 @@ const speedActions = [
 ]
 
 const modelActions = [
-  { id: 0, text: '制冷' },
-  { id: 1, text: '制热' },
-  { id: 2, text: '通风' },
-  { id: 2, text: '除湿' },
+  { id: 0, text: '制冷', type: 'snowflake' },
+  { id: 1, text: '制热', type: 'sun-one' },
+  { id: 2, text: '通风', type: 'wind' },
+  { id: 3, text: '除湿', type: 'water-level' },
 ]
 
 const emits = defineEmits(['update:modelValue'])
 
-const temp = computed({
+//温度、风俗、模式
+const config = computed({
   get: () => props.modelValue,
   set: (val) => emits('update:modelValue', val),
 })
 
-const tempCopy = ref(props.modelValue)
-const modelText = ref('制冷') // 空调模式
-const status = ref(false)
+const modeItem = computed(() => modelActions.find((item) => item.id == config.value.model))
+const speedItem = computed(() => speedActions.find((item) => item.id == config.value.speed))
+
+const tempCopy = ref(props.modelValue.temp)
+const status = ref(false) //空调开关
 
 const setTemp = () =>
   nextTick(() => {
-    temp.value = tempCopy.value
+    config.value = { ...config.value, temp: tempCopy.value }
     if (!status.value) status.value = true
   })
 
@@ -59,12 +62,13 @@ const onRise = () => {
 }
 
 const onSpeedSelect = (action) => {
-  console.log('onSpeedSelect', action)
+  if (!status.value) status.value = true
+  config.value = { ...config.value, speed: action.id }
 }
 
 const onModelSelect = (action) => {
-  console.log('onModelSelect', action)
-  modelText.value = action.text
+  if (!status.value) status.value = true
+  config.value = { ...config.value, model: action.id }
 }
 </script>
 
@@ -76,7 +80,7 @@ const onModelSelect = (action) => {
       </div>
       <div class="mr-4 flex-shrink-0 text-center">
         <p>
-          <label class="text-lg">{{ temp }}</label>
+          <label class="text-lg">{{ config.temp }}</label>
           <label>℃</label>
         </p>
         <p class="text-xs text-gray-400">当前温度</p>
@@ -108,8 +112,8 @@ const onModelSelect = (action) => {
         <van-popover :actions="speedActions" placement="top" @select="onSpeedSelect">
           <template #reference>
             <div class="flex w-40 items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">风速</div>
-              <IconPark type="windmill-two" size="24" />
+              <div class="mr-4 flex-shrink-0">{{ speedItem.text }}</div>
+              <IconPark type="windmill-two" size="1.5em" />
             </div>
           </template>
         </van-popover>
@@ -120,9 +124,9 @@ const onModelSelect = (action) => {
             <div class="flex w-40 items-center justify-between p-3">
               <div class="mr-4 flex-shrink-0">
                 <p>模式</p>
-                <p class="text-xs text-gray-400">{{ modelText }}</p>
+                <p class="text-xs text-gray-400">{{ modeItem.text }}</p>
               </div>
-              <IconPark type="air-conditioning" size="24" />
+              <IconPark :type="modeItem.type" size="1.5em" />
             </div>
           </template>
         </van-popover>
