@@ -8,6 +8,7 @@ import draggable from 'vuedraggable'
 
 import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
+import deviceStore from '@/store/deviceStore.js'
 import houseStore from '@/store/houseStore.js'
 
 const router = useRouter()
@@ -121,7 +122,8 @@ const toggleDrag = () => {
 const init = async () => {
   try {
     const { initHouse, initRoomList } = houseStore()
-    await Promise.all([initHouse(), initRoomList()])
+    const { initDevice } = deviceStore()
+    await Promise.all([initHouse(), initRoomList(), initDevice()])
     weatherInfo.value = await getWeatherInfo()
   } finally {
     loading.value = false
@@ -189,22 +191,7 @@ onMounted(() => {
                       }"
                     >
                       <h4 class="mb-2 text-gray-600">{{ element.text }}</h4>
-                      <ul v-if="element.id == 0" class="grid grid-cols-2 gap-4">
-                        <li
-                          v-for="(lightItem, lightIndex) in 4"
-                          :key="lightIndex"
-                          :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                          class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
-                        >
-                          <div class="h-full w-full bg-black bg-opacity-50 p-3">
-                            <h4 class="space-x-2 text-white">
-                              <label>一楼</label>
-                              <label>客厅</label>
-                            </h4>
-                            <p class="mt-2 text-sm text-gray-100">2个灯亮</p>
-                          </div>
-                        </li>
-                      </ul>
+
                       <ul v-if="element.id == 1" class="grid grid-cols-2 gap-4">
                         <li
                           v-for="(lightItem, lightIndex) in 4"
@@ -222,6 +209,7 @@ onMounted(() => {
                           </div>
                         </li>
                       </ul>
+
                       <ul v-if="element.id == 2" class="grid grid-cols-2 gap-4">
                         <li
                           v-for="(lightItem, lightIndex) in 4"
@@ -255,7 +243,59 @@ onMounted(() => {
             :key="tabIndex"
             :title="tabItem.mingcheng"
           >
-            {{ tabItem }}
+            <section class="p-4">
+              <ul class="grid grid-cols-2 gap-4">
+                <li
+                  v-for="(sceneItem, sceneIndex) in 3"
+                  :key="sceneIndex"
+                  :style="{ backgroundImage: 'url(' + image1 + ')' }"
+                  class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
+                >
+                  <div class="h-full w-full bg-black bg-opacity-50 p-3">
+                    <h4 class="space-x-2 text-white">
+                      <label>一楼</label>
+                      <label>客厅</label>
+                    </h4>
+                    <p class="mt-2 text-sm text-gray-100">2个灯亮</p>
+                  </div>
+                </li>
+              </ul>
+              <div class="flex items-center py-4">
+                <h4 class="text-gray-600">照明</h4>
+                <label class="ml-2 text-xs text-gray-400">2个灯亮</label>
+              </div>
+              <ul class="mb-4 grid grid-cols-2 gap-4">
+                <li
+                  v-for="(btnItem, btnIndex) in ['全开', '全关']"
+                  :key="btnIndex"
+                  :style="{ backgroundImage: 'url(' + image1 + ')' }"
+                  class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
+                >
+                  <div class="h-full w-full bg-black bg-opacity-50 px-3 py-6">
+                    <h4 class="space-x-2 text-white">{{ btnItem }}</h4>
+                  </div>
+                </li>
+              </ul>
+              <ul class="grid grid-cols-2 gap-4">
+                <li
+                  v-for="(deviceItem, deviceIndex) in 4"
+                  :key="deviceIndex"
+                  class="flex items-center rounded-lg bg-gray-300 p-3"
+                >
+                  <div class="relative h-full w-full">
+                    <div class="absolute top-0 right-0">
+                      <IconPark type="more" @click="router.push({ path: '/smartDeviceStatus' })" />
+                    </div>
+                    <IconPark size="2em" type="tips" theme="filled" fill="#ff976a" />
+                    <h4 class="space-x-2 text-white">
+                      <label>一楼</label>
+                      <label>客厅</label>
+                    </h4>
+                    <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+                  </div>
+                </li>
+              </ul>
+            </section>
           </van-tab>
         </van-tabs>
         <div class="absolute right-0 top-0 bg-gray-100">

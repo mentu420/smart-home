@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 
+import { getDeviceList } from '@/apis/smartApi'
+
 export default defineStore('deviceStore', () => {
   // 设备分类
   const deviceClassify = ref({
@@ -13,5 +15,12 @@ export default defineStore('deviceStore', () => {
     music: ['1080'], //音乐
   })
 
-  return { deviceClassify }
+  const deviceList = ref([])
+
+  const initDevice = async () => {
+    const { data } = await getDeviceList({ op: 1 })
+    deviceList.value = data
+  }
+
+  return { deviceClassify, deviceList, initDevice }
 })
