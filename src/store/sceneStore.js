@@ -1,12 +1,40 @@
 import { defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 
 import { getStorage, removeStorage, setStorage } from '@/utils/storage.js'
 
 export default defineStore('sceneStore', () => {
-  // 统一token处理
-  const sceneCreateItem = ref({})
-
+  // 创建场景数据
+  const sceneCreateItem = ref({
+    events: [],
+  })
+  // 重复时间类型
+  const repeatActions = ref([
+    { id: 0, name: '每天', value: [0, 1, 2, 3, 4, 5, 6] },
+    { id: 1, name: '工作日', value: [1, 2, 3, 4, 5] },
+    { id: 2, name: '周末', value: [0, 7] },
+    { id: 3, name: '自定义日期', value: [] },
+  ])
+  // 定义周类型
+  const weekData = ref({
+    0: '周日',
+    1: '周一',
+    2: '周二',
+    3: '周三',
+    4: '周四',
+    5: '周五',
+    6: '周六',
+  })
+  // 获取重复时间
+  const getRepeatTimeText = computed(() => (weekChecked = []) => {
+    if (weekChecked.length == 0) return ''
+    const repeatItem = repeatActions.value.find((action) => {
+      return action.value.length === weekChecked.length && action.value.join() == weekChecked.join()
+    })
+    if (repeatItem && repeatItem.value.length != 0) return repeatItem.name
+    return '周' + weekChecked.map((item) => weekData.value[item].replace('周', '')).join('、')
+  })
+  // 场景默认图库
   const sceneGallery = ref([
     {
       id: 0,
@@ -79,13 +107,20 @@ export default defineStore('sceneStore', () => {
       src: 'https://derucci-app-obs.iderucci.com/cloud-derucci-system/20230330/c21hcnQtYmctMTQuMTY4MDE2Mzc0MTAzMw==.jpg',
     },
   ])
-
+  // 更新创建场景数据
   const updateSceneCreateItem = (palyload) => {
-    console.log('updateSceneCreateItem', palyload)
     sceneCreateItem.value = { ...sceneCreateItem.value, ...palyload }
   }
+  // 清空场景数据
+  const clearSceneCreateItem = () => (sceneCreateItem.value = { events: [] })
 
-  const clearSceneCreateItem = () => (sceneCreateItem.value = {})
-
-  return { sceneCreateItem, sceneGallery, updateSceneCreateItem, clearSceneCreateItem }
+  return {
+    sceneCreateItem,
+    sceneGallery,
+    repeatActions,
+    weekData,
+    getRepeatTimeText,
+    updateSceneCreateItem,
+    clearSceneCreateItem,
+  }
 })

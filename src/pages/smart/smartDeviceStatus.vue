@@ -36,7 +36,7 @@ onMounted(() => {})
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
       />
       <CurtainTrigger v-model="degree" />
-      <LightTrigger v-model="brightness" :ignore="['picker']" />
+      <LightTrigger v-model="brightness" />
       <AirCoolerTrigger v-model="airConfig" />
     </section>
   </div>

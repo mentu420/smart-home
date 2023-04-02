@@ -36,16 +36,16 @@ const onConfirm = () => {
         <van-dropdown-item ref="filterRef" title="筛选">
           <ul class="p-4">
             <li class="mb-6">
-              <h4 class="mb-4">房间</h4>
+              <h4 class="mb-4">设备类型</h4>
               <div>
                 <van-button
-                  v-for="roomItem in ['全部', '客厅', '主卧']"
-                  :key="roomItem"
+                  v-for="classifyItem in ['全部', '筒灯', '窗帘', '空调']"
+                  :key="classifyItem"
                   class="mr-4 mb-4"
                   round
                   size="small"
                 >
-                  <p class="px-4">{{ roomItem }}</p>
+                  <p class="px-4">{{ classifyItem }}</p>
                 </van-button>
               </div>
             </li>
@@ -74,6 +74,8 @@ const onConfirm = () => {
     <van-pull-refresh v-model="loading" class="min-h-screen" @refresh="onRefresh">
       <section class="p-4">
         <div
+          v-for="item in 8"
+          :key="item"
           class="mb-4 flex items-center justify-between rounded-lg bg-white p-3 active:opacity-50"
           @touchstart="() => {}"
           @click="
@@ -84,10 +86,10 @@ const onConfirm = () => {
         >
           <div class="flex flex-1 items-center">
             <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
-              <IconPark size="1.8em" type="switch-one" fill="#fff" />
+              <IconPark size="1.8em" type="tips" fill="#fff" />
             </div>
             <div class="ml-3">
-              <p>智能设备</p>
+              <p>设备名称</p>
               <p class="text-sm text-gray-500">如“打开空调”“关闭空调”</p>
             </div>
           </div>
