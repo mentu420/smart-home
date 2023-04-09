@@ -1,15 +1,16 @@
 <script setup>
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
-import qs from 'qs'
-import { onMounted, ref, h } from 'vue'
+import { computed, onMounted, ref, h } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
+import { getHouseList } from '@/apis/houseApi.js'
 import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import deviceStore from '@/store/deviceStore.js'
 import houseStore from '@/store/houseStore.js'
+import sceneStore from '@/store/sceneStore'
 
 const router = useRouter()
 // 全屋常用设备
@@ -22,6 +23,7 @@ const loading = ref(false)
 const showConfig = ref(false)
 const tabActive = ref(0)
 const { houseList, currentHouse, roomList } = storeToRefs(houseStore())
+const { deviceList, getDeviceTypeItem } = storeToRefs(deviceStore())
 const dragOptions = ref({
   animation: 200,
   group: 'description',
@@ -35,11 +37,27 @@ const weatherInfo = ref({
 })
 const weatherRef = ref(null)
 
-const onHouseSelect = (action) => {
-  // console.log(action)
-  // homeAction.value = action.index
-  const { setCurrentHouse } = houseStore()
+const onHouseSelect = async (action) => {
+  try {
+    loading.value = true
+    const id = action.bianhao
+    console.log(action)
+    // homeAction.value = action.index
+    const { code } = await getHouseList({ op: 5, fangwubianhao: id })
+    if (code != 0) return
+    const { setCurrentHouse } = houseStore()
+    setCurrentHouse(id)
+    const { initRoomList } = houseStore()
+    const { initDevice } = deviceStore()
+    const { initScene } = sceneStore()
+    await Promise.all([initRoomList(), initDevice(), initScene()])
+  } finally {
+    loading.value = false
+  }
 }
+
+const onMoreSelect = () => {}
+
 const onConfigSelect = (action) => {
   console.log(action)
   tabActive.value = roomList.value.findIndex((value) => value.id == action.id) + 1
@@ -125,6 +143,8 @@ const init = async () => {
     const { initDevice } = deviceStore()
     await Promise.all([initHouse(), initRoomList(), initDevice()])
     weatherInfo.value = await getWeatherInfo()
+  } catch (err) {
+    console.warn(err)
   } finally {
     loading.value = false
   }
@@ -148,14 +168,25 @@ onMounted(() => {
           >
             <template #reference>
               <div class="flex items-center space-x-4">
-                <h4>{{ currentHouse.fangwumingcheng }}</h4>
+                <h4>{{ currentHouse?.fangwumingcheng }}</h4>
                 <van-icon name="arrow-down" />
               </div>
             </template>
           </van-popover>
           <div class="space-x-4">
             <van-icon size="20" name="bell" />
-            <van-icon size="20" name="plus" @click="router.push({ path: '/houseAddDevice' })" />
+            <van-popover
+              :actions="[
+                { text: '添加设备', value: 0 },
+                { text: '拖拽排序', value: 1 },
+              ]"
+              placement="bottom-end"
+              @select="onMoreSelect"
+            >
+              <template #reference>
+                <van-icon size="20" name="plus" />
+              </template>
+            </van-popover>
           </div>
         </div>
         <div ref="weatherRef" class="min-h-10 flex items-end p-4">
@@ -191,7 +222,6 @@ onMounted(() => {
                       }"
                     >
                       <h4 class="mb-2 text-gray-600">{{ element.text }}</h4>
-
                       <ul v-if="element.id == 1" class="grid grid-cols-2 gap-4">
                         <li
                           v-for="(lightItem, lightIndex) in 4"
@@ -212,9 +242,9 @@ onMounted(() => {
 
                       <ul v-if="element.id == 2" class="grid grid-cols-2 gap-4">
                         <li
-                          v-for="(lightItem, lightIndex) in 4"
-                          :key="lightIndex"
-                          class="flex items-center rounded-lg bg-gray-300 p-3"
+                          v-for="(deviceItem, deviceIndex) in deviceList"
+                          :key="deviceIndex"
+                          class="flex items-center rounded-lg bg-white p-3"
                         >
                           <div class="relative h-full w-full">
                             <div class="absolute top-0 right-0">
@@ -223,12 +253,9 @@ onMounted(() => {
                                 @click="router.push({ path: '/smartDeviceStatus' })"
                               />
                             </div>
-                            <IconPark size="2em" type="tips" theme="filled" fill="#ff976a" />
-                            <h4 class="space-x-2 text-white">
-                              <label>一楼</label>
-                              <label>客厅</label>
-                            </h4>
-                            <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+                            <IconPark size="1.5em" type="tips" theme="filled" fill="#ff976a" />
+                            <p class="my-2">{{ deviceItem.mingcheng }}</p>
+                            <p class="text-sm text-gray-400">开</p>
                           </div>
                         </li>
                       </ul>
@@ -286,7 +313,12 @@ onMounted(() => {
                     <div class="absolute top-0 right-0">
                       <IconPark type="more" @click="router.push({ path: '/smartDeviceStatus' })" />
                     </div>
-                    <IconPark size="2em" type="tips" theme="filled" fill="#ff976a" />
+                    <IconPark
+                      size="2em"
+                      :type="getDeviceTypeItem(deviceItem.xiaoleixing, 'subCategory').icon"
+                      theme="filled"
+                      fill="#ff976a"
+                    />
                     <h4 class="space-x-2 text-white">
                       <label>一楼</label>
                       <label>客厅</label>

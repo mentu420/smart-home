@@ -11,7 +11,7 @@ const houseImage = ref('')
 const afterRead = () => {}
 
 const onSubmit = async () => {
-  const { setCurrentHouse, initHouse } = houseStore()
+  const { initHouse } = houseStore()
   const { code, data } = await setHouseList({
     bianhao: '',
     mingcheng: houseName.value,

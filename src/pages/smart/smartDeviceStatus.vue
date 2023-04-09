@@ -12,7 +12,7 @@ import deviceStore from '@/store/deviceStore'
 const route = useRoute()
 const router = useRouter()
 
-const { deviceClassify } = storeToRefs(deviceStore())
+const { deviceTypeList } = storeToRefs(deviceStore())
 
 const airConfig = ref({ temp: 18, speed: 1, model: 1 })
 const brightness = ref(100)

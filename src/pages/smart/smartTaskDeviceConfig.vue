@@ -29,6 +29,10 @@ const colorConfig = reactive({
 onMounted(() => {
   console.log('colorPickerRef', colorPickerRef.value)
 })
+
+const onSave = () => {
+  router.push({ path: '/smartSceneCreate' })
+}
 </script>
 
 <template>
@@ -53,11 +57,9 @@ onMounted(() => {
         </van-cell>
       </van-cell-group>
     </van-radio-group>
-
-    <div class="fixed bottom-4 left-0 right-0 p-6">
-      <van-button type="primary" block round @click="router.push({ path: '/smartSceneCreate' })">
-        下一步
-      </van-button>
+    <div class="h-24"></div>
+    <div class="fixed bottom-0 left-0 right-0 bg-white py-4 px-6">
+      <van-button type="primary" block round @click="onSave"> 下一步 </van-button>
     </div>
 
     <van-popup v-model:show="showLigth" round teleport="body" position="bottom">

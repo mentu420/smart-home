@@ -5,7 +5,7 @@ import { setUserConfig, getUserConfig } from '@/apis/commonApi.js'
 import { mergingStep } from '@/utils/common.js'
 import { getStorage, removeStorage, setStorage } from '@/utils/storage.js'
 
-export default defineStore('useUserStore', () => {
+export default defineStore('userStore', () => {
   // 统一token处理
   const { VITE_APP_STORAGE_TOKEN } = import.meta.env
   const useGetToken = () => getStorage(VITE_APP_STORAGE_TOKEN)

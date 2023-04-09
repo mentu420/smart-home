@@ -27,6 +27,10 @@ const onCheckChange = (values) => {
 const goDeviceConfig = () => {
   router.push({ path: '/smartTaskDeviceConfig' })
 }
+
+const onSave = () => {
+  router.push({ path: '/smartSceneCreate' })
+}
 </script>
 
 <template>
@@ -57,8 +61,8 @@ const goDeviceConfig = () => {
               <p class="text-sm text-gray-500">设备房间</p>
             </div>
           </div>
-          <div class="flex items-center space-x-2">
-            <IconPark size="1.8em" type="switch-one" />
+          <div class="flex items-center space-x-4">
+            <IconPark size="1.8em" type="setting-two" :stroke-width="2" />
             <van-checkbox
               :ref="(el) => (checkboxRefs[deviceIndex] = el)"
               v-model="deviceItem.checked"
@@ -69,6 +73,12 @@ const goDeviceConfig = () => {
         </div>
       </van-checkbox-group>
     </section>
+    <div class="h-24"></div>
+    <footer class="fixed bottom-0 left-0 w-screen bg-white py-4 px-6">
+      <van-button round type="primary" block :disabled="deviceChecked.length > 0" @click="onSave">
+        下一步
+      </van-button>
+    </footer>
   </div>
 </template>
 

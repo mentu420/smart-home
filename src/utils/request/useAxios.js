@@ -1,7 +1,7 @@
 import axios, { isCancel } from 'axios' // 此处引入axios官方文件
 import { showNotify } from 'vant'
 
-import useUserStore from '@/store/userStore.js'
+import { useLogout } from '@/hooks/useLogout.js'
 
 import { againRequest } from './requestAgainSend.js' // 请求重发
 import {
@@ -32,6 +32,8 @@ const responseHandle = (response) => {
     response.data.code != 0
   ) {
     showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
+  } else if (response.status === 200 && response.data.code === 3) {
+    useLogout(response.data.des)
   }
   if (response.status !== 200 || response.data.code != 0) return Promise.reject(response)
   return response.data || response
