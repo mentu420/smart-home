@@ -330,7 +330,7 @@ onMounted(() => {
             </section>
           </van-tab>
         </van-tabs>
-        <div class="absolute right-0 top-0 bg-gray-100">
+        <div class="absolute right-0 top-0 bg-page-gray">
           <div class="flex h-12 w-10 flex-auto items-center justify-center space-x-4 pr-2">
             <!-- <van-button v-if="!dragOptions.disabled" size="mini" type="primary" @click="toggleDrag">
                 完成
