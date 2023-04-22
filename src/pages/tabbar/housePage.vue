@@ -253,7 +253,12 @@ onMounted(() => {
                                 @click="router.push({ path: '/smartDeviceStatus' })"
                               />
                             </div>
-                            <IconPark size="1.5em" type="tips" theme="filled" fill="#ff976a" />
+                            <IconPark
+                              size="2em"
+                              :type="getDeviceTypeItem(deviceItem.daleixing).icon"
+                              theme="filled"
+                              fill="#ff976a"
+                            />
                             <p class="my-2">{{ deviceItem.mingcheng }}</p>
                             <p class="text-sm text-gray-400">开</p>
                           </div>
@@ -305,7 +310,7 @@ onMounted(() => {
               </ul>
               <ul class="grid grid-cols-2 gap-4">
                 <li
-                  v-for="(deviceItem, deviceIndex) in 4"
+                  v-for="(deviceItem, deviceIndex) in deviceList"
                   :key="deviceIndex"
                   class="flex items-center rounded-lg bg-gray-300 p-3"
                 >
@@ -315,7 +320,7 @@ onMounted(() => {
                     </div>
                     <IconPark
                       size="2em"
-                      :type="getDeviceTypeItem(deviceItem.xiaoleixing, 'subCategory').icon"
+                      :type="getDeviceTypeItem(deviceItem.daleixing).icon"
                       theme="filled"
                       fill="#ff976a"
                     />

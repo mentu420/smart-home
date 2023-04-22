@@ -28,6 +28,11 @@ export default defineStore('userStore', () => {
     return userInfo.value
   })
 
+  const reset = () => {
+    userInfo.value = null
+    dealerList.value = null
+  }
+
   return {
     userInfo,
     dealerList,
@@ -36,5 +41,6 @@ export default defineStore('userStore', () => {
     useGetToken,
     useSetToken,
     useRemoveToken,
+    reset,
   }
 })

@@ -7,15 +7,12 @@ import sceneStore from '@/store/sceneStore'
 import userStore from '@/store/userStore'
 
 export const storeReset = () => {
-  const useHouseStore = houseStore()
-  const useSceneStore = sceneStore()
-  const useDeviceStore = deviceStore()
-  useHouseStore.$reset()
-  useSceneStore.$reset()
-  useDeviceStore.$reset()
+  houseStore().reset()
+  sceneStore().reset()
+  deviceStore().reset()
   const useUserStore = userStore()
   useUserStore.useRemoveToken()
-  useUserStore.$reset()
+  useUserStore.reset()
 }
 
 export const useLogout = async (message = '请重新登陆') => {

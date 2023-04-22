@@ -24,7 +24,14 @@ const useAxios = axios.create({
 // 返回结果处理
 // 自定义约定接口返回{code: xxx, data: xxx, msg:'err message'}
 const responseHandle = (response) => {
-  if (response.status === 200 && response.data.code != 0 && response.config.withShowErrorMsg) {
+  console.log('useLogout', response)
+  if (response.status === 200 && response.data.code === 3) {
+    useLogout(response.data.des)
+  } else if (
+    response.status === 200 &&
+    response.data.code != 0 &&
+    response.config.withShowErrorMsg
+  ) {
     showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
   } else if (
     response.status !== 200 &&
@@ -32,8 +39,6 @@ const responseHandle = (response) => {
     response.data.code != 0
   ) {
     showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
-  } else if (response.status === 200 && response.data.code === 3) {
-    useLogout(response.data.des)
   }
   if (response.status !== 200 || response.data.code != 0) return Promise.reject(response)
   return response.data || response

@@ -114,6 +114,10 @@ export default defineStore('sceneStore', () => {
   // 清空场景数据
   const clearSceneCreateItem = () => (sceneCreateItem.value = { events: [] })
 
+  const reset = () => {
+    sceneCreateItem.value = {}
+  }
+
   return {
     sceneCreateItem,
     sceneGallery,
@@ -122,5 +126,6 @@ export default defineStore('sceneStore', () => {
     getRepeatTimeText,
     updateSceneCreateItem,
     clearSceneCreateItem,
+    reset,
   }
 })

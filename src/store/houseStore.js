@@ -29,6 +29,12 @@ export default defineStore('houseStore', () => {
     roomList.value = data.map((item) => ({ ...item, text: item.mingcheng, id: item.bianhao }))
   }
 
+  const reset = () => {
+    houseList.value = []
+    roomList.value = []
+    currentHouse.value = {}
+  }
+
   return {
     houseList,
     roomList,
@@ -37,5 +43,6 @@ export default defineStore('houseStore', () => {
     editHouseList,
     setCurrentHouse,
     initRoomList,
+    reset,
   }
 })

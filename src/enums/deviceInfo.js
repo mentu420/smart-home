@@ -187,7 +187,7 @@ export default [
     text: '窗帘',
     classify: '101',
     category: ['101001', '101002', '101003', '101004', '101005', '101006', '101007', '101008'],
-    icon: 'book-open',
+    icon: 'rectangle-tear',
     101001: {
       aliasName: '开关窗帘',
       columns: [switchColumn],
