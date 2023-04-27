@@ -7,6 +7,7 @@ import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
 import image1 from '@/assets/images/smart/smart-bg-1.jpg'
+import ClickableOpacity from '@/components/layout/ClickableOpacity.vue'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import deviceStore from '@/store/deviceStore.js'
 import houseStore from '@/store/houseStore.js'
@@ -175,7 +176,8 @@ onMounted(() => {
           </van-popover>
           <div class="space-x-4">
             <van-icon size="20" name="bell" />
-            <van-popover
+            <van-icon size="20" name="plus" @click="router.push({ path: '/houseAddDevice' })" />
+            <!-- <van-popover
               :actions="[
                 { text: '添加设备', value: 0 },
                 { text: '拖拽排序', value: 1 },
@@ -186,7 +188,7 @@ onMounted(() => {
               <template #reference>
                 <van-icon size="20" name="plus" />
               </template>
-            </van-popover>
+            </van-popover> -->
           </div>
         </div>
         <div ref="weatherRef" class="min-h-10 flex items-end p-4">
@@ -210,65 +212,46 @@ onMounted(() => {
             <div class="w-10 flex-shrink-0"></div>
           </template>
           <van-tab title="全屋">
-            <transition-group>
-              <draggable v-bind="dragOptions" key="dragggable" v-model="commonList" item-key="id">
-                <template #item="{ element }">
-                  <section class="p-2">
-                    <div
-                      class="p-2"
-                      :class="{
-                        'rounded-xl border border-dotted border-theme-color shadow':
-                          !dragOptions.disabled,
-                      }"
-                    >
-                      <h4 class="mb-2 text-gray-600">{{ element.text }}</h4>
-                      <ul v-if="element.id == 1" class="grid grid-cols-2 gap-4">
-                        <li
-                          v-for="(lightItem, lightIndex) in 4"
-                          :key="lightIndex"
-                          :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                          class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
-                        >
-                          <div class="flex w-full items-center">
-                            <h4
-                              class="h-full w-full space-x-2 bg-black bg-opacity-50 px-3 py-6 text-white"
-                            >
-                              <label>一楼</label>
-                              <label class="rounded bg-gray-200 px-2 py-1 text-xs">客厅</label>
-                            </h4>
-                          </div>
-                        </li>
-                      </ul>
-
-                      <ul v-if="element.id == 2" class="grid grid-cols-2 gap-4">
-                        <li
-                          v-for="(deviceItem, deviceIndex) in deviceList"
-                          :key="deviceIndex"
-                          class="flex items-center rounded-lg bg-white p-3"
-                        >
-                          <div class="relative h-full w-full">
-                            <div class="absolute top-0 right-0">
-                              <IconPark
-                                type="more"
-                                @click="router.push({ path: '/smartDeviceStatus' })"
-                              />
-                            </div>
-                            <IconPark
-                              size="2em"
-                              :type="getDeviceTypeItem(deviceItem.daleixing).icon"
-                              theme="filled"
-                              fill="#ff976a"
-                            />
-                            <p class="my-2">{{ deviceItem.mingcheng }}</p>
-                            <p class="text-sm text-gray-400">开</p>
-                          </div>
-                        </li>
-                      </ul>
+            <section class="p-2">
+              <h4 class="mb-2 text-gray-600">常用场景</h4>
+              <ul class="grid grid-cols-2 gap-4">
+                <ClickableOpacity
+                  v-for="(lightItem, lightIndex) in 4"
+                  :key="lightIndex"
+                  :style="{ backgroundImage: 'url(' + image1 + ')' }"
+                  class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
+                >
+                  <div class="flex w-full items-center">
+                    <h4 class="h-full w-full space-x-2 bg-black bg-opacity-50 px-3 py-6 text-white">
+                      <label>一楼</label>
+                      <label class="rounded bg-gray-200 px-2 py-1 text-xs text-black"> 客厅 </label>
+                    </h4>
+                  </div>
+                </ClickableOpacity>
+              </ul>
+              <h4 class="my-2 text-gray-600">常用设备</h4>
+              <ul class="grid grid-cols-2 gap-4">
+                <li
+                  v-for="(deviceItem, deviceIndex) in deviceList"
+                  :key="deviceIndex"
+                  class="flex items-center rounded-lg bg-white p-3"
+                >
+                  <div class="relative h-full w-full">
+                    <div class="absolute top-0 right-0">
+                      <IconPark type="more" @click="router.push({ path: '/smartDeviceStatus' })" />
                     </div>
-                  </section>
-                </template>
-              </draggable>
-            </transition-group>
+                    <IconPark
+                      size="2em"
+                      :type="getDeviceTypeItem(deviceItem.daleixing).icon"
+                      theme="filled"
+                      fill="#ff976a"
+                    />
+                    <p class="my-2">{{ deviceItem.mingcheng }}</p>
+                    <p class="text-sm text-gray-400">开</p>
+                  </div>
+                </li>
+              </ul>
+            </section>
           </van-tab>
           <van-tab
             v-for="(tabItem, tabIndex) in roomList"
@@ -277,7 +260,7 @@ onMounted(() => {
           >
             <section class="p-4">
               <ul class="grid grid-cols-2 gap-4">
-                <li
+                <ClickableOpacity
                   v-for="(sceneItem, sceneIndex) in 3"
                   :key="sceneIndex"
                   :style="{ backgroundImage: 'url(' + image1 + ')' }"
@@ -290,7 +273,7 @@ onMounted(() => {
                     </h4>
                     <p class="mt-2 text-sm text-gray-100">2个灯亮</p>
                   </div>
-                </li>
+                </ClickableOpacity>
               </ul>
               <div class="flex items-center py-4">
                 <h4 class="text-gray-600">照明</h4>

@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import AirCoolerTrigger from '@/components/common/AirCoolerTrigger.vue'
 import CurtainTrigger from '@/components/common/CurtainTrigger.vue'
 import LightTrigger from '@/components/common/LightTrigger.vue'
-import ClickableOpacity from '@/components/layout/clickableOpacity.vue'
+import ClickableOpacity from '@/components/layout/ClickableOpacity.vue'
 import deviceStore from '@/store/deviceStore'
 
 const route = useRoute()
