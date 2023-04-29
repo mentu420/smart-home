@@ -26,14 +26,25 @@ export default defineStore('deviceStore', () => {
     )
   })
 
-  const initDevice = async () => {
+  const useGetDeviceListSync = async (reload = false) => {
+    if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
-    deviceList.value = data
+    deviceList.value = data.map((item) => {
+      const classifyItem = DEVICE_INFO.find((deviceItem) => deviceItem.classify == item.daleixing)
+      return {
+        ...item,
+        icon: classifyItem.icon,
+        columns: classifyItem[item.xiaoleixing],
+        label: item.mingcheng,
+        id: item.bianhao,
+      }
+    })
+    return deviceList.value
   }
 
   const reset = () => {
     deviceList.value = []
   }
 
-  return { deviceList, getDeviceTypeItem, initDevice, reset }
+  return { deviceList, getDeviceTypeItem, reset, useGetDeviceListSync }
 })

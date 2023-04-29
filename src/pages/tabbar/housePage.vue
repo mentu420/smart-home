@@ -140,9 +140,13 @@ const toggleDrag = () => {
 
 const init = async () => {
   try {
-    const { initHouse, initRoomList } = houseStore()
-    const { initDevice } = deviceStore()
-    await Promise.all([initHouse(), initRoomList(), initDevice()])
+    const { useGetHouseListSync, useGetRoomListSync } = houseStore()
+    const { useGetDeviceListSync } = deviceStore()
+    await Promise.all([
+      useGetHouseListSync(true),
+      useGetRoomListSync(true),
+      useGetDeviceListSync(true),
+    ])
     weatherInfo.value = await getWeatherInfo()
   } catch (err) {
     console.warn(err)
@@ -212,7 +216,7 @@ onMounted(() => {
             <div class="w-10 flex-shrink-0"></div>
           </template>
           <van-tab title="全屋">
-            <section class="p-2">
+            <section class="p-4">
               <h4 class="mb-2 text-gray-600">常用场景</h4>
               <ul class="grid grid-cols-2 gap-4">
                 <ClickableOpacity
@@ -231,7 +235,7 @@ onMounted(() => {
               </ul>
               <h4 class="my-2 text-gray-600">常用设备</h4>
               <ul class="grid grid-cols-2 gap-4">
-                <li
+                <ClickableOpacity
                   v-for="(deviceItem, deviceIndex) in deviceList"
                   :key="deviceIndex"
                   class="flex items-center rounded-lg bg-white p-3"
@@ -249,7 +253,7 @@ onMounted(() => {
                     <p class="my-2">{{ deviceItem.mingcheng }}</p>
                     <p class="text-sm text-gray-400">开</p>
                   </div>
-                </li>
+                </ClickableOpacity>
               </ul>
             </section>
           </van-tab>
@@ -280,7 +284,7 @@ onMounted(() => {
                 <label class="ml-2 text-xs text-gray-400">2个灯亮</label>
               </div>
               <ul class="mb-4 grid grid-cols-2 gap-4">
-                <li
+                <ClickableOpacity
                   v-for="(btnItem, btnIndex) in ['全开', '全关']"
                   :key="btnIndex"
                   :style="{ backgroundImage: 'url(' + image1 + ')' }"
@@ -289,13 +293,13 @@ onMounted(() => {
                   <div class="h-full w-full bg-black bg-opacity-50 px-3 py-6">
                     <h4 class="space-x-2 text-white">{{ btnItem }}</h4>
                   </div>
-                </li>
+                </ClickableOpacity>
               </ul>
               <ul class="grid grid-cols-2 gap-4">
-                <li
+                <ClickableOpacity
                   v-for="(deviceItem, deviceIndex) in deviceList"
                   :key="deviceIndex"
-                  class="flex items-center rounded-lg bg-gray-300 p-3"
+                  class="flex items-center rounded-lg bg-white p-3"
                 >
                   <div class="relative h-full w-full">
                     <div class="absolute top-0 right-0">
@@ -307,13 +311,10 @@ onMounted(() => {
                       theme="filled"
                       fill="#ff976a"
                     />
-                    <h4 class="space-x-2 text-white">
-                      <label>一楼</label>
-                      <label>客厅</label>
-                    </h4>
-                    <p class="mt-2 text-sm text-gray-400">2个灯亮</p>
+                    <p class="my-2">{{ deviceItem.mingcheng }}</p>
+                    <p class="text-sm text-gray-400">开</p>
                   </div>
-                </li>
+                </ClickableOpacity>
               </ul>
             </section>
           </van-tab>

@@ -3,10 +3,11 @@ import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { getDeviceList } from '@/apis/smartApi'
+import deviceStore from '@/store/deviceStore'
 
 const router = useRouter()
 const deviceChecked = ref([])
-const deviceList = ref([{ name: '1' }, { name: '2' }])
+const deviceList = ref([])
 const checkboxRefs = ref([])
 const chedkAll = ref(false)
 const checkboxGroup = ref(null)
@@ -31,6 +32,14 @@ const goDeviceConfig = () => {
 const onSave = () => {
   router.push({ path: '/smartSceneCreate' })
 }
+
+const init = async () => {
+  const { useGetDeviceListSync } = deviceStore()
+  deviceList.value = await useGetDeviceListSync()
+  console.log(deviceList.value)
+}
+
+init()
 </script>
 
 <template>
@@ -43,7 +52,7 @@ const onSave = () => {
       </van-button>
     </div>
 
-    <section class="p-4">
+    <section v-if="deviceList.length > 0" class="p-4">
       <van-checkbox-group ref="checkboxGroup" v-model="deviceChecked" @change="onCheckChange">
         <div
           v-for="(deviceItem, deviceIndex) in deviceList"
@@ -53,11 +62,11 @@ const onSave = () => {
           @click="goDeviceConfig"
         >
           <div class="flex space-x-2">
-            <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
-              <IconPark size="1.8em" type="switch-one" fill="#fff" />
+            <div v-if="deviceItem.icon" class="h-10 w-10 rounded-full bg-orange-400 p-2">
+              <IconPark size="1.8em" :type="deviceItem.icon" fill="#fff" />
             </div>
             <div>
-              <p>智能设备</p>
+              <p>{{ deviceItem.label }}</p>
               <p class="text-sm text-gray-500">设备房间</p>
             </div>
           </div>
@@ -66,7 +75,7 @@ const onSave = () => {
             <van-checkbox
               :ref="(el) => (checkboxRefs[deviceIndex] = el)"
               v-model="deviceItem.checked"
-              :name="deviceItem.name"
+              :name="deviceItem.id"
               @click.stop
             ></van-checkbox>
           </div>

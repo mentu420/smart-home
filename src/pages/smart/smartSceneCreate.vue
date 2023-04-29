@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
+import { setSceneList } from '@/apis/smartApi.js'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import sceneStore from '@/store/sceneStore'
@@ -29,6 +30,10 @@ const goCondition = () => {
 
 const onSave = async () => {
   console.log('sceneCreateItem', sceneCreateItem.value)
+  const params = { op: 2 }
+  const data = sceneCreateItem.value
+  const { code } = await setSceneList({ params, data })
+  console.log(code)
 }
 // 打开执行时间
 const openExecutionTime = (eventItem, eventIndex) => {
@@ -115,9 +120,9 @@ export default {
             @click="showGallery = true"
           />
         </van-cell>
-        <van-cell center is-link title="房间编号" />
+        <!-- <van-cell center is-link title="房间编号" />
         <van-cell center is-link title="有效时间" />
-        <WeekRepeat v-model="weekChecked" />
+        <WeekRepeat v-model="weekChecked" /> -->
       </van-cell-group>
     </van-form>
     <section class="p-4">

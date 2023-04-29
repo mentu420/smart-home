@@ -1,5 +1,6 @@
 import '@vant/touch-emulator'
 import { createPinia } from 'pinia'
+import 'tailwindcss/tailwind.css'
 /**vant-ui 函数式组件样式**/
 import 'vant/es/dialog/style'
 import 'vant/es/image-preview/style'

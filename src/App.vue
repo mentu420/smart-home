@@ -39,10 +39,6 @@ watch(
 </template>
 
 <style>
-/* @tailwind base; */
-@tailwind components;
-@tailwind utilities;
-
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 14px;

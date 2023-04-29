@@ -11,13 +11,13 @@ const houseImage = ref('')
 const afterRead = () => {}
 
 const onSubmit = async () => {
-  const { initHouse } = houseStore()
+  const { useGetHouseListSync } = houseStore()
   const { code, data } = await setHouseList({
     bianhao: '',
     mingcheng: houseName.value,
     img: houseImage.value,
   })
-  await initHouse()
+  await useGetHouseListSync()
   router.back()
 }
 </script>
