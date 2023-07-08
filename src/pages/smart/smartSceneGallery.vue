@@ -18,6 +18,8 @@ const onComfirm = () => {
   updateSceneCreateItem({ img: checked.value })
   router.back()
 }
+
+defineOptions({ name: 'SmartSceneGallery' })
 </script>
 
 <template>
@@ -45,7 +47,8 @@ const onComfirm = () => {
         </li>
       </ul>
     </van-radio-group>
-    <div class="p-6">
+    <div class="h-[80px]"></div>
+    <div class="fixed bottom-0 left-0 z-10 w-screen bg-white px-6 py-4">
       <van-button type="primary" block round @click="onComfirm"> 确定 </van-button>
     </div>
   </div>

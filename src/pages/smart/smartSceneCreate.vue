@@ -1,8 +1,10 @@
 <script setup>
 import { storeToRefs } from 'pinia'
+import { showToast } from 'vant'
 import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
+import { uploadFile } from '@/apis/commonApi'
 import { setSceneList } from '@/apis/smartApi.js'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
@@ -22,13 +24,22 @@ const eventActive = ref(0) //记录将要改变的事件
 
 const { getRepeatTimeText } = sceneStore()
 
-const afterRead = () => {}
+const afterRead = async (file) => {
+  console.log('afterRead', file)
+  // const { code, data } = await uploadFile({ file: file.content })
+  // console.log(data)
+}
 
 const goCondition = () => {
   router.push({ path: '/smartCondition' })
 }
 
 const onSave = async () => {
+  console.log('sceneCreateItem.value', sceneCreateItem.value)
+  if (!sceneCreateItem.value.actions || sceneCreateItem.value?.actions?.length == 0) {
+    showToast('请添加任务')
+    return
+  }
   console.log('sceneCreateItem', sceneCreateItem.value)
   const params = { op: 2 }
   const data = sceneCreateItem.value
@@ -70,6 +81,11 @@ const delTimeItem = (eventIndex) => {
 const delEventItem = () => {
   const { updateSceneCreateItem } = sceneStore()
   updateSceneCreateItem({ fenlei: 2 })
+}
+
+const openGallery = () => {
+  showGallery.value = false
+  router.push({ path: '/smartSceneGallery' })
 }
 
 const init = () => {
@@ -213,7 +229,7 @@ defineOptions({ name: 'SmartSceneCreate' })
 
     <van-action-sheet v-model:show="showGallery" cancel-text="取消" close-on-click-action>
       <ul class="space-y-6 py-4 text-center">
-        <li @click="router.push({ path: '/smartSceneGallery' })">默认图库</li>
+        <li @click="openGallery">默认图库</li>
         <van-uploader ref="uploaderRef" :after-read="afterRead">
           <label> 选择相机 </label>
         </van-uploader>
