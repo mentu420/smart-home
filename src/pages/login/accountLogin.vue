@@ -50,7 +50,7 @@ const goOtherLogin = () => {
 
 <template>
   <div class="p-4">
-    <h1 class="mt-10 ml-2 mb-10">密码登录</h1>
+    <h1 class="mb-10 ml-2 mt-10">密码登录</h1>
     <van-form class="m-2" @submit="onSubmit">
       <van-cell-group>
         <van-field
@@ -101,7 +101,7 @@ const goOtherLogin = () => {
           </template>
         </van-field>
       </van-cell-group>
-      <div class="mt-10 ml-2">
+      <div class="ml-2 mt-10">
         <van-checkbox v-model="checked">记住密码</van-checkbox>
       </div>
       <div class="my-4">

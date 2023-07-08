@@ -58,7 +58,7 @@ const onSave = () => {
       </van-cell-group>
     </van-radio-group>
     <div class="h-24"></div>
-    <div class="fixed bottom-0 left-0 right-0 bg-white py-4 px-6">
+    <div class="fixed bottom-0 left-0 right-0 bg-white px-6 py-4">
       <van-button type="primary" block round @click="onSave"> 下一步 </van-button>
     </div>
 

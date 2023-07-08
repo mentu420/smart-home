@@ -241,7 +241,7 @@ onMounted(() => {
                   class="flex items-center rounded-lg bg-white p-3"
                 >
                   <div class="relative h-full w-full">
-                    <div class="absolute top-0 right-0">
+                    <div class="absolute right-0 top-0">
                       <IconPark type="more" @click="router.push({ path: '/smartDeviceStatus' })" />
                     </div>
                     <IconPark
@@ -302,7 +302,7 @@ onMounted(() => {
                   class="flex items-center rounded-lg bg-white p-3"
                 >
                   <div class="relative h-full w-full">
-                    <div class="absolute top-0 right-0">
+                    <div class="absolute right-0 top-0">
                       <IconPark type="more" @click="router.push({ path: '/smartDeviceStatus' })" />
                     </div>
                     <IconPark

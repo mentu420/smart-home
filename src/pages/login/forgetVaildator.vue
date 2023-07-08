@@ -26,7 +26,7 @@ const goOtherLogin = () => {
 <template>
   <div class="p-6">
     <HeaderNavbar />
-    <h1 class="mt-8 mb-2">验证码已发送至</h1>
+    <h1 class="mb-2 mt-8">验证码已发送至</h1>
     <div class="mb-8 flex justify-between">
       <label>{{ route.query.phone }}</label>
       <van-count-down format="ss秒" :time="time" />

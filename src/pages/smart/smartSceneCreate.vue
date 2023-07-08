@@ -85,12 +85,8 @@ watch(
     if (to == '/smartSceneCreate' && form.value === '/tabbar/tabbarSmart') init()
   }
 )
-</script>
 
-<script>
-export default {
-  name: 'SmartSceneCreate',
-}
+defineOptions({ name: 'SmartSceneCreate' })
 </script>
 
 <template>

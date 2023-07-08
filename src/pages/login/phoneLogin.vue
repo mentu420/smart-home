@@ -53,7 +53,7 @@ const onValidPhone = (value) => vaildPhone(value)
 
 <template>
   <div class="p-6">
-    <h1 class="mt-10 mb-6">验证码登录</h1>
+    <h1 class="mb-6 mt-10">验证码登录</h1>
     <van-form ref="formRef" @submit="onSubmit">
       <van-cell-group>
         <van-field
@@ -79,7 +79,7 @@ const onValidPhone = (value) => vaildPhone(value)
           </template>
         </van-field>
       </van-cell-group>
-      <div class="mt-10 ml-2">
+      <div class="ml-2 mt-10">
         <van-checkbox v-model="checked">记住密码</van-checkbox>
       </div>
       <div class="my-4">

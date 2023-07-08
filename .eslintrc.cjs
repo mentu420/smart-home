@@ -3,6 +3,7 @@ module.exports = {
     browser: true,
     es2021: true,
     node: true,
+    'vue/setup-compiler-macros': true,
   },
   extends: [
     'eslint-config-prettier',
@@ -28,6 +29,7 @@ module.exports = {
     'vue', // 引入vue的插件 vue <==> eslint-plugin-vue
   ],
   globals: {
+    // script setup
     defineProps: 'readonly',
     defineEmits: 'readonly',
     defineExpose: 'readonly',

@@ -81,7 +81,7 @@ const onConfirm = () => {
               <h4 class="mb-4">设备类型</h4>
               <div>
                 <van-button
-                  class="!mr-4 !mb-4"
+                  class="!mb-4 !mr-4"
                   round
                   size="small"
                   :type="deviceChecked.length == deviceTypeList.length ? 'primary' : 'default'"
@@ -94,7 +94,7 @@ const onConfirm = () => {
                 <van-button
                   v-for="deviceItem in deviceTypeList"
                   :key="deviceItem.classify"
-                  class="!mr-2 !mb-2"
+                  class="!mb-2 !mr-2"
                   round
                   size="small"
                   :type="deviceChecked.includes(deviceItem.classify) ? 'primary' : 'default'"
@@ -108,7 +108,7 @@ const onConfirm = () => {
               <h4 class="mb-4">房间</h4>
               <div>
                 <van-button
-                  class="!mr-4 !mb-4"
+                  class="!mb-4 !mr-4"
                   round
                   size="small"
                   :type="roomChecked.length == roomList.length ? 'primary' : 'default'"
@@ -121,7 +121,7 @@ const onConfirm = () => {
                 <van-button
                   v-for="roomItem in roomList"
                   :key="roomItem.id"
-                  class="!mr-2 !mb-2"
+                  class="!mb-2 !mr-2"
                   round
                   size="small"
                   :type="roomChecked.includes(roomItem.id) ? 'primary' : 'default'"

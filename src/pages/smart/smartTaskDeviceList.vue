@@ -83,7 +83,7 @@ init()
       </van-checkbox-group>
     </section>
     <div class="h-24"></div>
-    <footer class="fixed bottom-0 left-0 w-screen bg-white py-4 px-6">
+    <footer class="fixed bottom-0 left-0 w-screen bg-white px-6 py-4">
       <van-button round type="primary" block :disabled="deviceChecked.length > 0" @click="onSave">
         下一步
       </van-button>

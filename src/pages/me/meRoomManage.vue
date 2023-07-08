@@ -118,11 +118,11 @@ init()
           <span
             v-for="roomItem in storeyItem.roomList"
             :key="roomItem.bianhao"
-            class="relative mr-4 mb-4 rounded bg-gray-100 py-2 px-4 text-sm"
+            class="relative mb-4 mr-4 rounded bg-gray-100 px-4 py-2 text-sm"
             color="#999"
           >
             <label>{{ roomItem.mingcheng }}</label>
-            <span class="absolute -top-2 -right-2">
+            <span class="absolute -right-2 -top-2">
               <van-icon name="clear" @click="onDelectRoom(roomItem)" />
             </span>
           </span>
