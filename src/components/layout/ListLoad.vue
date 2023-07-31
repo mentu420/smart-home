@@ -9,17 +9,20 @@ import {
   onMounted,
   onDeactivated,
   nextTick,
+  toRefs,
 } from 'vue'
 
 import { useListLoad } from '@/hooks/useListLoad.js'
 
-const props = defineProps({
-  config: {
-    type: Object,
-    default: () => {},
-    required: true,
-  },
-})
+const { config } = toRefs(
+  defineProps({
+    config: {
+      type: Object,
+      default: () => {},
+      required: true,
+    },
+  })
+)
 
 const emits = defineEmits(['scroll', 'update:loading', 'update:moreLoading'])
 const attrs = useAttrs()
@@ -29,7 +32,7 @@ const state = reactive({
   empty: { description: '暂无数据' },
 })
 
-const { loading, moreLoading, finished, list, onMore, onReload } = useListLoad(props.config)
+const { loading, moreLoading, finished, list, onMore, onReload } = useListLoad(config)
 
 const showEmpty = computed(() => {
   return list.value.length == 0
