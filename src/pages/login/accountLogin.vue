@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 
 import * as CommonApi from '@/apis/commonApi.js'
 import { trimFormat } from '@/hooks/useFormValidator.js'
+import DeviceInfo from '@/utils/deviceInfo.js'
 import { getStorage, setStorage } from '@/utils/storage.js'
 
 const router = useRouter()
@@ -22,7 +23,18 @@ const onSubmit = async (values) => {
     })
     setStorage('account-list', accountList.value)
   }
-  const { code } = await CommonApi.getUserConfig({ op: 0 })
+  const { code } = await CommonApi.getUserConfig({
+    params: { op: 0 },
+    data: {
+      shoujixinghao: '',
+      shoujimingcheng: '',
+      xitongleixing: '',
+      tuisongtoken: '',
+      dengluleixing: '',
+      shoujihaoma: '',
+      mima: '',
+    },
+  })
   if (code != 0) return
   router.replace({ path: '/tabbar/tabbarHouse' })
 }
