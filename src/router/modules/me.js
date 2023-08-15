@@ -83,4 +83,10 @@ export default [
     component: () => import('@/pages/me/mePasswordChange.vue'),
     meta: { title: '修改密码' },
   },
+  {
+    path: '/meDevelopment',
+    name: 'MeDevelopment',
+    component: () => import('@/pages/me/meDevelopment.vue'),
+    meta: { title: '开发者模式' },
+  },
 ]

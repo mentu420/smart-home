@@ -40,6 +40,14 @@ const Router = createRouter({
       component: () => import('@/pages/common/webviewPage.vue'),
     },
     {
+      path: '/launchPage',
+      name: 'LaunchPage',
+      component: () => import('@/pages/tabbar/launchPage.vue'),
+      meta: {
+        title: '启动页',
+      },
+    },
+    {
       path: '/tabbar',
       name: 'Tabbar',
       component: () => import('@/pages/tabbar/tabbarPage.vue'),

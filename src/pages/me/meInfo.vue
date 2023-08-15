@@ -1,4 +1,5 @@
 <script setup>
+import Vconsole from 'vconsole'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -7,11 +8,12 @@ import { useUploader } from '@/hooks/useUploader'
 import userStore from '@/store/userStore'
 
 const router = useRouter()
-
+const clickCount = ref(0)
 const navList = ref([
-  { text: '昵称', value: '李先生', path: '/meNickname' },
-  { text: '手机号', value: '1888888888', path: '/mePhoneChange' },
-  { text: '修改密码', value: '', path: '/mePasswordChange' },
+  { id: 0, text: '昵称', value: '李先生', path: '/meNickname' },
+  { id: 1, text: '手机号', value: '1888888888', path: '/mePhoneChange' },
+  { id: 2, text: '修改密码', value: '', path: '/mePasswordChange' },
+  { id: 3, text: '版本', value: '', path: '/meVersion' },
 ])
 const avatar = ref('')
 
@@ -35,6 +37,22 @@ const init = async () => {
 }
 
 init()
+
+const onNavItemClick = (navItem) => {
+  if (navItem.id == 3) {
+    clickCount.value++
+    if (clickCount.value == 5) {
+      new Vconsole()
+      navList.value = [
+        ...navList.value,
+        { id: 4, text: '开发者模式', value: '', path: '/meDevelopment' },
+      ]
+    }
+
+    return
+  }
+  router.push({ path: navItem.path, query: { value: navItem.value } })
+}
 </script>
 
 <template>
@@ -53,7 +71,7 @@ init()
         v-for="(navItem, nvaIndex) in navList"
         :key="nvaIndex"
         class="van-hairline--bottom mb-2 flex items-center justify-between rounded-lg bg-white p-4 active:opacity-30"
-        @click="router.push({ path: navItem.path, query: { value: navItem.value } })"
+        @click="onNavItemClick(navItem)"
       >
         <div>{{ navItem.text }}</div>
         <div class="flex items-center">

@@ -26,13 +26,13 @@ const onSubmit = async (values) => {
   const { code } = await CommonApi.getUserConfig({
     params: { op: 0 },
     data: {
-      shoujixinghao: '',
-      shoujimingcheng: '',
-      xitongleixing: '',
-      tuisongtoken: '',
-      dengluleixing: '',
-      shoujihaoma: '',
-      mima: '',
+      shoujixinghao: DeviceInfo.appVersion,
+      shoujimingcheng: DeviceInfo.platform,
+      xitongleixing: DeviceInfo.system,
+      tuisongtoken: DeviceInfo.language,
+      dengluleixing: '2',
+      shoujihaoma: values.username,
+      mima: values.password,
     },
   })
   if (code != 0) return
