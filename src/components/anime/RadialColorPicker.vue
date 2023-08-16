@@ -66,7 +66,7 @@
 
 <script>
 import Rotator from '@radial-color-picker/rotator'
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, toRefs } from 'vue'
 
 const keys = {
   ArrowUp: (oldAngle, step) => oldAngle + step,
@@ -149,15 +149,14 @@ export default {
     // template refs
     const el = ref(null)
     const rotator = ref(null)
-
+    const { hue, initiallyCollapsed } = toRefs(props)
     // instance values
     let rcp = null
-
     // state
-    const initialAngle = props.hue + 'deg'
-    const angle = ref(props.hue)
-    const isPaletteIn = ref(!props.initiallyCollapsed)
-    const isKnobIn = ref(!props.initiallyCollapsed)
+    const initialAngle = hue.value.valuetext + 'deg'
+    const angle = ref(hue.value.valuetext)
+    const isPaletteIn = ref(!initiallyCollapsed.value)
+    const isKnobIn = ref(!initiallyCollapsed.value)
     const isPressed = ref(false)
     const isRippling = ref(false)
     const isDragging = ref(false)
@@ -353,7 +352,9 @@ export default {
 }
 
 .rcp:hover .rcp__knob {
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.19), 0 0 10px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.19),
+    0 0 10px rgba(0, 0, 0, 0.24);
 }
 
 .rcp.dragging {
@@ -384,7 +385,8 @@ export default {
   border-radius: 50%;
   overflow: hidden;
   will-change: transform, opacity;
-  transition: transform 0.5s cubic-bezier(0.35, 0, 0.25, 1),
+  transition:
+    transform 0.5s cubic-bezier(0.35, 0, 0.25, 1),
     opacity 0.5s cubic-bezier(0.35, 0, 0.25, 1);
 }
 
@@ -410,7 +412,9 @@ export default {
 }
 
 .rcp__knob {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.12), 0 0 5px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    0 0 10px rgba(0, 0, 0, 0.12),
+    0 0 5px rgba(0, 0, 0, 0.16);
   border-radius: 50%;
   position: absolute;
   width: 7%;

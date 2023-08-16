@@ -40,7 +40,7 @@ const config = computed({
 const modeItem = computed(() => modelActions.find((item) => item.id == config.value.model))
 const speedItem = computed(() => speedActions.find((item) => item.id == config.value.speed))
 
-const tempCopy = ref(props.modelValue.temp)
+const tempCopy = computed(() => props.modelValue.temp)
 const status = ref(false) //空调开关
 
 const setTemp = () =>
