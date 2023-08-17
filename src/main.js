@@ -12,6 +12,7 @@ import Vue3TouchEvents from 'vue3-touch-events'
 //重置样式
 import '@/assets/styles/reset.css'
 import IconPark from '@/components/base/IconPark.vue'
+import IconFont from '@/components/iconfont/index'
 import HeaderNavbar from '@/components/layout/HeaderNavbar.vue'
 import ListLoad from '@/components/layout/ListLoad.vue'
 import copy from '@/directive/copy.js'
@@ -32,6 +33,7 @@ app
   .component(HeaderNavbar.name, HeaderNavbar)
   .component('ListLoad', ListLoad)
   .component('IconPark', IconPark)
+  .component('IconFont', IconFont)
 
 app
   .use(Router)
