@@ -2,39 +2,25 @@ import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
 import { getDeviceList } from '@/apis/smartApi'
-import DEVICE_INFO from '@/enums/deviceInfo'
+import { CLASSIFY_ICON, CLASSIFY_EXECL, TYPE_EXECL, TYPE_VALUE_EXECL } from '@/enums/deviceInfo'
 
 export default defineStore('deviceStore', () => {
   const deviceList = ref([])
 
-  /**
-   * @params
-   * value  设备大类或者小类
-   * key 大类classify 小类category
-   * **/
-  const getDeviceTypeItem = computed(() => (value, key = 'classify') => {
-    return (
-      DEVICE_INFO.find((deviceItem) => {
-        if (key == 'classify') return deviceItem[key] == value
-        return deviceItem[key].includes(value)
-      }) || {
-        icon: 'tips',
-        name: '未知设备',
-        classify: '000',
-        category: [],
-      }
-    )
-  })
+  const getDeviceIcon = (classify) => CLASSIFY_ICON[classify]
 
   const useGetDeviceListSync = async (reload = false) => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
+    console.log(data)
     deviceList.value = data.map((item) => {
-      const classifyItem = DEVICE_INFO.find((deviceItem) => deviceItem.classify == item.daleixing)
+      // const classifyItem = [].find((deviceItem) => deviceItem.classify == item.daleixing)
+      // const typeList = TYPE_EXECL.find((typeItem) => typeItem.category == item.daleixing)
+      const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.daleixing)
       return {
         ...item,
-        icon: classifyItem.icon,
-        columns: classifyItem[item.xiaoleixing],
+        icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
+        columns,
         label: item.mingcheng,
         id: item.bianhao,
       }
@@ -46,5 +32,5 @@ export default defineStore('deviceStore', () => {
     deviceList.value = []
   }
 
-  return { deviceList, getDeviceTypeItem, reset, useGetDeviceListSync }
+  return { deviceList, getDeviceIcon, reset, useGetDeviceListSync }
 })

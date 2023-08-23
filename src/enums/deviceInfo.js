@@ -1,3 +1,12 @@
+export const CLASSIFY_ICON = {
+  100: 'lamp-fill',
+  101: 'curtain-fill',
+  102: 'ari-cooler-fill',
+  103: 'underfloor-heat-fill',
+  104: 'fresh-air-fill',
+  105: 'music-fill',
+}
+
 export const CLASSIFY_EXECL = [
   { classify: '100', classifyName: '灯光' },
   { classify: '101', classifyName: '窗帘' },

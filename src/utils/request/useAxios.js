@@ -16,7 +16,6 @@ const useAxios = axios.create({
   timeout: 10 * 1000,
   headers: {
     'Content-Type': 'application/json;charset=UTF-8',
-    Accept: 'application/json;charset=UTF-8',
   },
   retry: 2, //retry 请求重试次数
 })
@@ -26,7 +25,8 @@ const useAxios = axios.create({
 const responseHandle = (response) => {
   console.log('useLogout', response)
   if (response.status === 200 && response.data.code === 3) {
-    useLogout(response.data.des)
+    //退出登录
+    // useLogout(response.data.des)
   } else if (
     response.status === 200 &&
     response.data.code != 0 &&
