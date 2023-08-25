@@ -45,7 +45,7 @@ const onIncrease = () => {
       <template #icon>
         <span
           class="flex h-8 w-8 items-center justify-center rounded-full"
-          :class="{ 'bg-gray-400': !close, 'bg-theme-color': close }"
+          :class="{ 'bg-gray-400': !close, 'bg-primary': close }"
         >
           <iconpark-icon
             ref="iconRef"
@@ -68,7 +68,7 @@ const onIncrease = () => {
       <template #right-icon>
         <span
           class="flex h-8 w-8 items-center justify-center rounded-full"
-          :class="{ 'bg-gray-400': !open, 'bg-theme-color': open }"
+          :class="{ 'bg-gray-400': !open, 'bg-primary': open }"
         >
           <iconpark-icon
             ref="iconRef"

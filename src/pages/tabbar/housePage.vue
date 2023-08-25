@@ -8,9 +8,7 @@ import draggable from 'vuedraggable'
 import { getHouseList } from '@/apis/houseApi.js'
 import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
-import deviceStore from '@/store/deviceStore.js'
-import houseStore from '@/store/houseStore.js'
-import sceneStore from '@/store/sceneStore'
+import { deviceStore, houseStore, sceneStore, userStore } from '@/store/'
 
 const useDeviceStore = deviceStore()
 
@@ -142,7 +140,7 @@ const toggleDrag = () => {
 
 const init = async () => {
   try {
-    const { useGetHouseListSync, useGetRoomListSync } = houseStore()
+    const { useGetHouseListSync, useGetRoomListSync, setCurrentHouse } = houseStore()
     const { useGetDeviceListSync } = deviceStore()
     await Promise.all([
       useGetHouseListSync(true),
@@ -150,6 +148,10 @@ const init = async () => {
       useGetDeviceListSync(true),
     ])
     weatherInfo.value = await getWeatherInfo()
+    console.log('currentHouse', currentHouse.value)
+    if (currentHouse.value?.id) return
+    console.log(houseList.value)
+    setCurrentHouse(houseList.value[0].bianhao)
   } catch (err) {
     console.warn(err)
   } finally {
@@ -236,8 +238,7 @@ onMounted(() => {
                 </li>
               </ul>
               <h4 class="my-2 text-gray-600">常用设备</h4>
-              {{ deviceList }}
-              <!-- <ul class="grid grid-cols-2 gap-4">
+              <ul class="grid grid-cols-2 gap-4">
                 <li
                   v-for="(deviceItem, deviceIndex) in deviceList"
                   :key="deviceIndex"
@@ -246,14 +247,18 @@ onMounted(() => {
                 >
                   <div class="relative h-full w-full">
                     <div class="absolute right-0 top-0">
-                      <IconPark type="more" @click="router.push({ path: '/smartDeviceStatus' })" />
+                      <IconFont
+                        class="text-gray-400 text-[10px]"
+                        icon="more-round"
+                        @click="router.push({ path: '/smartDeviceStatus' })"
+                      />
                     </div>
-                    <IconPark size="2em" :type="deviceItem.icon" theme="filled" fill="#ff976a" />
+                    <IconFont class="text-primary" :icon="deviceItem.icon" />
                     <p class="my-2">{{ deviceItem.mingcheng }}</p>
                     <p class="text-sm text-gray-400">开</p>
                   </div>
                 </li>
-              </ul> -->
+              </ul>
             </section>
           </van-tab>
           <!-- <van-tab

@@ -74,7 +74,7 @@ const onSave = () => {
             <div class="w-full">
               <van-slider v-model="light" min="1">
                 <template #button>
-                  <div class="w-10 rounded-full bg-white py-1 text-center text-theme-color shadow">
+                  <div class="w-10 rounded-full bg-white py-1 text-center text-primary shadow">
                     {{ light }}
                   </div>
                 </template>

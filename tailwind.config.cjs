@@ -55,7 +55,7 @@ module.exports = {
     extend: {
       colors: {
         'page-gray': '#f7f7f7',
-        'theme-color': '#e39334',
+        primary: '#e39334',
       },
     },
   },

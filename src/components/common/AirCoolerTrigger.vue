@@ -88,7 +88,7 @@ const onModelSelect = (action) => {
       <div>
         <div
           class="flex h-10 w-10 items-center justify-center rounded-full leading-none"
-          :class="{ 'bg-theme-color': status }"
+          :class="{ 'bg-primary': status }"
           @click="status = !status"
         >
           <IconPark size="24" type="power" theme="filled" :fill="status ? '#fff' : '#999'" />
