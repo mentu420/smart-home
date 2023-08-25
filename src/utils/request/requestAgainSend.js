@@ -1,5 +1,5 @@
 // 实现 请求错误时重新发送接口
-import { isJsonStr, mergingStep } from '@/utils/common.js'
+import { isObjectString, mergingStep } from '@/utils/common.js'
 
 import { authSign, authToken } from './requestAuthSign.js'
 
@@ -33,7 +33,7 @@ export const againRequest = async (err, axios) => {
   await backoff
   // 判断是否是JSON字符串
   // TODO: 未确认config.data再重发时变为字符串的原因
-  if (config.data && isJsonStr(config.data)) {
+  if (config.data && isObjectString(config.data)) {
     config.data = JSON.parse(config.data)
   }
   // 带固定参数
