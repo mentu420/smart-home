@@ -15,9 +15,11 @@ import IconPark from '@/components/base/IconPark.vue'
 import IconFont from '@/components/iconfont/index'
 import HeaderNavbar from '@/components/layout/HeaderNavbar.vue'
 import ListLoad from '@/components/layout/ListLoad.vue'
+import clickableOpacity from '@/directive/clickableOpacity.js'
 import copy from '@/directive/copy.js'
 import loadingClick from '@/directive/loadingClick.js'
 import permission from '@/directive/permission.js'
+import pointerDrag from '@/directive/pointerDrag.js'
 import press from '@/directive/press.js'
 
 import App from './App.vue'
@@ -40,7 +42,9 @@ app
   .use(pinia)
   .use(Vue3TouchEvents)
   .directive('loading-click', loadingClick)
+  .directive('clickable-opacity', clickableOpacity)
   .directive('copy', copy)
   .directive('press', press)
   .directive('permission', permission)
+  .directive('pointer-drag', pointerDrag)
   .mount('#app')
