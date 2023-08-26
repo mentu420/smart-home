@@ -12,10 +12,7 @@ export default defineStore('deviceStore', () => {
   const useGetDeviceListSync = async (reload = false) => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
-    console.log(data)
     deviceList.value = data.map((item) => {
-      // const classifyItem = [].find((deviceItem) => deviceItem.classify == item.daleixing)
-      // const typeList = TYPE_EXECL.find((typeItem) => typeItem.category == item.daleixing)
       const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.daleixing)
       return {
         ...item,

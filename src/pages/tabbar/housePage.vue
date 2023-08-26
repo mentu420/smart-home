@@ -7,6 +7,8 @@ import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
 import image1 from '@/assets/images/smart/smart-bg-1.jpg'
+import DeviceCardItemVue from '@/components/base/DeviceCardItem.vue'
+import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import { deviceStore, houseStore, sceneStore, userStore } from '@/store/'
 
@@ -221,110 +223,60 @@ onMounted(() => {
           <van-tab title="全屋">
             <section class="p-4">
               <h4 class="mb-2 text-gray-600">常用场景</h4>
-              <ul class="grid grid-cols-2 gap-4">
-                <li
-                  v-for="(lightItem, lightIndex) in 2"
-                  :key="lightIndex"
-                  v-clickable-opacity
-                  :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                  class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
-                >
-                  <div class="flex w-full items-center">
-                    <h4 class="h-full w-full space-x-2 bg-black bg-opacity-50 px-3 py-6 text-white">
-                      <label>一楼</label>
-                      <label class="rounded bg-gray-200 px-2 py-1 text-xs text-black"> 客厅 </label>
-                    </h4>
+              <div class="grid grid-cols-2 gap-4">
+                <ScenenCardItem v-for="(lightItem, lightIndex) in 2" :key="lightIndex">
+                  <div class="space-x-2 text-white">
+                    <label>{{ lightItem }}</label>
+                    <label class="rounded bg-gray-200 px-2 py-1 text-xs text-black"> 客厅 </label>
                   </div>
-                </li>
-              </ul>
+                </ScenenCardItem>
+              </div>
               <h4 class="my-2 text-gray-600">常用设备</h4>
               <ul class="grid grid-cols-2 gap-4">
-                <li
+                <DeviceCardItemVue
                   v-for="(deviceItem, deviceIndex) in deviceList"
                   :key="deviceIndex"
-                  v-clickable-opacity
-                  class="flex items-center rounded-lg bg-white p-3"
-                >
-                  <div class="relative h-full w-full">
-                    <div class="absolute right-0 top-0">
-                      <IconFont
-                        class="text-gray-400 text-[10px]"
-                        icon="more-round"
-                        @click="router.push({ path: '/smartDeviceStatus' })"
-                      />
-                    </div>
-                    <IconFont class="text-primary" :icon="deviceItem.icon" />
-                    <p class="my-2">{{ deviceItem.mingcheng }}</p>
-                    <p class="text-sm text-gray-400">开</p>
-                  </div>
-                </li>
+                  :label="deviceItem.mingcheng"
+                  :icon="deviceItem.icon"
+                  @click-right-icon="router.push({ path: '/smartDeviceStatus' })"
+                ></DeviceCardItemVue>
               </ul>
             </section>
           </van-tab>
-          <!-- <van-tab
+          <van-tab
             v-for="(tabItem, tabIndex) in roomList"
             :key="tabIndex"
             :title="tabItem.mingcheng"
           >
             <section class="p-4">
-              <ul class="grid grid-cols-2 gap-4">
-                <li
-                  v-for="(sceneItem, sceneIndex) in 3"
-                  :key="sceneIndex"
-                  v-clickable-opacity
-                  :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                  class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
-                >
-                  <div class="h-full w-full bg-black bg-opacity-50 p-3">
-                    <h4 class="space-x-2 text-white">
-                      <label>一楼</label>
-                      <label>客厅</label>
-                    </h4>
-                    <p class="mt-2 text-sm text-gray-100">2个灯亮</p>
-                  </div>
-                </li>
-              </ul>
+              <div class="grid grid-cols-2 gap-4">
+                <ScenenCardItem v-for="(sceneItem, sceneIndex) in 2" :key="sceneIndex">
+                  <label>{{ sceneItem }}</label>
+                </ScenenCardItem>
+              </div>
               <div class="flex items-center py-4">
                 <h4 class="text-gray-600">照明</h4>
                 <label class="ml-2 text-xs text-gray-400">2个灯亮</label>
               </div>
-              <ul class="mb-4 grid grid-cols-2 gap-4">
-                <li
-                  v-for="(btnItem, btnIndex) in ['全开', '全关']"
-                  :key="btnIndex"
-                  v-clickable-opacity
-                  :style="{ backgroundImage: 'url(' + image1 + ')' }"
-                  class="flex items-center overflow-hidden rounded-lg bg-gray-300 bg-cover bg-center bg-no-repeat"
+              <div class="mb-4 grid grid-cols-2 gap-4">
+                <ScenenCardItem
+                  v-for="(sceneItem, sceneIndex) in ['全开', '全关']"
+                  :key="sceneIndex"
                 >
-                  <div class="h-full w-full bg-black bg-opacity-50 px-3 py-6">
-                    <h4 class="space-x-2 text-white">{{ btnItem }}</h4>
-                  </div>
-                </li>
-              </ul>
-              <ul class="grid grid-cols-2 gap-4">
-                <li
+                  <label>{{ sceneItem }}</label>
+                </ScenenCardItem>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <DeviceCardItemVue
                   v-for="(deviceItem, deviceIndex) in deviceList"
                   :key="deviceIndex"
-                  v-clickable-opacity
-                  class="flex items-center rounded-lg bg-white p-3"
-                >
-                  <div class="relative h-full w-full">
-                    <div class="absolute right-0 top-0">
-                      <IconPark type="more" @click="router.push({ path: '/smartDeviceStatus' })" />
-                    </div>
-                    <IconPark
-                      size="2em"
-                      :type="getDeviceIcon(deviceItem.daleixing.slice(0, 3))"
-                      theme="filled"
-                      fill="#ff976a"
-                    />
-                    <p class="my-2">{{ deviceItem.mingcheng }}</p>
-                    <p class="text-sm text-gray-400">开</p>
-                  </div>
-                </li>
-              </ul>
+                  :label="deviceItem.mingcheng"
+                  :icon="deviceItem.icon"
+                  @click-right-icon="router.push({ path: '/smartDeviceStatus' })"
+                ></DeviceCardItemVue>
+              </div>
             </section>
-          </van-tab> -->
+          </van-tab>
         </van-tabs>
         <div class="absolute right-0 top-0 bg-page-gray">
           <div class="flex h-12 w-10 flex-auto items-center justify-center space-x-4 pr-2">
