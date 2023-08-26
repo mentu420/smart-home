@@ -15,7 +15,7 @@ import IconPark from '@/components/base/IconPark.vue'
 import IconFont from '@/components/iconfont/index'
 import HeaderNavbar from '@/components/layout/HeaderNavbar.vue'
 import ListLoad from '@/components/layout/ListLoad.vue'
-import clickableOpacity from '@/directive/clickableOpacity.js'
+import clickableActive from '@/directive/clickableActive.js'
 import copy from '@/directive/copy.js'
 import loadingClick from '@/directive/loadingClick.js'
 import permission from '@/directive/permission.js'
@@ -42,7 +42,7 @@ app
   .use(pinia)
   .use(Vue3TouchEvents)
   .directive('loading-click', loadingClick)
-  .directive('clickable-opacity', clickableOpacity)
+  .directive('clickable-active', clickableActive)
   .directive('copy', copy)
   .directive('press', press)
   .directive('permission', permission)
