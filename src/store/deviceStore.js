@@ -20,6 +20,7 @@ export default defineStore('deviceStore', () => {
         columns,
         label: item.mingcheng,
         id: item.bianhao,
+        rId: item.fangjianbianhao, //房间编号
       }
     })
     return deviceList.value

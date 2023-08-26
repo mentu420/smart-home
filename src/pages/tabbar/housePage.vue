@@ -6,7 +6,6 @@ import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
-import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 import DeviceCardItemVue from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
@@ -27,6 +26,7 @@ const tabActive = ref(0)
 const { houseList, currentHouse, roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(useDeviceStore)
 const { getDeviceIcon } = useDeviceStore
+
 const dragOptions = ref({
   animation: 200,
   group: 'description',
@@ -149,10 +149,8 @@ const init = async () => {
       useGetRoomListSync(true),
       useGetDeviceListSync(true),
     ])
-    weatherInfo.value = await getWeatherInfo()
-    console.log('currentHouse', currentHouse.value)
+
     if (currentHouse.value?.id) return
-    console.log(houseList.value)
     setCurrentHouse(houseList.value[0].bianhao)
   } catch (err) {
     console.warn(err)
@@ -201,10 +199,14 @@ onMounted(() => {
             </van-popover> -->
           </div>
         </div>
-        <div ref="weatherRef" class="min-h-10 flex items-end p-4">
-          <h2>{{ weatherInfo.temp }}</h2>
+        <div
+          v-if="currentHouse?.huanjingzhuangtai"
+          ref="weatherRef"
+          class="min-h-10 flex items-end p-4"
+        >
+          <h2>{{ currentHouse?.huanjingzhuangtai?.WenDu }}</h2>
           <p class="ml-1 mr-4 text-sm">℃</p>
-          <h2 class="mr-2 text-lg">{{ weatherInfo.weather }}</h2>
+          <h2 class="mr-2 text-lg">{{ currentHouse?.huanjingzhuangtai?.ShiDu }}</h2>
         </div>
       </template>
       <div class="relative">
@@ -244,9 +246,9 @@ onMounted(() => {
             </section>
           </van-tab>
           <van-tab
-            v-for="(tabItem, tabIndex) in roomList"
-            :key="tabIndex"
-            :title="tabItem.mingcheng"
+            v-for="(roomItem, roomIndex) in roomList"
+            :key="roomIndex"
+            :title="roomItem.mingcheng"
           >
             <section class="p-4">
               <div class="grid grid-cols-2 gap-4">
@@ -268,7 +270,9 @@ onMounted(() => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <DeviceCardItemVue
-                  v-for="(deviceItem, deviceIndex) in deviceList"
+                  v-for="(deviceItem, deviceIndex) in deviceList.filter(
+                    (deviceItem) => deviceItem.rId == roomItem.id
+                  )"
                   :key="deviceIndex"
                   :label="deviceItem.mingcheng"
                   :icon="deviceItem.icon"

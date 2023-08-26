@@ -46,7 +46,12 @@ export default defineStore('houseStore', () => {
 
   const initRoomList = async () => {
     const { data } = await getRoomList({ op: 1 })
-    roomList.value = data.map((item) => ({ ...item, text: item.mingcheng, id: item.bianhao }))
+    roomList.value = data.map((item) => ({
+      ...item,
+      text: item.mingcheng,
+      id: item.bianhao,
+      hId: item.fangwubianhao, //房屋编号
+    }))
   }
 
   const reset = () => {
