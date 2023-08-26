@@ -1,4 +1,4 @@
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, toRefs } from 'vue'
 
 /***
  * 配合vant van-pull-refresh van-list 使用
@@ -8,14 +8,14 @@ import { computed, ref, onMounted } from 'vue'
  * @success {success} 对请求结果进行处理
  * ***/
 
-export const useListLoad = ({ request, options = {}, success }) => {
+export const useListLoad = (props) => {
   const {
     autoRequest = true,
     pageIndexKey = 'page',
     pageSizeKey = 'limit',
     dataKey = 'page',
-    totalPageKey = 'totalPage',
-  } = options
+    success,
+  } = props.options || {}
 
   const list = ref([])
   // 加载中
@@ -25,6 +25,8 @@ export const useListLoad = ({ request, options = {}, success }) => {
   // 全部数据加载完成
   const finished = ref(false)
 
+  const errMessage = ref(null)
+
   const pagingParams = ref({
     [pageIndexKey]: 1,
     [pageSizeKey]: 10,
@@ -32,26 +34,32 @@ export const useListLoad = ({ request, options = {}, success }) => {
   let curstomParams = {}
 
   const loadData = async () => {
-    const result = await request({
+    const result = await props.request({
       ...pagingParams.value,
       ...curstomParams,
     })
     if (pagingParams.value[pageIndexKey] === 1) {
       list.value = []
     }
-    if (result.code != 0) return
+    if (result.code != 0) {
+      errMessage.value = result.msg
+      return
+    }
+    errMessage.value = null
     if (success) {
       const { totalPage, data } = success(result)
       finished.value = totalPage <= pagingParams.value[pageIndexKey]
       list.value.push(...data)
     } else {
-      finished.value = result[dataKey][totalPageKey] <= pagingParams.value[pageIndexKey]
+      const totalPage = result.totalPage || result[dataKey].totalPage
+      finished.value = totalPage <= pagingParams.value[pageIndexKey]
       list.value.push(...result[dataKey].list)
     }
   }
 
   const onReload = async (params) => {
     try {
+      window?.scroll({ top: 0 })
       loading.value = true
       pagingParams.value[pageIndexKey] = 1
       if (params) {
@@ -63,7 +71,6 @@ export const useListLoad = ({ request, options = {}, success }) => {
     }
   }
   const onMore = async () => {
-    console.log('onMore', finished.value)
     try {
       if (finished.value) return
       pagingParams.value[pageIndexKey] = pagingParams.value[pageIndexKey] + 1
@@ -83,7 +90,7 @@ export const useListLoad = ({ request, options = {}, success }) => {
     loading,
     moreLoading,
     finished,
-
+    errMessage,
     onReload,
     onMore,
   }

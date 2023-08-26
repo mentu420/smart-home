@@ -1,41 +1,36 @@
 <script setup>
-import {
-  ref,
-  reactive,
-  computed,
-  watch,
-  useAttrs,
-  useSlots,
-  onMounted,
-  onDeactivated,
-  nextTick,
-  toRefs,
-} from 'vue'
+import { ref, reactive, computed, useAttrs, toRefs } from 'vue'
 
 import { useListLoad } from '@/hooks/useListLoad.js'
 
-const { config } = toRefs(
-  defineProps({
-    config: {
-      type: Object,
-      default: () => {},
-      required: true,
-    },
-  })
-)
+/**
+ * @config {request:function,options:{},success:function}
+ * **/
+
+const props = defineProps({
+  config: {
+    type: Object,
+    default: () => {},
+    required: true,
+  },
+})
+
+const { config } = toRefs(props)
 
 const emits = defineEmits(['scroll', 'update:loading', 'update:moreLoading'])
 const attrs = useAttrs()
-const slots = useSlots()
 const listRef = ref(null)
 const state = reactive({
   empty: { description: '暂无数据' },
 })
 
-const { loading, moreLoading, finished, list, onMore, onReload } = useListLoad(config)
+const { loading, moreLoading, finished, list, errMessage, onMore, onReload } = useListLoad(
+  config.value
+)
 
+// 默认不展示，加载数据后根据list.length判断
 const showEmpty = computed(() => {
-  return list.value.length == 0
+  return !loading.value && list.value.length == 0
 })
 
 const finishedText = computed(() => (showEmpty.value ? null : `~ END ~`))
@@ -45,29 +40,16 @@ const emptyAttrs = computed(() => {
   const result = ['image', 'image-size', 'description']
     .filter((key) => attrs[key])
     .map((key) => ({ [key]: attrs[key] }))
+  if (errMessage.value) {
+    return { image: 'network', description: errMessage.value }
+  }
   return Object.assign(state.empty, ...result)
 })
 
-// body scroll event
-const scrollTo = (params) => {
-  //behavior  类型String,表示滚动行为,支持参数 smooth(平滑滚动),instant(瞬间滚动),默认值auto
-  window.scroll({ left: 0, top: 0, behavior: 'smooth', ...params })
-}
+// 暴露列表数据
+const getList = () => list.value
 
-const onScroll = () => {
-  const scrollTop =
-    window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-  emits('scroll', scrollTop)
-}
-// 数据请求出错处理
-const useNetwork = (err) => {
-  state.empty = {
-    image: 'network',
-    description: err.message || '网络错误',
-  }
-}
-
-defineExpose({ onReload })
+defineExpose({ onReload, getList })
 </script>
 
 <template>
@@ -77,15 +59,14 @@ defineExpose({ onReload })
       v-model:loading="moreLoading"
       :immediate-check="false"
       :finished="finished"
+      :finished-text="finishedText"
       @load="onMore"
     >
       <slot :list="list"></slot>
-      <template #finished>
-        <slot name="empty" :show="showEmpty">
-          <van-empty v-if="showEmpty" v-bind="emptyAttrs"> </van-empty>
-        </slot>
-        <div>{{ finishedText }}</div>
-      </template>
+      <div v-if="loading && list.length == 0" class="h-10"></div>
+      <slot name="empty" :show="showEmpty">
+        <van-empty v-if="showEmpty" v-bind="emptyAttrs"> </van-empty>
+      </slot>
     </van-list>
   </van-pull-refresh>
 </template>
