@@ -39,7 +39,6 @@ const onSubmit = async (value) => {
     },
     { withToken: false }
   )
-  if (code != 0) return
   useSetToken(data.acesstoken)
   router.replace({ path: '/tabbar/tabbarHouse' })
 }

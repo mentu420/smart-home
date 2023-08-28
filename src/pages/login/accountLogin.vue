@@ -35,7 +35,6 @@ const onSubmit = async (values) => {
       mima: values.password,
     },
   })
-  if (code != 0) return
   router.replace({ path: '/tabbar/tabbarHouse' })
 }
 

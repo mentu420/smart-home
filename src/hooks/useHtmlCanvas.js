@@ -28,6 +28,5 @@ export const getHtmlCanvas = async (el) => {
   formData.append('dataFile', DealImg.convertFiles(base64))
 
   const { code, url } = await uploadFiles(formData)
-  if (code != 0) return
   return url
 }

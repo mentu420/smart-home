@@ -3,9 +3,6 @@ import { storeToRefs } from 'pinia'
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import AirCoolerTrigger from '@/components/common/AirCoolerTrigger.vue'
-import CurtainTrigger from '@/components/common/CurtainTrigger.vue'
-import LightTrigger from '@/components/common/LightTrigger.vue'
 import deviceStore from '@/store/deviceStore'
 
 const route = useRoute()
@@ -32,9 +29,6 @@ onMounted(() => {})
         fit="cover"
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
       />
-      <CurtainTrigger v-model="degree" />
-      <LightTrigger v-model="brightness" />
-      <AirCoolerTrigger v-model="airConfig" />
     </section>
   </div>
 </template>

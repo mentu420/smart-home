@@ -47,7 +47,6 @@ const onHouseSelect = async (action) => {
     console.log(action)
     // homeAction.value = action.index
     const { code } = await getHouseList({ op: 5, fangwubianhao: id })
-    if (code != 0) return
     const { setCurrentHouse } = houseStore()
     setCurrentHouse(id)
     const { initRoomList } = houseStore()
@@ -206,7 +205,7 @@ onMounted(() => {
         >
           <h2>{{ currentHouse?.huanjingzhuangtai?.WenDu }}</h2>
           <p class="ml-1 mr-4 text-sm">℃</p>
-          <h2 class="mr-2 text-lg">{{ currentHouse?.huanjingzhuangtai?.ShiDu }}</h2>
+          <!-- <h2 class="mr-2 text-lg">{{ currentHouse?.huanjingzhuangtai?.ShiDu }}</h2> -->
         </div>
       </template>
       <div class="relative">
@@ -240,7 +239,12 @@ onMounted(() => {
                   :key="deviceIndex"
                   :label="deviceItem.mingcheng"
                   :icon="deviceItem.icon"
-                  @click-right-icon="router.push({ path: '/smartDeviceStatus' })"
+                  @click-right-icon="
+                    router.push({
+                      path: '/smartDeviceStatus',
+                      query: { category: deviceItem.category },
+                    })
+                  "
                 ></DeviceCardItemVue>
               </ul>
             </section>
@@ -276,7 +280,12 @@ onMounted(() => {
                   :key="deviceIndex"
                   :label="deviceItem.mingcheng"
                   :icon="deviceItem.icon"
-                  @click-right-icon="router.push({ path: '/smartDeviceStatus' })"
+                  @click-right-icon="
+                    router.push({
+                      path: '/smartDeviceStatus',
+                      query: { category: deviceItem.category },
+                    })
+                  "
                 ></DeviceCardItemVue>
               </div>
             </section>
