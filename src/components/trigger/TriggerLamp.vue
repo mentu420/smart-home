@@ -1,9 +1,15 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
+import deviceStore from '@/store/deviceStore'
 
 const props = defineProps({
+  id: {
+    type: String,
+    default: '',
+  },
   modelValue: {
     type: [String, Number],
     default: 0,
@@ -19,6 +25,12 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['update:modelValue', 'update:hue'])
+
+const { deviceItem } = deviceStore()
+
+console.log('deviceItem', deviceItem)
+
+const lampData = ref({})
 
 const brightness = computed({
   get: () => props.modelValue,

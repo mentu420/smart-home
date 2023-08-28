@@ -54,12 +54,6 @@ export default defineStore('houseStore', () => {
     }))
   }
 
-  const reset = () => {
-    houseList.value = []
-    roomList.value = []
-    currentHouse.value = {}
-  }
-
   return {
     houseList,
     roomList,
@@ -68,7 +62,6 @@ export default defineStore('houseStore', () => {
     editHouseList,
     setCurrentHouse,
     initRoomList,
-    reset,
     useGetHouseListSync,
     useGetRoomListSync,
   }

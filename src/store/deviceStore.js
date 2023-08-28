@@ -7,8 +7,10 @@ import { CLASSIFY_ICON, CLASSIFY_EXECL, TYPE_EXECL, TYPE_VALUE_EXECL } from '@/e
 export default defineStore('deviceStore', () => {
   const deviceList = ref([])
 
+  // 获取设备图片
   const getDeviceIcon = (classify) => CLASSIFY_ICON[classify]
 
+  //异步获取设备列表
   const useGetDeviceListSync = async (reload = false) => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
@@ -26,9 +28,27 @@ export default defineStore('deviceStore', () => {
     return deviceList.value
   }
 
-  const reset = () => {
-    deviceList.value = []
+  // 异步变更单设备数据
+  const useDeviceItemChangeSync = async (payload) => {
+    console.log('useSetDeviceItemSync', payload)
+    deviceList.value = deviceList.value.map((deviceItem) => {
+      if (deviceItem.id == payload.id) {
+        return { ...deviceItem, ...payload }
+      }
+      return deviceItem
+    })
   }
 
-  return { deviceList, getDeviceIcon, reset, useGetDeviceListSync }
+  const deviceItem = computed({
+    get: (id = '') => deviceList.value.find((deviceItem) => deviceItem.id == id),
+    set: (val) => useDeviceItemChangeSync(val),
+  })
+
+  return {
+    deviceList,
+    getDeviceIcon,
+    useGetDeviceListSync,
+    useDeviceItemChangeSync,
+    deviceItem,
+  }
 })

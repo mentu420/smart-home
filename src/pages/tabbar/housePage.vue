@@ -242,7 +242,7 @@ onMounted(() => {
                   @click-right-icon="
                     router.push({
                       path: '/smartDeviceStatus',
-                      query: { category: deviceItem.category },
+                      query: { id: deviceItem.id },
                     })
                   "
                 ></DeviceCardItemVue>
@@ -283,7 +283,7 @@ onMounted(() => {
                   @click-right-icon="
                     router.push({
                       path: '/smartDeviceStatus',
-                      query: { category: deviceItem.category },
+                      query: { id: deviceItem.id },
                     })
                   "
                 ></DeviceCardItemVue>

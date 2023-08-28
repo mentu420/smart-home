@@ -3,16 +3,22 @@ import { storeToRefs } from 'pinia'
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import { TriggerLamp, TriggerCurtain, TriggerAirCooler } from '@/components/trigger/'
 import deviceStore from '@/store/deviceStore'
 
 const route = useRoute()
 const router = useRouter()
+const { deviceList } = storeToRefs(deviceStore())
+const deviceItem = ref({})
 
 const airConfig = ref({ temp: 18, speed: 1, model: 1 })
 const brightness = ref(100)
 const degree = ref(100)
 
-onMounted(() => {})
+const init = () => {
+  deviceItem.value = deviceList.value.find((item) => item.id == route.query.id)
+}
+init()
 </script>
 
 <template>
@@ -29,6 +35,7 @@ onMounted(() => {})
         fit="cover"
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
       />
+      <TriggerLamp />
     </section>
   </div>
 </template>
