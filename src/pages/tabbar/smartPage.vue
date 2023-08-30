@@ -5,7 +5,8 @@ import { useRouter } from 'vue-router'
 
 import { getSceneList } from '@/apis/smartApi.js'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
-import { houseStore, sceneStore } from '@/store/'
+import houseStore from '@/store/houseStore'
+import sceneStore from '@/store/sceneStore'
 
 const router = useRouter()
 const loading = ref(false)
