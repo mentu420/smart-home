@@ -9,7 +9,10 @@ import { getHouseList } from '@/apis/houseApi.js'
 import DeviceCardItemVue from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
-import { deviceStore, houseStore, sceneStore, userStore } from '@/store/'
+import deviceStore from '@/store/deviceStore'
+import houseStore from '@/store/houseStore'
+import sceneStore from '@/store/sceneStore'
+import userStore from '@/store/userStore'
 
 const useDeviceStore = deviceStore()
 
@@ -139,6 +142,14 @@ const toggleDrag = () => {
   dragOptions.value.disabled = !dragOptions.value.disabled
 }
 
+const openDeviceStatus = (item) => {
+  console.log(item)
+  router.push({
+    path: '/smartDeviceStatus',
+    query: { id: item.id, name: item.label, classify: item.classify },
+  })
+}
+
 const init = async () => {
   try {
     const { useGetHouseListSync, useGetRoomListSync, setCurrentHouse } = houseStore()
@@ -239,12 +250,7 @@ onMounted(() => {
                   :key="deviceIndex"
                   :label="deviceItem.mingcheng"
                   :icon="deviceItem.icon"
-                  @click-right-icon="
-                    router.push({
-                      path: '/smartDeviceStatus',
-                      query: { id: deviceItem.id },
-                    })
-                  "
+                  @click-right-icon="openDeviceStatus(deviceItem)"
                 ></DeviceCardItemVue>
               </ul>
             </section>
@@ -280,12 +286,7 @@ onMounted(() => {
                   :key="deviceIndex"
                   :label="deviceItem.mingcheng"
                   :icon="deviceItem.icon"
-                  @click-right-icon="
-                    router.push({
-                      path: '/smartDeviceStatus',
-                      query: { id: deviceItem.id },
-                    })
-                  "
+                  @click-right-icon="openDeviceStatus(deviceItem)"
                 ></DeviceCardItemVue>
               </div>
             </section>

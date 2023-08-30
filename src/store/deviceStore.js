@@ -1,11 +1,21 @@
+import localforage from 'localforage'
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
 import { getDeviceList } from '@/apis/smartApi'
 import { CLASSIFY_ICON, CLASSIFY_EXECL, TYPE_EXECL, TYPE_VALUE_EXECL } from '@/enums/deviceInfo'
 
-export default defineStore('deviceStore', () => {
+const storeName = 'deviceStore'
+
+export default defineStore(storeName, () => {
   const deviceList = ref([])
+
+  const init = async () => {
+    const storeRes = JSON.parse(await localforage.getItem(storeName))
+    deviceList.value = storeRes?.deviceList
+  }
+
+  init()
 
   // 获取设备图片
   const getDeviceIcon = (classify) => CLASSIFY_ICON[classify]
@@ -15,7 +25,7 @@ export default defineStore('deviceStore', () => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
     deviceList.value = data.map((item) => {
-      const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.daleixing)
+      const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.xiaoleixing)
       return {
         ...item,
         icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
@@ -23,9 +33,14 @@ export default defineStore('deviceStore', () => {
         label: item.mingcheng,
         id: item.bianhao,
         rId: item.fangjianbianhao, //房间编号
+        classify: item.daleixing,
       }
     })
     return deviceList.value
+  }
+
+  const useDeviceItemSync = async (id) => {
+    return deviceList.value.find((item) => item.id == id)
   }
 
   // 异步变更单设备数据
@@ -39,16 +54,11 @@ export default defineStore('deviceStore', () => {
     })
   }
 
-  const deviceItem = computed({
-    get: (id = '') => deviceList.value.find((deviceItem) => deviceItem.id == id),
-    set: (val) => useDeviceItemChangeSync(val),
-  })
-
   return {
     deviceList,
     getDeviceIcon,
     useGetDeviceListSync,
     useDeviceItemChangeSync,
-    deviceItem,
+    useDeviceItemSync,
   }
 })

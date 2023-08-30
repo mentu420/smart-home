@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, toRefs } from 'vue'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import deviceStore from '@/store/deviceStore'
@@ -10,41 +10,20 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  modelValue: {
-    type: [String, Number],
-    default: 0,
-  },
-  hue: {
-    type: [String, Number],
-    default: 0,
-  },
-  ignore: {
-    type: Array,
-    default: () => [], // slider、picker
-  },
 })
 
 const emits = defineEmits(['update:modelValue', 'update:hue'])
 
-const { deviceItem } = deviceStore()
+const { useDeviceItemSync } = deviceStore()
 
-console.log('deviceItem', deviceItem)
+const lampData = ref(null)
 
-const lampData = ref({})
-
-const brightness = computed({
-  get: () => props.modelValue,
-  set: (val) => emits('update:modelValue', val),
-})
-
-const hue = computed({
-  get: () => props.hue,
-  set: (val) => emits('update:hue', val),
-})
+const brightness = ref(0)
+const hue = ref(100)
+const colorPickerRef = ref(null)
 
 const status = computed(() => (brightness.value == 0 ? false : true))
 
-const colorPickerRef = ref(null)
 const colorConfig = reactive({
   hue: 90,
   saturation: 100,
@@ -57,6 +36,17 @@ const colorConfig = reactive({
 const toggle = () => {
   brightness.value = brightness.value == 0 ? 100 : 0
 }
+
+const init = async () => {
+  lampData.value = await useDeviceItemSync(props.id)
+}
+
+init()
+
+const showColumnsItem = computed(() => {
+  if (!lampData.value) return []
+  return lampData.value.columns?.map((item) => item.use)
+})
 </script>
 
 <template>
@@ -79,7 +69,7 @@ const toggle = () => {
         </template>
       </van-cell>
       <van-cell
-        v-if="!props.ignore.includes('slider')"
+        v-if="showColumnsItem.includes('brightness')"
         class="mt-4 rounded-xl"
         center
         title="亮度"
@@ -88,11 +78,11 @@ const toggle = () => {
         title-style="flex:0 0 auto"
       >
         <div class="h-10 p-4 pl-8">
-          <van-slider v-model="brightness" @change="(value) => (status = value != 0)" />
+          <van-slider v-model="brightness" />
         </div>
       </van-cell>
       <van-cell
-        v-if="!props.ignore.includes('picker')"
+        v-if="showColumnsItem.includes('colourTemperature')"
         class="mt-4 rounded-xl"
         center
         title="色温"

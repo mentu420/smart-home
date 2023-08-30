@@ -1,5 +1,4 @@
 import '@vant/touch-emulator'
-import { createPinia } from 'pinia'
 import 'tailwindcss/tailwind.css'
 /**vant-ui 函数式组件样式**/
 import 'vant/es/dialog/style'
@@ -21,12 +20,12 @@ import loadingClick from '@/directive/loadingClick.js'
 import permission from '@/directive/permission.js'
 import pointerDrag from '@/directive/pointerDrag.js'
 import press from '@/directive/press.js'
+import pinia from '@/store/'
 
 import App from './App.vue'
 import Router from './router'
 // import { useVant } from './vant'
 
-const pinia = createPinia()
 const app = createApp(App)
 
 // useVant(app)

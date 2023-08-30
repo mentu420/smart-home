@@ -23,19 +23,19 @@ init()
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="设备名称">
+    <HeaderNavbar :title="route.query.name">
       <template #right>
         <IconPark type="more" @click="router.push({ path: '/smartDeviceInfo' })" />
       </template>
     </HeaderNavbar>
-    <section>
+    <section class="pb-4">
       <van-image
         width="100vw"
         height="100vw"
         fit="cover"
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
       />
-      <TriggerLamp />
+      <TriggerLamp v-if="route.query.classify == '100'" :id="route.query.id" />
     </section>
   </div>
 </template>
