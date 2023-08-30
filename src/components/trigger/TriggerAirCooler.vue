@@ -1,20 +1,31 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 
+import deviceStore from '@/store/deviceStore'
+const { useDeviceItemSync, deviceUseList } = deviceStore()
+
 const props = defineProps({
-  min: {
-    type: [Number, String],
-    default: 16,
-  },
-  max: {
-    type: [Number, String],
-    default: 32,
-  },
-  modelValue: {
-    type: Object,
-    default: () => ({ temp: 26, speed: 0, model: 0 }),
+  id: {
+    type: String,
+    default: '',
   },
 })
+
+const deviceItem = ref({})
+const max = ref(32)
+const min = ref(16)
+
+watch(
+  () => props.id,
+  async (val) => {
+    if (!val) return
+    deviceItem.value = await useDeviceItemSync(val)
+    console.log('deviceItem', deviceItem.value)
+  },
+  {
+    immediate: true,
+  }
+)
 
 const speedActions = [
   { id: 0, text: '低风' },
@@ -32,15 +43,12 @@ const modelActions = [
 const emits = defineEmits(['update:modelValue'])
 
 //温度、风俗、模式
-const config = computed({
-  get: () => props.modelValue,
-  set: (val) => emits('update:modelValue', val),
-})
+const config = ref({ temp: 26, speed: 0, model: 0 })
 
 const modeItem = computed(() => modelActions.find((item) => item.id == config.value.model))
 const speedItem = computed(() => speedActions.find((item) => item.id == config.value.speed))
 
-const tempCopy = computed(() => props.modelValue.temp)
+const tempCopy = ref(config.value.temp)
 const status = ref(false) //空调开关
 
 const setTemp = () =>
@@ -50,13 +58,13 @@ const setTemp = () =>
   })
 
 const onLower = () => {
-  if (tempCopy.value == props.min) return
+  if (tempCopy.value == min.value) return
   --tempCopy.value
   setTemp()
 }
 
 const onRise = () => {
-  if (tempCopy.value == props.max) return
+  if (tempCopy.value == max.value) return
   ++tempCopy.value
   setTemp()
 }

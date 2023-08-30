@@ -36,6 +36,8 @@ init()
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
       />
       <TriggerLamp v-if="route.query.classify == '100'" :id="route.query.id" />
+      <TriggerCurtain v-if="route.query.classify == '101'" :id="route.query.id" />
+      <TriggerAirCooler v-if="route.query.classify == '102'" :id="route.query.id" />
     </section>
   </div>
 </template>

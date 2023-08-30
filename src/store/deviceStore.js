@@ -43,6 +43,10 @@ export default defineStore(storeName, () => {
     return deviceList.value.find((item) => item.id == id)
   }
 
+  const deviceUseList = computed(() => (id) => {
+    return deviceList.value.find((item) => item.id == id)?.columns?.map((item) => item.use)
+  })
+
   // 异步变更单设备数据
   const useDeviceItemChangeSync = async (payload) => {
     console.log('useSetDeviceItemSync', payload)
@@ -56,6 +60,7 @@ export default defineStore(storeName, () => {
 
   return {
     deviceList,
+    deviceUseList,
     getDeviceIcon,
     useGetDeviceListSync,
     useDeviceItemChangeSync,

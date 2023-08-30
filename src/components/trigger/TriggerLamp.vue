@@ -1,9 +1,10 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, reactive, computed, toRefs } from 'vue'
+import { ref, reactive, computed, toRefs, watch } from 'vue'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import deviceStore from '@/store/deviceStore'
+const { useDeviceItemSync, deviceUseList } = deviceStore()
 
 const props = defineProps({
   id: {
@@ -14,9 +15,7 @@ const props = defineProps({
 
 const emits = defineEmits(['update:modelValue', 'update:hue'])
 
-const { useDeviceItemSync } = deviceStore()
-
-const lampData = ref(null)
+const deviceItem = ref(null)
 
 const brightness = ref(0)
 const hue = ref(100)
@@ -37,16 +36,16 @@ const toggle = () => {
   brightness.value = brightness.value == 0 ? 100 : 0
 }
 
-const init = async () => {
-  lampData.value = await useDeviceItemSync(props.id)
-}
-
-init()
-
-const showColumnsItem = computed(() => {
-  if (!lampData.value) return []
-  return lampData.value.columns?.map((item) => item.use)
-})
+watch(
+  () => props.id,
+  async (val) => {
+    if (!val) return
+    deviceItem.value = await useDeviceItemSync(val)
+  },
+  {
+    immediate: true,
+  }
+)
 </script>
 
 <template>
@@ -69,7 +68,7 @@ const showColumnsItem = computed(() => {
         </template>
       </van-cell>
       <van-cell
-        v-if="showColumnsItem.includes('brightness')"
+        v-if="deviceUseList(props.id)?.includes('brightness')"
         class="mt-4 rounded-xl"
         center
         title="亮度"
@@ -82,7 +81,7 @@ const showColumnsItem = computed(() => {
         </div>
       </van-cell>
       <van-cell
-        v-if="showColumnsItem.includes('colourTemperature')"
+        v-if="deviceUseList(props.id)?.includes('colourTemperature')"
         class="mt-4 rounded-xl"
         center
         title="色温"

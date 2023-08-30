@@ -1,19 +1,19 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+
+import deviceStore from '@/store/deviceStore'
+const { useDeviceItemSync, deviceUseList } = deviceStore()
 
 const props = defineProps({
-  modelValue: {
-    type: [Number, String],
-    default: 50,
+  id: {
+    type: String,
+    default: '',
   },
 })
 
-const emits = defineEmits(['update:modelValue'])
+const deviceItem = ref({})
 
-const degree = computed({
-  get: () => props.modelValue,
-  set: (val) => emits('update:modelValue', val),
-})
+const degree = ref(0)
 
 const theme = '#e39334'
 const pause = ref(true)
@@ -37,6 +37,17 @@ const onIncrease = () => {
   open.value = true
   close.value = false
 }
+
+watch(
+  () => props.id,
+  async (val) => {
+    if (!val) return
+    deviceItem.value = await useDeviceItemSync(val)
+  },
+  {
+    immediate: true,
+  }
+)
 </script>
 
 <template>
@@ -81,6 +92,7 @@ const onIncrease = () => {
       </template>
     </van-cell>
     <van-cell
+      v-if="deviceUseList(props.id)?.includes('percent')"
       class="mt-4 rounded-xl"
       center
       title="开合度"
