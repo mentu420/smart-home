@@ -5,12 +5,14 @@ import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { useRouter } from 'vue-router'
 
 import { getHouseMember } from '@/apis/houseApi'
+import SmartUploader from '@/components/common/SmartUploader.vue'
 import { useUploader } from '@/hooks/useUploader'
 import houseStore from '@/store/houseStore'
 
 const router = useRouter()
 const showQrCode = ref(false)
 const { currentHouse } = storeToRefs(houseStore())
+const fileList = ref([])
 
 console.log('currentHouse', currentHouse)
 
@@ -54,9 +56,10 @@ const afterRead = async (file) => {
         @click="router.push({ path: '/me-house-map' })"
       />
       <van-cell center clickable title="家庭图片" is-link>
-        <van-uploader accept="image/*" :after-read="afterRead">
+        <SmartUploader v-model="fileList" accept="image/*" :max-count="1"> </SmartUploader>
+        <!-- <van-uploader accept="image/*" :after-read="afterRead">
           <van-image width="3rem" height="3rem" fit="cover" round :src="currentHouse.img" />
-        </van-uploader>
+        </van-uploader> -->
       </van-cell>
       <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
         <IconPark size="24" type="two-dimensional-code" />

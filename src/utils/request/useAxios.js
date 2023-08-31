@@ -1,5 +1,5 @@
 import axios, { isCancel } from 'axios' // 此处引入axios官方文件
-import { showNotify } from 'vant'
+import { showNotify, closeNotify } from 'vant'
 
 import { useLogout } from '@/hooks/useLogout.js'
 
@@ -32,13 +32,21 @@ const responseHandle = (response) => {
     response.data.code != 0 &&
     response.config.withShowErrorMsg
   ) {
-    showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
+    showNotify({
+      type: 'danger',
+      message: response.data.des || '网络请求超时，请稍后重试！',
+      onClick: () => closeNotify(),
+    })
   } else if (
     response.status !== 200 &&
     response.config.__retryCount === 2 &&
     response.data.code != 0
   ) {
-    showNotify({ type: 'danger', message: response.data.des || '网络请求超时，请稍后重试！' })
+    showNotify({
+      type: 'danger',
+      message: response.data.des || '网络请求超时，请稍后重试！',
+      onClick: () => closeNotify(),
+    })
   }
   if (response.status !== 200 || response.data.code != 0) return Promise.reject(response)
   return response.data || response
@@ -67,11 +75,18 @@ useAxios.interceptors.response.use(
     return responseHandle(response)
   },
   (error) => {
-    if (error.config.__retryCount === 2) {
-      if (error.code === 'ECONNABORTED')
-        showNotify({ type: 'danger', message: '网络请求超时，请稍后重试！' })
-      if (error.code === 'ERR_NETWORK')
-        showNotify({ type: 'danger', message: '网络请求失败，请稍后重试！' })
+    if (error.config.__retryCount == 2) {
+      const messageReuslt = {
+        ECONNABORTED: '网络请求超时，请稍后重试！',
+        ERR_NETWORK: '网络请求失败，请稍后重试！',
+        ERR_BAD_RESPONSE: error.message,
+      }
+      if (Object.keys(messageReuslt).includes(error.code))
+        showNotify({
+          type: 'danger',
+          message: messageReuslt[error.code],
+          onClick: () => closeNotify(),
+        })
     }
     // 从pending 列表中移除请求
     removePendingRequest(error.config || {})

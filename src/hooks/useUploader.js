@@ -1,5 +1,5 @@
 import { uploadFile } from '@/apis/commonApi'
-import DealImg from '@/utils/dealImg'
+import { compressBase64 } from '@/utils/dealImg'
 
 const setLoading = (file) => {
   file.status = 'uploading'
@@ -19,7 +19,7 @@ export const useUploader = async (file) => {
   setLoading(file)
 
   //压缩base64
-  let base64 = await DealImg.compressBase64(file.content)
+  let base64 = await compressBase64(file.content)
 
   let { code, data } = await uploadFile({ file: base64 })
   if (code != 0) {

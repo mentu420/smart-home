@@ -1,7 +1,7 @@
 import html2canvas from 'html2canvas'
 
 import { uploadFiles } from '@/apis/common/'
-import DealImg from '@/utils/dealImg'
+import { convertFiles } from '@/utils/dealImg'
 
 export const captureImage = (el) => {
   if (!el) return
@@ -25,7 +25,7 @@ export const getHtmlCanvas = async (el) => {
   const base64 = canvas.toDataURL('image/jpeg', 1)
   //上传捕获的图片
   const formData = new FormData()
-  formData.append('dataFile', DealImg.convertFiles(base64))
+  formData.append('dataFile', convertFiles(base64))
 
   const { code, url } = await uploadFiles(formData)
   return url

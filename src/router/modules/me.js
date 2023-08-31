@@ -8,7 +8,7 @@ export default [
   {
     path: '/me-about',
     name: 'MeAbout',
-    component: () => import('@/pages/me/me-about.vue'),
+    component: () => import('@/pages/me/meAbout.vue'),
     meta: { title: '关于' },
   },
   {
