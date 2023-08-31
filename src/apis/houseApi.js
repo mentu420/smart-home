@@ -14,7 +14,7 @@ export const getHouseMember = (params) => request({ url: '/V1/ChengYuan.aspx', p
 export const getHouseList = (params) => request({ url: '/V1/FangWu.aspx', params })
 //添加或者编辑房屋
 export const setHouseList = (data) =>
-  request({ url: '/FangWu.aspx', params: { op: 2 }, data, method: 'POST' })
+  request({ url: '/V1/FangWu.aspx', params: { op: 2 }, data, method: 'POST' })
 
 /**
  * 房间相关接口。op=1获取、op=2新增、op=3编辑、op=4删除

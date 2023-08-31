@@ -3,8 +3,8 @@ import Vconsole from 'vconsole'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import SmartUploader from '@/components/common/SmartUploader.vue'
 import { useLogout } from '@/hooks/useLogout'
-import { useUploader } from '@/hooks/useUploader'
 import userStore from '@/store/userStore'
 
 const router = useRouter()
@@ -16,11 +16,7 @@ const navList = ref([
   { id: 3, text: '版本', value: '', path: '/meVersion' },
 ])
 const avatar = ref('')
-
-const afterRead = async (file) => {
-  const url = await useUploader(file)
-  console.log(url)
-}
+const fileList = ref([])
 
 const onLogout = () => useLogout('退出成功')
 
@@ -60,9 +56,11 @@ const onNavItemClick = (navItem) => {
     <HeaderNavbar title="个人信息" />
     <div class="flex justify-center">
       <div class="px-6 py-10">
-        <van-uploader :after-read="afterRead">
-          <van-image width="4rem" height="4rem" fit="cover" round :src="avatar" />
-        </van-uploader>
+        <SmartUploader v-model="fileList" accept="image/*" :max-count="1" reupload>
+          <template #default>
+            <van-image width="4rem" height="4rem" fit="cover" round :src="fileList[0]?.url" />
+          </template>
+        </SmartUploader>
         <p class="text-md text-center">修改头像</p>
       </div>
     </div>

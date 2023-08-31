@@ -6,7 +6,6 @@ import { useRouter } from 'vue-router'
 
 import { getHouseMember } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
-import { useUploader } from '@/hooks/useUploader'
 import houseStore from '@/store/houseStore'
 
 const router = useRouter()
@@ -19,11 +18,6 @@ console.log('currentHouse', currentHouse)
 const houseDetail = ref({
   image: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg',
 })
-
-const afterRead = async (file) => {
-  console.log('afterRead', file)
-  // houseDetail.value = {...houseDetail.value, image:file.url}
-}
 </script>
 
 <template>
@@ -56,10 +50,7 @@ const afterRead = async (file) => {
         @click="router.push({ path: '/me-house-map' })"
       />
       <van-cell center clickable title="家庭图片" is-link>
-        <SmartUploader v-model="fileList" accept="image/*" :max-count="1"> </SmartUploader>
-        <!-- <van-uploader accept="image/*" :after-read="afterRead">
-          <van-image width="3rem" height="3rem" fit="cover" round :src="currentHouse.img" />
-        </van-uploader> -->
+        <SmartUploader v-model="fileList" accept="image/*" :max-count="1" reupload />
       </van-cell>
       <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
         <IconPark size="24" type="two-dimensional-code" />

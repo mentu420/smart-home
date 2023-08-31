@@ -6,6 +6,7 @@ import { useRouter, useRoute } from 'vue-router'
 
 import { uploadFile } from '@/apis/commonApi'
 import { setSceneList } from '@/apis/smartApi.js'
+import SmartUploader from '@/components/common/SmartUploader.vue'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import sceneStore from '@/store/sceneStore'
@@ -21,14 +22,9 @@ const { sceneCreateItem, sceneGallery } = storeToRefs(sceneStore())
 const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
 const executionTime = ref(['12', '00'])
 const eventActive = ref(0) //记录将要改变的事件
+const fileList = ref([])
 
 const { getRepeatTimeText } = sceneStore()
-
-const afterRead = async (file) => {
-  console.log('afterRead', file)
-  // const { code, data } = await uploadFile({ file: file.content })
-  // console.log(data)
-}
 
 const goCondition = () => {
   router.push({ path: '/smart-condition' })
@@ -230,9 +226,13 @@ defineOptions({ name: 'SmartSceneCreate' })
     <van-action-sheet v-model:show="showGallery" cancel-text="取消" close-on-click-action>
       <ul class="space-y-6 py-4 text-center">
         <li @click="openGallery">默认图库</li>
-        <van-uploader ref="uploaderRef" :after-read="afterRead">
-          <label> 选择相机 </label>
-        </van-uploader>
+        <li>
+          <SmartUploader v-model="fileList" accept="image/*" :max-count="1">
+            <template #default>
+              <p class="w-screen">选择相机</p>
+            </template>
+          </SmartUploader>
+        </li>
       </ul>
     </van-action-sheet>
     <van-popup v-model:show="showExecutionTime" round safe-area-inset-bottom position="bottom">

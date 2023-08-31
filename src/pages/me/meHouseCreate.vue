@@ -3,12 +3,13 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setHouseList } from '@/apis/houseApi'
+import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
+
 const router = useRouter()
 const houseName = ref(null)
 const houseImage = ref('')
-
-const afterRead = () => {}
+const fileList = ref([])
 
 const onSubmit = async () => {
   const { useGetHouseListSync } = houseStore()
@@ -38,9 +39,7 @@ const onSubmit = async () => {
           :rules="[{ required: true, message: '家庭名称必填项' }]"
         />
         <van-cell center clickable title="家庭图片" is-link>
-          <van-uploader accept="image/*" :after-read="afterRead">
-            <van-image width="3rem" height="3rem" fit="cover" round :src="houseImage" />
-          </van-uploader>
+          <SmartUploader v-model="fileList" accept="image/*" :max-count="1" reupload />
         </van-cell>
       </van-cell-group>
       <div class="m-6">
