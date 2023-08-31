@@ -15,7 +15,7 @@ const code = ref(null)
 const time = ref(60 * 1000)
 
 const onSubmit = async () => {
-  router.push({ path: '/setPassword', query: { ...route.query, code: code.value } })
+  router.push({ path: '/set-password', query: { ...route.query, code: code.value } })
 }
 
 const goOtherLogin = () => {

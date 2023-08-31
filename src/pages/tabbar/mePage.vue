@@ -8,10 +8,10 @@ import userStore from '@/store/userStore'
 const router = useRouter()
 
 const navList = ref([
-  { path: '/meHouse', text: '家庭管理', icon: 'application' },
-  { path: '/meConceal', text: '隐私政策', icon: 'personal-privacy' },
-  { path: '/meAgreement', text: '软件许可及服务协议', icon: 'agreement' },
-  { path: '/meAbout', text: '关于', icon: 'tag-one' },
+  { path: '/me-house', text: '家庭管理', icon: 'application' },
+  { path: '/me-conceal', text: '隐私政策', icon: 'personal-privacy' },
+  { path: '/me-agreement', text: '软件许可及服务协议', icon: 'agreement' },
+  { path: '/me-about', text: '关于', icon: 'tag-one' },
 ])
 
 const { userInfo = {} } = storeToRefs(userStore())
@@ -26,7 +26,7 @@ init()
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <div class="flex items-center px-6 py-10" @click="router.push({ path: '/meInfo' })">
+    <div class="flex items-center px-6 py-10" @click="router.push({ path: '/me-info' })">
       <van-image width="4rem" height="4rem" fit="cover" round :src="userInfo?.touxiang" />
       <h4 class="text-md ml-4">{{ userInfo?.xingming }}</h4>
     </div>

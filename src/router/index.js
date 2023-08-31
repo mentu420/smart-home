@@ -12,9 +12,9 @@ import smartRouters from './modules/smart.js'
 const redirect = (to) => {
   const token = getStorage(import.meta.env.VITE_APP_STORAGE_TOKEN)
   if (token) {
-    return '/tabbar/tabbarHouse'
+    return '/tabbar/tabbar-house'
   } else {
-    return '/accountLogin'
+    return '/account-login'
   }
 }
 
@@ -40,7 +40,7 @@ const Router = createRouter({
       component: () => import('@/pages/common/webviewPage.vue'),
     },
     {
-      path: '/launchPage',
+      path: '/launch-page',
       name: 'LaunchPage',
       component: () => import('@/pages/tabbar/launchPage.vue'),
       meta: {
@@ -53,19 +53,19 @@ const Router = createRouter({
       component: () => import('@/pages/tabbar/tabbarPage.vue'),
       children: [
         {
-          path: 'tabbarHouse',
+          path: 'tabbar-house',
           name: 'HousePage',
           component: () => import('@/pages/tabbar/housePage.vue'),
           meta: { title: '家' },
         },
         {
-          path: 'tabbarSmart',
+          path: 'tabbar-smart',
           name: 'SmartPage',
           component: () => import('@/pages/tabbar/smartPage.vue'),
           meta: { title: '智能' },
         },
         {
-          path: 'tabbarMe',
+          path: 'tabbar-me',
           name: 'MePage',
           component: () => import('@/pages/tabbar/mePage.vue'),
           meta: { title: '我的' },

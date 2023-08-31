@@ -42,7 +42,7 @@ const addPressEvent = () => {
         @touchstart="() => {}"
         @click="
           router.push({
-            path: '/smartCondtionTime',
+            path: '/smart-condtion-time',
           })
         "
       >

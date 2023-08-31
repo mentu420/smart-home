@@ -149,7 +149,7 @@ const onConfirm = () => {
           @touchstart="() => {}"
           @click="
             router.push({
-              path: '/smartTaskDeviceList',
+              path: '/smart-task-deviceList',
             })
           "
         >

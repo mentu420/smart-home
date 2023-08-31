@@ -11,8 +11,8 @@ const router = useRouter()
 const clickCount = ref(0)
 const navList = ref([
   { id: 0, text: '昵称', value: '李先生', path: '/meNickname' },
-  { id: 1, text: '手机号', value: '1888888888', path: '/mePhoneChange' },
-  { id: 2, text: '修改密码', value: '', path: '/mePasswordChange' },
+  { id: 1, text: '手机号', value: '1888888888', path: '/me-phone-change' },
+  { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
   { id: 3, text: '版本', value: '', path: '/meVersion' },
 ])
 const avatar = ref('')
@@ -30,7 +30,7 @@ const init = async () => {
   console.log(userInfo)
   navList.value = navList.value.map((item) => {
     if (item.path === '/meNickname') return { ...item, value: userInfo.xingming }
-    if (item.path === '/mePhoneChange') return { ...item, value: userInfo.shouji }
+    if (item.path === '/me-phone-change') return { ...item, value: userInfo.shouji }
     return item
   })
   avatar.value = userInfo.touxiang
@@ -45,7 +45,7 @@ const onNavItemClick = (navItem) => {
       new Vconsole()
       navList.value = [
         ...navList.value,
-        { id: 4, text: '开发者模式', value: '', path: '/meDevelopment' },
+        { id: 4, text: '开发者模式', value: '', path: '/me-development' },
       ]
     }
 

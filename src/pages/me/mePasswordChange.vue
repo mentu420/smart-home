@@ -41,7 +41,7 @@ const onSubmit = async () => {
         <van-button round block type="primary" native-type="submit"> 完成 </van-button>
         <div
           class="m-4 text-center text-sm text-gray-500"
-          @click="router.push({ path: '/forgetPassword' })"
+          @click="router.push({ path: '/forget-password' })"
         >
           忘记密码
         </div>

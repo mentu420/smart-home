@@ -31,7 +31,7 @@ const afterRead = async (file) => {
 }
 
 const goCondition = () => {
-  router.push({ path: '/smartCondition' })
+  router.push({ path: '/smart-condition' })
 }
 
 const onSave = async () => {
@@ -85,7 +85,7 @@ const delEventItem = () => {
 
 const openGallery = () => {
   showGallery.value = false
-  router.push({ path: '/smartSceneGallery' })
+  router.push({ path: '/smart-scene-gallery' })
 }
 
 const init = () => {
@@ -98,7 +98,7 @@ init()
 watch(
   () => route.path,
   (to, from) => {
-    if (to == '/smartSceneCreate' && form.value === '/tabbar/tabbarSmart') init()
+    if (to == '/smart-scene-create' && form.value === '/tabbar/tabbar-smart') init()
   }
 )
 
@@ -215,7 +215,7 @@ defineOptions({ name: 'SmartSceneCreate' })
         @touchstart="() => {}"
         @click="
           router.push({
-            path: '/smartTaskList',
+            path: '/smart-task-list',
           })
         "
       >

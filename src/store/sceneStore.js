@@ -1,13 +1,12 @@
+import localforage from 'localforage'
 import { defineStore } from 'pinia'
 import { reactive, ref, computed } from 'vue'
 
-import { getStorage, removeStorage, setStorage } from '@/utils/storage.js'
+import { getSceneList } from '@/apis/smartApi'
 
-export default defineStore('sceneStore', () => {
-  // 创建场景数据
-  const sceneCreateItem = ref({
-    events: [],
-  })
+const storeName = 'sceneStore'
+
+export default defineStore(storeName, () => {
   // 重复时间类型
   const repeatActions = ref([
     { id: 0, name: '每天', value: [0, 1, 2, 3, 4, 5, 6] },
@@ -25,6 +24,19 @@ export default defineStore('sceneStore', () => {
     5: '周五',
     6: '周六',
   })
+  // 创建场景数据
+  const sceneCreateItem = ref({
+    events: [],
+  })
+
+  const sceneList = ref([]) //全部场景列表
+
+  const init = async () => {
+    const storeRes = JSON.parse(await localforage.getItem(storeName))
+    sceneList.value = storeRes?.sceneList
+  }
+
+  init()
   // 获取重复时间
   const getRepeatTimeText = computed(() => (weekChecked = []) => {
     if (weekChecked.length == 0) return ''
@@ -114,18 +126,33 @@ export default defineStore('sceneStore', () => {
   // 清空场景数据
   const clearSceneCreateItem = () => (sceneCreateItem.value = { events: [] })
 
-  const reset = () => {
-    sceneCreateItem.value = {}
+  const useGetSceneListSync = async (reload = false) => {
+    if (sceneList.value.length > 0 && !reload) return sceneList.value
+    const { data } = await getSceneList({ op: 1 })
+    sceneList.value = data.map((item) => {
+      return {
+        ...item,
+        id: item.bianhao,
+        label: item.mingcheng,
+        rid: item.fangjianbianhao,
+      }
+    })
   }
+
+  const getRoomSceneList = computed(
+    () => (rid) => sceneList.value.filter((item) => item.rid == rid)
+  )
 
   return {
     sceneCreateItem,
+    sceneList,
     sceneGallery,
     repeatActions,
     weekData,
     getRepeatTimeText,
+    getRoomSceneList,
     updateSceneCreateItem,
     clearSceneCreateItem,
-    reset,
+    useGetSceneListSync,
   }
 })

@@ -28,7 +28,7 @@ const afterRead = async (file) => {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="家庭管理">
       <template #right>
-        <van-icon size="20" name="plus" @click="router.push({ path: '/meHouseCreate' })" />
+        <van-icon size="20" name="plus" @click="router.push({ path: '/me-house-create' })" />
       </template>
     </HeaderNavbar>
     <van-cell-group>
@@ -40,7 +40,7 @@ const afterRead = async (file) => {
         is-link
         @click="
           router.push({
-            path: '/meHouseName',
+            path: '/me-house-name',
             query: { houseName: currentHouse.fangwumingcheng, id: currentHouse.bianhao },
           })
         "
@@ -51,7 +51,7 @@ const afterRead = async (file) => {
         title="家庭位置"
         :value="currentHouse.dizhi"
         is-link
-        @click="router.push({ path: '/meHouseMap' })"
+        @click="router.push({ path: '/me-house-map' })"
       />
       <van-cell center clickable title="家庭图片" is-link>
         <van-uploader accept="image/*" :after-read="afterRead">
@@ -68,14 +68,14 @@ const afterRead = async (file) => {
         clickable
         title="成员与权限"
         is-link
-        @click="router.push({ path: '/meHouseMemberList' })"
+        @click="router.push({ path: '/me-house-memberList' })"
       />
       <van-cell
         center
         clickable
         title="房间管理"
         is-link
-        @click="router.push({ path: '/meRoomManage' })"
+        @click="router.push({ path: '/me-room-manage' })"
       />
     </van-cell-group>
     <div class="m-6">

@@ -25,7 +25,7 @@ init()
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar :title="route.query.name">
       <template #right>
-        <IconPark type="more" @click="router.push({ path: '/smartDeviceInfo' })" />
+        <IconPark type="more" @click="router.push({ path: '/smart-deviceInfo' })" />
       </template>
     </HeaderNavbar>
     <section class="pb-4">

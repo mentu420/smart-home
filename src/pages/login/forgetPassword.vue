@@ -12,7 +12,7 @@ const form = ref({})
 
 const onSubmit = async () => {
   router.push({
-    path: '/setPassword',
+    path: '/set-password',
     query: { ...form.value },
   })
 }

@@ -40,7 +40,7 @@ const onSubmit = async (value) => {
     { withToken: false }
   )
   useSetToken(data.acesstoken)
-  router.replace({ path: '/tabbar/tabbarHouse' })
+  router.replace({ path: '/tabbar/tabbar-house' })
 }
 
 const goOtherLogin = () => {

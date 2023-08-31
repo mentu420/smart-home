@@ -16,7 +16,7 @@ const sceneList = ref([{ text: '全局', children: [], id: '' }])
 const createSceneItem = () => {
   const { clearSceneCreateItem } = sceneStore()
   clearSceneCreateItem()
-  router.push({ path: '/smartSceneCreate' })
+  router.push({ path: '/smart-scene-create' })
 }
 
 const init = async () => {

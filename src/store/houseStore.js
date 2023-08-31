@@ -1,15 +1,26 @@
+import localforage from 'localforage'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 
 import { getHouseList, getRoomList } from '@/apis/houseApi'
-import { getStorage, removeStorage, setStorage } from '@/utils/storage.js'
 
-export default defineStore('houseStore', () => {
-  // 统一token处理
+const storeName = 'houseStore'
+
+export default defineStore(storeName, () => {
   const houseList = ref([])
   const roomList = ref([])
   const currentHouse = ref({})
 
+  const init = async () => {
+    const storeRes = JSON.parse(await localforage.getItem(storeName))
+    houseList.value = storeRes?.houseList
+    roomList.value = storeRes?.roomList
+    currentHouse.value = storeRes?.currentHouse
+  }
+
+  init()
+
+  // 切换当前房屋
   const setCurrentHouse = (id) => {
     currentHouse.value = houseList.value.find((item) => item.bianhao == id)
   }
@@ -18,50 +29,35 @@ export default defineStore('houseStore', () => {
 
   // 异步获取房屋列表
   const useGetHouseListSync = async (reload = false) => {
-    console.log('reload', reload)
     if (houseList.value.length > 0 && !reload) return houseList.value
     const { data } = await getHouseList({ op: 1 })
-    editHouseList(
-      data.map((item) => ({ ...item, text: item.fangwumingcheng, value: item.bianhao }))
-    )
-    return houseList.value
-  }
+    houseList.value = data.map((item) => ({
+      ...item,
+      label: item.fangwumingcheng,
+      text: item.fangwumingcheng,
+      value: item.bianhao,
+    }))
+    if (!currentHouse.value || Object.keys(currentHouse.value).length == 0) {
+      currentHouse.value = houseList.value[0]
+    }
 
-  const initHouse = async () => {
-    const { data } = await getHouseList({ op: 1 })
-    editHouseList(
-      data.map((item) => ({ ...item, text: item.fangwumingcheng, value: item.bianhao }))
-    )
-    currentHouse.value = data[0]
+    return houseList.value
   }
 
   // 异步获取房屋列表
   const useGetRoomListSync = async (reload = false) => {
-    console.log('reload', reload)
     if (roomList.value.length > 0 && !reload) return roomList.value
     const { data } = await getRoomList({ op: 1 })
-    roomList.value = data.map((item) => ({ ...item, text: item.mingcheng, id: item.bianhao }))
+    roomList.value = data.map((item) => ({ ...item, label: item.mingcheng, id: item.bianhao }))
     return roomList.value
-  }
-
-  const initRoomList = async () => {
-    const { data } = await getRoomList({ op: 1 })
-    roomList.value = data.map((item) => ({
-      ...item,
-      text: item.mingcheng,
-      id: item.bianhao,
-      hId: item.fangwubianhao, //房屋编号
-    }))
   }
 
   return {
     houseList,
     roomList,
     currentHouse,
-    initHouse,
     editHouseList,
     setCurrentHouse,
-    initRoomList,
     useGetHouseListSync,
     useGetRoomListSync,
   }

@@ -23,7 +23,7 @@ const router = useRouter()
         title="用户名称+手机号"
         label="备注信息"
         is-link
-        @click="router.push({ path: '/meHouseMemberItem', query: { id: 123 } })"
+        @click="router.push({ path: '/me-house-memberItem', query: { id: 123 } })"
       />
     </van-cell-group>
   </div>

@@ -35,7 +35,7 @@ const onSubmit = async (values) => {
       mima: values.password,
     },
   })
-  router.replace({ path: '/tabbar/tabbarHouse' })
+  router.replace({ path: '/tabbar/tabbar-house' })
 }
 
 const selectAccountItem = (item) => {
@@ -52,10 +52,10 @@ const init = () => {
 init()
 
 const goForget = () => {
-  router.push({ path: '/forgetPassword' })
+  router.push({ path: '/forget-password' })
 }
 const goOtherLogin = () => {
-  router.push({ path: '/phoneLogin' })
+  router.push({ path: '/phone-login' })
 }
 </script>
 

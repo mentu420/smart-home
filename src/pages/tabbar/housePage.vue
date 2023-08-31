@@ -12,11 +12,16 @@ import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
-import userStore from '@/store/userStore'
-
-const useDeviceStore = deviceStore()
 
 const router = useRouter()
+
+const useHouseStore = houseStore()
+const useDeviceStore = deviceStore()
+const useSceneStore = sceneStore()
+const { houseList, currentHouse, roomList } = storeToRefs(useHouseStore)
+const { deviceList } = storeToRefs(useDeviceStore)
+const { getRoomSceneList, sceneList } = storeToRefs(useSceneStore)
+
 // 全屋常用设备
 const commonList = ref([
   { id: 1, text: '常用场景', list: [{}] },
@@ -26,10 +31,6 @@ const showHomeList = ref(false)
 const loading = ref(false)
 const showConfig = ref(false)
 const tabActive = ref(0)
-const { houseList, currentHouse, roomList } = storeToRefs(houseStore())
-const { deviceList } = storeToRefs(useDeviceStore)
-const { getDeviceIcon } = useDeviceStore
-
 const dragOptions = ref({
   animation: 200,
   group: 'description',
@@ -43,19 +44,28 @@ const weatherInfo = ref({
 })
 const weatherRef = ref(null)
 
+const onReload = async () => {
+  const { useGetHouseListSync, useGetRoomListSync } = houseStore()
+  const { useGetDeviceListSync } = deviceStore()
+  const { useGetSceneListSync } = sceneStore()
+  return await Promise.all([
+    useGetHouseListSync(true),
+    useGetRoomListSync(true),
+    useGetDeviceListSync(true),
+    useGetSceneListSync(true),
+  ])
+}
+
 const onHouseSelect = async (action) => {
   try {
     loading.value = true
     const id = action.bianhao
     console.log(action)
     // homeAction.value = action.index
-    const { code } = await getHouseList({ op: 5, fangwubianhao: id })
-    const { setCurrentHouse } = houseStore()
-    setCurrentHouse(id)
-    const { initRoomList } = houseStore()
-    const { initDevice } = deviceStore()
-    const { initScene } = sceneStore()
-    await Promise.all([initRoomList(), initDevice(), initScene()])
+    await getHouseList({ op: 5, fangwubianhao: id })
+
+    useHouseStore.setCurrentHouse(id)
+    await onReload()
   } finally {
     loading.value = false
   }
@@ -145,23 +155,17 @@ const toggleDrag = () => {
 const openDeviceStatus = (item) => {
   console.log(item)
   router.push({
-    path: '/smartDeviceStatus',
+    path: '/smart-device-status',
     query: { id: item.id, name: item.label, classify: item.classify },
   })
 }
 
 const init = async () => {
   try {
-    const { useGetHouseListSync, useGetRoomListSync, setCurrentHouse } = houseStore()
-    const { useGetDeviceListSync } = deviceStore()
-    await Promise.all([
-      useGetHouseListSync(true),
-      useGetRoomListSync(true),
-      useGetDeviceListSync(true),
-    ])
+    await onReload()
 
     if (currentHouse.value?.id) return
-    setCurrentHouse(houseList.value[0].bianhao)
+    useHouseStore.setCurrentHouse(houseList.value[0].bianhao)
   } catch (err) {
     console.warn(err)
   } finally {
@@ -187,14 +191,14 @@ onMounted(() => {
           >
             <template #reference>
               <div class="flex items-center space-x-4">
-                <h4>{{ currentHouse?.fangwumingcheng }}</h4>
+                <h4>{{ currentHouse?.label }}</h4>
                 <van-icon name="arrow-down" />
               </div>
             </template>
           </van-popover>
           <div class="space-x-4">
             <van-icon size="20" name="bell" />
-            <van-icon size="20" name="plus" @click="router.push({ path: '/houseAddDevice' })" />
+            <van-icon size="20" name="plus" @click="router.push({ path: '/house-ddd-device' })" />
             <!-- <van-popover
               :actions="[
                 { text: '添加设备', value: 0 },
@@ -236,10 +240,10 @@ onMounted(() => {
             <section class="p-4">
               <h4 class="mb-2 text-gray-600">常用场景</h4>
               <div class="grid grid-cols-2 gap-4">
-                <ScenenCardItem v-for="(lightItem, lightIndex) in 2" :key="lightIndex">
+                <ScenenCardItem v-for="(lightItem, lightIndex) in sceneList" :key="lightIndex">
                   <div class="space-x-2 text-white">
-                    <label>{{ lightItem }}</label>
-                    <label class="rounded bg-gray-200 px-2 py-1 text-xs text-black"> 客厅 </label>
+                    <label>{{ lightItem.label }}</label>
+                    <!-- <label class="rounded bg-gray-200 px-2 py-1 text-xs text-black"> 客厅 </label> -->
                   </div>
                 </ScenenCardItem>
               </div>
@@ -262,7 +266,10 @@ onMounted(() => {
           >
             <section class="p-4">
               <div class="grid grid-cols-2 gap-4">
-                <ScenenCardItem v-for="(sceneItem, sceneIndex) in 2" :key="sceneIndex">
+                <ScenenCardItem
+                  v-for="(sceneItem, sceneIndex) in getRoomSceneList(roomItem.id)"
+                  :key="sceneIndex"
+                >
                   <label>{{ sceneItem }}</label>
                 </ScenenCardItem>
               </div>

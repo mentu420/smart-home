@@ -18,5 +18,5 @@ export const storeReset = () => {
 export const useLogout = async (message = '请重新登陆') => {
   storeReset()
   showToast(message)
-  router.push({ path: '/accountLogin' })
+  router.push({ path: '/account-login' })
 }

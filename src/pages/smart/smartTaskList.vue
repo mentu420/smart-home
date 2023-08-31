@@ -14,7 +14,7 @@ const router = useRouter()
         @touchstart="() => {}"
         @click="
           router.push({
-            path: '/smartTaskDeviceClassify',
+            path: '/smart-task-device-classify',
           })
         "
       >

@@ -26,11 +26,11 @@ const onCheckChange = (values) => {
 }
 
 const goDeviceConfig = () => {
-  router.push({ path: '/smartTaskDeviceConfig' })
+  router.push({ path: '/smart-task-device-config' })
 }
 
 const onSave = () => {
-  router.push({ path: '/smartSceneCreate' })
+  router.push({ path: '/smart-scene-create' })
 }
 
 const init = async () => {

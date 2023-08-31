@@ -31,7 +31,7 @@ onMounted(() => {
 })
 
 const onSave = () => {
-  router.push({ path: '/smartSceneCreate' })
+  router.push({ path: '/smart-scene-create' })
 }
 </script>
 
