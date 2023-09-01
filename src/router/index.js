@@ -37,37 +37,37 @@ const Router = createRouter({
     {
       path: '/webview',
       name: 'Webview',
-      component: () => import('@/pages/common/webviewPage.vue'),
+      component: () => import('@/pages/common/webview-page.vue'),
     },
     {
       path: '/launch-page',
       name: 'LaunchPage',
-      component: () => import('@/pages/tabbar/launchPage.vue'),
+      component: () => import('@/pages/tabbar/launch-page.vue'),
       meta: {
         title: '启动页',
       },
     },
     {
       path: '/tabbar',
-      name: 'Tabbar',
-      component: () => import('@/pages/tabbar/tabbarPage.vue'),
+      name: 'TabbarPage',
+      component: () => import('@/pages/tabbar/tabbar-page.vue'),
       children: [
         {
           path: 'tabbar-house',
           name: 'HousePage',
-          component: () => import('@/pages/tabbar/housePage.vue'),
+          component: () => import('@/pages/tabbar/house-page.vue'),
           meta: { title: '家' },
         },
         {
           path: 'tabbar-smart',
           name: 'SmartPage',
-          component: () => import('@/pages/tabbar/smartPage.vue'),
+          component: () => import('@/pages/tabbar/smart-page.vue'),
           meta: { title: '智能' },
         },
         {
           path: 'tabbar-me',
           name: 'MePage',
-          component: () => import('@/pages/tabbar/mePage.vue'),
+          component: () => import('@/pages/tabbar/me-page.vue'),
           meta: { title: '我的' },
         },
       ],

@@ -2,37 +2,37 @@ export default [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/pages/login/loginPage.vue'),
+    component: () => import('@/pages/login/login-page.vue'),
     meta: { title: '登录' },
   },
   {
     path: '/account-login',
     name: 'AccountLogin',
-    component: () => import('@/pages/login/accountLogin.vue'),
+    component: () => import('@/pages/login/account-login.vue'),
     meta: { title: '账号登录' },
   },
   {
     path: '/phone-login',
     name: 'PhoneLogin',
-    component: () => import('@/pages/login/phoneLogin.vue'),
+    component: () => import('@/pages/login/phone-login.vue'),
     meta: { title: '手机号登录' },
   },
   {
     path: '/forget-password',
     name: 'ForgetPassword',
-    component: () => import('@/pages/login/forgetPassword.vue'),
+    component: () => import('@/pages/login/forget-password.vue'),
     meta: { title: '忘记密码' },
   },
   {
     path: '/forget-vaildator',
     name: 'ForgetVaildator',
-    component: () => import('@/pages/login/forgetVaildator.vue'),
+    component: () => import('@/pages/login/forget-vaildator.vue'),
     meta: { title: '设置密码' },
   },
   {
     path: '/set-password',
     name: 'SetPassword',
-    component: () => import('@/pages/login/setPassword.vue'),
+    component: () => import('@/pages/login/set-password.vue'),
     meta: { title: '设置密码' },
   },
 ]
