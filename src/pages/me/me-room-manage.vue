@@ -3,8 +3,9 @@ import { load } from '@amap/amap-jsapi-loader'
 import Nzh from 'nzh'
 import { storeToRefs } from 'pinia'
 import { showConfirmDialog } from 'vant'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import draggable from 'vuedraggable'
 
 import { getRoomList, setRoomList, setFloorList, getFloorList } from '@/apis/houseApi'
 import { validKeyboard } from '@/hooks/useFormValidator'
@@ -40,6 +41,7 @@ const showAddFloor = ref(false) //是否打开楼层弹框
 const loading = ref(false)
 const roomForm = ref({ checked: [] }) //记录新增、编辑房间表单
 const floorForm = ref({ op: 2, label: '' }) // 楼层数据表单
+const disabled = ref(true) //禁止编辑
 
 // 异步函数
 const onAwaitLoad = async (func) => {
@@ -62,10 +64,10 @@ const onEditFloor = (item) => {
 }
 
 // 删除楼层
-const onDelFloor = () => {
+const onDelFloor = (floorItem) => {
   onAwaitLoad(async () => {
-    await showConfirmDialog({ title: '提示', message: `是否删除${floorForm.value.label}楼层` })
-    await getFloorList({ op: 4, quyubianhao: floorForm.value.id })
+    await showConfirmDialog({ title: '提示', message: `是否删除${floorItem.label}楼层` })
+    await getFloorList({ op: 4, quyubianhao: floorItem.id })
     await useGetFloorListSync(true)
     showAddFloor.value = false
   })
@@ -103,18 +105,16 @@ const openAddRoom = (floorItem) => {
 }
 
 // 删除房间
-const onDelectRoom = async () => {
+const onDelectRoom = async (roomItem) => {
   onAwaitLoad(async () => {
-    await showConfirmDialog({ title: '提示', message: `是否删除 ${roomForm.value.label} 房间` })
-    await getRoomList({ op: 4, fangjianbianhao: roomForm.value.id })
+    await showConfirmDialog({ title: '提示', message: `是否删除 ${roomItem.label} 房间` })
+    await getRoomList({ op: 4, fangjianbianhao: roomItem.id })
     await useGetRoomListSync(true)
-    showRoomChecked.value = false
   })
 }
 
 // 打开房间编辑表单
 const openRoomEdit = (roomItem = {}) => {
-  console.log('roomItem', roomItem)
   roomForm.value = {
     id: roomItem?.id,
     fId: roomItem?.fId,
@@ -164,75 +164,111 @@ const onSubmitRoomCustom = () => {
     showRoomChecked.value = false
   })
 }
+
+const useFloorRoomList = computed(() => (fId) => roomList.value.filter((item) => item.fId == fId))
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="房间管理">
       <template #right>
-        <van-button
-          class="!px-4"
-          round
-          size="small"
-          type="primary"
-          :loading="loading"
-          @click="addFloorItem"
-        >
-          添加楼层
-        </van-button>
+        <div @click="disabled = !disabled">{{ disabled ? '编辑' : '取消' }}</div>
       </template>
     </HeaderNavbar>
 
-    <van-collapse v-model="activeNames">
-      <van-collapse-item
-        v-for="floorItem in floorList"
-        :key="floorItem.id"
-        :title="floorItem.label"
-        center
-      >
-        <template #value>
-          <van-button
-            round
-            class="!mr-4"
-            size="small"
-            type="primary"
-            icon="edit"
-            :loading="loading"
-            @click.stop="onEditFloor(floorItem)"
+    <van-collapse v-model="activeNames" class="p-4">
+      <draggable v-model="floorList" item-key="id" :disabled="disabled" group="floor">
+        <template #item="{ element: floorItem }">
+          <van-collapse-item
+            :title="floorItem.label"
+            class="mb-4 rounded-lg overflow-hidden"
+            center
           >
-            编辑楼层
-          </van-button>
-        </template>
-        <div class="flex flex-wrap">
-          <span
-            v-for="roomItem in roomList.filter((item) => item.fId == floorItem.id)"
-            :key="roomItem.bianhao"
-            class="relative mb-4 mr-4"
-          >
+            <template #title>
+              <div class="flex items-center">
+                <van-icon v-if="!disabled" name="wap-nav" class="mr-2" />
+
+                <label>{{ floorItem.label }}</label>
+              </div>
+            </template>
+            <template #value>
+              <div v-if="!disabled">
+                <van-button
+                  round
+                  class="!mr-4"
+                  size="small"
+                  type="primary"
+                  icon="edit"
+                  :loading="loading"
+                  @click.stop="onEditFloor(floorItem)"
+                />
+                <van-button
+                  round
+                  class="!mr-4"
+                  size="small"
+                  type="primary"
+                  icon="delete-o"
+                  :loading="loading"
+                  @click.stop="onDelFloor(floorItem)"
+                />
+              </div>
+            </template>
+
+            <draggable
+              :list="useFloorRoomList(floorItem.id)"
+              item-key="id"
+              :disabled="disabled"
+              :group="floorItem.id"
+            >
+              <template #item="{ element: roomItem }">
+                <van-cell :border="false" :title="roomItem.label" center>
+                  <template v-if="!disabled" #icon>
+                    <van-icon name="wap-nav" class="mr-2" />
+                  </template>
+                  <template v-if="!disabled" #value>
+                    <van-button
+                      round
+                      class="!mr-4"
+                      size="small"
+                      type="primary"
+                      icon="edit"
+                      :loading="loading"
+                      @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
+                    />
+                    <van-button
+                      round
+                      size="small"
+                      icon="delete-o"
+                      type="danger"
+                      :loading="loading"
+                      @click="onDelectRoom(roomItem)"
+                    />
+                  </template>
+                </van-cell>
+              </template>
+            </draggable>
+
             <van-button
+              v-if="disabled"
               round
               size="small"
-              class="!px-4"
-              icon="edit"
+              type="primary"
+              icon="add-o"
               :loading="loading"
-              @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
+              @click.stop="openAddRoom(floorItem)"
             >
-              {{ roomItem.label }}
+              添加房间
             </van-button>
-          </span>
-          <van-button
-            round
-            size="small"
-            type="primary"
-            icon="add-o"
-            :loading="loading"
-            @click.stop="openAddRoom(floorItem)"
-          >
-            添加房间
-          </van-button>
-        </div>
-      </van-collapse-item>
+          </van-collapse-item>
+        </template>
+      </draggable>
     </van-collapse>
+
+    <div v-if="disabled" class="p-4">
+      <van-button class="!px-4" round block type="primary" :loading="loading" @click="addFloorItem">
+        添加楼层
+      </van-button>
+    </div>
 
     <!--新增房间-->
     <van-popup v-model:show="showRoomChecked" round teleport="body" position="bottom">
@@ -294,17 +330,7 @@ const onSubmitRoomCustom = () => {
           placeholder="请填写房间名称"
           :rules="[{ required: true, message: '房间名称不能为空' }]"
         />
-        <div class="pt-8 pb-4 space-x-4 flex items-center">
-          <van-button
-            v-if="roomForm.op != 2"
-            round
-            block
-            type="primary"
-            :loading="loading"
-            @click="onDelectRoom"
-          >
-            删除
-          </van-button>
+        <div class="pt-8 pb-4">
           <van-button round block type="primary" native-type="submit" :loading="loading">
             提交
           </van-button>
@@ -327,17 +353,7 @@ const onSubmitRoomCustom = () => {
           ]"
         />
 
-        <div class="pt-8 pb-4 space-x-4 flex items-center">
-          <van-button
-            v-if="floorForm.op != 2"
-            round
-            block
-            type="primary"
-            :loading="loading"
-            @click="onDelFloor"
-          >
-            删除
-          </van-button>
+        <div class="pt-8 pb-4">
           <van-button round block type="primary" native-type="submit" :loading="loading">
             提交
           </van-button>

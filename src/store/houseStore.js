@@ -58,25 +58,30 @@ export default defineStore(storeName, () => {
   const useGetRoomListSync = async (reload = false) => {
     if (roomList.value.length > 0 && !reload) return roomList.value
     const { data } = await getRoomList({ op: 1 })
-    roomList.value = data.map((item) => ({
-      ...item,
-      label: item.mingcheng,
-      id: item.bianhao,
-      fId: item.quyubianhao, //楼层编号
-      hId: item.fangwubianhao, //房屋编号
-    }))
+    roomList.value = data
+      .map((item) => ({
+        ...item,
+        label: item.mingcheng,
+        id: item.bianhao,
+        fId: item.quyubianhao, //楼层编号
+        hId: item.fangwubianhao, //房屋编号
+        sort: item.paixu,
+      }))
+      .sort((a, b) => a.sort - b.sort)
     return roomList.value
   }
 
   const useGetFloorListSync = async (reload = false) => {
     if (floorList.value.length > 0 && !reload) return floorList.value
     const { data } = await getFloorList({ op: 1 })
-    floorList.value = data.map((item) => ({
-      label: item.mingcheng,
-      id: item.bianhao,
-      hId: item.fangwubianhao,
-      sort: item.paixu,
-    }))
+    floorList.value = data
+      .map((item) => ({
+        label: item.mingcheng,
+        id: item.bianhao,
+        hId: item.fangwubianhao,
+        sort: item.paixu,
+      }))
+      .sort((a, b) => a.sort - b.sort)
     return floorList.value
   }
 
