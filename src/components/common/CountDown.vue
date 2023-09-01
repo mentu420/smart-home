@@ -56,19 +56,20 @@ export default {
 
     const sendSms = async () => {
       try {
-        loading.value = false
+        loading.value = true
         if (countTime.value > 0) return
         await props.request()
         countTime.value = props.duration * 1000
         codeStatus.value = 1
       } finally {
-        loading.value = true
+        loading.value = false
       }
     }
 
     return {
       countTime,
       codeStatus,
+      loading,
       onChange,
       onFinish,
       sendSms,

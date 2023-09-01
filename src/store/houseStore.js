@@ -85,10 +85,9 @@ export default defineStore(storeName, () => {
     const { data } = await getFamily({ op: 1 })
     console.log(data)
     familyList.value = data.map((item) => ({
-      label: item.mingcheng,
+      ...item,
+      label: item.xingming,
       id: item.bianhao,
-      hId: item.fangwubianhao,
-      sort: item.paixu,
     }))
     return familyList.value
   }

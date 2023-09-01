@@ -140,7 +140,7 @@ export default defineStore(storeName, () => {
   }
 
   const getRoomSceneList = computed(
-    () => (rid) => sceneList.value.filter((item) => item.rid == rid)
+    () => (rid) => sceneList.value?.filter((item) => item.rid == rid)
   )
 
   return {

@@ -45,7 +45,8 @@ const weatherInfo = ref({
 const weatherRef = ref(null)
 
 const onReload = async () => {
-  const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync } = houseStore()
+  const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
+    houseStore()
   const { useGetDeviceListSync } = deviceStore()
   const { useGetSceneListSync } = sceneStore()
   return await Promise.all([
@@ -54,6 +55,7 @@ const onReload = async () => {
     useGetFloorListSync(true),
     useGetDeviceListSync(true),
     useGetSceneListSync(true),
+    useGetFamilyListSync(true),
   ])
 }
 

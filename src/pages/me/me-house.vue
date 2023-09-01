@@ -4,7 +4,6 @@ import { ref } from 'vue'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { useRouter } from 'vue-router'
 
-import { getHouseMember } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
 
