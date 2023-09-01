@@ -159,6 +159,7 @@ const onSubmitRoomCustom = () => {
       params: { op },
       data: op == 2 ? { ...data, quyubianhao: fId, fangwubianhao: currentHouse.value?.id } : data,
     })
+    await useGetRoomListSync(true)
     showRoomForm.value = false
     showRoomChecked.value = false
   })
