@@ -11,9 +11,11 @@ import { validKeyboard } from '@/hooks/useFormValidator'
 import houseStore from '@/store/houseStore'
 import { objDelByValues } from '@/utils/common'
 
-const useHouseStore = houseStore()
-
 const route = useRoute()
+
+const useHouseStore = houseStore()
+const { floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
+const { useGetFloorListSync, useGetRoomListSync } = useHouseStore
 
 const defineRoomList = ref([
   { text: '玄关', id: 0 },
@@ -29,17 +31,17 @@ const defineRoomList = ref([
   { text: '阳台', id: 10 },
   { text: '洗漱间', id: 11 },
 ])
-const { floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
 
 const activeNames = ref([0])
 const checkboxRefs = ref([]) // 默认房间checkbox
 const showRoomChecked = ref(false) // 是否打开默认房间列表
-const showRoomCustom = ref(false) // 是否打开房间自定义
-const roomForm = ref({ checked: [] }) // 记录当前选择的楼层与房间名称index=>楼层，checked: 选择的房间
+const showRoomForm = ref(false) // 是否打开房间自定义
 const showAddFloor = ref(false) //是否打开楼层弹框
-const floorForm = ref({ op: 2, mingcheng: '' }) // 楼层数据表单
 const loading = ref(false)
+const roomForm = ref({ checked: [] }) //记录新增、编辑房间表单
+const floorForm = ref({ op: 2, label: '' }) // 楼层数据表单
 
+// 异步函数
 const onAwaitLoad = async (func) => {
   try {
     loading.value = true
@@ -56,28 +58,28 @@ const addFloorItem = () => {
 
 const onEditFloor = (item) => {
   showAddFloor.value = true
-  floorForm.value = { op: 3, bianhao: item.id, mingcheng: item.label }
+  floorForm.value = { op: 3, id: item.id, label: item.label }
 }
 
+// 删除楼层
 const onDelFloor = () => {
   onAwaitLoad(async () => {
-    await showConfirmDialog({ title: '提示', message: `是否删除${floorForm.value.mingcheng}楼层` })
-    const { useGetFloorListSync } = useHouseStore
-    await getFloorList({ op: 4, quyubianhao: floorForm.value.bianhao })
+    await showConfirmDialog({ title: '提示', message: `是否删除${floorForm.value.label}楼层` })
+    await getFloorList({ op: 4, quyubianhao: floorForm.value.id })
     await useGetFloorListSync(true)
     showAddFloor.value = false
   })
 }
 
+// 编辑楼层
 const onUpdateFloor = () => {
   onAwaitLoad(async () => {
-    const { useGetFloorListSync } = useHouseStore
-    const { op, mingcheng, bianhao } = floorForm.value
+    const { op, label, id } = floorForm.value
     const config = {
       params: { op },
       data: objDelByValues([undefined, null], {
-        bianhao,
-        mingcheng,
+        bianhao: id,
+        mingcheng: label,
         fangwubianhao: currentHouse.value?.id,
         paixu: floorList.value.length,
       }),
@@ -85,29 +87,42 @@ const onUpdateFloor = () => {
     console.log(config)
     await setFloorList(config)
     await useGetFloorListSync(true)
+    showAddFloor.value = false
   })
 }
 
-//新增房间
-const openAddRoom = (floorItem, floorIndex) => {
+//打开房间新增
+const openAddRoom = (floorItem) => {
   showRoomChecked.value = true
 
   roomForm.value = {
-    fangwubianhao: currentHouse.value?.id,
-    quyubianhao: floorItem.id,
-    index: floorIndex,
+    id: currentHouse.value?.id,
+    fId: floorItem.id,
     checked: [],
   }
 }
 
 // 删除房间
-const onDelectRoom = async (roomItem) => {
+const onDelectRoom = async () => {
   onAwaitLoad(async () => {
-    await showConfirmDialog({ title: '提示', message: `是否删除 ${roomItem.label} 房间` })
-    const { useGetRoomListSync } = useHouseStore
-    await getRoomList({ op: 4, fangjianbianhao: roomItem.id })
-    await useGetRoomListSync()
+    await showConfirmDialog({ title: '提示', message: `是否删除 ${roomForm.value.label} 房间` })
+    await getRoomList({ op: 4, fangjianbianhao: roomForm.value.id })
+    await useGetRoomListSync(true)
+    showRoomChecked.value = false
   })
+}
+
+// 打开房间编辑表单
+const openRoomEdit = (roomItem = {}) => {
+  console.log('roomItem', roomItem)
+  roomForm.value = {
+    id: roomItem?.id,
+    fId: roomItem?.fId,
+    label: roomItem?.label,
+    op: roomItem.op,
+  }
+  console.log('roomForm', roomForm.value)
+  showRoomForm.value = true
 }
 
 // 新增房间
@@ -117,28 +132,31 @@ const onAddRoomItem = () => {
     await Promise.all(
       roomForm.value.checked.map(async (checkedItem) => {
         const data = {
-          fangwubianhao: roomForm.value.fangwubianhao,
-          quyubianhao: roomForm.value.quyubianhao,
+          fangwubianhao: roomForm.value.id,
+          quyubianhao: roomForm.value.fId,
           mingcheng: checkedItem,
         }
         await setRoomList({ params: { op: 2 }, data })
         return ''
       })
     )
+    await useGetRoomListSync(true)
     showRoomChecked.value = false
   })
 }
 
 // 提交自定义房间
 const onSubmitRoomCustom = () => {
+  // 根据op 请求
+  const { id, fId, label, op } = roomForm.value
+  console.log(op)
   onAwaitLoad(async () => {
     const data = {
-      fangwubianhao: roomForm.value.fangwubianhao,
-      quyubianhao: roomForm.value.quyubianhao,
-      mingcheng: roomForm.value.name,
+      fangwubianhao: id,
+      mingcheng: label,
     }
-    await setRoomList({ params: { op: 2 }, data })
-    showRoomCustom.value = false
+    await setRoomList({ params: { op }, data: op == 2 ? { ...data, quyubianhao: fId } : data })
+    showRoomForm.value = false
     showRoomChecked.value = false
   })
 }
@@ -163,7 +181,7 @@ const onSubmitRoomCustom = () => {
 
     <van-collapse v-model="activeNames">
       <van-collapse-item
-        v-for="(floorItem, floorIndex) in floorList"
+        v-for="floorItem in floorList"
         :key="floorItem.id"
         :title="floorItem.label"
         center
@@ -189,13 +207,13 @@ const onSubmitRoomCustom = () => {
           >
             <van-button
               round
-              icon="delete-o"
-              class="!px-4"
               size="small"
+              class="!px-4"
+              icon="edit"
               :loading="loading"
-              @click.stop="onDelectRoom(roomItem)"
+              @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
             >
-              {{ roomItem.mingcheng }}
+              {{ roomItem.label }}{{ roomItem.id }}
             </van-button>
           </span>
           <van-button
@@ -204,7 +222,7 @@ const onSubmitRoomCustom = () => {
             type="primary"
             icon="add-o"
             :loading="loading"
-            @click.stop="openAddRoom(floorItem, floorIndex)"
+            @click.stop="openAddRoom(floorItem)"
           >
             添加房间
           </van-button>
@@ -215,7 +233,7 @@ const onSubmitRoomCustom = () => {
     <!--新增房间-->
     <van-popup v-model:show="showRoomChecked" round teleport="body" position="bottom">
       <div class="py-4">
-        <div class="flex justify-between p-4">
+        <div class="flex justify-between p-4 items-center">
           <van-button
             class="!px-4"
             round
@@ -226,6 +244,7 @@ const onSubmitRoomCustom = () => {
           >
             取消
           </van-button>
+          <div>新增房间</div>
           <van-button
             class="!px-4"
             round
@@ -254,41 +273,48 @@ const onSubmitRoomCustom = () => {
                 />
               </template>
             </van-cell>
-            <van-cell title="自定义" is-link @click="showRoomCustom = true"></van-cell>
+            <van-cell title="自定义" is-link @click="openRoomEdit({ op: 2 })"></van-cell>
           </van-cell-group>
         </van-checkbox-group>
       </div>
     </van-popup>
 
-    <!--自定义房间名称-->
-    <van-popup v-model:show="showRoomCustom" round teleport="body" position="center">
-      <div class="py-4">
-        <van-form @submit="onSubmitRoomCustom">
-          <van-cell-group inset>
-            <van-field
-              v-model.trim="roomForm.name"
-              name="name"
-              label="房间名称"
-              placeholder="请填写房间名称"
-              :rules="[{ required: true, message: '房间名称不能为空' }]"
-            />
-          </van-cell-group>
-          <div class="p-4">
-            <van-button round block type="primary" native-type="submit" :loading="loading">
-              提交
-            </van-button>
-          </div>
-        </van-form>
-      </div>
+    <!--房间编辑-->
+    <van-popup v-model:show="showRoomForm" round teleport="body" position="center" closeable>
+      <van-form class="p-4" @submit="onSubmitRoomCustom">
+        <div class="pb-4">{{ roomForm.op != 2 ? '编辑' : '添加' }}房间</div>
+        <van-field
+          v-model.trim="roomForm.label"
+          name="label"
+          label="房间名称"
+          placeholder="请填写房间名称"
+          :rules="[{ required: true, message: '房间名称不能为空' }]"
+        />
+        <div class="pt-8 pb-4 space-x-4 flex items-center">
+          <van-button
+            v-if="roomForm.op != 2"
+            round
+            block
+            type="primary"
+            :loading="loading"
+            @click="onDelectRoom"
+          >
+            删除
+          </van-button>
+          <van-button round block type="primary" native-type="submit" :loading="loading">
+            提交
+          </van-button>
+        </div>
+      </van-form>
     </van-popup>
 
-    <!--楼层弹框-->
+    <!--楼层编辑弹框-->
     <van-popup v-model:show="showAddFloor" round teleport="body" position="center" closeable>
       <van-form class="p-4" @submit="onUpdateFloor">
         <div class="pb-4">{{ floorForm.op != 2 ? '编辑' : '添加' }}楼层</div>
         <van-field
-          v-model.trim="floorForm.mingcheng"
-          name="floorName"
+          v-model.trim="floorForm.label"
+          name="label"
           label="楼层名称"
           placeholder="请填写楼层名称"
           :rules="[
