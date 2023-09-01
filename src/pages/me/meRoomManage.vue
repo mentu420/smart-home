@@ -132,7 +132,7 @@ const onAddRoomItem = () => {
     await Promise.all(
       roomForm.value.checked.map(async (checkedItem) => {
         const data = {
-          fangwubianhao: roomForm.value.id,
+          fangwubianhao: currentHouse.value?.id,
           quyubianhao: roomForm.value.fId,
           mingcheng: checkedItem,
         }
@@ -152,10 +152,13 @@ const onSubmitRoomCustom = () => {
   console.log(op)
   onAwaitLoad(async () => {
     const data = {
-      fangwubianhao: id,
+      bianhao: id,
       mingcheng: label,
     }
-    await setRoomList({ params: { op }, data: op == 2 ? { ...data, quyubianhao: fId } : data })
+    await setRoomList({
+      params: { op },
+      data: op == 2 ? { ...data, quyubianhao: fId, fangwubianhao: currentHouse.value?.id } : data,
+    })
     showRoomForm.value = false
     showRoomChecked.value = false
   })
@@ -213,7 +216,7 @@ const onSubmitRoomCustom = () => {
               :loading="loading"
               @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
             >
-              {{ roomItem.label }}{{ roomItem.id }}
+              {{ roomItem.label }}
             </van-button>
           </span>
           <van-button

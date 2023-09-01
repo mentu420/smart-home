@@ -2,7 +2,7 @@ import localforage from 'localforage'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 
-import { getHouseList, getRoomList, getFloorList } from '@/apis/houseApi'
+import { getHouseList, getRoomList, getFloorList, getFamily } from '@/apis/houseApi'
 
 const storeName = 'houseStore'
 
@@ -10,6 +10,7 @@ export default defineStore(storeName, () => {
   const houseList = ref([]) //用户的所有房屋
   const roomList = ref([]) //当前房屋的所有房间
   const floorList = ref([]) //当前房屋的所有楼层
+  const familyList = ref([]) //当前房屋的所有成员
   const currentHouse = ref({}) //当前房屋
 
   const init = async () => {
@@ -79,16 +80,31 @@ export default defineStore(storeName, () => {
     return floorList.value
   }
 
+  const useGetFamilyListSync = async (reload = false) => {
+    if (familyList.value.length > 0 && !reload) return familyList.value
+    const { data } = await getFamily({ op: 1 })
+    console.log(data)
+    familyList.value = data.map((item) => ({
+      label: item.mingcheng,
+      id: item.bianhao,
+      hId: item.fangwubianhao,
+      sort: item.paixu,
+    }))
+    return familyList.value
+  }
+
   return {
     houseList,
     roomList,
     floorList,
+    familyList,
     currentHouse,
     editHouseList,
     setCurrentHouse,
     useGetHouseListSync,
     useGetRoomListSync,
     useGetFloorListSync,
+    useGetFamilyListSync,
     setHouseItem,
   }
 })

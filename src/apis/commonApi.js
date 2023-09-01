@@ -29,10 +29,3 @@ export const setUserConfig = (config) =>
   request({ url: '/V1/YongHu.aspx', method: 'POST', ...config })
 
 export const getUserConfig = (config) => request({ url: '/V1/YongHu.aspx', ...config })
-/**
- * 成员相关接口。
- * **/
-export const setFamily = (config) =>
-  request({ url: '/V1/ChengYuan.aspx', method: 'POST', ...config })
-
-export const getFamily = (params) => request({ url: '/V1/ChengYuan.aspx', params })

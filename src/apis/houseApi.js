@@ -30,3 +30,11 @@ export const setRoomList = (config) =>
 export const getFloorList = (params) => request({ url: '/V1/QuYu.aspx', params })
 
 export const setFloorList = (config) => request({ url: '/V1/QuYu.aspx', ...config, method: 'POST' })
+
+/**
+ * 成员相关接口。
+ * **/
+export const setFamily = (config) =>
+  request({ url: '/V1/ChengYuan.aspx', method: 'POST', ...config })
+
+export const getFamily = (params) => request({ url: '/V1/ChengYuan.aspx', params })
