@@ -2,8 +2,6 @@
 import { ref, reactive, computed, useAttrs, useSlots } from 'vue'
 import { useRouter } from 'vue-router'
 
-import DeviceInfo from '@/utils/deviceInfo.js'
-
 const router = useRouter()
 
 const attrs = useAttrs()

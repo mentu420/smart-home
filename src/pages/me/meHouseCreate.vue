@@ -14,9 +14,12 @@ const fileList = ref([])
 const onSubmit = async () => {
   const { useGetHouseListSync } = houseStore()
   const { code, data } = await setHouseList({
-    bianhao: '',
-    mingcheng: houseName.value,
-    img: houseImage.value,
+    poarams: { op: 2 },
+    data: {
+      bianhao: '',
+      mingcheng: houseName.value,
+      img: houseImage.value,
+    },
   })
   await useGetHouseListSync()
   router.back()

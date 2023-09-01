@@ -80,6 +80,8 @@ import {
   Toast,
   Dialog,
   Notify,
+  ConfigProvider,
+  NumberKeyboard,
 } from 'vant'
 
 export function useVant(app) {
@@ -165,4 +167,6 @@ export function useVant(app) {
     .use(Toast)
     .use(Dialog)
     .use(Notify)
+    .use(ConfigProvider)
+    .use(NumberKeyboard)
 }

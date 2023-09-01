@@ -6,7 +6,7 @@ import {
   textReg,
   websiteReg,
   wechatReg,
-} from '@/hooks/useFormValidator.jsindex.js'
+} from '@/hooks/useFormValidator.js'
 
 import inputFilter from './cursor.js'
 

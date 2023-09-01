@@ -4,7 +4,6 @@ import { showToast } from 'vant'
 import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { uploadFile } from '@/apis/commonApi'
 import { setSceneList } from '@/apis/smartApi.js'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
@@ -227,9 +226,14 @@ defineOptions({ name: 'SmartSceneCreate' })
       <ul class="space-y-6 py-4 text-center">
         <li @click="openGallery">默认图库</li>
         <li>
-          <SmartUploader v-model="fileList" accept="image/*" :max-count="1">
-            <template #default>
-              <p class="w-screen">选择相机</p>
+          <SmartUploader
+            v-model="fileList"
+            accept="image/*"
+            :max-count="1"
+            @success="showGallery = false"
+          >
+            <template #default="slotProps">
+              <p class="w-screen">选择相机{{ slotProps.loading }}</p>
             </template>
           </SmartUploader>
         </li>

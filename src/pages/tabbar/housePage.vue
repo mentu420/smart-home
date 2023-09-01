@@ -45,12 +45,13 @@ const weatherInfo = ref({
 const weatherRef = ref(null)
 
 const onReload = async () => {
-  const { useGetHouseListSync, useGetRoomListSync } = houseStore()
+  const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync } = houseStore()
   const { useGetDeviceListSync } = deviceStore()
   const { useGetSceneListSync } = sceneStore()
   return await Promise.all([
     useGetHouseListSync(true),
     useGetRoomListSync(true),
+    useGetFloorListSync(true),
     useGetDeviceListSync(true),
     useGetSceneListSync(true),
   ])
@@ -59,12 +60,10 @@ const onReload = async () => {
 const onHouseSelect = async (action) => {
   try {
     loading.value = true
-    const id = action.bianhao
+    showHomeList.value = false
     console.log(action)
-    // homeAction.value = action.index
-    await getHouseList({ op: 5, fangwubianhao: id })
-
-    useHouseStore.setCurrentHouse(id)
+    await getHouseList({ op: 5, fangwubianhao: action.id })
+    useHouseStore.setCurrentHouse(action.id)
     await onReload()
   } finally {
     loading.value = false
@@ -183,12 +182,21 @@ onMounted(() => {
     <van-pull-refresh v-model="loading" @refresh="init">
       <template v-if="dragOptions.disabled">
         <div class="flex justify-between p-4">
-          <van-popover
-            v-model:show="showHomeList"
-            :actions="houseList"
-            placement="bottom-start"
-            @select="onHouseSelect"
-          >
+          <van-popover v-model:show="showHomeList" :actions="houseList" placement="bottom-start">
+            <van-cell-group>
+              <van-cell
+                v-for="houseItem in houseList"
+                :key="houseItem.id"
+                @click="onHouseSelect(houseItem)"
+              >
+                <template #title>
+                  <div class="flex justify-center items-center">
+                    <van-icon v-if="currentHouse?.id == houseItem.id" name="location" />
+                    <label>{{ houseItem.label }}</label>
+                  </div>
+                </template>
+              </van-cell>
+            </van-cell-group>
             <template #reference>
               <div class="flex items-center space-x-4">
                 <h4>{{ currentHouse?.label }}</h4>

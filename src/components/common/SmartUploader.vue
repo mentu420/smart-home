@@ -5,7 +5,6 @@ import { ref, reactive, computed, useAttrs, useSlots } from 'vue'
 import { uploadFile } from '@/apis/commonApi'
 import { AUDIO_TYPES } from '@/enums/fileType'
 import { acceptFileValidate, videoTypes, imageTypes } from '@/utils/common'
-import DeviceInfo from '@/utils/deviceInfo'
 
 const attrs = useAttrs()
 const slots = useSlots()
@@ -129,7 +128,8 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
     fileMap.forEach((file) => setLoading(file))
     return await Promise.all(
       fileMap.map(async (fileItem) => {
-        const { url } = await uploadFile({ file: fileItem.content })
+        console.log(fileItem)
+        const { url } = await uploadFile({ params: { op: 1 }, data: { file: fileItem.file } })
         if (url) {
           setFinish(fileItem, url)
         } else {

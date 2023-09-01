@@ -78,7 +78,7 @@ const houseDetail = ref({
 
     <van-popup v-model:show="showQrCode" round teleport="body" position="center">
       <div>
-        <vue-qr text="Hello world!" :size="200"></vue-qr>
+        <vue-qr :text="currentHouse?.id" :size="200"></vue-qr>
       </div>
     </van-popup>
   </div>

@@ -18,9 +18,9 @@ export default defineConfig({
         },
       },
     }),
-    Components({
-      resolvers: [VantResolver()],
-    }),
+    // Components({
+    //   resolvers: [VantResolver()],
+    // }),
     eslintPlugin({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
     }),

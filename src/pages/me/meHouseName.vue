@@ -1,15 +1,16 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 import { setHouseList } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
 
 const route = useRoute()
+const router = useRouter()
 const houseName = ref('')
 const { houseList } = storeToRefs(houseStore())
-
+const loading = ref(false)
 const init = () => {
   houseName.value = route.query.houseName
 }
@@ -17,13 +18,23 @@ const init = () => {
 init()
 
 const onSubmit = async () => {
-  await setHouseList({ mingcheng: houseName.value, bianhao: route.query.id })
-  const payload = houseList.value.map((item) => {
-    if (item.bianhao == route.query.id) return { ...item, mingcheng: houseName.value }
-    return item
-  })
-  const { editHouseList } = houseStore()
-  editHouseList(payload)
+  try {
+    loading.value = true
+    await setHouseList({
+      params: { op: 3 },
+      data: { mingcheng: houseName.value, bianhao: route.query.id },
+    })
+    const payload = houseList.value.find((item) => item.bianhao == route.query.id)
+    const { setHouseItem } = houseStore()
+    setHouseItem({
+      ...payload,
+      fangwumingcheng: houseName.value,
+      label: houseName.value,
+    })
+    router.back()
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -42,7 +53,9 @@ const onSubmit = async () => {
         />
       </van-cell-group>
       <div class="m-6">
-        <van-button round block type="primary" native-type="submit"> 提交 </van-button>
+        <van-button round block type="primary" native-type="submit" :loading="loading">
+          提交
+        </van-button>
       </div>
     </van-form>
   </div>

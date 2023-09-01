@@ -27,6 +27,7 @@ export default {
   setup(props, { emit }) {
     const countTime = ref(0)
     const codeStatus = ref(0) // 0 未获取验证码  1 已经获取过验证码
+    const loading = ref(false)
 
     const fetchDownCountTime = () => {
       const s = useCountDownTime({
@@ -54,10 +55,15 @@ export default {
     }
 
     const sendSms = async () => {
-      if (countTime.value > 0) return
-      await props.request()
-      countTime.value = props.duration * 1000
-      codeStatus.value = 1
+      try {
+        loading.value = false
+        if (countTime.value > 0) return
+        await props.request()
+        countTime.value = props.duration * 1000
+        codeStatus.value = 1
+      } finally {
+        loading.value = true
+      }
     }
 
     return {
@@ -72,7 +78,14 @@ export default {
 </script>
 
 <template>
-  <van-button size="small" type="primary" native-type="button" v-bind="$attrs" @click="sendSms">
+  <van-button
+    size="small"
+    type="primary"
+    native-type="button"
+    :loading="loading"
+    v-bind="$attrs"
+    @click="sendSms"
+  >
     <van-count-down
       v-if="countTime > 0"
       class="count-time"
