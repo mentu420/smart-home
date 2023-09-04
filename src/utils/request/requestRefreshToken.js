@@ -25,7 +25,7 @@ export const refreshTokenRequest = async (response, useRequest) => {
     return refreshToken()
       .then((tokenRes) => {
         // 已经刷新了token，将所有队列中的请求进行重试
-        retryRequests.forEach((cb) => cb(tokenRes.token))
+        retryRequests.forEach((cb) => cb(tokenRes.acesstoken))
         // 重试完清空这个队列
         retryRequests = []
         config = authSign(config)

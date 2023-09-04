@@ -1,8 +1,8 @@
 <script setup>
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, h } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
@@ -15,6 +15,7 @@ import sceneStore from '@/store/sceneStore'
 import userStore from '@/store/userStore'
 
 const router = useRouter()
+const route = useRoute()
 
 const useHouseStore = houseStore()
 const useDeviceStore = deviceStore()
@@ -35,35 +36,6 @@ const dragOptions = ref({
 })
 
 const weatherRef = ref(null)
-
-const onReload = async () => {
-  const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
-    houseStore()
-  const { useGetDeviceListSync } = deviceStore()
-  const { useGetSceneListSync } = sceneStore()
-  const { setUserInfo } = userStore()
-  return await Promise.all([
-    useGetHouseListSync(true),
-    useGetRoomListSync(true),
-    useGetFloorListSync(true),
-    useGetDeviceListSync(true),
-    useGetSceneListSync(true),
-    useGetFamilyListSync(true),
-  ])
-}
-
-const onHouseSelect = async (action) => {
-  try {
-    loading.value = true
-    showHomeList.value = false
-    console.log(action)
-    await getHouseList({ op: 5, fangwubianhao: action.id })
-    useHouseStore.setCurrentHouse(action.id)
-    await onReload()
-  } finally {
-    loading.value = false
-  }
-}
 
 const onMoreSelect = () => {}
 
@@ -127,12 +99,44 @@ const openDeviceStatus = (item) => {
   })
 }
 
+// 初始化数据 hId 初始化房屋id
+// 请求完所有数据后设置当前房屋数据
+const onReload = async (hId) => {
+  const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
+    houseStore()
+  const { useGetDeviceListSync } = deviceStore()
+  const { useGetSceneListSync } = sceneStore()
+  await Promise.all([
+    useGetHouseListSync(true),
+    useGetRoomListSync(true),
+    useGetFloorListSync(true),
+    useGetDeviceListSync(true),
+    useGetSceneListSync(true),
+    useGetFamilyListSync(true),
+  ])
+  console.log('准备设置当前房屋', hId)
+  useHouseStore.setCurrentHouse(hId)
+}
+
+const onHouseSelect = async (action) => {
+  try {
+    loading.value = true
+    const { useGetToken, useSetToken } = userStore()
+    showHomeList.value = false
+    const hId = action.id
+    await getHouseList({ op: 5, fangwubianhao: hId })
+    await onReload(hId)
+    useSetToken({ ...useGetToken(), fangwubianhao: hId })
+  } finally {
+    loading.value = false
+  }
+}
+
 const init = async () => {
   try {
-    await onReload()
-
-    if (currentHouse.value?.id) return
-    useHouseStore.setCurrentHouse(houseList.value[0].bianhao)
+    const { useGetToken } = userStore()
+    const token = useGetToken()
+    await onReload(token.fangwubianhao)
   } catch (err) {
     console.warn(err)
   } finally {
@@ -143,6 +147,16 @@ const init = async () => {
 onMounted(() => {
   init()
 })
+
+watch(
+  () => route.path,
+  (to, from) => {
+    console.log(to, from)
+    if (to == '/tabbar/tabbar-house' && ['/account-login', '/phone-login'].includes(from)) {
+      init()
+    }
+  }
+)
 </script>
 
 <template>

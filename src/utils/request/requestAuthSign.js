@@ -73,5 +73,5 @@ export function authSign(config) {
 export const authToken = (config) => {
   const { useGetToken } = userStore()
   const token = useGetToken() || {}
-  return { ...config, headers: { ...config.headers, Authorization: token } }
+  return { ...config, headers: { ...config.headers, Authorization: token.acesstoken } }
 }

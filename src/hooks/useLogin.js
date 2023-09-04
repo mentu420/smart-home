@@ -3,7 +3,7 @@ import userStore from '@/store/userStore'
 import DeviceInfo from '@/utils/deviceInfo.js'
 
 const useLogin = async (loginData) => {
-  const { useSetToken, setUserInfo } = userStore()
+  const { useSetToken } = userStore()
   const { data } = await setUserConfig(
     {
       params: { op: '0' },
@@ -18,8 +18,7 @@ const useLogin = async (loginData) => {
     },
     { withToken: false }
   )
-  useSetToken(data.acesstoken)
-  setUserInfo(data)
+  useSetToken(data)
 }
 
 export default useLogin

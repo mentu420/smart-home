@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { onActivated, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import userStore from '@/store/userStore'
@@ -16,12 +16,14 @@ const navList = ref([
 
 const { userInfo = {} } = storeToRefs(userStore())
 
-const init = async () => {
+const init = () => {
   const { useUserInfoSync } = userStore()
   useUserInfoSync()
 }
 
 init()
+
+onActivated(init)
 </script>
 
 <template>

@@ -13,13 +13,6 @@ const tabs = ref([
   { text: '我的', icon: 'people', index: 2, path: '/tabbar/tabbar-me' },
 ])
 
-watch(
-  () => route.path,
-  (to, from) => {
-    console.log(to, from)
-  }
-)
-
 const onChange = (index) => {
   console.log('onChange', index)
 }
