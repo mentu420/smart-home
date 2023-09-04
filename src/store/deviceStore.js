@@ -58,6 +58,10 @@ export default defineStore(storeName, () => {
     })
   }
 
+  const reset = () => {
+    deviceList.value = []
+  }
+
   return {
     deviceList,
     deviceUseList,
@@ -65,5 +69,6 @@ export default defineStore(storeName, () => {
     useGetDeviceListSync,
     useDeviceItemChangeSync,
     useDeviceItemSync,
+    reset,
   }
 })

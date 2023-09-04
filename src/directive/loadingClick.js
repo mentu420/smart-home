@@ -18,6 +18,8 @@ const bindListener = (el, binding, vnode) => {
     el.innerHTML = html
     try {
       await binding.value()
+    } catch (error) {
+      console.warn(error)
     } finally {
       el.innerHTML = copyHtml
     }

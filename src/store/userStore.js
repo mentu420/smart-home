@@ -12,8 +12,7 @@ export default defineStore('userStore', () => {
   const useSetToken = (value) => setStorage(VITE_APP_STORAGE_TOKEN, value)
   const useRemoveToken = () => removeStorage(VITE_APP_STORAGE_TOKEN)
 
-  const userInfo = ref(null)
-  const dealerList = ref(null)
+  const userInfo = ref({})
 
   const setUserInfo = (palyload) => (userInfo.value = palyload)
 
@@ -28,13 +27,17 @@ export default defineStore('userStore', () => {
     return userInfo.value
   })
 
+  const reset = () => {
+    userInfo.value = {}
+  }
+
   return {
     userInfo,
-    dealerList,
     setUserInfo,
     useUserInfoSync,
     useGetToken,
     useSetToken,
     useRemoveToken,
+    reset,
   }
 })

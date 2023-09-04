@@ -9,6 +9,7 @@ import draggable from 'vuedraggable'
 
 import { getRoomList, setRoomList, setFloorList, getFloorList } from '@/apis/houseApi'
 import { validKeyboard } from '@/hooks/useFormValidator'
+import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import { objDelByValues } from '@/utils/common'
 
@@ -17,6 +18,7 @@ const route = useRoute()
 const useHouseStore = houseStore()
 const { floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { useGetFloorListSync, useGetRoomListSync, useSetRoomItem } = useHouseStore
+const { deviceList } = storeToRefs(deviceStore())
 
 const defineRoomList = ref([
   { text: '玄关', id: 0 },
@@ -193,7 +195,12 @@ const onEdit = async () => {
 
 const init = () => {
   floorList.value = floorList.value.map((floorItem) => {
-    const floorRoomList = roomList.value.filter((roomItem) => roomItem.fId == floorItem.id)
+    const floorRoomList = roomList.value
+      .filter((roomItem) => roomItem.fId == floorItem.id)
+      .map((roomItem) => {
+        const count = deviceList.value.filter((deviceItem) => deviceItem.rId == roomItem.id).length
+        return { ...roomItem, deviceCount: count }
+      })
 
     return { ...floorItem, roomList: floorRoomList }
   })
@@ -237,6 +244,7 @@ init()
                   @click.stop="onEditFloor(floorItem)"
                 />
                 <van-button
+                  v-if="!floorItem.roomList.some((item) => item.deviceCount > 0)"
                   round
                   class="!mr-4"
                   size="small"
@@ -259,24 +267,32 @@ init()
                   <template v-if="!disabled" #icon>
                     <van-icon name="wap-nav" class="mr-2" />
                   </template>
-                  <template v-if="!disabled" #value>
-                    <van-button
-                      round
-                      class="!mr-4"
-                      size="small"
-                      type="primary"
-                      icon="edit"
-                      :loading="loading"
-                      @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
-                    />
-                    <van-button
-                      round
-                      size="small"
-                      icon="delete-o"
-                      type="danger"
-                      :loading="loading"
-                      @click="onDelectRoom(roomItem)"
-                    />
+                  <template #value>
+                    <template v-if="!disabled">
+                      <van-button
+                        round
+                        class="!mr-4"
+                        size="small"
+                        type="primary"
+                        icon="edit"
+                        :loading="loading"
+                        @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
+                      />
+                      <van-button
+                        v-if="roomItem.deviceCount == 0"
+                        round
+                        size="small"
+                        icon="delete-o"
+                        type="danger"
+                        :loading="loading"
+                        @click="onDelectRoom(roomItem)"
+                      />
+                    </template>
+                    <div v-else>
+                      <label v-if="roomItem.deviceCount > 0">
+                        {{ roomItem.deviceCount }}个设备
+                      </label>
+                    </div>
                   </template>
                 </van-cell>
               </template>

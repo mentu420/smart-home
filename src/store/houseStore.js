@@ -105,6 +105,14 @@ export default defineStore(storeName, () => {
     return familyList.value
   }
 
+  const reset = () => {
+    houseList.value = []
+    roomList.value = []
+    floorList.value = []
+    familyList.value = []
+    currentHouse.value = {}
+  }
+
   return {
     houseList,
     roomList,
@@ -119,5 +127,6 @@ export default defineStore(storeName, () => {
     useGetFloorListSync,
     useGetFamilyListSync,
     setHouseItem,
+    reset,
   }
 })

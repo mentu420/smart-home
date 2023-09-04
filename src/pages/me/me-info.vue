@@ -1,4 +1,5 @@
 <script setup>
+import { showConfirmDialog } from 'vant'
 import Vconsole from 'vconsole'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -18,7 +19,10 @@ const navList = ref([
 const avatar = ref('')
 const fileList = ref([])
 
-const onLogout = () => useLogout('退出成功')
+const onLogout = async () => {
+  await showConfirmDialog({ title: '提示', message: '是否退出登录？' })
+  useLogout('退出成功')
+}
 
 const init = async () => {
   const { useUserInfoSync } = userStore()
@@ -79,7 +83,7 @@ const onNavItemClick = (navItem) => {
       </li>
     </ul>
     <div class="m-6">
-      <van-button round block type="primary" @click="onLogout"> 退出登录 </van-button>
+      <van-button v-loading-click="onLogout" round block type="primary"> 退出登录 </van-button>
     </div>
   </div>
 </template>

@@ -143,6 +143,11 @@ export default defineStore(storeName, () => {
     () => (rid) => sceneList.value?.filter((item) => item.rid == rid)
   )
 
+  const reset = () => {
+    sceneCreateItem.value = {}
+    sceneList.value = {}
+  }
+
   return {
     sceneCreateItem,
     sceneList,
@@ -154,5 +159,6 @@ export default defineStore(storeName, () => {
     updateSceneCreateItem,
     clearSceneCreateItem,
     useGetSceneListSync,
+    reset,
   }
 })
