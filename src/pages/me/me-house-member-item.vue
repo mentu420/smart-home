@@ -11,13 +11,15 @@ const sceneCheckboxRefs = ref([]) //场景列表
 const form = ref({})
 const storeyList = ref([])
 const storeyChecked = ref([])
+
+const onSubmit = () => {}
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="成员与权限" />
     <van-form @submit="onSubmit">
-      <van-cell-group>
+      <!-- <van-cell-group>
         <van-field
           v-model="form.username"
           name="username"
@@ -26,8 +28,8 @@ const storeyChecked = ref([])
           readonly
         />
         <van-field v-model="from.remark" name="remark" label="备注" placeholder="请填写备注" />
-      </van-cell-group>
-      <van-collapse v-model="powerActive" accordion>
+      </van-cell-group> -->
+      <!-- <van-collapse v-model="powerActive" accordion>
         <van-collapse-item title="房间权限" name="1">
           <template v-for="storeyItem in storeyList" :key="storeyItem.id">
             <div class="p-3">楼层</div>
@@ -80,7 +82,7 @@ const storeyChecked = ref([])
             </van-cell-group>
           </van-checkbox-group>
         </van-collapse-item>
-      </van-collapse>
+      </van-collapse> -->
     </van-form>
   </div>
 </template>

@@ -23,7 +23,7 @@ export const uploadFile = (config) => {
 }
 
 /**
- * 用户相关接口。op=0登录、op=1信息查询、op=2信息修改、op=3密码修改、op=4设置密码、op=5忘记密码、op=6退出登录
+ * 用户相关接口。op=0登录、op=1信息查询、op=2信息修改、op=3密码修改、op=4设置密码、op=5忘记密码、op=6退出登录 op=7 获取首页信息
  * **/
 export const setUserConfig = (config) =>
   request({ url: '/V1/YongHu.aspx', method: 'POST', ...config })

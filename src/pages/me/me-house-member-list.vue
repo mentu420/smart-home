@@ -26,7 +26,7 @@ const router = useRouter()
           is-link
           icon="manager"
           :title="familyItem.label"
-          @click="router.push({ path: '/me-house-memberItem', query: { id: familyItem.id } })"
+          @click="router.push({ path: '/me-house-member-item', query: { id: familyItem.id } })"
         />
         <template #right>
           <van-button square type="danger" text="删除" />

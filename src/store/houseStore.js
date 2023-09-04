@@ -1,8 +1,12 @@
 import localforage from 'localforage'
-import { defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
+import { defineStore, storeToRefs } from 'pinia'
+import { computed, reactive, ref } from 'vue'
 
 import { getHouseList, getRoomList, getFloorList, getFamily } from '@/apis/houseApi'
+
+import deviceStore from './deviceStore'
+import sceneStore from './sceneStore'
+import userStore from './userStore'
 
 const storeName = 'houseStore'
 
@@ -13,9 +17,11 @@ export default defineStore(storeName, () => {
   const familyList = ref([]) //当前房屋的所有成员
   const currentHouse = ref({}) //当前房屋
 
+  const { deviceList } = storeToRefs(deviceStore())
+  const { sceneList } = storeToRefs(sceneStore())
+
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
-    console.log('storeRes', storeRes)
     houseList.value = storeRes?.houseList
     roomList.value = storeRes?.roomList
     floorList.value = storeRes?.floorList
@@ -92,7 +98,7 @@ export default defineStore(storeName, () => {
       .sort((a, b) => a.sort - b.sort)
     return floorList.value
   }
-
+  // 异步获取家庭成员
   const useGetFamilyListSync = async (reload = false) => {
     if (familyList.value.length > 0 && !reload) return familyList.value
     const { data } = await getFamily({ op: 1 })
@@ -104,6 +110,28 @@ export default defineStore(storeName, () => {
     }))
     return familyList.value
   }
+
+  // 获取区域=>房间=>设备、场景树状组合数据 collect 是否只返回收藏数据
+  const useGetFloorTree = computed(() => (collect = false) => {
+    const getCollectList = (list, rid) =>
+      list.filter((item) => {
+        if (collect) return item.rId == rid && item.shouye == 1
+        return item.rId == rid
+      })
+
+    return floorList.value.map((floorItem) => {
+      const floorRoomList = roomList.value
+        .filter((roomItem) => roomItem.fId == floorItem.id)
+        .map((roomItem) => {
+          const roomDeviceList = getCollectList(deviceList.value, roomItem.id)
+          const roomSceneList = getCollectList(sceneList.value, roomItem.id)
+
+          return { ...roomItem, deviceList: roomDeviceList, sceneList: roomSceneList }
+        })
+
+      return { ...floorItem, roomList: floorRoomList }
+    })
+  })
 
   const reset = () => {
     houseList.value = []
@@ -119,6 +147,7 @@ export default defineStore(storeName, () => {
     floorList,
     familyList,
     currentHouse,
+    useGetFloorTree,
     editHouseList,
     setCurrentHouse,
     useGetHouseListSync,

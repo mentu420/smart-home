@@ -22,7 +22,7 @@ const onSubmit = async () => {
   await formRef.value.validate()
   await setUserConfig({ params: { op: 2 }, data: { shouji: form.value.phone } })
   const { useUserInfoSync } = userStore()
-  await useUserInfoSync({ reload: true })
+  await useUserInfoSync(true)
   router.back()
 }
 </script>

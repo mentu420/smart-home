@@ -3,9 +3,8 @@ import md5 from 'js-md5'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import * as CommonApi from '@/apis/commonApi.js'
 import { trimFormat } from '@/hooks/useFormValidator.js'
-import DeviceInfo from '@/utils/deviceInfo.js'
+import useLogin from '@/hooks/useLogin'
 import { getStorage, setStorage } from '@/utils/storage.js'
 
 const router = useRouter()
@@ -23,18 +22,8 @@ const onSubmit = async (values) => {
     })
     setStorage('account-list', accountList.value)
   }
-  const { code } = await CommonApi.getUserConfig({
-    params: { op: 0 },
-    data: {
-      shoujixinghao: DeviceInfo.appVersion,
-      shoujimingcheng: DeviceInfo.platform,
-      xitongleixing: DeviceInfo.system,
-      tuisongtoken: DeviceInfo.language,
-      dengluleixing: '2',
-      shoujihaoma: values.username,
-      mima: values.password,
-    },
-  })
+  await useLogin({ shoujihaoma: values.username, mima: values.password })
+
   router.replace({ path: '/tabbar/tabbar-house' })
 }
 

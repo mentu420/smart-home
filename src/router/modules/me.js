@@ -36,13 +36,13 @@ export default [
     meta: { title: '家庭位置' },
   },
   {
-    path: '/me-house-memberList',
+    path: '/me-house-member-list',
     name: 'MeHouseMemberList',
     component: () => import('@/pages/me/me-house-member-list.vue'),
     meta: { title: '成员与权限' },
   },
   {
-    path: '/me-house-memberItem',
+    path: '/me-house-member-item',
     name: 'MeHouseMemberItem',
     component: () => import('@/pages/me/me-house-member-item.vue'),
     meta: { title: '家庭权限' },

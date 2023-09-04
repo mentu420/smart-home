@@ -12,6 +12,7 @@ import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
+import userStore from '@/store/userStore'
 
 const router = useRouter()
 
@@ -22,11 +23,6 @@ const { houseList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { getRoomSceneList, sceneList } = storeToRefs(useSceneStore)
 
-// 全屋常用设备
-const commonList = ref([
-  { id: 1, text: '常用场景', list: [{}] },
-  { id: 2, text: '常用设备', list: [{}] },
-])
 const showHomeList = ref(false)
 const loading = ref(false)
 const showConfig = ref(false)
@@ -37,11 +33,7 @@ const dragOptions = ref({
   disabled: true, //是否可以拖拽排序
   ghostClass: 'ghost',
 })
-const weatherInfo = ref({
-  weather: '晴',
-  temp: 26,
-  icon: 'sun-one',
-})
+
 const weatherRef = ref(null)
 
 const onReload = async () => {
@@ -49,6 +41,7 @@ const onReload = async () => {
     houseStore()
   const { useGetDeviceListSync } = deviceStore()
   const { useGetSceneListSync } = sceneStore()
+  const { setUserInfo } = userStore()
   return await Promise.all([
     useGetHouseListSync(true),
     useGetRoomListSync(true),
@@ -121,33 +114,6 @@ const weatherIconList = [
   }, //雷雨
   { icon: 'wind', list: ['有风', '微风', '和风', '清风'] }, //刮风
 ]
-
-const getWeatherInfo = async () => {
-  const AMap = await mapLoad({ plugins: ['AMap.Weather', 'AMap.CitySearch'] })
-  const cityInfo = await getCityInfoByIp(AMap)
-  var weather = new AMap.Weather()
-  return new Promise((resolve, reject) => {
-    //执行实时天气信息查询
-    weather.getForecast(cityInfo.city, function (err, data) {
-      if (err) {
-        reject(err)
-        return
-      }
-      const hour = dayjs().hour()
-      const isDay = hour >= 6 && hour <= 18 //是否白天
-      const forecastItem = data.forecasts[0]
-      const weather = forecastItem[isDay ? 'dayWeather' : 'nightWeather']
-      const { icon } = weatherIconList.find((iconItem) => {
-        return iconItem.list.some((item) => item == weather)
-      }) || { icon: 'sun-one' }
-      resolve({
-        weather,
-        icon,
-        temp: forecastItem[isDay ? 'dayTemp' : 'nightTemp'],
-      })
-    })
-  })
-}
 
 const toggleDrag = () => {
   dragOptions.value.disabled = !dragOptions.value.disabled

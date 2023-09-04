@@ -248,7 +248,7 @@ init()
                   round
                   class="!mr-4"
                   size="small"
-                  type="primary"
+                  type="danger"
                   icon="delete-o"
                   :loading="loading"
                   @click.stop="onDelFloor(floorItem)"

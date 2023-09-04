@@ -5,8 +5,7 @@ import { useRouter } from 'vue-router'
 import { getSms, setUserConfig } from '@/apis/commonApi.js'
 import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, phoneReg, setFormFormat } from '@/hooks/useFormValidator.js'
-import userStore from '@/store/userStore'
-import DeviceInfo from '@/utils/deviceInfo.js'
+import useLogin from '@/hooks/useLogin'
 
 const router = useRouter()
 const form = ref({})
@@ -23,23 +22,7 @@ const getRegisterCode = async () => {
 }
 
 const onSubmit = async (value) => {
-  const { useSetToken } = userStore()
-  const { code, data } = await setUserConfig(
-    {
-      params: { op: '0' },
-      data: {
-        shoujixinghao: DeviceInfo.platform,
-        shoujimingcheng: DeviceInfo.platform,
-        xitongleixing: DeviceInfo.system == 'ios' ? 1 : 2,
-        dengluleixing: 2,
-        shoujihaoma: value.phone,
-        mima: value.code,
-        tuisongtoken: 'tuisongtoken',
-      },
-    },
-    { withToken: false }
-  )
-  useSetToken(data.acesstoken)
+  await useLogin({ shoujihaoma: value.phone, mima: value.code })
   router.replace({ path: '/tabbar/tabbar-house' })
 }
 

@@ -61,7 +61,7 @@ const houseDetail = ref({
         clickable
         title="成员与权限"
         is-link
-        @click="router.push({ path: '/me-house-memberList' })"
+        @click="router.push({ path: '/me-house-member-list' })"
       />
       <van-cell
         center

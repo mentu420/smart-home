@@ -18,7 +18,7 @@ init()
 const onSubmit = async () => {
   await setUserConfig({ params: { op: 2 }, data: { xingming: nickname.value } })
   const { useUserInfoSync } = userStore()
-  await useUserInfoSync({ reload: true })
+  await useUserInfoSync(true)
   router.back()
 }
 </script>
