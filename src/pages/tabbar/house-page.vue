@@ -297,7 +297,7 @@ onMounted(() => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <DeviceCardItemVue
-                  v-for="(deviceItem, deviceIndex) in deviceList.filter(
+                  v-for="(deviceItem, deviceIndex) in deviceList?.filter(
                     (deviceItem) => deviceItem.rId == roomItem.id
                   )"
                   :key="deviceIndex"

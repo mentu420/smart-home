@@ -16,7 +16,7 @@ const route = useRoute()
 
 const useHouseStore = houseStore()
 const { floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
-const { useGetFloorListSync, useGetRoomListSync } = useHouseStore
+const { useGetFloorListSync, useGetRoomListSync, useSetRoomItem } = useHouseStore
 
 const defineRoomList = ref([
   { text: '玄关', id: 0 },
@@ -83,7 +83,7 @@ const onUpdateFloor = () => {
         bianhao: id,
         mingcheng: label,
         fangwubianhao: currentHouse.value?.id,
-        paixu: floorList.value.length,
+        // paixu: floorList.value.length,
       }),
     }
     console.log(config)
@@ -165,14 +165,48 @@ const onSubmitRoomCustom = () => {
   })
 }
 
-const useFloorRoomList = computed(() => (fId) => roomList.value.filter((item) => item.fId == fId))
+const onEdit = async () => {
+  disabled.value = !disabled.value
+  if (!disabled.value) return
+  floorList.value = floorList.value.map((floorItem, index) => {
+    floorItem.roomList.forEach((roomItem, roomIndex) => {
+      useSetRoomItem({ ...roomItem, sort: roomIndex })
+      setRoomList({
+        params: { op: 3 },
+        data: { bianhao: roomItem.id, mingcheng: roomItem.label, paixu: roomIndex },
+      })
+    })
+    const sort = index
+    const config = {
+      params: { op: 3 },
+      data: {
+        bianhao: floorItem.id,
+        mingcheng: floorItem.label,
+        fangwubianhao: currentHouse.value?.id,
+        paixu: sort,
+      },
+    }
+    setFloorList(config)
+    return { ...floorItem, sort }
+  })
+}
+
+const init = () => {
+  floorList.value = floorList.value.map((floorItem) => {
+    const floorRoomList = roomList.value.filter((roomItem) => roomItem.fId == floorItem.id)
+
+    return { ...floorItem, roomList: floorRoomList }
+  })
+}
+
+init()
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="房间管理">
       <template #right>
-        <div @click="disabled = !disabled">{{ disabled ? '编辑' : '取消' }}</div>
+        <div @click="onEdit">{{ disabled ? '编辑' : '完成' }}</div>
       </template>
     </HeaderNavbar>
 
@@ -215,7 +249,7 @@ const useFloorRoomList = computed(() => (fId) => roomList.value.filter((item) =>
             </template>
 
             <draggable
-              :list="useFloorRoomList(floorItem.id)"
+              v-model="floorItem.roomList"
               item-key="id"
               :disabled="disabled"
               :group="floorItem.id"

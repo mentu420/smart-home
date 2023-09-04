@@ -65,12 +65,20 @@ export default defineStore(storeName, () => {
         id: item.bianhao,
         fId: item.quyubianhao, //楼层编号
         hId: item.fangwubianhao, //房屋编号
-        sort: item.paixu,
+        sort: item.paixu || 0,
       }))
       .sort((a, b) => a.sort - b.sort)
     return roomList.value
   }
 
+  const useSetRoomItem = (payload) => {
+    roomList.value = roomList.value.map((item) => {
+      if (item.id == payload.id) return { ...item, ...payload }
+      return item
+    })
+  }
+
+  // 异步获取楼层
   const useGetFloorListSync = async (reload = false) => {
     if (floorList.value.length > 0 && !reload) return floorList.value
     const { data } = await getFloorList({ op: 1 })
@@ -107,6 +115,7 @@ export default defineStore(storeName, () => {
     setCurrentHouse,
     useGetHouseListSync,
     useGetRoomListSync,
+    useSetRoomItem,
     useGetFloorListSync,
     useGetFamilyListSync,
     setHouseItem,
