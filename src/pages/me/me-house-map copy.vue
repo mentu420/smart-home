@@ -5,6 +5,8 @@ import { useRoute } from 'vue-router'
 
 import { loadScript } from '@/utils/common.js'
 
+defineOptions({ name: 'MeHouseMap' })
+
 const route = useRoute()
 const loading = ref(false)
 const lnglat = ref(null)

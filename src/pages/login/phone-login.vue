@@ -7,6 +7,8 @@ import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, phoneReg, setFormFormat } from '@/hooks/useFormValidator.js'
 import useLogin from '@/hooks/useLogin'
 
+defineOptions({ name: 'PhoneLogin' })
+
 const router = useRouter()
 const form = ref({})
 const checked = ref(true) // 是否记住账号密码

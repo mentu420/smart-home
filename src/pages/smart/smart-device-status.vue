@@ -6,6 +6,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { TriggerLamp, TriggerCurtain, TriggerAirCooler } from '@/components/trigger/'
 import deviceStore from '@/store/deviceStore'
 
+defineOptions({ name: 'SmartDeviceStatus' })
+
 const route = useRoute()
 const router = useRouter()
 const { deviceList } = storeToRefs(deviceStore())

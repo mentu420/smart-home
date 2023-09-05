@@ -3,6 +3,8 @@ import { ref } from 'vue'
 
 import LoopAnime from '@/components/anime/loopAnime.vue'
 
+defineOptions({ name: 'HouseNoticeList' })
+
 const animeRef = ref(null)
 </script>
 

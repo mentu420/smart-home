@@ -1,5 +1,4 @@
 <script setup>
-import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -8,7 +7,6 @@ import draggable from 'vuedraggable'
 import { getHouseList } from '@/apis/houseApi.js'
 import DeviceCardItem from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
-import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'

@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+defineOptions({ name: 'MeAgreement' })
 </script>
 
 <template>

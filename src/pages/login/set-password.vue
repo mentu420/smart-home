@@ -7,6 +7,8 @@ import { setUserConfig } from '@/apis/commonApi'
 import { validPassword, trimFormat } from '@/hooks/useFormValidator.js'
 import { useLogout } from '@/hooks/useLogout'
 
+defineOptions({ name: 'SetPassword' })
+
 const router = useRouter()
 const route = useRoute()
 const password = ref(null)

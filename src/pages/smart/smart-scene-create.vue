@@ -10,6 +10,8 @@ import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import sceneStore from '@/store/sceneStore'
 
+defineOptions({ name: 'SmartSceneCreate' })
+
 const router = useRouter()
 const route = useRoute()
 

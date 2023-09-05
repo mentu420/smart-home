@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+defineOptions({ name: 'SmartTaskList' })
+
 const router = useRouter()
 </script>
 

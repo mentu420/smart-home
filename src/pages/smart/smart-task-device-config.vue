@@ -4,6 +4,8 @@ import { useRouter, useRoute } from 'vue-router'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 
+defineOptions({ name: 'SmartTaskDeviceConfig' })
+
 const route = useRoute()
 const router = useRouter()
 const checked = ref('1')

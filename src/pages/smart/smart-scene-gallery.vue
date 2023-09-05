@@ -5,6 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 
 import sceneStore from '@/store/sceneStore'
 
+defineOptions({ name: 'SmartSceneGallery' })
+
 const checkboxRefs = ref([])
 
 const { sceneGallery, sceneCreateItem } = storeToRefs(sceneStore())

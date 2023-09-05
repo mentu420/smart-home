@@ -6,6 +6,8 @@ import { setUserConfig } from '@/apis/commonApi.js'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
 
+defineOptions({ name: 'MePasswordChange' })
+
 const router = useRouter()
 const password = ref('')
 const newPassword = ref('')

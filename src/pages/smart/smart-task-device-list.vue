@@ -5,6 +5,8 @@ import { useRouter } from 'vue-router'
 import { getDeviceList } from '@/apis/smartApi'
 import deviceStore from '@/store/deviceStore'
 
+defineOptions({ name: 'SmartTaskDeviceList' })
+
 const router = useRouter()
 const deviceChecked = ref([])
 const deviceList = ref([])

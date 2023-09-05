@@ -8,6 +8,8 @@ import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
 
+defineOptions({ name: 'MeHousePowers' })
+
 const { useGetFamilyListSync } = houseStore()
 
 const route = useRoute()

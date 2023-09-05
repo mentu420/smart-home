@@ -8,6 +8,8 @@ import DEVICE_INFO from '@/enums/deviceInfo'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore.js'
 
+defineOptions({ name: 'SmartTaskDeviceClassify' })
+
 const { deviceList } = storeToRefs(deviceStore)
 const { useGetFloorTree } = houseStore()
 

@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from 'vue'
+
+defineOptions({ name: 'MeConceal' })
 </script>
 
 <template>

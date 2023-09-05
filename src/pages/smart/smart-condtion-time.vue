@@ -8,6 +8,8 @@ import TimePicker from '@/components/common/TimePicker.vue'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import sceneStore from '@/store/sceneStore'
 
+defineOptions({ name: 'SmartCondtionTime' })
+
 const { sceneCreateItem } = storeToRefs(sceneStore())
 
 const router = useRouter()

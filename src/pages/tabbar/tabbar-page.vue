@@ -5,6 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
 
+defineOptions({ name: 'TabbarPage' })
+
 const route = useRoute()
 const tabIndex = ref(0)
 

@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 
+defineOptions({ name: 'MeDevelopment' })
+
 const form = ref({
   checked: false,
   developmentUrl: '',

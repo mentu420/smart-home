@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue'
 
 import LoopAnime from '@/components/anime/loopAnime.vue'
 
+defineOptions({ name: 'HouseAddDevice' })
+
 const animeRef = ref(null)
 const textList = ['正在扫描附件的设备...', '为发现附近的设备！']
 const action = ref(0)

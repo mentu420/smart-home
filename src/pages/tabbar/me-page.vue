@@ -5,6 +5,8 @@ import { useRouter } from 'vue-router'
 
 import userStore from '@/store/userStore'
 
+defineOptions({ name: 'MePage' })
+
 const router = useRouter()
 
 const navList = ref([

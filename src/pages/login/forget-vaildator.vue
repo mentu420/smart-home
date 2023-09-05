@@ -4,6 +4,8 @@ import { useRouter, useRoute } from 'vue-router'
 
 import { vaildPhone, trimFormat } from '@/hooks/useFormValidator.js'
 
+defineOptions({ name: 'ForgetVaildator' })
+
 const router = useRouter()
 const route = useRoute()
 const form = ref({})

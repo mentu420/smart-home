@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+defineOptions({ name: 'MeAbout' })
 </script>
 
 <template>

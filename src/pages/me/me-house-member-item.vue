@@ -7,6 +7,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { setFamily, getFamily } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
 
+defineOptions({ name: 'MeHouseMemberItem' })
+
 const useHouseStore = houseStore()
 
 const { familyList } = storeToRefs(useHouseStore)

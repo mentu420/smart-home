@@ -7,6 +7,8 @@ import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, trimFormat } from '@/hooks/useFormValidator.js'
 import userStore from '@/store/userStore'
 
+defineOptions({ name: 'MePhoneChange' })
+
 const route = useRoute()
 const router = useRouter()
 const form = ref({})

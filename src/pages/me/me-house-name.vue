@@ -6,6 +6,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { setHouseList } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
 
+defineOptions({ name: 'MeHouseName' })
+
 const route = useRoute()
 const router = useRouter()
 const houseName = ref('')

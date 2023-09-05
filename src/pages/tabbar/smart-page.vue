@@ -8,6 +8,8 @@ import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
 
+defineOptions({ name: 'SmartPage' })
+
 const router = useRouter()
 const loading = ref(false)
 const { roomList } = storeToRefs(houseStore())

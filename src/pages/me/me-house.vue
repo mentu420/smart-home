@@ -7,6 +7,8 @@ import { useRouter } from 'vue-router'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
 
+defineOptions({ name: 'MeHouse' })
+
 const router = useRouter()
 const showQrCode = ref(false)
 const { currentHouse } = storeToRefs(houseStore())

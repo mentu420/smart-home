@@ -10,6 +10,8 @@ import PickerSearch from '@/components/common/PickerSearch.vue'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 
+defineOptions({ name: 'SmartDeviceInfo' })
+
 const { roomList } = storeToRefs(houseStore())
 
 const route = useRoute()

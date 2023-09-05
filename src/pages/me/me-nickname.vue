@@ -5,6 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { setUserConfig } from '@/apis/commonApi.js'
 import userStore from '@/store/userStore'
 
+defineOptions({ name: 'MeNickname' })
+
 const route = useRoute()
 const router = useRouter()
 const nickname = ref('')

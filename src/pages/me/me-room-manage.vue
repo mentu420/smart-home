@@ -13,6 +13,8 @@ import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import { objDelByValues } from '@/utils/common'
 
+defineOptions({ name: 'MeRoomManage' })
+
 const route = useRoute()
 
 const useHouseStore = houseStore()

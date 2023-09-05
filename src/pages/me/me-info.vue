@@ -8,6 +8,8 @@ import SmartUploader from '@/components/common/SmartUploader.vue'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
 
+defineOptions({ name: 'MeInfo' })
+
 const router = useRouter()
 const clickCount = ref(0)
 const navList = ref([

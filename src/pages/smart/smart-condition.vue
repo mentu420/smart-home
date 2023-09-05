@@ -5,6 +5,8 @@ import { useRouter } from 'vue-router'
 
 import sceneStore from '@/store/sceneStore'
 
+defineOptions({ name: 'SmartCondtion' })
+
 const router = useRouter()
 const { sceneCreateItem } = storeToRefs(sceneStore())
 

@@ -7,6 +7,8 @@ import { trimFormat } from '@/hooks/useFormValidator.js'
 import useLogin from '@/hooks/useLogin'
 import { getStorage, setStorage } from '@/utils/storage.js'
 
+defineOptions({ name: 'AccountLogin' })
+
 const router = useRouter()
 const form = ref({})
 const checked = ref(true) // 是否记住账号密码

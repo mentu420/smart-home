@@ -6,6 +6,8 @@ import { getSms } from '@/apis/commonApi'
 import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, trimFormat } from '@/hooks/useFormValidator.js'
 
+defineOptions({ name: 'ForgetPassword' })
+
 const router = useRouter()
 const formRef = ref(null)
 const form = ref({})

@@ -6,6 +6,8 @@ import { setHouseList } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
 
+defineOptions({ name: 'MeHouseCreate' })
+
 const router = useRouter()
 const houseName = ref(null)
 const houseImage = ref('')
