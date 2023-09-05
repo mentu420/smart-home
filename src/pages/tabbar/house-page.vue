@@ -151,6 +151,8 @@ watch(
     }
   }
 )
+
+const goAddDevice = () => router.push({ path: '/house-ddd-device' })
 </script>
 
 <template>
@@ -182,7 +184,7 @@ watch(
           </van-popover>
           <div class="space-x-4">
             <van-icon size="20" name="bell" />
-            <van-icon size="20" name="plus" @click="router.push({ path: '/house-ddd-device' })" />
+            <van-icon size="20" name="plus" @click="goAddDevice" />
             <!-- <van-popover
               :actions="[
                 { text: '添加设备', value: 0 },
@@ -269,6 +271,11 @@ watch(
                   </ScenenCardItem>
                 </div>
               </template>
+              <van-empty v-else image="search" description="暂无设备">
+                <van-button class="!px-6" size="small" type="primary" round @click="goAddDevice">
+                  添加设备
+                </van-button>
+              </van-empty>
 
               <div class="grid grid-cols-2 gap-4">
                 <DeviceCardItem

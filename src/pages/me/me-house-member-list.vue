@@ -19,7 +19,7 @@ const router = useRouter()
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="成员与权限" />
-    <van-cell-group>
+    <van-cell-group class="m-4 rounded-lg overflow-hidden">
       <van-swipe-cell v-for="familyItem in familyList" :key="familyItem.id">
         <van-cell
           center

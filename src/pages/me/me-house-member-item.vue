@@ -1,88 +1,95 @@
 <script setup>
-import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { showConfirmDialog } from 'vant'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+import { setFamily, getFamily } from '@/apis/houseApi'
+import houseStore from '@/store/houseStore'
+
+const useHouseStore = houseStore()
+
+const { familyList } = storeToRefs(useHouseStore)
 
 const route = useRoute()
-const powerActive = ref('1')
-const facilityList = ref([]) //设备列表
-const facilityCheckboxRefs = ref([]) //设备列表
-const sceneList = ref([]) //场景列表
-const sceneCheckboxRefs = ref([]) //场景列表
-const form = ref({})
-const storeyList = ref([])
-const storeyChecked = ref([])
+const router = useRouter()
+const familyItem = computed(() => familyList.value?.find((item) => item.id == route.query.id) || {})
 
-const onSubmit = () => {}
+const onSetFamliy = async () => {
+  await showConfirmDialog({
+    title: '设为管理员',
+    message:
+      '管理员可以控制、添加删除家庭内所有的设备和场景，还可以添加、移除家庭成员并设置他们的权限',
+  })
+  return setFamily({
+    params: { op: 3 },
+    data: { shouji: familyItem.value.shouji, juese: 1 }, //juese 1，是有房主权限，0是没有房主权限
+  })
+}
+
+const onDelFamily = async () => {
+  try {
+    await showConfirmDialog({
+      title: '提示',
+      message: '是否删除该成员',
+    })
+    await getFamily({ op: 4, yonghubianhao: familyItem.value.id })
+    router.back()
+  } catch (error) {
+    //
+  }
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="成员与权限" />
-    <van-form @submit="onSubmit">
-      <!-- <van-cell-group>
-        <van-field
-          v-model="form.username"
-          name="username"
-          label="用户名账号"
-          placeholder="用户名"
-          readonly
+    <HeaderNavbar title="成员信息" />
+    <div class="m-4 space-y-4">
+      <div class="rounded-lg overflow-hidden">
+        <van-cell
+          v-for="(familyLabel, familyKey) in {
+            label: '成员昵称',
+            shouji: '成员账号',
+            remark: '备注名',
+          }"
+          :key="familyKey"
+          :title="familyLabel"
+          :value="familyItem[familyKey]"
         />
-        <van-field v-model="from.remark" name="remark" label="备注" placeholder="请填写备注" />
-      </van-cell-group> -->
-      <!-- <van-collapse v-model="powerActive" accordion>
-        <van-collapse-item title="房间权限" name="1">
-          <template v-for="storeyItem in storeyList" :key="storeyItem.id">
-            <div class="p-3">楼层</div>
-            <van-cell center title="房间名称">
-              <template #right-icon>
-                <van-switch v-model="storeyItem.checked" />
-              </template>
-            </van-cell>
-          </template>
-        </van-collapse-item>
-        <van-collapse-item title="设备权限" name="2">
-          <van-checkbox-group v-model="form.facilityChecked">
-            <van-cell-group inset>
-              <van-cell
-                v-for="(item, index) in facilityList"
-                :key="index"
-                clickable
-                :title="`复选框 ${item}`"
-                @click="toggle(index)"
-              >
-                <template #right-icon>
-                  <van-checkbox
-                    :ref="(el) => (facilityCheckboxRefs[index] = el)"
-                    :name="item"
-                    @click.stop
-                  />
-                </template>
-              </van-cell>
-            </van-cell-group>
-          </van-checkbox-group>
-        </van-collapse-item>
-        <van-collapse-item title="场景权限" name="3">
-          <van-checkbox-group v-model="form.sceneChecked">
-            <van-cell-group inset>
-              <van-cell
-                v-for="(item, index) in sceneList"
-                :key="index"
-                clickable
-                :title="`复选框 ${item}`"
-                @click="toggle(index)"
-              >
-                <template #right-icon>
-                  <van-checkbox
-                    :ref="(el) => (sceneCheckboxRefs[index] = el)"
-                    :name="item"
-                    @click.stop
-                  />
-                </template>
-              </van-cell>
-            </van-cell-group>
-          </van-checkbox-group>
-        </van-collapse-item>
-      </van-collapse> -->
-    </van-form>
+      </div>
+
+      <div class="rounded-lg overflow-hidden">
+        <van-cell title="成员权限">
+          <p>{{ familyItem?.juese == 1 ? '管理员' : '普通成员' }}</p>
+        </van-cell>
+      </div>
+
+      <div class="rounded-lg overflow-hidden">
+        <van-cell
+          v-for="(familyLabel, familyIndex) in ['房间权限', '设备权限', '场景权限']"
+          :key="familyIndex"
+          :title="familyLabel"
+          is-link
+          @click="
+            router.push({
+              path: '/me-house-powers',
+              query: { power: familyIndex, ...route.query, shouji: familyItem.shouji },
+            })
+          "
+        />
+      </div>
+    </div>
+    <div class="p-8 space-y-6">
+      <van-button
+        v-if="familyItem.juese == 0"
+        v-loading-click="onSetFamliy"
+        round
+        block
+        type="primary"
+      >
+        设为管理员
+      </van-button>
+      <van-button v-loading-click="onDelFamily" round block type="danger">删除成员</van-button>
+    </div>
   </div>
 </template>

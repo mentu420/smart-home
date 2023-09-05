@@ -5,7 +5,11 @@ import { useRouter } from 'vue-router'
 
 import { getDeviceList } from '@/apis/smartApi'
 import DEVICE_INFO from '@/enums/deviceInfo'
+import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore.js'
+
+const { deviceList } = storeToRefs(deviceStore)
+const { useGetFloorTree } = houseStore()
 
 const router = useRouter()
 
@@ -15,9 +19,8 @@ const deviceTypeList = ref(DEVICE_INFO)
 const { roomList } = storeToRefs(houseStore())
 const deviceChecked = ref([])
 const roomChecked = ref([])
-
-const { useGetRoomListSync } = houseStore()
-useGetRoomListSync()
+const searchList = ref([]) // 数据列表
+const floorTree = ref([]) // 楼层数据
 
 const onSelectDevice = (item) => {
   if (deviceChecked.value.includes(item.classify)) {

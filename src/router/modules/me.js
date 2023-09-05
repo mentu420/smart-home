@@ -39,12 +39,18 @@ export default [
     path: '/me-house-member-list',
     name: 'MeHouseMemberList',
     component: () => import('@/pages/me/me-house-member-list.vue'),
-    meta: { title: '成员与权限' },
+    meta: { title: '成员列表' },
   },
   {
     path: '/me-house-member-item',
     name: 'MeHouseMemberItem',
     component: () => import('@/pages/me/me-house-member-item.vue'),
+    meta: { title: '成员信息' },
+  },
+  {
+    path: '/me-house-powers',
+    name: 'MeHousePowers',
+    component: () => import('@/pages/me/me-house-powers.vue'),
     meta: { title: '家庭权限' },
   },
   {
