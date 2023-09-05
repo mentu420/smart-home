@@ -175,7 +175,7 @@ watch(
             </van-cell-group>
             <template #reference>
               <div class="flex items-center space-x-4">
-                <h4>{{ currentHouse?.label }}</h4>
+                <h3>{{ currentHouse?.label }}</h3>
                 <van-icon name="arrow-down" />
               </div>
             </template>
@@ -302,7 +302,7 @@ watch(
                   <van-icon name="arrow-down" />
                 </div>
               </template>
-              <van-cell-group class="w-50vw">
+              <van-cell-group class="w-[50vw]">
                 <van-cell
                   v-for="floorItem in floorTree"
                   :key="floorItem.id"
