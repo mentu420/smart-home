@@ -1,12 +1,12 @@
 <script setup>
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
-import DeviceCardItemVue from '@/components/base/DeviceCardItem.vue'
+import DeviceCardItem from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import deviceStore from '@/store/deviceStore'
@@ -22,18 +22,35 @@ const useDeviceStore = deviceStore()
 const useSceneStore = sceneStore()
 const { houseList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
+const { getDeviceIcon } = useDeviceStore
 const { getRoomSceneList, sceneList } = storeToRefs(useSceneStore)
 
 const showHomeList = ref(false)
 const loading = ref(false)
-const showConfig = ref(false)
+const showFloorConfig = ref(false)
 const tabActive = ref(0)
+const floorTree = ref([]) // 楼层树状结构数据
+const currentFloorId = ref('') //当前楼层id
 const dragOptions = ref({
   animation: 200,
   group: 'description',
   disabled: true, //是否可以拖拽排序
   ghostClass: 'ghost',
 })
+const collectList = ref([
+  {
+    id: 0,
+    label: '常用场景',
+    data: [],
+    componentsKey: 'ScenenCardItem',
+  },
+  {
+    id: 1,
+    label: '常用设备',
+    data: [],
+    componentsKey: 'DeviceCardItem',
+  },
+]) //收藏的场景、设备
 
 const weatherRef = ref(null)
 
@@ -43,49 +60,6 @@ const onConfigSelect = (action) => {
   console.log(action)
   tabActive.value = roomList.value.findIndex((value) => value.id == action.id) + 1
 }
-
-const weatherIconList = [
-  { icon: 'cloudy', list: ['少云', '晴间多云', '多云', '阴'] }, //多云
-  {
-    icon: 'fog',
-    list: ['霾', '中度霾', '重度霾', '严重霾', '雾', '浓雾', '强浓雾', '轻雾', '大雾', '特强浓雾'],
-  }, //大雾
-  { icon: 'heavy-rain', list: ['小雨', '中雨', '大雨'] }, //大雨
-  {
-    icon: 'heavy-wind',
-    list: ['强风/劲风', '疾风', '大风', '烈风', '风暴', '狂爆风', '飓风', '热带风暴', '龙卷风'],
-  }, //大风
-  {
-    icon: 'light-rain',
-    list: ['阵雨', '毛毛雨/细雨', '雨', '小雨-中雨', '中雨-大雨', '小到中雨'],
-  }, //小雨
-  { icon: 'moon', list: ['冷'] }, //月亮
-  { icon: 'sandstorm', list: ['浮尘', '扬沙', '沙尘暴', '强沙尘暴', ''] }, //沙尘暴
-  { icon: 'snow', list: ['雪', '阵雪', '大雪', '暴雪', '中雪-大雪', '大雪-暴雪'] }, //下雪
-  {
-    icon: 'snowflake',
-    list: ['雨雪天气', '雨夹雪', '阵雨夹雪', '冻雨', '小雪', '中雪', '小雪-中雪', '冷'],
-  }, //雪花
-  { icon: 'sun-one', list: ['热'] }, //太阳
-  { icon: 'sunny', list: ['晴'] }, //晴
-  {
-    icon: 'thunderstorm',
-    list: [
-      '雷阵雨',
-      '雷阵雨并伴有冰雹',
-      '暴雨',
-      '大暴雨',
-      '特大暴雨',
-      '强阵雨',
-      '强雷阵雨',
-      '极端降雨',
-      '大雨-暴雨',
-      '暴雨-大暴雨',
-      '大暴雨-特大暴雨',
-    ],
-  }, //雷雨
-  { icon: 'wind', list: ['有风', '微风', '和风', '清风'] }, //刮风
-]
 
 const toggleDrag = () => {
   dragOptions.value.disabled = !dragOptions.value.disabled
@@ -132,11 +106,29 @@ const onHouseSelect = async (action) => {
   }
 }
 
+const onFloorSelect = (action) => {
+  console.log(action)
+  currentFloorId.value = action.id
+  showFloorConfig.value = false
+}
+
+const getFloorTree = () => {
+  collectList.value = collectList.value.map((item) => {
+    if (item.id == 0) {
+      return { ...item, data: sceneList.value.filter((sceneItem) => sceneItem.shouye == 1) }
+    }
+    return { ...item, data: deviceList.value.filter((deviceItem) => deviceItem.shouye == 1) }
+  })
+  floorTree.value = useHouseStore.useGetFloorTree()
+}
+
 const init = async () => {
   try {
     const { useGetToken } = userStore()
     const token = useGetToken()
     await onReload(token.fangwubianhao)
+    getFloorTree()
+    currentFloorId.value = floorTree.value[0]?.id
   } catch (err) {
     console.warn(err)
   } finally {
@@ -147,6 +139,8 @@ const init = async () => {
 onMounted(() => {
   init()
 })
+
+onActivated(getFloorTree)
 
 watch(
   () => route.path,
@@ -224,87 +218,104 @@ watch(
           swipeable
         >
           <template #nav-right>
-            <div class="w-10 flex-shrink-0"></div>
+            <div class="w-[70px] flex-shrink-0"></div>
           </template>
           <van-tab title="全屋">
             <section class="p-4">
-              <h4 class="mb-2 text-gray-600">常用场景</h4>
-              <div class="grid grid-cols-2 gap-4">
-                <ScenenCardItem v-for="(lightItem, lightIndex) in sceneList" :key="lightIndex">
-                  <div class="space-x-2 text-white">
-                    <label>{{ lightItem.label }}</label>
-                    <!-- <label class="rounded bg-gray-200 px-2 py-1 text-xs text-black"> 客厅 </label> -->
-                  </div>
-                </ScenenCardItem>
-              </div>
-              <h4 class="my-2 text-gray-600">常用设备</h4>
-              <ul class="grid grid-cols-2 gap-4">
-                <DeviceCardItemVue
-                  v-for="(deviceItem, deviceIndex) in deviceList"
-                  :key="deviceIndex"
-                  :label="deviceItem.mingcheng"
-                  :icon="deviceItem.icon"
-                  @click-right-icon="openDeviceStatus(deviceItem)"
-                ></DeviceCardItemVue>
-              </ul>
+              <template v-for="collectItem in collectList" :key="collectItem.id">
+                <h4 class="mb-2 text-gray-600">{{ collectItem.label }}</h4>
+                <div class="grid grid-cols-2 gap-4">
+                  <component
+                    :is="collectItem.componentsKey"
+                    v-for="commonItem in collectItem.data"
+                    :key="commonItem.id"
+                  >
+                    <div v-if="collectItem.id == 0" class="space-x-2 text-white">
+                      <label>{{ commonItem.label }}</label>
+                    </div>
+                  </component>
+                </div>
+              </template>
             </section>
           </van-tab>
           <van-tab
-            v-for="(roomItem, roomIndex) in roomList"
+            v-for="(roomItem, roomIndex) in floorTree.find(
+              (floorItem) => floorItem.id == currentFloorId
+            )?.roomList"
             :key="roomIndex"
-            :title="roomItem.mingcheng"
+            :title="roomItem.label"
           >
             <section class="p-4">
               <div class="grid grid-cols-2 gap-4">
                 <ScenenCardItem
-                  v-for="(sceneItem, sceneIndex) in getRoomSceneList(roomItem.id)"
+                  v-for="(sceneItem, sceneIndex) in roomItem.sceneList"
                   :key="sceneIndex"
                 >
-                  <label>{{ sceneItem }}</label>
+                  <label>{{ sceneItem.label }}</label>
                 </ScenenCardItem>
               </div>
-              <div class="flex items-center py-4">
-                <h4 class="text-gray-600">照明</h4>
-                <label class="ml-2 text-xs text-gray-400">2个灯亮</label>
-              </div>
-              <div class="mb-4 grid grid-cols-2 gap-4">
-                <ScenenCardItem
-                  v-for="(sceneItem, sceneIndex) in ['全开', '全关']"
-                  :key="sceneIndex"
-                >
-                  <label>{{ sceneItem }}</label>
-                </ScenenCardItem>
-              </div>
+
+              <template v-if="roomItem.deviceList.length > 0">
+                <div class="flex items-center py-4">
+                  <h4 class="text-gray-600">照明</h4>
+                  <label class="ml-2 text-xs text-gray-400">2个灯亮</label>
+                </div>
+                <div class="mb-4 grid grid-cols-2 gap-4">
+                  <ScenenCardItem
+                    v-for="(sceneItem, sceneIndex) in ['全开', '全关']"
+                    :key="sceneIndex"
+                  >
+                    <label>{{ sceneItem }}</label>
+                  </ScenenCardItem>
+                </div>
+              </template>
+
               <div class="grid grid-cols-2 gap-4">
-                <DeviceCardItemVue
-                  v-for="(deviceItem, deviceIndex) in deviceList?.filter(
-                    (deviceItem) => deviceItem.rId == roomItem.id
-                  )"
+                <DeviceCardItem
+                  v-for="(deviceItem, deviceIndex) in roomItem.deviceList"
                   :key="deviceIndex"
-                  :label="deviceItem.mingcheng"
-                  :icon="deviceItem.icon"
+                  :label="deviceItem.label"
+                  :icon="getDeviceIcon(deviceItem.classify)"
                   @click-right-icon="openDeviceStatus(deviceItem)"
-                ></DeviceCardItemVue>
+                ></DeviceCardItem>
               </div>
             </section>
           </van-tab>
         </van-tabs>
         <div class="absolute right-0 top-0 bg-page-gray">
-          <div class="flex h-12 w-10 flex-auto items-center justify-center space-x-4 pr-2">
+          <div class="flex h-[44px] w-[70px] flex-auto items-center justify-center space-x-4">
             <!-- <van-button v-if="!dragOptions.disabled" size="mini" type="primary" @click="toggleDrag">
                 完成
               </van-button> -->
             <!-- <template v-else> -->
             <!-- <IconPark type="add-item" theme="outline" size="20" @click="toggleDrag" /> -->
             <van-popover
-              v-model:show="showConfig"
-              :actions="roomList"
+              v-model:show="showFloorConfig"
               placement="bottom-end"
               @select="onConfigSelect"
             >
               <template #reference>
-                <IconPark type="setting-config" theme="outline" size="20" />
+                <div class="flex items-center px-2 py-1 rounded-md bg-white space-x-1">
+                  <p class="w-[40px] truncate text-xs shrink-0 text-center">
+                    {{ floorTree.find((floorItem) => floorItem.id == currentFloorId)?.label }}
+                  </p>
+                  <van-icon name="arrow-down" />
+                </div>
               </template>
+              <van-cell-group class="w-50vw">
+                <van-cell
+                  v-for="floorItem in floorTree"
+                  :key="floorItem.id"
+                  @click="onFloorSelect(floorItem)"
+                >
+                  <template #title>
+                    <div class="flex justify-center items-center">
+                      <van-icon v-if="currentFloorId == floorItem.id" name="location" />
+                      <label>{{ floorItem.label }}</label>
+                    </div>
+                  </template>
+                </van-cell>
+              </van-cell-group>
             </van-popover>
             <!-- </template> -->
           </div>

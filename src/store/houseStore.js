@@ -112,26 +112,24 @@ export default defineStore(storeName, () => {
   }
 
   // 获取区域=>房间=>设备、场景树状组合数据 collect 是否只返回收藏数据
-  const useGetFloorTree = computed(() => (collect = false) => {
-    const getCollectList = (list, rid) =>
-      list.filter((item) => {
-        if (collect) return item.rId == rid && item.shouye == 1
-        return item.rId == rid
-      })
+  const useGetFloorTree = () => {
+    const getList = (list, rid) => list.filter((item) => item.rId == rid)
 
     return floorList.value.map((floorItem) => {
       const floorRoomList = roomList.value
         .filter((roomItem) => roomItem.fId == floorItem.id)
         .map((roomItem) => {
-          const roomDeviceList = getCollectList(deviceList.value, roomItem.id)
-          const roomSceneList = getCollectList(sceneList.value, roomItem.id)
+          const roomDeviceList = getList(deviceList.value, roomItem.id).sort(
+            (a, b) => a.classify - b.classify
+          )
+          const roomSceneList = getList(sceneList.value, roomItem.id)
 
           return { ...roomItem, deviceList: roomDeviceList, sceneList: roomSceneList }
         })
 
       return { ...floorItem, roomList: floorRoomList }
     })
-  })
+  }
 
   const reset = () => {
     houseList.value = []

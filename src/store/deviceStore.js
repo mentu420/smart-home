@@ -24,18 +24,21 @@ export default defineStore(storeName, () => {
   const useGetDeviceListSync = async (reload = false) => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
-    deviceList.value = data.map((item) => {
-      const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.xiaoleixing)
-      return {
-        ...item,
-        icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
-        columns,
-        label: item.mingcheng,
-        id: item.bianhao,
-        rId: item.fangjianbianhao, //房间编号
-        classify: item.daleixing,
-      }
-    })
+    deviceList.value = data
+      .map((item) => {
+        const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.xiaoleixing)
+        return {
+          ...item,
+          icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
+          columns,
+          label: item.mingcheng,
+          id: item.bianhao,
+          rId: item.fangjianbianhao, //房间编号
+          classify: item.daleixing,
+          sort: item.paixu,
+        }
+      })
+      .sort((a, b) => a.sort - b.sort)
     return deviceList.value
   }
 
