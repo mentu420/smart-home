@@ -11,8 +11,7 @@ import meRouters from './modules/me.js'
 import smartRouters from './modules/smart.js'
 
 const redirect = (to) => {
-  const { useGetToken } = userStore()
-  const token = useGetToken()
+  const token = getStorage(import.meta.env.VITE_APP_STORAGE_TOKEN)
   if (token) {
     return '/tabbar/tabbar-house'
   } else {

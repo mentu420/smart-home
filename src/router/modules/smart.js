@@ -36,7 +36,7 @@ export default [
     meta: { title: '设备分类' },
   },
   {
-    path: '/smart-task-deviceList',
+    path: '/smart-task-device-list',
     name: 'SmartTaskDeviceList',
     component: () => import('@/pages/smart/smart-task-device-list.vue'),
     meta: { title: '设备列表' },

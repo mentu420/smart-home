@@ -134,7 +134,7 @@ export default defineStore(storeName, () => {
         ...item,
         id: item.bianhao,
         label: item.mingcheng,
-        rid: item.fangjianbianhao,
+        rId: item.fangjianbianhao,
       }
     })
   }

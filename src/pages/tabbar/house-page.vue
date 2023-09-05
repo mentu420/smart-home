@@ -82,7 +82,6 @@ const onReload = async (hId) => {
     useGetSceneListSync(true),
     useGetFamilyListSync(true),
   ])
-  console.log('准备设置当前房屋', hId)
   useHouseStore.setCurrentHouse(hId)
 }
 
@@ -170,7 +169,12 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <van-pull-refresh v-model="loading" :disabled="!dragOptions.disabled" @refresh="init">
+    <van-pull-refresh
+      v-model="loading"
+      class="min-h-[80vh]"
+      :disabled="!dragOptions.disabled"
+      @refresh="init"
+    >
       <template v-if="dragOptions.disabled">
         <!--当前房屋-->
         <div class="flex justify-between p-4">

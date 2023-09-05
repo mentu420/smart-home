@@ -98,8 +98,6 @@ watch(
     if (to == '/smart-scene-create' && form.value === '/tabbar/tabbar-smart') init()
   }
 )
-
-defineOptions({ name: 'SmartSceneCreate' })
 </script>
 
 <template>

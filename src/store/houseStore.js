@@ -102,7 +102,6 @@ export default defineStore(storeName, () => {
   const useGetFamilyListSync = async (reload = false) => {
     if (familyList.value.length > 0 && !reload) return familyList.value
     const { data } = await getFamily({ op: 1 })
-    console.log(data)
     familyList.value = data.map((item) => ({
       ...item,
       label: item.xingming,
