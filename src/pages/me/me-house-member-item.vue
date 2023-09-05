@@ -23,7 +23,7 @@ const onSetFamliy = async () => {
   })
   return setFamily({
     params: { op: 3 },
-    data: { shouji: familyItem.value.shouji, juese: 1 }, //juese 1，是有房主权限，0是没有房主权限
+    data: { shouji: familyItem.value.shouji, bianhao: route.query.id, juese: 1 }, //juese 1，是有房主权限，0是没有房主权限
   })
 }
 

@@ -41,7 +41,7 @@ const onSubmit = async () => {
           maxlength="30"
           :rules="[{ required: true, message: '家庭名称必填项' }]"
         />
-        <van-cell center clickable title="家庭图片" is-link>
+        <van-cell center clickable title="家庭图片">
           <SmartUploader v-model="fileList" accept="image/*" :max-count="1" reupload />
         </van-cell>
       </van-cell-group>

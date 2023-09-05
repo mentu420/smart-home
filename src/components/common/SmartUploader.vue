@@ -141,7 +141,7 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
   } catch (error) {
     if (error == 'cancel') showToast('取消了上传')
     emits('error', error)
-    throw new Error(error)
+    throw new Error(JSON.stringify(error))
   }
 }
 

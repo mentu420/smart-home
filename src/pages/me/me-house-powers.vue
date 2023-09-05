@@ -45,7 +45,7 @@ const onSwitchClick = async (id) => {
     }
     await setFamily({
       params: { op: 3 },
-      data: { shouji: route.query.shouji, [powerKey.value]: ids },
+      data: { shouji: route.query.shouji, bianhao: route.query.id, [powerKey.value]: ids },
     })
     await useGetFamilyListSync(true)
   } catch (error) {
@@ -64,7 +64,7 @@ const onSwitchClick = async (id) => {
         <van-switch
           v-model="powerItem.checked"
           :loading="loading"
-          @click="onSwitchClick(powerItem.id)"
+          @change="onSwitchClick(powerItem.id)"
         />
       </van-cell>
     </van-cell-group>
