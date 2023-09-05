@@ -28,7 +28,6 @@ export default defineStore(storeName, () => {
       .map((item) => {
         const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.xiaoleixing)
         return {
-          ...item,
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
           columns,
           label: item.mingcheng,
@@ -42,7 +41,7 @@ export default defineStore(storeName, () => {
     return deviceList.value
   }
 
-  const useDeviceItemSync = async (id) => {
+  const useDeviceItemSync = (id) => {
     return deviceList.value.find((item) => item.id == id)
   }
 
@@ -51,8 +50,7 @@ export default defineStore(storeName, () => {
   })
 
   // 异步变更单设备数据
-  const useDeviceItemChangeSync = async (payload) => {
-    console.log('useSetDeviceItemSync', payload)
+  const useDeviceItemChange = (payload) => {
     deviceList.value = deviceList.value.map((deviceItem) => {
       if (deviceItem.id == payload.id) {
         return { ...deviceItem, ...payload }
@@ -70,7 +68,7 @@ export default defineStore(storeName, () => {
     deviceUseList,
     getDeviceIcon,
     useGetDeviceListSync,
-    useDeviceItemChangeSync,
+    useDeviceItemChange,
     useDeviceItemSync,
     reset,
   }

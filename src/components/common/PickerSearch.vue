@@ -42,10 +42,6 @@ const selectedValues = computed({
   set: (val) => emits('update:modelValue', val),
 })
 
-const defineSlots = ['toolbar', 'title', 'confirm', 'cancel', 'option', 'columns-bottom']
-
-const slotsKeys = computed(() => Object.keys(slots).filter((key) => defineSlots.includes(key)))
-
 const popupAttrsKeys = ['click-overlay', 'click-close-icon', 'open', 'close', 'opened', 'closed']
 
 const popupAttrs = computed(() =>
@@ -66,7 +62,7 @@ const _columns = computed(() => {
       )
 })
 
-defineExpose({ defineSlots, pickerRef })
+defineExpose({ pickerRef })
 </script>
 
 <template>
@@ -85,8 +81,8 @@ defineExpose({ defineSlots, pickerRef })
         </form>
         <slot name="columns-top"> </slot>
       </template>
-      <template v-for="slotName of slotsKeys" #[slotName]>
-        <slot :name="slotName"></slot>
+      <template v-for="(_, scopeSlotName) in slots" :key="scopeSlotName" #[scopeSlotName]="scope">
+        <slot :name="scopeSlotName" v-bind="scope" :loading="loading" />
       </template>
     </van-picker>
   </van-popup>

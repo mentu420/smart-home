@@ -58,7 +58,7 @@ const Router = createRouter({
           path: 'tabbar-house',
           name: 'HousePage',
           component: () => import('@/pages/tabbar/house-page.vue'),
-          meta: { title: '家' },
+          meta: { title: '家', keepAlive: true },
         },
         {
           path: 'tabbar-smart',

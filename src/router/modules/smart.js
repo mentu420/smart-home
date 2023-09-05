@@ -54,7 +54,7 @@ export default [
     meta: { title: '设备状态' },
   },
   {
-    path: '/smart-deviceInfo',
+    path: '/smart-device-info',
     name: 'SmartDeviceInfo',
     component: () => import('@/pages/smart/smart-device-info.vue'),
     meta: { title: '设备信息' },

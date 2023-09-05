@@ -11,10 +11,6 @@ const router = useRouter()
 const { deviceList } = storeToRefs(deviceStore())
 const deviceItem = ref({})
 
-const airConfig = ref({ temp: 18, speed: 1, model: 1 })
-const brightness = ref(100)
-const degree = ref(100)
-
 const init = () => {
   deviceItem.value = deviceList.value.find((item) => item.id == route.query.id)
 }
@@ -25,7 +21,15 @@ init()
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar :title="route.query.name">
       <template #right>
-        <IconPark type="more" @click="router.push({ path: '/smart-deviceInfo' })" />
+        <IconPark
+          type="more"
+          @click="
+            router.push({
+              path: '/smart-device-info',
+              query: { ...route.query, rId: deviceItem.rId },
+            })
+          "
+        />
       </template>
     </HeaderNavbar>
     <section class="pb-4">

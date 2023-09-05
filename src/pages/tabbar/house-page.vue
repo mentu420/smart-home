@@ -14,6 +14,8 @@ import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
 import userStore from '@/store/userStore'
 
+defineOptions({ name: 'HousePage' })
+
 const router = useRouter()
 const route = useRoute()
 
@@ -89,8 +91,6 @@ const onReload = async (hId) => {
 // 拖拽排序
 const onDragEnd = () => {
   dragOptions.value.disabled = !dragOptions.value.disabled
-  console.log('tabActive', tabActive.value)
-  console.log('onDragEnd', currentFloorRoomList.value)
   const { deviceList, sceneList } = currentFloorRoomList.value.find(
     (item) => item.id == tabActive.value
   )
@@ -148,11 +148,14 @@ const init = async () => {
   }
 }
 
-onMounted(() => {
-  init()
-})
+onMounted(init)
 
-onActivated(getFloorTree)
+onActivated(() => {
+  getFloorTree()
+  currentFloorRoomList.value = floorTree.value.find(
+    (item) => item.id == currentFloorId.value
+  )?.roomList
+})
 
 watch(
   () => route.path,
