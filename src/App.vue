@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import useRem from '@/utils/flexible/useRem.js'
 
-// new VConsole()
+new VConsole()
 
 const route = useRoute()
 const router = useRouter()

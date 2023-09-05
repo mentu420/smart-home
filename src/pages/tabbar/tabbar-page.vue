@@ -1,10 +1,11 @@
 <script setup>
-import { transformBind } from '@vue/compiler-core'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import { useLogout } from '@/hooks/useLogout'
+import userStore from '@/store/userStore'
+
 const route = useRoute()
-const router = useRouter()
 const tabIndex = ref(0)
 
 const tabs = ref([
@@ -18,6 +19,12 @@ const onChange = (index) => {
 }
 
 const init = () => {
+  const { useGetToken } = userStore()
+  const token = useGetToken()
+  if (!token) {
+    useLogout()
+    return
+  }
   const tabItem = tabs.value.find((item) => item.path == route.path)
   if (route.path != tabItem.path) return
   tabIndex.value = tabItem.index

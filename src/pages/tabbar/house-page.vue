@@ -23,7 +23,7 @@ const useSceneStore = sceneStore()
 const { houseList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { getDeviceIcon } = useDeviceStore
-const { getRoomSceneList, sceneList } = storeToRefs(useSceneStore)
+const { sceneList } = storeToRefs(useSceneStore)
 
 const showHomeList = ref(false)
 const loading = ref(false)
@@ -31,12 +31,14 @@ const showFloorConfig = ref(false)
 const tabActive = ref(0)
 const floorTree = ref([]) // 楼层树状结构数据
 const currentFloorId = ref('') //当前楼层id
+const currentFloorRoomList = ref([]) // 当前楼层房间
+const isTabsFixed = ref(false) // tabs 吸顶
 const dragOptions = ref({
   animation: 200,
-  group: 'description',
   disabled: true, //是否可以拖拽排序
   ghostClass: 'ghost',
 })
+
 const collectList = ref([
   {
     id: 0,
@@ -52,17 +54,9 @@ const collectList = ref([
   },
 ]) //收藏的场景、设备
 
-const weatherRef = ref(null)
-
-const onMoreSelect = () => {}
-
 const onConfigSelect = (action) => {
   console.log(action)
   tabActive.value = roomList.value.findIndex((value) => value.id == action.id) + 1
-}
-
-const toggleDrag = () => {
-  dragOptions.value.disabled = !dragOptions.value.disabled
 }
 
 const openDeviceStatus = (item) => {
@@ -92,6 +86,17 @@ const onReload = async (hId) => {
   useHouseStore.setCurrentHouse(hId)
 }
 
+// 拖拽排序
+const onDragEnd = () => {
+  dragOptions.value.disabled = !dragOptions.value.disabled
+  console.log('tabActive', tabActive.value)
+  console.log('onDragEnd', currentFloorRoomList.value)
+  const { deviceList, sceneList } = currentFloorRoomList.value.find(
+    (item) => item.id == tabActive.value
+  )
+  console.log(deviceList, sceneList)
+}
+
 const onHouseSelect = async (action) => {
   try {
     loading.value = true
@@ -110,14 +115,17 @@ const onFloorSelect = (action) => {
   console.log(action)
   currentFloorId.value = action.id
   showFloorConfig.value = false
+  currentFloorRoomList.value = floorTree.value.find(
+    (item) => item.id == currentFloorId.value
+  )?.roomList
 }
 
 const getFloorTree = () => {
   collectList.value = collectList.value.map((item) => {
     if (item.id == 0) {
-      return { ...item, data: sceneList.value.filter((sceneItem) => sceneItem.shouye == 1) }
+      return { ...item, data: sceneList.value?.filter((sceneItem) => sceneItem.shouye == 1) }
     }
-    return { ...item, data: deviceList.value.filter((deviceItem) => deviceItem.shouye == 1) }
+    return { ...item, data: deviceList.value?.filter((deviceItem) => deviceItem.shouye == 1) }
   })
   floorTree.value = useHouseStore.useGetFloorTree()
 }
@@ -126,9 +134,13 @@ const init = async () => {
   try {
     const { useGetToken } = userStore()
     const token = useGetToken()
+    if (!token) return
     await onReload(token.fangwubianhao)
     getFloorTree()
     currentFloorId.value = floorTree.value[0]?.id
+    currentFloorRoomList.value = floorTree.value.find(
+      (item) => item.id == currentFloorId.value
+    )?.roomList
   } catch (err) {
     console.warn(err)
   } finally {
@@ -157,8 +169,9 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <van-pull-refresh v-model="loading" @refresh="init">
+    <van-pull-refresh v-model="loading" :disabled="!dragOptions.disabled" @refresh="init">
       <template v-if="dragOptions.disabled">
+        <!--当前房屋-->
         <div class="flex justify-between p-4">
           <van-popover v-model:show="showHomeList" :actions="houseList" placement="bottom-start">
             <van-cell-group>
@@ -185,30 +198,15 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
           <div class="space-x-4">
             <van-icon size="20" name="bell" />
             <van-icon size="20" name="plus" @click="goAddDevice" />
-            <!-- <van-popover
-              :actions="[
-                { text: '添加设备', value: 0 },
-                { text: '拖拽排序', value: 1 },
-              ]"
-              placement="bottom-end"
-              @select="onMoreSelect"
-            >
-              <template #reference>
-                <van-icon size="20" name="plus" />
-              </template>
-            </van-popover> -->
           </div>
         </div>
-        <div
-          v-if="currentHouse?.huanjingzhuangtai"
-          ref="weatherRef"
-          class="min-h-10 flex items-end p-4"
-        >
+        <!--天气-->
+        <div v-if="currentHouse?.huanjingzhuangtai" class="min-h-10 flex items-end p-4">
           <h2>{{ currentHouse?.huanjingzhuangtai?.WenDu }}</h2>
           <p class="ml-1 mr-4 text-sm">℃</p>
-          <!-- <h2 class="mr-2 text-lg">{{ currentHouse?.huanjingzhuangtai?.ShiDu }}</h2> -->
         </div>
       </template>
+      <!--tab-->
       <div class="relative">
         <van-tabs
           v-model:active="tabActive"
@@ -217,12 +215,13 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
           sticky
           line-width="0"
           animated
-          swipeable
+          :swipeable="dragOptions.disabled"
+          @scroll="({ isFixed }) => (isTabsFixed = isFixed)"
         >
           <template #nav-right>
             <div class="w-[70px] flex-shrink-0"></div>
           </template>
-          <van-tab title="全屋">
+          <van-tab title="全屋" :disabled="!dragOptions.disabled" name="''">
             <section class="p-4">
               <template v-for="collectItem in collectList" :key="collectItem.id">
                 <h4 class="mb-2 text-gray-600">{{ collectItem.label }}</h4>
@@ -240,22 +239,31 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
               </template>
             </section>
           </van-tab>
+          <!--当前楼层所有房间-->
           <van-tab
-            v-for="(roomItem, roomIndex) in floorTree.find(
-              (floorItem) => floorItem.id == currentFloorId
-            )?.roomList"
+            v-for="(roomItem, roomIndex) in currentFloorRoomList"
             :key="roomIndex"
             :title="roomItem.label"
+            :disabled="!dragOptions.disabled"
+            :name="roomItem.id"
           >
             <section class="p-4">
-              <div class="grid grid-cols-2 gap-4">
-                <ScenenCardItem
-                  v-for="(sceneItem, sceneIndex) in roomItem.sceneList"
-                  :key="sceneIndex"
-                >
-                  <label>{{ sceneItem.label }}</label>
-                </ScenenCardItem>
-              </div>
+              <draggable
+                v-model="roomItem.sceneList"
+                item-key="id"
+                group="scene"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 gap-4"
+              >
+                <template #item="{ element: sceneItem }">
+                  <ScenenCardItem>
+                    <label>{{ sceneItem.label }}</label>
+                    <div v-if="!dragOptions.disabled" class="absolute top-2 right-2">
+                      <van-icon name="wap-nav" />
+                    </div>
+                  </ScenenCardItem>
+                </template>
+              </draggable>
 
               <template v-if="roomItem.deviceList.length > 0">
                 <div class="flex items-center py-4">
@@ -277,26 +285,54 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
                 </van-button>
               </van-empty>
 
-              <div class="grid grid-cols-2 gap-4">
-                <DeviceCardItem
-                  v-for="(deviceItem, deviceIndex) in roomItem.deviceList"
-                  :key="deviceIndex"
-                  :label="deviceItem.label"
-                  :icon="getDeviceIcon(deviceItem.classify)"
-                  @click-right-icon="openDeviceStatus(deviceItem)"
-                ></DeviceCardItem>
-              </div>
+              <draggable
+                v-model="roomItem.deviceList"
+                item-key="id"
+                group="device"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 gap-4"
+              >
+                <template #item="{ element: deviceItem }">
+                  <DeviceCardItem
+                    :label="deviceItem.label"
+                    :icon="getDeviceIcon(deviceItem.classify)"
+                    @click-right-icon="openDeviceStatus(deviceItem)"
+                  >
+                    <template v-if="!dragOptions.disabled" #right-icon>
+                      <van-icon name="wap-nav" />
+                    </template>
+                  </DeviceCardItem>
+                </template>
+              </draggable>
             </section>
+            <div v-if="roomItem.deviceList.length > 0" class="p-6 text-center">
+              <van-button
+                v-if="dragOptions.disabled"
+                class="!px-6"
+                size="small"
+                type="primary"
+                round
+                @click="dragOptions.disabled = !dragOptions.disabled"
+              >
+                {{ dragOptions.disabled ? '编辑' : '完成' }}
+              </van-button>
+            </div>
           </van-tab>
         </van-tabs>
-        <div class="absolute right-0 top-0 bg-page-gray">
+        <!--切换楼层-->
+        <div class="right-0 top-0 bg-page-gray z-[100]" :class="isTabsFixed ? 'fixed' : 'absolute'">
           <div class="flex h-[44px] w-[70px] flex-auto items-center justify-center space-x-4">
-            <!-- <van-button v-if="!dragOptions.disabled" size="mini" type="primary" @click="toggleDrag">
-                完成
-              </van-button> -->
-            <!-- <template v-else> -->
-            <!-- <IconPark type="add-item" theme="outline" size="20" @click="toggleDrag" /> -->
+            <van-button
+              v-if="!dragOptions.disabled"
+              round
+              size="small"
+              type="primary"
+              @click="onDragEnd"
+            >
+              完成
+            </van-button>
             <van-popover
+              v-else
               v-model:show="showFloorConfig"
               placement="bottom-end"
               @select="onConfigSelect"
@@ -324,7 +360,6 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
                 </van-cell>
               </van-cell-group>
             </van-popover>
-            <!-- </template> -->
           </div>
         </div>
       </div>

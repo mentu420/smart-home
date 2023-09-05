@@ -2,6 +2,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
+import userStore from '@/store/userStore.js'
 import { getStorage, setStorage, isObjectString } from '@/utils/storage.js'
 
 import commonRouters from './modules/common.js'
@@ -10,7 +11,8 @@ import meRouters from './modules/me.js'
 import smartRouters from './modules/smart.js'
 
 const redirect = (to) => {
-  const token = getStorage(import.meta.env.VITE_APP_STORAGE_TOKEN)
+  const { useGetToken } = userStore()
+  const token = useGetToken()
   if (token) {
     return '/tabbar/tabbar-house'
   } else {

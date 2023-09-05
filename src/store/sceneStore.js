@@ -145,7 +145,7 @@ export default defineStore(storeName, () => {
 
   const reset = () => {
     sceneCreateItem.value = {}
-    sceneList.value = {}
+    sceneList.value = []
   }
 
   return {
