@@ -236,6 +236,7 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
                     :is="{ ...collectItem.component }"
                     v-for="commonItem in collectItem.data"
                     :key="commonItem.id"
+                    @click-right-icon="openDeviceStatus(commonItem)"
                   >
                     <label>
                       {{ commonItem.label }}

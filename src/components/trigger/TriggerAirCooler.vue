@@ -12,6 +12,8 @@ const props = defineProps({
   },
 })
 
+const emits = defineEmits(['update:modelValue'])
+
 const deviceItem = computed(() => useGetDeviceItem(props.id))
 
 const max = ref(32)
@@ -19,17 +21,15 @@ const min = ref(16)
 
 const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == 'fan'))
 
-const modelActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == 'mode'))
-
-const emits = defineEmits(['update:modelValue'])
+const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == 'mode'))
 
 //温度、风俗、模式
-const config = ref({ temp: 26, speed: 0, model: 0 })
+const config = ref({ temp: 26, speed: 'auto', mode: 'auto' })
 
-const modeItem = computed(() =>
-  modelActions.value?.find((item) => item.useEn == config.value.model)
+const currentModeItem = computed(() =>
+  modeActions.value?.find((item) => item.useEn == config.value.mode)
 )
-const speedItem = computed(() =>
+const currentSpeedItem = computed(() =>
   speedActions.value?.find((item) => item.useEn == config.value.speed)
 )
 
@@ -56,12 +56,13 @@ const onRise = () => {
 
 const onSpeedSelect = (action) => {
   if (!status.value) status.value = true
-  config.value = { ...config.value, speed: action.id }
+  config.value = { ...config.value, speed: action.useEn }
 }
 
 const onModelSelect = (action) => {
+  console.log('action', action)
   if (!status.value) status.value = true
-  config.value = { ...config.value, model: action.useEn }
+  config.value = { ...config.value, mode: action.useEn }
 }
 </script>
 
@@ -101,29 +102,55 @@ const onModelSelect = (action) => {
         v-if="speedActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
       >
-        <van-popover :actions="speedActions" placement="top" @select="onSpeedSelect">
+        <van-popover placement="top">
           <template #reference>
             <div class="flex w-40 items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">{{ speedItem?.useCn }}</div>
-              <IconPark type="windmill-two" size="1.5em" />
+              <div class="mr-4 flex-shrink-0">{{ currentSpeedItem?.useCn }}</div>
+              <IconFont :icon="`${currentSpeedItem?.use}-${currentSpeedItem?.useEn}`" />
             </div>
           </template>
+          <van-cell-group>
+            <van-cell
+              v-for="speedItem in speedActions"
+              :key="speedItem.id"
+              :title="speedItem.useCn"
+              clickable
+              @click="onSpeedSelect(speedItem)"
+            >
+              <template #icon>
+                <IconFont class="mr-2" :icon="`${speedItem.use}-${speedItem.useEn}`" />
+              </template>
+            </van-cell>
+          </van-cell-group>
         </van-popover>
       </li>
       <li
-        v-if="modelActions?.length > 0"
+        v-if="modeActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
       >
-        <van-popover :actions="modelActions" placement="top" @select="onModelSelect">
+        <van-popover placement="top">
           <template #reference>
             <div class="flex w-40 items-center justify-between p-3">
               <div class="mr-4 flex-shrink-0">
                 <p>模式</p>
-                <p class="text-xs text-gray-400">{{ modeItem?.useCn }}</p>
+                <p class="text-xs text-gray-400">{{ currentModeItem?.useCn }}</p>
               </div>
-              <IconPark :type="modeItem?.type" size="1.5em" />
+              <IconFont :icon="`${currentModeItem?.use}-${currentModeItem?.useEn}`" />
             </div>
           </template>
+          <van-cell-group>
+            <van-cell
+              v-for="modeItem in modeActions"
+              :key="modeItem.id"
+              :title="modeItem?.useCn"
+              clickable
+              @click="onModelSelect(modeItem)"
+            >
+              <template #icon>
+                <IconFont class="mr-2" :icon="`${modeItem?.use}-${modeItem?.useEn}`" />
+              </template>
+            </van-cell>
+          </van-cell-group>
         </van-popover>
       </li>
     </div>
