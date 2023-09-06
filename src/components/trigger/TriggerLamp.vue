@@ -58,13 +58,11 @@ watch(
         :border="false"
       >
         <template #right-icon>
-          <div
-            class="flex h-10 w-10 items-center justify-center rounded-full leading-none"
-            :class="{ 'bg-primary': status }"
+          <IconFont
+            :class="status ? 'text-primary' : 'text-gray-300'"
+            icon="switch"
             @click="toggle"
-          >
-            <IconPark size="24" type="power" theme="filled" :fill="status ? '#fff' : '#999'" />
-          </div>
+          />
         </template>
       </van-cell>
       <van-cell

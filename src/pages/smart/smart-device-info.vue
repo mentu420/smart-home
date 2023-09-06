@@ -79,8 +79,9 @@ const onCollectChange = async (value) => {
     await setDeviceList({
       params: { op: 4 },
       data: {
-        bianhao: route.query.id,
-        shouye: value ? 1 : 0,
+        shebeibianhao: route.query.id,
+        leixing: value ? 1 : 0,
+        paixu: deviceItem.value.sort,
       },
     })
   } finally {

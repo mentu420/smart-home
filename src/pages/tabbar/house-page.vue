@@ -44,13 +44,13 @@ const collectList = ref([
     id: 0,
     label: '常用场景',
     data: [],
-    componentsKey: 'ScenenCardItem',
+    component: ScenenCardItem,
   },
   {
     id: 1,
     label: '常用设备',
     data: [],
-    componentsKey: 'DeviceCardItem',
+    component: DeviceCardItem,
   },
 ]) //收藏的场景、设备
 
@@ -118,13 +118,13 @@ const onFloorSelect = (action) => {
 }
 
 const getFloorTree = () => {
-  console.log(deviceList.value)
   collectList.value = collectList.value.map((item) => {
     if (item.id == 0) {
       return { ...item, data: sceneList.value?.filter((sceneItem) => sceneItem.shouye == 1) }
     }
     return { ...item, data: deviceList.value?.filter((deviceItem) => deviceItem.collect == 1) }
   })
+  console.log('collectList', collectList.value)
   floorTree.value = useHouseStore.useGetFloorTree()
 }
 
@@ -231,9 +231,9 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
             <section class="p-4">
               <template v-for="collectItem in collectList" :key="collectItem.id">
                 <h4 class="mb-2 text-gray-600">{{ collectItem.label }}</h4>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4 mb-6">
                   <component
-                    :is="collectItem.componentsKey"
+                    :is="{ ...collectItem.component }"
                     v-for="commonItem in collectItem.data"
                     :key="commonItem.id"
                   >

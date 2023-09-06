@@ -2,6 +2,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 
 import deviceStore from '@/store/deviceStore'
+
 const { useGetDeviceItem, deviceUseList } = deviceStore()
 
 const props = defineProps({
@@ -11,42 +12,26 @@ const props = defineProps({
   },
 })
 
-const deviceItem = ref({})
+const deviceItem = computed(() => useGetDeviceItem(props.id))
+
 const max = ref(32)
 const min = ref(16)
 
-watch(
-  () => props.id,
-  async (val) => {
-    if (!val) return
-    deviceItem.value = await useGetDeviceItem(val)
-    console.log('deviceItem', deviceItem.value)
-  },
-  {
-    immediate: true,
-  }
-)
+const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == 'fan'))
 
-const speedActions = [
-  { id: 0, text: '低风' },
-  { id: 1, text: '中风' },
-  { id: 2, text: '高风' },
-]
-
-const modelActions = [
-  { id: 0, text: '制冷', type: 'snowflake' },
-  { id: 1, text: '制热', type: 'sun-one' },
-  { id: 2, text: '通风', type: 'wind' },
-  { id: 3, text: '除湿', type: 'water-level' },
-]
+const modelActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == 'mode'))
 
 const emits = defineEmits(['update:modelValue'])
 
 //温度、风俗、模式
 const config = ref({ temp: 26, speed: 0, model: 0 })
 
-const modeItem = computed(() => modelActions.find((item) => item.id == config.value.model))
-const speedItem = computed(() => speedActions.find((item) => item.id == config.value.speed))
+const modeItem = computed(() =>
+  modelActions.value?.find((item) => item.useEn == config.value.model)
+)
+const speedItem = computed(() =>
+  speedActions.value?.find((item) => item.useEn == config.value.speed)
+)
 
 const tempCopy = ref(config.value.temp)
 const status = ref(false) //空调开关
@@ -76,7 +61,7 @@ const onSpeedSelect = (action) => {
 
 const onModelSelect = (action) => {
   if (!status.value) status.value = true
-  config.value = { ...config.value, model: action.id }
+  config.value = { ...config.value, model: action.useEn }
 }
 </script>
 
@@ -93,15 +78,11 @@ const onModelSelect = (action) => {
         </p>
         <p class="text-xs text-gray-400">当前温度</p>
       </div>
-      <div>
-        <div
-          class="flex h-10 w-10 items-center justify-center rounded-full leading-none"
-          :class="{ 'bg-primary': status }"
-          @click="status = !status"
-        >
-          <IconPark size="24" type="power" theme="filled" :fill="status ? '#fff' : '#999'" />
-        </div>
-      </div>
+      <IconFont
+        :class="status ? 'text-primary' : 'text-gray-300'"
+        icon="switch"
+        @click="status = !status"
+      />
     </li>
     <li class="mb-4 flex items-center justify-around rounded-lg bg-white p-3">
       <div>
@@ -116,25 +97,31 @@ const onModelSelect = (action) => {
       </div>
     </li>
     <div class="flex justify-between space-x-4">
-      <li class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white">
+      <li
+        v-if="speedActions?.length > 0"
+        class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
+      >
         <van-popover :actions="speedActions" placement="top" @select="onSpeedSelect">
           <template #reference>
             <div class="flex w-40 items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">{{ speedItem.text }}</div>
+              <div class="mr-4 flex-shrink-0">{{ speedItem?.useCn }}</div>
               <IconPark type="windmill-two" size="1.5em" />
             </div>
           </template>
         </van-popover>
       </li>
-      <li class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white">
+      <li
+        v-if="modelActions?.length > 0"
+        class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
+      >
         <van-popover :actions="modelActions" placement="top" @select="onModelSelect">
           <template #reference>
             <div class="flex w-40 items-center justify-between p-3">
               <div class="mr-4 flex-shrink-0">
                 <p>模式</p>
-                <p class="text-xs text-gray-400">{{ modeItem.text }}</p>
+                <p class="text-xs text-gray-400">{{ modeItem?.useCn }}</p>
               </div>
-              <IconPark :type="modeItem.type" size="1.5em" />
+              <IconPark :type="modeItem?.type" size="1.5em" />
             </div>
           </template>
         </van-popover>

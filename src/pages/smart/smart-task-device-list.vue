@@ -30,7 +30,10 @@ const onCheckChange = (values) => {
 }
 
 const goDeviceConfig = (item) => {
-  router.push({ path: '/smart-task-device-config', query: { id: item.id } })
+  router.push({
+    path: '/smart-task-device-config',
+    query: { id: item.id, classify: item.classify },
+  })
 }
 
 const onSave = () => {
