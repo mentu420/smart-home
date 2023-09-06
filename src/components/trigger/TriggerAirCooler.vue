@@ -2,7 +2,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 
 import deviceStore from '@/store/deviceStore'
-const { useDeviceItemSync, deviceUseList } = deviceStore()
+const { useGetDeviceItem, deviceUseList } = deviceStore()
 
 const props = defineProps({
   id: {
@@ -19,7 +19,7 @@ watch(
   () => props.id,
   async (val) => {
     if (!val) return
-    deviceItem.value = await useDeviceItemSync(val)
+    deviceItem.value = await useGetDeviceItem(val)
     console.log('deviceItem', deviceItem.value)
   },
   {

@@ -118,11 +118,12 @@ const onFloorSelect = (action) => {
 }
 
 const getFloorTree = () => {
+  console.log(deviceList.value)
   collectList.value = collectList.value.map((item) => {
     if (item.id == 0) {
       return { ...item, data: sceneList.value?.filter((sceneItem) => sceneItem.shouye == 1) }
     }
-    return { ...item, data: deviceList.value?.filter((deviceItem) => deviceItem.shouye == 1) }
+    return { ...item, data: deviceList.value?.filter((deviceItem) => deviceItem.collect == 1) }
   })
   floorTree.value = useHouseStore.useGetFloorTree()
 }

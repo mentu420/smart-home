@@ -35,15 +35,14 @@ export default defineStore(storeName, () => {
           rId: item.fangjianbianhao, //房间编号
           classify: item.daleixing,
           sort: item.paixu,
+          collect: item.shouye,
         }
       })
       .sort((a, b) => a.sort - b.sort)
     return deviceList.value
   }
 
-  const useDeviceItemSync = (id) => {
-    return deviceList.value.find((item) => item.id == id)
-  }
+  const useGetDeviceItem = (id) => deviceList.value.find((item) => item.id == id)
 
   const deviceUseList = computed(() => (id) => {
     return deviceList.value.find((item) => item.id == id)?.columns?.map((item) => item.use)
@@ -69,7 +68,7 @@ export default defineStore(storeName, () => {
     getDeviceIcon,
     useGetDeviceListSync,
     useDeviceItemChange,
-    useDeviceItemSync,
+    useGetDeviceItem,
     reset,
   }
 })

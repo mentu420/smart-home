@@ -12,16 +12,24 @@ import houseStore from '@/store/houseStore'
 
 defineOptions({ name: 'SmartDeviceInfo' })
 
+const useDeviceStore = deviceStore()
+
 const { roomList } = storeToRefs(houseStore())
+const { deviceList } = storeToRefs(useDeviceStore)
 
 const route = useRoute()
-const router = useRouter()
-const deviceName = ref('')
-const checked = ref(true)
 const showPicker = ref(false)
 const showForm = ref(false)
 const loading = ref(false)
-const rId = ref('') //房间编号
+const rId = ref(route.query.rId) //房间编号
+const deviceItem = computed(() => useDeviceStore.useGetDeviceItem(route.query.id))
+const roomName = computed(() => roomList.value.find((item) => item.id == rId.value)?.label)
+const checked = computed({
+  get: () => deviceItem.value.collect == 1,
+  set: (value) => {
+    useDeviceStore.useDeviceItemChange({ ...deviceItem.value, collect: value ? 1 : 0 })
+  },
+})
 
 const columns = computed(() => {
   const { useGetFloorTree } = houseStore()
@@ -49,24 +57,36 @@ const onSubmit = async () => {
     loading.value = true
     await setDeviceList({
       params: { op: 3 },
-      data: { bianhao: route.query.id, mingcheng: deviceName.value },
+      data: {
+        bianhao: route.query.id,
+        mingcheng: deviceItem.value.label,
+      },
     })
     const { useDeviceItemChange } = deviceStore()
-    useDeviceItemChange({ id: route.query.id, label: deviceName.value })
+    useDeviceItemChange({
+      id: route.query.id,
+      label: deviceItem.value.label,
+    })
     showForm.value = false
   } finally {
     loading.value = false
   }
 }
 
-const roomName = computed(() => roomList.value.find((item) => item.id == rId.value)?.label)
-
-const init = () => {
-  deviceName.value = route.query.name
-  rId.value = route.query.rId
+const onCollectChange = async (value) => {
+  try {
+    loading.value = true
+    await setDeviceList({
+      params: { op: 4 },
+      data: {
+        bianhao: route.query.id,
+        shouye: value ? 1 : 0,
+      },
+    })
+  } finally {
+    loading.value = false
+  }
 }
-
-init()
 </script>
 
 <template>
@@ -74,10 +94,10 @@ init()
     <HeaderNavbar title="设置" />
     <section class="m-4 overflow-hidden rounded-xl">
       <van-cell-group>
-        <van-cell title="设备名称" :value="deviceName" is-link @click="showForm = true" />
+        <van-cell title="设备名称" :value="deviceItem?.label" is-link @click="showForm = true" />
         <van-cell title="所属房间" :value="roomName" is-link @click="showPicker = true" />
         <van-cell center title="常用设备">
-          <van-switch v-model="checked" />
+          <van-switch v-model="checked" :loading="loading" @change="onCollectChange" />
         </van-cell>
       </van-cell-group>
     </section>
@@ -91,7 +111,7 @@ init()
     <van-popup v-model:show="showForm" round teleport="body" position="center" closeable>
       <van-form class="p-4" @submit="onSubmit">
         <van-field
-          v-model.trim="deviceName"
+          v-model.trim="deviceItem.label"
           name="label"
           label="房间名称"
           placeholder="请填写房间名称"

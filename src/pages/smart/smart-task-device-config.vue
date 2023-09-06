@@ -3,6 +3,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
+import { TriggerLamp, TriggerCurtain, TriggerAirCooler } from '@/components/trigger/'
 
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
