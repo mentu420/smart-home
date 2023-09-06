@@ -237,9 +237,9 @@ const goAddDevice = () => router.push({ path: '/house-ddd-device' })
                     v-for="commonItem in collectItem.data"
                     :key="commonItem.id"
                   >
-                    <div v-if="collectItem.id == 0" class="space-x-2 text-white">
-                      <label>{{ commonItem.label }}</label>
-                    </div>
+                    <label>
+                      {{ commonItem.label }}
+                    </label>
                   </component>
                 </div>
               </template>

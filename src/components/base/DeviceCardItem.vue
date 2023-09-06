@@ -31,7 +31,9 @@ const openConfig = () => emits('click-right-icon')
         <IconFont class="text-gray-300 text-[10px]" icon="more-round" @click.stop="openConfig" />
       </slot>
     </div>
-    <div>{{ props.label }}</div>
+    <slot>
+      <div>{{ props.label }}</div>
+    </slot>
     <div class="text-sm text-gray-400">{{ ['关', '开', '离线'][props.status] }}</div>
   </div>
 </template>
