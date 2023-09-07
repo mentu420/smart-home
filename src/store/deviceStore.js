@@ -48,7 +48,7 @@ export default defineStore(storeName, () => {
     return deviceList.value.find((item) => item.id == id)?.columns?.map((item) => item.use)
   })
 
-  // 异步变更单设备数据
+  // 变更单设备数据
   const useDeviceItemChange = (payload) => {
     deviceList.value = deviceList.value.map((deviceItem) => {
       if (deviceItem.id == payload.id) {

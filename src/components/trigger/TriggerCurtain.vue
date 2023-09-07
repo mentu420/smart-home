@@ -2,6 +2,8 @@
 import { ref, computed, watch } from 'vue'
 
 import deviceStore from '@/store/deviceStore'
+import { debounce } from '@/utils/common'
+
 const { useGetDeviceItem, deviceUseList } = deviceStore()
 
 const props = defineProps({
@@ -11,84 +13,77 @@ const props = defineProps({
   },
 })
 
-const deviceItem = ref({})
+const emits = defineEmits(['change'])
 
-const degree = ref(0)
+const min = ref(0)
+const max = ref(100)
+
+const deviceItem = computed(() => useGetDeviceItem(props.id), {
+  onTrack(e) {
+    const { columns = [] } = e.target
+    if (columns.length == 0) return
+    const { useValueRange = '0,100' } = columns.find((item) => item.use == 'percent') || {}
+    const [minValue, maxValue] = useValueRange.split(',')
+    min.value = minValue
+    max.value = maxValue
+  },
+  onTrigger(e) {
+    console.log('onTrigger', e)
+  },
+})
+const config = ref({ degree: 0, stop: true, on: false, off: false })
 
 const theme = '#e39334'
-const pause = ref(true)
-const open = ref(false)
-const close = ref(false)
+
+const onDeviceChange = debounce(() => {
+  emits('change', config.value)
+}, 500)
 
 const toggle = () => {
-  pause.value = true
-  open.value = false
-  close.value = false
+  config.value = { ...config.value, stop: true, on: false, off: false }
+  onDeviceChange()
 }
 
 const onLower = () => {
-  pause.value = false
-  close.value = true
-  open.value = false
+  config.value = { ...config.value, stop: false, on: false, off: true }
+  onDeviceChange()
 }
 
 const onIncrease = () => {
-  pause.value = false
-  open.value = true
-  close.value = false
+  config.value = { ...config.value, stop: false, on: true, off: false }
+  onDeviceChange()
 }
 
-watch(
-  () => props.id,
-  async (val) => {
-    if (!val) return
-    deviceItem.value = await useGetDeviceItem(val)
-  },
-  {
-    immediate: true,
-  }
-)
+const onSliderChange = (value) => {
+  config.value = { ...config.value, degree: value }
+  onDeviceChange()
+}
 </script>
 
 <template>
   <van-cell-group style="background: transparent" inset :border="false">
     <van-cell class="mt-4 rounded-xl" center :border="false">
       <template #icon>
-        <span
-          class="flex h-8 w-8 items-center justify-center rounded-full"
-          :class="{ 'bg-gray-400': !close, 'bg-primary': close }"
-        >
-          <iconpark-icon
-            ref="iconRef"
-            size="1.2em"
-            name="tubiao-chuanglian"
-            color="#fff"
-            @click="onLower"
-          ></iconpark-icon>
-        </span>
+        <IconFont
+          :class="config.off ? 'text-primary' : 'text-gray-400'"
+          icon="curtain-off"
+          @click="onLower"
+        />
       </template>
       <div class="flex items-center justify-center leading-none">
-        <IconPark
-          :type="pause ? 'pause-one' : 'play'"
-          theme="filled"
-          size="2.5em"
-          :fill="pause ? '#969799' : theme"
+        <IconFont
+          :class="config.stop ? 'text-primary' : 'text-gray-400'"
+          icon="stop"
           @click="toggle"
         />
       </div>
+
       <template #right-icon>
-        <span
-          class="flex h-8 w-8 items-center justify-center rounded-full"
-          :class="{ 'bg-gray-400': !open, 'bg-primary': open }"
-        >
-          <iconpark-icon
-            ref="iconRef"
-            size="1.2em"
-            name="chuanglianguanbi"
-            color="#fff"
-            @click="onIncrease"
-          ></iconpark-icon>
-        </span>
+        <IconFont
+          :class="config.on ? 'text-primary' : 'text-gray-400'"
+          icon="curtain-on"
+          @click="onIncrease"
+        />
       </template>
     </van-cell>
     <van-cell
@@ -96,12 +91,12 @@ watch(
       class="mt-4 rounded-xl"
       center
       title="开合度"
-      :label="`${degree}%`"
+      :label="`${config.degree}%`"
       :border="false"
       title-style="flex:0 0 auto"
     >
       <div class="h-10 p-4 pl-8">
-        <van-slider v-model="degree" />
+        <van-slider v-model="config.degree" :min="min" :max="max" @change="onSliderChange" />
       </div>
     </van-cell>
   </van-cell-group>
