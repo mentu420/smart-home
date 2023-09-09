@@ -51,7 +51,7 @@
           @animationend="togglePicker"
           @click="selectColor"
         >
-          <slot :angle="angle">
+          <slot :angle="angle" :ratio="ratio">
             <div
               class="rcp__ripple"
               :class="{ rippling: isRippling }"
@@ -142,6 +142,14 @@ export default {
       type: String,
       default: 'color well',
     },
+    min: {
+      type: [String, Number],
+      default: 0,
+    },
+    max: {
+      type: [String, Number],
+      default: 100,
+    },
   },
   emits: ['select', 'input', 'change'],
   setup(props, { emit }) {
@@ -153,8 +161,8 @@ export default {
     // instance values
     let rcp = null
     // state
-    const initialAngle = hue.value.valuetext + 'deg'
-    const angle = ref(hue.value.valuetext)
+    const initialAngle = hue.value + 'deg'
+    const angle = ref(hue.value)
     const isPaletteIn = ref(!initiallyCollapsed.value)
     const isKnobIn = ref(!initiallyCollapsed.value)
     const isPressed = ref(false)
@@ -182,6 +190,11 @@ export default {
       }
     )
 
+    // 根据角度进行最大最小值计算：90度表示最高100，270度表示最低0 数值 = (角度 - 270) / 180 * 100
+    const ratio = computed(() => {
+      return Math.abs(((angle.value == 0 ? 360 : angle.value - 270) / 180) * 100).toFixed()
+    })
+
     // ignore testing code that will be removed by dead code elimination for production
     // istanbul ignore next
     if (props.initiallyCollapsed && props.variant === 'persistent') {
@@ -206,7 +219,7 @@ export default {
             },
             onDragStop() {
               isDragging.value = false
-              emit('change', angle.value)
+              emit('change', angle.value, ratio.value)
             },
           })
         })
@@ -234,7 +247,7 @@ export default {
 
       angle.value = rcp.angle
       emit('input', angle.value)
-      emit('change', angle.value)
+      emit('change', angle.value, ratio.value)
     }
 
     const onScroll = (ev) => {
@@ -250,7 +263,7 @@ export default {
 
       angle.value = rcp.angle
       emit('input', angle.value)
-      emit('change', angle.value)
+      emit('change', angle.value, ratio.value)
     }
 
     const selectColor = () => {
@@ -300,6 +313,7 @@ export default {
       // state
       initialAngle,
       angle,
+      ratio,
       isPaletteIn,
       isKnobIn,
       isDragging,

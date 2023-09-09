@@ -88,11 +88,8 @@ const onSave = () => {
       </ul>
     </van-popup>
     <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
-      <template #default="{ angle }">
-        <div>
-          <p>颜色</p>
-          <p>{{ Math.round(angle) }}</p>
-        </div>
+      <template #default="{ ratio }">
+        <p>{{ ratio }}</p>
       </template>
     </ColorPicker>
   </div>
