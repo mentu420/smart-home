@@ -231,6 +231,23 @@ export default {
       // the Rorator module already has an extensive test suite
       // istanbul ignore next
     })
+    //三个参数：红色值（r）、绿色值（g）和蓝色值（b）
+    const rgbToHex = (r, g, b) => {
+      return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+    }
+    //十六进制格式的颜色值转换为红绿蓝值
+    const hexToRgb = (hex) => {
+      // 去除可能存在的 # 符号
+      hex = hex.replace('#', '')
+
+      // 将十六进制颜色值分割成红绿蓝三个部分
+      var r = parseInt(hex.substring(0, 2), 16)
+      var g = parseInt(hex.substring(2, 4), 16)
+      var b = parseInt(hex.substring(4, 6), 16)
+
+      // 返回红绿蓝值对象
+      return { r, g, b }
+    }
 
     onBeforeUnmount(() => {
       if (!rcp) return
