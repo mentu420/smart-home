@@ -94,12 +94,12 @@ watch(
       </van-cell>
     </van-cell-group>
     <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
-      <template #default="{ angle }">
+      <!-- <template #default="{ angle }">
         <div>
           <p>颜色</p>
           <p>{{ Math.round(angle) }}</p>
         </div>
-      </template>
+      </template> -->
     </ColorPicker>
   </div>
 </template>

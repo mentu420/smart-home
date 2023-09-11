@@ -55,7 +55,7 @@
             <div
               class="rcp__ripple"
               :class="{ rippling: isRippling }"
-              :style="{ borderColor: color }"
+              :style="{ borderColor: color, backgroundColor: color }"
             ></div>
           </slot>
         </button>
@@ -88,7 +88,7 @@ export default {
     },
     gradientType: {
       type: String,
-      default: 'conic', //圆锥渐变
+      default: 'linear', //
     },
     hue: {
       type: Number,
@@ -169,9 +169,56 @@ export default {
     const isRippling = ref(false)
     const isDragging = ref(false)
 
-    const color = computed(
-      () => `hsla(${angle.value}, ${props.saturation}%, ${props.luminosity}%, ${props.alpha})`
-    )
+    const drawGradientCircle = (gradientType, colors, angle) => {
+      const canvas = document.createElement('canvas')
+      canvas.width = 400
+      canvas.height = 400
+      // document.body.appendChild(canvas)
+      const ctx = canvas.getContext('2d')
+      const centerX = canvas.width / 2
+      const centerY = canvas.height / 2
+      const radius = Math.min(centerX, centerY) - 10
+      const startAngle = -Math.PI / 2
+      const endAngle = startAngle + Math.PI * 2
+
+      // 创建渐变色
+      let gradient
+      if (gradientType === 'linear') {
+        gradient = ctx.createLinearGradient(centerX - radius, centerY, centerX + radius, centerY)
+      } else if (gradientType === 'radial') {
+        gradient = ctx.createRadialGradient(centerX, centerY, radius / 2, centerX, centerY, radius)
+      }
+
+      colors.forEach((color, index) => {
+        gradient.addColorStop(index / (colors.length - 1), color)
+      })
+
+      // 绘制圆环
+      ctx.beginPath()
+      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
+      ctx.closePath()
+
+      ctx.fillStyle = gradient
+      ctx.fill()
+
+      const radians = ((angle - 90) * Math.PI) / 180 // 将角度转化为弧度
+      const x = canvas.width / 2 + Math.cos(radians) * (canvas.width / 2) // 计算点的x坐标
+      const y = canvas.height / 2 + Math.sin(radians) * (canvas.height / 2) // 计算点的y坐标
+      const imageData = ctx.getImageData(x, y, 1, 1)
+      const color = `rgb(${imageData.data[0]}, ${imageData.data[1]}, ${imageData.data[2]})`
+
+      return color
+    }
+
+    // const color = computed(
+    //   () => `hsla(${angle.value}, ${props.saturation}%, ${props.luminosity}%, ${props.alpha})`
+    // )
+
+    const color = computed(() => {
+      const hexColorRegex = /^#([0-9a-fA-F]{3}){1,2}$/
+      const colors = props.gradientColors.filter((color) => hexColorRegex.test(color))
+      return drawGradientCircle(props.gradientType, colors, angle.value)
+    })
 
     const rcpStyles = computed(() => {
       return { background: `${props.gradientType}-gradient(${props.gradientColors.join(',')})` }
@@ -264,7 +311,7 @@ export default {
 
       angle.value = rcp.angle
       emit('input', angle.value)
-      emit('change', angle.value, ratio.value)
+      emit('change', angle.value, ratio.value, color.value)
     }
 
     const onScroll = (ev) => {
@@ -280,7 +327,7 @@ export default {
 
       angle.value = rcp.angle
       emit('input', angle.value)
-      emit('change', angle.value, ratio.value)
+      emit('change', angle.value, ratio.value, color.value)
     }
 
     const selectColor = () => {
