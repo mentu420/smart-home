@@ -85,9 +85,12 @@ const toggle = () => {
       </van-cell>
     </van-cell-group>
     <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
-      <template #default="{ angle }">
-        {{ angle }}
-      </template>
+      <!-- <template #default="{ angle }">
+        <div>
+          <p>颜色</p>
+          <p>{{ Math.round(angle) }}</p>
+        </div>
+      </template> -->
     </ColorPicker>
   </div>
 </template>

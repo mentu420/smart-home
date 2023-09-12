@@ -51,11 +51,11 @@
           @animationend="togglePicker"
           @click="selectColor"
         >
-          <slot :angle="angle">
+          <slot :angle="angle" :ratio="ratio">
             <div
               class="rcp__ripple"
               :class="{ rippling: isRippling }"
-              :style="{ borderColor: color }"
+              :style="{ borderColor: color, backgroundColor: color }"
             ></div>
           </slot>
         </button>
@@ -88,7 +88,7 @@ export default {
     },
     gradientType: {
       type: String,
-      default: 'conic', //圆锥渐变
+      default: 'linear', //
     },
     hue: {
       type: Number,
@@ -142,6 +142,14 @@ export default {
       type: String,
       default: 'color well',
     },
+    min: {
+      type: [String, Number],
+      default: 0,
+    },
+    max: {
+      type: [String, Number],
+      default: 100,
+    },
   },
   emits: ['select', 'input', 'change'],
   setup(props, { emit }) {
@@ -153,17 +161,64 @@ export default {
     // instance values
     let rcp = null
     // state
-    const initialAngle = hue.value.valuetext + 'deg'
-    const angle = ref(hue.value.valuetext)
+    const initialAngle = hue.value + 'deg'
+    const angle = ref(hue.value)
     const isPaletteIn = ref(!initiallyCollapsed.value)
     const isKnobIn = ref(!initiallyCollapsed.value)
     const isPressed = ref(false)
     const isRippling = ref(false)
     const isDragging = ref(false)
 
-    const color = computed(
-      () => `hsla(${angle.value}, ${props.saturation}%, ${props.luminosity}%, ${props.alpha})`
-    )
+    const drawGradientCircle = (gradientType, colors, angle) => {
+      const canvas = document.createElement('canvas')
+      canvas.width = 400
+      canvas.height = 400
+      // document.body.appendChild(canvas)
+      const ctx = canvas.getContext('2d')
+      const centerX = canvas.width / 2
+      const centerY = canvas.height / 2
+      const radius = Math.min(centerX, centerY) - 10
+      const startAngle = -Math.PI / 2
+      const endAngle = startAngle + Math.PI * 2
+
+      // 创建渐变色
+      let gradient
+      if (gradientType === 'linear') {
+        gradient = ctx.createLinearGradient(centerX - radius, centerY, centerX + radius, centerY)
+      } else if (gradientType === 'radial') {
+        gradient = ctx.createRadialGradient(centerX, centerY, radius / 2, centerX, centerY, radius)
+      }
+
+      colors.forEach((color, index) => {
+        gradient.addColorStop(index / (colors.length - 1), color)
+      })
+
+      // 绘制圆环
+      ctx.beginPath()
+      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
+      ctx.closePath()
+
+      ctx.fillStyle = gradient
+      ctx.fill()
+
+      const radians = ((angle - 90) * Math.PI) / 180 // 将角度转化为弧度
+      const x = canvas.width / 2 + Math.cos(radians) * (canvas.width / 2) // 计算点的x坐标
+      const y = canvas.height / 2 + Math.sin(radians) * (canvas.height / 2) // 计算点的y坐标
+      const imageData = ctx.getImageData(x, y, 1, 1)
+      const color = `rgb(${imageData.data[0]}, ${imageData.data[1]}, ${imageData.data[2]})`
+
+      return color
+    }
+
+    // const color = computed(
+    //   () => `hsla(${angle.value}, ${props.saturation}%, ${props.luminosity}%, ${props.alpha})`
+    // )
+
+    const color = computed(() => {
+      const hexColorRegex = /^#([0-9a-fA-F]{3}){1,2}$/
+      const colors = props.gradientColors.filter((color) => hexColorRegex.test(color))
+      return drawGradientCircle(props.gradientType, colors, angle.value)
+    })
 
     const rcpStyles = computed(() => {
       return { background: `${props.gradientType}-gradient(${props.gradientColors.join(',')})` }
@@ -181,6 +236,11 @@ export default {
         rcp.angle = value
       }
     )
+
+    // 根据角度进行最大最小值计算：90度表示最高100，270度表示最低0 数值 = (角度 - 270) / 180 * 100
+    const ratio = computed(() => {
+      return Math.abs(((angle.value == 0 ? 360 : angle.value - 270) / 180) * 100).toFixed()
+    })
 
     // ignore testing code that will be removed by dead code elimination for production
     // istanbul ignore next
@@ -206,7 +266,7 @@ export default {
             },
             onDragStop() {
               isDragging.value = false
-              emit('change', angle.value)
+              emit('change', angle.value, ratio.value)
             },
           })
         })
@@ -218,6 +278,23 @@ export default {
       // the Rorator module already has an extensive test suite
       // istanbul ignore next
     })
+    //三个参数：红色值（r）、绿色值（g）和蓝色值（b）
+    const rgbToHex = (r, g, b) => {
+      return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+    }
+    //十六进制格式的颜色值转换为红绿蓝值
+    const hexToRgb = (hex) => {
+      // 去除可能存在的 # 符号
+      hex = hex.replace('#', '')
+
+      // 将十六进制颜色值分割成红绿蓝三个部分
+      var r = parseInt(hex.substring(0, 2), 16)
+      var g = parseInt(hex.substring(2, 4), 16)
+      var b = parseInt(hex.substring(4, 6), 16)
+
+      // 返回红绿蓝值对象
+      return { r, g, b }
+    }
 
     onBeforeUnmount(() => {
       if (!rcp) return
@@ -234,7 +311,7 @@ export default {
 
       angle.value = rcp.angle
       emit('input', angle.value)
-      emit('change', angle.value)
+      emit('change', angle.value, ratio.value, color.value)
     }
 
     const onScroll = (ev) => {
@@ -250,7 +327,7 @@ export default {
 
       angle.value = rcp.angle
       emit('input', angle.value)
-      emit('change', angle.value)
+      emit('change', angle.value, ratio.value, color.value)
     }
 
     const selectColor = () => {
@@ -300,6 +377,7 @@ export default {
       // state
       initialAngle,
       angle,
+      ratio,
       isPaletteIn,
       isKnobIn,
       isDragging,
