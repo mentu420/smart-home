@@ -15,7 +15,9 @@ const props = defineProps({
 
 const emits = defineEmits(['update:modelValue', 'update:hue'])
 
-const deviceItem = ref(null)
+const deviceItem = computed(() => useGetDeviceItem(props.id))
+
+const config = ref({ brightness: 0, hue: 90 })
 
 const brightness = ref(0)
 const hue = ref(100)
@@ -35,17 +37,6 @@ const colorConfig = reactive({
 const toggle = () => {
   brightness.value = brightness.value == 0 ? 100 : 0
 }
-
-watch(
-  () => props.id,
-  async (val) => {
-    if (!val) return
-    deviceItem.value = await useGetDeviceItem(val)
-  },
-  {
-    immediate: true,
-  }
-)
 </script>
 
 <template>
@@ -59,7 +50,7 @@ watch(
       >
         <template #right-icon>
           <IconFont
-            :class="status ? 'text-primary' : 'text-gray-300'"
+            :class="status ? 'text-primary' : 'text-gray-400'"
             icon="switch"
             @click="toggle"
           />
@@ -95,10 +86,7 @@ watch(
     </van-cell-group>
     <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
       <template #default="{ angle }">
-        <div>
-          <p>颜色</p>
-          <p>{{ Math.round(angle) }}</p>
-        </div>
+        {{ angle }}
       </template>
     </ColorPicker>
   </div>
