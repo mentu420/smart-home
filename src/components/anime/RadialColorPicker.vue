@@ -68,6 +68,8 @@
 import Rotator from '@radial-color-picker/rotator'
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, toRefs } from 'vue'
 
+import { debounce } from '@/utils/common'
+
 const keys = {
   ArrowUp: (oldAngle, step) => oldAngle + step,
   ArrowRight: (oldAngle, step) => oldAngle + step,
@@ -250,6 +252,16 @@ export default {
       )
     }
 
+    const onInput = () => {
+      const values = { angle: angle.value, ratio: ratio.value, color: color.value }
+      emit('input', values)
+    }
+
+    const onChange = debounce(() => {
+      const values = { angle: angle.value, ratio: ratio.value, color: color.value }
+      emit('change', values)
+    }, 350)
+
     watch(
       () => show.value,
       (val) => {
@@ -259,14 +271,14 @@ export default {
             angle: angle.value,
             onRotate(hue) {
               angle.value = hue
-              emit('input', angle.value)
+              onInput()
             },
             onDragStart() {
               isDragging.value = true
             },
             onDragStop() {
               isDragging.value = false
-              emit('change', angle.value, ratio.value)
+              onChange()
             },
           })
         })
@@ -310,8 +322,8 @@ export default {
       rcp.angle = keys[ev.key](rcp.angle, props.step)
 
       angle.value = rcp.angle
-      emit('input', angle.value)
-      emit('change', angle.value, ratio.value, color.value)
+      onInput()
+      onChange()
     }
 
     const onScroll = (ev) => {
@@ -326,8 +338,8 @@ export default {
       }
 
       angle.value = rcp.angle
-      emit('input', angle.value)
-      emit('change', angle.value, ratio.value, color.value)
+      onInput()
+      onChange()
     }
 
     const selectColor = () => {

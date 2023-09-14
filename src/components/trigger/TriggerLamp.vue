@@ -4,7 +4,7 @@ import { ref, reactive, computed, toRefs, watch } from 'vue'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import deviceStore from '@/store/deviceStore'
-const { useGetDeviceItem, deviceUseList } = deviceStore()
+const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
 
 const props = defineProps({
   id: {
@@ -17,7 +17,7 @@ const emits = defineEmits(['update:modelValue', 'update:hue'])
 
 const deviceItem = computed(() => useGetDeviceItem(props.id))
 
-const config = ref({ brightness: 0, hue: 90 })
+const config = ref({ brightness: 0, hue: 90, color: '#fff' })
 
 const brightness = ref(0)
 const hue = ref(100)
@@ -36,6 +36,17 @@ const colorConfig = reactive({
 
 const toggle = () => {
   brightness.value = brightness.value == 0 ? 100 : 0
+  //useDeviceItemChange({...deviceItem.value})
+}
+
+const onColorPickerChange = (values) => {
+  console.log('onColorPickerChange', values)
+  config.value.color = values.color
+  // useDeviceItemChange({...deviceItem.value})
+}
+
+const onBrightnessChange = (value) => {
+  // useDeviceItemChange({...deviceItem.value})
 }
 </script>
 
@@ -66,7 +77,7 @@ const toggle = () => {
         title-style="flex:0 0 auto"
       >
         <div class="h-10 p-4 pl-8">
-          <van-slider v-model="brightness" />
+          <van-slider v-model="brightness" @change="onBrightnessChange" />
         </div>
       </van-cell>
       <van-cell
@@ -80,11 +91,11 @@ const toggle = () => {
         @click="colorPickerRef.open()"
       >
         <template #right-icon>
-          <span class="h-6 w-6 rounded-full bg-yellow-400"></span>
+          <span class="h-6 w-6 rounded-full" :style="{ backgroundColor: config.color }"></span>
         </template>
       </van-cell>
     </van-cell-group>
-    <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
+    <ColorPicker ref="colorPickerRef" v-bind="colorConfig" @change="onColorPickerChange">
       <!-- <template #default="{ angle }">
         <div>
           <p>颜色</p>
