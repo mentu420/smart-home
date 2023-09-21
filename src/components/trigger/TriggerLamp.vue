@@ -23,7 +23,19 @@ const brightness = ref(0)
 const hue = ref(100)
 const colorPickerRef = ref(null)
 
+// 色温
+const COLORTEMPERATURE = 'colourTemperature'
+// 亮度
+const BRIGHTNESS = 'brightness'
+
 const status = computed(() => (brightness.value == 0 ? false : true))
+const colorTemperatureRange = computed(() => {
+  if (!deviceUseList(props.id)?.includes(COLORTEMPERATURE)) return [0, 100]
+  return deviceItem.value.columns
+    .find((item) => item.use === COLORTEMPERATURE)
+    .useValueRange.split(',')
+    .map((item) => Number(item))
+})
 
 const colorConfig = reactive({
   hue: 90,
@@ -52,6 +64,7 @@ const onBrightnessChange = (value) => {
 
 <template>
   <div>
+    {{ colorTemperatureRange }}
     <van-cell-group style="background: transparent" inset :border="false">
       <van-cell
         class="mt-4 rounded-xl"
@@ -68,7 +81,7 @@ const onBrightnessChange = (value) => {
         </template>
       </van-cell>
       <van-cell
-        v-if="deviceUseList(props.id)?.includes('brightness')"
+        v-if="deviceUseList(props.id)?.includes(BRIGHTNESS)"
         class="mt-4 rounded-xl"
         center
         title="亮度"
@@ -81,7 +94,7 @@ const onBrightnessChange = (value) => {
         </div>
       </van-cell>
       <van-cell
-        v-if="deviceUseList(props.id)?.includes('colourTemperature')"
+        v-if="deviceUseList(props.id)?.includes(COLORTEMPERATURE)"
         class="mt-4 rounded-xl"
         center
         title="色温"
@@ -95,13 +108,18 @@ const onBrightnessChange = (value) => {
         </template>
       </van-cell>
     </van-cell-group>
-    <ColorPicker ref="colorPickerRef" v-bind="colorConfig" @change="onColorPickerChange">
-      <!-- <template #default="{ angle }">
+    <ColorPicker
+      ref="colorPickerRef"
+      v-bind="colorConfig"
+      :min="colorTemperatureRange[0]"
+      :max="colorTemperatureRange[1]"
+      @change="onColorPickerChange"
+    >
+      <template #default="{ ratio }">
         <div>
-          <p>颜色</p>
-          <p>{{ Math.round(angle) }}</p>
+          <p>{{ Math.round(ratio) }}</p>
         </div>
-      </template> -->
+      </template>
     </ColorPicker>
   </div>
 </template>

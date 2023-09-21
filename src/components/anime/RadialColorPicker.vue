@@ -241,6 +241,7 @@ export default {
 
     // 根据角度进行最大最小值计算：90度表示最高100，270度表示最低0 数值 = (角度 - 270) / 180 * 100
     const ratio = computed(() => {
+      console.log(((angle.value == 0 ? 360 : angle.value - 270) / 180) * 100)
       return Math.abs(((angle.value == 0 ? 360 : angle.value - 270) / 180) * 100).toFixed()
     })
 
