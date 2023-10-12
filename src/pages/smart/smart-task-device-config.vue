@@ -9,7 +9,6 @@ import sceneStore from '@/store/sceneStore'
 
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
-const { useGetDeviceItem, deviceUseList } = deviceStore()
 const { sceneCreateItem } = storeToRefs(sceneStore())
 
 const route = useRoute()

@@ -22,7 +22,7 @@ const props = defineProps({
 const emits = defineEmits(['change'])
 
 //温度、风俗、模式
-const config = ref({ temp: 26, speed: 'auto', mode: 'auto' })
+const config = ref({ temp: 26, fan: 'auto', mode: 'auto' })
 const max = ref(32)
 const min = ref(16)
 const showSpeed = ref(false)
@@ -30,7 +30,7 @@ const showMode = ref(false)
 const modeRef = ref(null)
 const deviceItem = computed(() => useGetDeviceItem(props.id), {
   onTrack(e) {
-    const { columns = [] } = e.target
+    const { columns = [], modeList = [] } = e.target
     if (columns.length == 0) return
     const { useValueRange = '16,32' } = columns.find((item) => item.use == 'temperature') || {}
     const [minValue, maxValue] = useValueRange.split(',')
@@ -50,17 +50,23 @@ const currentModeItem = computed(() =>
   modeActions.value?.find((item) => item.useEn == config.value.mode)
 )
 const currentSpeedItem = computed(() =>
-  speedActions.value?.find((item) => item.useEn == config.value.speed)
+  speedActions.value?.find((item) => item.useEn == config.value.fan)
 )
 
 const tempCopy = ref(config.value.temp)
 const status = ref(false) //空调开关
 
 const onDeviceChange = debounce(() => {
+  const { modeList } = deviceItem.value
+  //设备控制数据
+  const newModeList = modeList.map((modeItem) => {
+    return { ...modeItem, modeValue: config.value[modeItem.use] }
+  })
+  console.log('newModeList', newModeList)
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value })
   } else {
-    emits('change', { ...deviceItem.value }, config.value)
+    // emits('change', { ...deviceItem.value }, config.value)
   }
 }, 500)
 
@@ -85,7 +91,7 @@ const onRise = () => {
 
 const onSpeedSelect = (action) => {
   if (!status.value) status.value = true
-  config.value = { ...config.value, speed: action.useEn }
+  config.value = { ...config.value, fan: action.useEn }
   showSpeed.value = false
   onDeviceChange()
 }

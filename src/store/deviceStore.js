@@ -20,6 +20,12 @@ export default defineStore(storeName, () => {
   // 获取设备图片
   const getDeviceIcon = (classify) => CLASSIFY_ICON[classify]
 
+  const deviceUseList = computed(() => (id) => {
+    return [
+      ...new Set(deviceList.value.find((item) => item.id == id)?.columns?.map((item) => item.use)),
+    ]
+  })
+
   //异步获取设备列表
   const useGetDeviceListSync = async (reload = false) => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
@@ -27,15 +33,28 @@ export default defineStore(storeName, () => {
     deviceList.value = data
       .map((item) => {
         const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.xiaoleixing)
+        const useList = [...new Set(columns?.map((item) => item.use))]
         return {
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
+          // 记录暑假原始值
           columns,
+          // 记录当前设备模块控制值
+          modeList: useList.map((use) => {
+            const useColumns = columns.filter((item) => item.use == use)
+            return {
+              label: useColumns[0].useName, //当前模块名称
+              use, // 当前模块标识
+              useColumns, // 当前模块的选项
+              modeValue: '', // 当前模块控制值
+              modeStatus: '', //当前模块控制状态
+            }
+          }),
           label: item.mingcheng,
           id: item.bianhao,
           rId: item.fangjianbianhao, //房间编号
           classify: item.daleixing,
           sort: item.paixu,
-          collect: item.shouye,
+          collect: item.shouye, // 首页是否收藏
         }
       })
       .sort((a, b) => a.sort - b.sort)
@@ -43,12 +62,6 @@ export default defineStore(storeName, () => {
   }
 
   const useGetDeviceItem = (id) => deviceList.value.find((item) => item.id == id)
-
-  const deviceUseList = computed(() => (id) => {
-    return [
-      ...new Set(deviceList.value.find((item) => item.id == id)?.columns?.map((item) => item.use)),
-    ]
-  })
 
   // 变更单设备数据
   const useDeviceItemChange = (payload) => {

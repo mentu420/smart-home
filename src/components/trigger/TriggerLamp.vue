@@ -10,6 +10,9 @@ import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
 
+// 色温
+const COLORTEMPERATURE = 'colourTemperature'
+
 const props = defineProps({
   id: {
     type: String,
@@ -24,14 +27,20 @@ const props = defineProps({
 
 const emits = defineEmits(['update:modelValue', 'update:hue', 'change'])
 
+const colorConfig = reactive({
+  hue: 0,
+  saturation: 100,
+  luminosity: 50,
+  alpha: 1,
+  gradientColors: ['to top', '#FB8C1A', '#FAF6F7'],
+  gradientType: 'linear',
+})
+
 const deviceItem = computed(() => useGetDeviceItem(props.id))
 
-const config = ref({ brightness: 0, hue: 90, ratio: 1800, color: '#fff' })
+const config = ref({ brightness: 0, colourTemperature: 1800, color: '#fff' })
 
 const colorPickerRef = ref(null)
-
-// 色温
-const COLORTEMPERATURE = 'colourTemperature'
 
 const status = computed(() => (config.value.brightness == 0 ? false : true))
 
@@ -42,41 +51,21 @@ const colorTemperatureRange = computed(() => {
   )
 })
 
-const colorConfig = reactive({
-  hue: 0,
-  saturation: 100,
-  luminosity: 50,
-  alpha: 1,
-  gradientColors: ['to top', '#FB8C1A', '#FAF6F7'],
-  gradientType: 'linear',
-})
-
 const onDeviceChange = debounce(() => {
-  console.log(deviceItem.value.columns)
+  const { modeList } = deviceItem.value
+  //设备控制数据
+  const newModeList = modeList.map((modeItem) => {
+    return { ...modeItem, modeValue: config.value[modeItem.use] }
+  })
+  console.log('newModeList', newModeList)
   if (props.isUse) {
-    useDeviceItemChange({ ...deviceItem.value })
+    useDeviceItemChange({ ...deviceItem.value, modeList: newModeList })
   } else {
-    // 场景创建
-    const { getUseList } = useTrigger()
-    const useList = getUseList(props.id, deviceItem.value.columns).filter(
-      (item) => item.use != 'switch'
-    )
-    console.log('useList', useList)
-    const actions = status.value
-      ? [
-          {
-            ziyuanleixing: 1,
-            ziyuanbianhao: props.id,
-            yanshi: 0,
-            caozuo: {
-              shuxing: 'switch',
-              shuxingzhuangtai: 'off',
-              shuxingzhi: '',
-            },
-          },
-        ]
-      : []
-    emits('change', { ...deviceItem.value }, config.value)
+    const { getSceneActions } = useTrigger()
+    // 场景控制数据
+    const actions = getSceneActions(status, props.id, newModeList)
+
+    emits('change', actions, newModeList)
   }
 }, 500)
 
@@ -86,7 +75,7 @@ const toggle = () => {
 }
 
 const onColorPickerChange = ({ color, ratio }) => {
-  config.value = { ...config.value, color, ratio }
+  config.value = { ...config.value, colourTemperature: ratio, color }
   onDeviceChange()
 }
 </script>
@@ -126,7 +115,7 @@ const onColorPickerChange = ({ color, ratio }) => {
         class="mt-4 rounded-xl"
         center
         title="色温"
-        :label="`${config.ratio}K`"
+        :label="`${config.colourTemperature}K`"
         clickable
         :border="false"
         @click="colorPickerRef.open()"
