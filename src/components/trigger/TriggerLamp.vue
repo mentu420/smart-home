@@ -4,6 +4,10 @@ import { ref, reactive, computed, toRefs, watch } from 'vue'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import deviceStore from '@/store/deviceStore'
+import { debounce, stringToArray } from '@/utils/common'
+
+import { useTrigger } from './useTrigger'
+
 const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
 
 const props = defineProps({
@@ -24,19 +28,18 @@ const deviceItem = computed(() => useGetDeviceItem(props.id))
 
 const config = ref({ brightness: 0, hue: 90, ratio: 1800, color: '#fff' })
 
-const hue = ref(100)
 const colorPickerRef = ref(null)
 
 // 色温
 const COLORTEMPERATURE = 'colourTemperature'
 
 const status = computed(() => (config.value.brightness == 0 ? false : true))
+
 const colorTemperatureRange = computed(() => {
   if (!deviceUseList(props.id)?.includes(COLORTEMPERATURE)) return [0, 100]
-  return deviceItem.value.columns
-    .find((item) => item.use === COLORTEMPERATURE)
-    .useValueRange.split(',')
-    .map((item) => Number(item))
+  return stringToArray(
+    deviceItem.value.columns.find((item) => item.use === COLORTEMPERATURE).useValueRange
+  )
 })
 
 const colorConfig = reactive({
@@ -48,26 +51,43 @@ const colorConfig = reactive({
   gradientType: 'linear',
 })
 
-const onChange = () => {
+const onDeviceChange = debounce(() => {
+  console.log(deviceItem.value.columns)
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value })
   } else {
-    emits('change', config.value)
+    // 场景创建
+    const { getUseList } = useTrigger()
+    const useList = getUseList(props.id, deviceItem.value.columns).filter(
+      (item) => item.use != 'switch'
+    )
+    console.log('useList', useList)
+    const actions = status.value
+      ? [
+          {
+            ziyuanleixing: 1,
+            ziyuanbianhao: props.id,
+            yanshi: 0,
+            caozuo: {
+              shuxing: 'switch',
+              shuxingzhuangtai: 'off',
+              shuxingzhi: '',
+            },
+          },
+        ]
+      : []
+    emits('change', { ...deviceItem.value }, config.value)
   }
-}
+}, 500)
 
 const toggle = () => {
   config.value.brightness = config.value.brightness == 0 ? 100 : 0
-  onChange()
+  onDeviceChange()
 }
 
 const onColorPickerChange = ({ color, ratio }) => {
   config.value = { ...config.value, color, ratio }
-  onChange()
-}
-
-const onBrightnessChange = (value) => {
-  onChange()
+  onDeviceChange()
 }
 </script>
 
@@ -98,7 +118,7 @@ const onBrightnessChange = (value) => {
         title-style="flex:0 0 auto"
       >
         <div class="h-10 p-4 pl-8">
-          <van-slider v-model="config.brightness" @change="onBrightnessChange" />
+          <van-slider v-model="config.brightness" @change="onDeviceChange" />
         </div>
       </van-cell>
       <van-cell

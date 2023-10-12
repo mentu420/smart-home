@@ -366,6 +366,19 @@ export const getUrlQueryItem = (name, url) => {
   return results == null ? null : results[1]
 }
 
+export const stringToArray = (str, separators = [',', ';']) => {
+  if (Array.isArray(str)) {
+    return str
+  }
+  for (let i = 0; i < separators.length; i++) {
+    const separator = separators[i]
+    if ((str || '').includes(separator)) {
+      return str.split(separator)
+    }
+  }
+  return str ? [str] : []
+}
+
 // 16进制颜色值的正则
 export const colorRgba = (color, alpha = 0.5) => {
   const reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/

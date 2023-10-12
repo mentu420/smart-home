@@ -12,6 +12,11 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  // 是否作为触发器使用
+  isUse: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emits = defineEmits(['change'])
@@ -52,8 +57,11 @@ const tempCopy = ref(config.value.temp)
 const status = ref(false) //空调开关
 
 const onDeviceChange = debounce(() => {
-  emits('change', config.value)
-  console.log('debounce')
+  if (props.isUse) {
+    useDeviceItemChange({ ...deviceItem.value })
+  } else {
+    emits('change', { ...deviceItem.value }, config.value)
+  }
 }, 500)
 
 const setTemp = () =>

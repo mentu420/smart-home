@@ -4,12 +4,17 @@ import { ref, computed, watch } from 'vue'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
 
-const { useGetDeviceItem, deviceUseList } = deviceStore()
+const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
 
 const props = defineProps({
   id: {
     type: String,
     default: '',
+  },
+  // 是否作为触发器使用
+  isUse: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -36,7 +41,11 @@ const config = ref({ degree: 0, stop: true, on: false, off: false })
 const theme = '#e39334'
 
 const onDeviceChange = debounce(() => {
-  emits('change', config.value)
+  if (props.isUse) {
+    useDeviceItemChange({ ...deviceItem.value })
+  } else {
+    emits('change', { ...deviceItem.value }, config.value)
+  }
 }, 500)
 
 const toggle = () => {
