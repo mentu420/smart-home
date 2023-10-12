@@ -45,7 +45,9 @@ export default defineStore(storeName, () => {
   const useGetDeviceItem = (id) => deviceList.value.find((item) => item.id == id)
 
   const deviceUseList = computed(() => (id) => {
-    return deviceList.value.find((item) => item.id == id)?.columns?.map((item) => item.use)
+    return [
+      ...new Set(deviceList.value.find((item) => item.id == id)?.columns?.map((item) => item.use)),
+    ]
   })
 
   // 变更单设备数据

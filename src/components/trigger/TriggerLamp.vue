@@ -11,24 +11,26 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  // 是否作为触发器使用
+  isUse: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emits = defineEmits(['update:modelValue', 'update:hue'])
+const emits = defineEmits(['update:modelValue', 'update:hue', 'change'])
 
 const deviceItem = computed(() => useGetDeviceItem(props.id))
 
-const config = ref({ brightness: 0, hue: 90, color: '#fff' })
+const config = ref({ brightness: 0, hue: 90, ratio: 1800, color: '#fff' })
 
-const brightness = ref(0)
 const hue = ref(100)
 const colorPickerRef = ref(null)
 
 // 色温
 const COLORTEMPERATURE = 'colourTemperature'
-// 亮度
-const BRIGHTNESS = 'brightness'
 
-const status = computed(() => (brightness.value == 0 ? false : true))
+const status = computed(() => (config.value.brightness == 0 ? false : true))
 const colorTemperatureRange = computed(() => {
   if (!deviceUseList(props.id)?.includes(COLORTEMPERATURE)) return [0, 100]
   return deviceItem.value.columns
@@ -38,33 +40,39 @@ const colorTemperatureRange = computed(() => {
 })
 
 const colorConfig = reactive({
-  hue: 90,
+  hue: 0,
   saturation: 100,
   luminosity: 50,
   alpha: 1,
-  gradientColors: ['to right', '#FB8C1A', '#FAF6F7'],
+  gradientColors: ['to top', '#FB8C1A', '#FAF6F7'],
   gradientType: 'linear',
 })
 
-const toggle = () => {
-  brightness.value = brightness.value == 0 ? 100 : 0
-  //useDeviceItemChange({...deviceItem.value})
+const onChange = () => {
+  if (props.isUse) {
+    useDeviceItemChange({ ...deviceItem.value })
+  } else {
+    emits('change', config.value)
+  }
 }
 
-const onColorPickerChange = (values) => {
-  console.log('onColorPickerChange', values)
-  config.value.color = values.color
-  // useDeviceItemChange({...deviceItem.value})
+const toggle = () => {
+  config.value.brightness = config.value.brightness == 0 ? 100 : 0
+  onChange()
+}
+
+const onColorPickerChange = ({ color, ratio }) => {
+  config.value = { ...config.value, color, ratio }
+  onChange()
 }
 
 const onBrightnessChange = (value) => {
-  // useDeviceItemChange({...deviceItem.value})
+  onChange()
 }
 </script>
 
 <template>
   <div>
-    {{ colorTemperatureRange }}
     <van-cell-group style="background: transparent" inset :border="false">
       <van-cell
         class="mt-4 rounded-xl"
@@ -81,16 +89,16 @@ const onBrightnessChange = (value) => {
         </template>
       </van-cell>
       <van-cell
-        v-if="deviceUseList(props.id)?.includes(BRIGHTNESS)"
+        v-if="deviceUseList(props.id)?.includes('brightness')"
         class="mt-4 rounded-xl"
         center
         title="亮度"
-        :label="`${brightness}%`"
+        :label="`${config.brightness}%`"
         :border="false"
         title-style="flex:0 0 auto"
       >
         <div class="h-10 p-4 pl-8">
-          <van-slider v-model="brightness" @change="onBrightnessChange" />
+          <van-slider v-model="config.brightness" @change="onBrightnessChange" />
         </div>
       </van-cell>
       <van-cell
@@ -98,7 +106,7 @@ const onBrightnessChange = (value) => {
         class="mt-4 rounded-xl"
         center
         title="色温"
-        :label="`${hue}K`"
+        :label="`${config.ratio}K`"
         clickable
         :border="false"
         @click="colorPickerRef.open()"
@@ -115,11 +123,6 @@ const onBrightnessChange = (value) => {
       :max="colorTemperatureRange[1]"
       @change="onColorPickerChange"
     >
-      <template #default="{ ratio }">
-        <div>
-          <p>{{ Math.round(ratio) }}</p>
-        </div>
-      </template>
     </ColorPicker>
   </div>
 </template>

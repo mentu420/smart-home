@@ -41,9 +41,9 @@ init()
         fit="cover"
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
       />
-      <TriggerLamp v-if="route.query.classify == '100'" :id="route.query.id" />
-      <TriggerCurtain v-if="route.query.classify == '101'" :id="route.query.id" />
-      <TriggerAirCooler v-if="route.query.classify == '102'" :id="route.query.id" />
+      <TriggerLamp v-if="route.query.classify == '100'" :id="route.query.id" is-use />
+      <TriggerCurtain v-if="route.query.classify == '101'" :id="route.query.id" is-use />
+      <TriggerAirCooler v-if="route.query.classify == '102'" :id="route.query.id" is-use />
     </section>
   </div>
 </template>

@@ -1,4 +1,5 @@
 <script setup>
+import { useRect } from '@vant/use'
 import { ref, computed, watch, nextTick } from 'vue'
 
 import deviceStore from '@/store/deviceStore'
@@ -21,6 +22,7 @@ const max = ref(32)
 const min = ref(16)
 const showSpeed = ref(false)
 const showMode = ref(false)
+const modeRef = ref(null)
 const deviceItem = computed(() => useGetDeviceItem(props.id), {
   onTrack(e) {
     const { columns = [] } = e.target
@@ -86,6 +88,11 @@ const onModelSelect = (action) => {
   showMode.value = false
   onDeviceChange()
 }
+
+const placement = computed(() => {
+  if (!modeRef.value) return 'top'
+  return top > window.innerHeight / 2 ? 'top' : 'bottom'
+})
 </script>
 
 <template>
@@ -119,12 +126,12 @@ const onModelSelect = (action) => {
         <van-icon name="plus" size="20" @click="onRise" />
       </div>
     </li>
-    <div class="flex justify-between space-x-4">
+    <div ref="modeRef" class="flex justify-between space-x-4">
       <li
         v-if="speedActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
       >
-        <van-popover v-model:show="showSpeed" placement="top">
+        <van-popover v-model:show="showSpeed" :placement="placement">
           <template #reference>
             <div class="flex w-40 items-center justify-between p-3">
               <div class="mr-4 flex-shrink-0">{{ currentSpeedItem?.useCn }}</div>
@@ -150,7 +157,7 @@ const onModelSelect = (action) => {
         v-if="modeActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
       >
-        <van-popover v-model:show="showMode" placement="top">
+        <van-popover v-model:show="showMode" :placement="placement">
           <template #reference>
             <div class="flex w-40 items-center justify-between p-3">
               <div class="mr-4 flex-shrink-0">
