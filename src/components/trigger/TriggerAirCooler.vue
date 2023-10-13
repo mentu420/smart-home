@@ -6,7 +6,11 @@ import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
 
+import { useTrigger } from './useTrigger'
+
 const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
+
+const { getSceneActions, getModeColumns } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -50,26 +54,30 @@ const speedActions = computed(() => deviceItem.value?.columns.filter((item) => i
 const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
 
 const currentModeItem = computed(() =>
-  modeActions.value?.find((item) => item.useEn == config.value.mode)
+  modeActions.value?.find((item) => item.useEn == config.value[MODE])
 )
 const currentSpeedItem = computed(() =>
-  speedActions.value?.find((item) => item.useEn == config.value.fan)
+  speedActions.value?.find((item) => item.useEn == config.value[FAN])
 )
 
 const tempCopy = ref(config.value[TEMPERATURE])
 const status = ref(false) //空调开关
 
-const onDeviceChange = debounce(() => {
+const onDeviceChange = debounce((use) => {
   const { modeList } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeValue: config.value[modeItem.use] }
+    return { ...modeItem, modeValue: config.value[modeItem.use], modeStatus: use }
   })
   console.log('newModeList', newModeList)
+  const useMode = newModeList.find((modeItem) => modeItem.use == use)
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value })
   } else {
-    // emits('change', { ...deviceItem.value }, config.value)
+    // 场景控制数据
+    const actions = getSceneActions(status, props.id, useMode)
+
+    emits('change', actions, actions)
   }
 }, 500)
 
@@ -77,7 +85,7 @@ const setTemp = () =>
   nextTick(() => {
     config.value = { ...config.value, [TEMPERATURE]: tempCopy.value }
     if (!status.value) status.value = true
-    onDeviceChange()
+    onDeviceChange(TEMPERATURE)
   })
 
 const onLower = () => {
@@ -94,16 +102,26 @@ const onRise = () => {
 
 const onSpeedSelect = (action) => {
   if (!status.value) status.value = true
-  config.value = { ...config.value, fan: action.useEn }
+  config.value = { ...config.value, [FAN]: action.useEn }
   showSpeed.value = false
-  onDeviceChange()
+  onDeviceChange(action.useEn)
 }
 
 const onModelSelect = (action) => {
   if (!status.value) status.value = true
-  config.value = { ...config.value, mode: action.useEn }
+  config.value = { ...config.value, [MODE]: action.useEn }
   showMode.value = false
-  onDeviceChange()
+  onDeviceChange(action.useEn)
+}
+
+const toggle = () => {
+  status.value = !status.value
+  const switchMode = getModeColumns(SWITCH, deviceItem.value.modeList)
+  config.value = {
+    ...config.value,
+    [SWITCH]: switchMode[status.value ? 1 : 0].useEn,
+  }
+  onDeviceChange(SWITCH)
 }
 
 const placement = computed(() => {
@@ -125,11 +143,7 @@ const placement = computed(() => {
         </p>
         <p class="text-xs text-gray-400">当前温度</p>
       </div>
-      <IconFont
-        :class="status ? 'text-primary' : 'text-gray-300'"
-        icon="switch"
-        @click="status = !status"
-      />
+      <IconFont :class="status ? 'text-primary' : 'text-gray-300'" icon="switch" @click="toggle" />
     </li>
     <li class="mb-4 flex items-center justify-around rounded-lg bg-white p-3">
       <div>
