@@ -1,8 +1,8 @@
 <script setup>
-import { storeToRefs } from 'pinia'
-import { ref, reactive, computed, toRefs, watch } from 'vue'
+import { ref, reactive, computed } from 'vue'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
+import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce, stringToArray } from '@/utils/common'
 
@@ -10,8 +10,7 @@ import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
 
-// 色温
-const COLORTEMPERATURE = 'colourTemperature'
+const { getSceneActions, getModeColumns } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -27,6 +26,13 @@ const props = defineProps({
 
 const emits = defineEmits(['update:modelValue', 'update:hue', 'change'])
 
+const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
+
+const deviceItem = computed(() => useGetDeviceItem(props.id))
+const config = ref({ [SWITCH]: 'off', [BRIGHTNESS]: 0, [COLOURTEMPERATURE]: 1800, color: '#fff' })
+const status = computed(() => (config.value[BRIGHTNESS] == 0 ? false : true))
+
+const colorPickerRef = ref(null)
 const colorConfig = reactive({
   hue: 0,
   saturation: 100,
@@ -35,48 +41,48 @@ const colorConfig = reactive({
   gradientColors: ['to top', '#FB8C1A', '#FAF6F7'],
   gradientType: 'linear',
 })
-
-const deviceItem = computed(() => useGetDeviceItem(props.id))
-
-const config = ref({ brightness: 0, colourTemperature: 1800, color: '#fff' })
-
-const colorPickerRef = ref(null)
-
-const status = computed(() => (config.value.brightness == 0 ? false : true))
-
 const colorTemperatureRange = computed(() => {
-  if (!deviceUseList(props.id)?.includes(COLORTEMPERATURE)) return [0, 100]
+  if (!deviceUseList(props.id)?.includes(COLOURTEMPERATURE)) return [0, 100]
   return stringToArray(
-    deviceItem.value.columns.find((item) => item.use === COLORTEMPERATURE).useValueRange
+    deviceItem.value.columns.find((item) => item.use === COLOURTEMPERATURE).useValueRange
   )
 })
 
-const onDeviceChange = debounce(() => {
-  const { modeList } = deviceItem.value
+const onDeviceChange = debounce((use) => {
   //设备控制数据
+  const { modeList } = deviceItem.value
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeValue: config.value[modeItem.use] }
+    return { ...modeItem, modeValue: config.value[modeItem.use], modeStatus: use }
   })
-  console.log('newModeList', newModeList)
+  const useMode = newModeList.find((modeItem) => modeItem.use == use)
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value, modeList: newModeList })
   } else {
-    const { getSceneActions } = useTrigger()
     // 场景控制数据
-    const actions = getSceneActions(status, props.id, newModeList)
+    const actions = getSceneActions(status, props.id, useMode)
 
-    emits('change', actions, newModeList)
+    emits('change', actions, actions)
   }
 }, 500)
 
+// 开关
 const toggle = () => {
-  config.value.brightness = config.value.brightness == 0 ? 100 : 0
-  onDeviceChange()
+  const switchMode = getModeColumns(SWITCH, deviceItem.value.modeList)
+  config.value = {
+    ...config.value,
+    [BRIGHTNESS]: config.value[BRIGHTNESS] == 0 ? 100 : 0,
+    [SWITCH]: switchMode[config.value[BRIGHTNESS] == 0 ? 0 : 1].useEn,
+  }
+  onDeviceChange(SWITCH)
 }
-
+// 色温
 const onColorPickerChange = ({ color, ratio }) => {
-  config.value = { ...config.value, colourTemperature: ratio, color }
-  onDeviceChange()
+  config.value = { ...config.value, [COLOURTEMPERATURE]: ratio, color }
+  onDeviceChange(COLOURTEMPERATURE)
+}
+// 亮度
+const onBrightnessChange = () => {
+  onDeviceChange(BRIGHTNESS)
 }
 </script>
 
@@ -98,24 +104,24 @@ const onColorPickerChange = ({ color, ratio }) => {
         </template>
       </van-cell>
       <van-cell
-        v-if="deviceUseList(props.id)?.includes('brightness')"
+        v-if="deviceUseList(props.id)?.includes(BRIGHTNESS)"
         class="mt-4 rounded-xl"
         center
         title="亮度"
-        :label="`${config.brightness}%`"
+        :label="`${config[BRIGHTNESS]}%`"
         :border="false"
         title-style="flex:0 0 auto"
       >
         <div class="h-10 p-4 pl-8">
-          <van-slider v-model="config.brightness" @change="onDeviceChange" />
+          <van-slider v-model="config[BRIGHTNESS]" @change="onBrightnessChange" />
         </div>
       </van-cell>
       <van-cell
-        v-if="deviceUseList(props.id)?.includes(COLORTEMPERATURE)"
+        v-if="deviceUseList(props.id)?.includes(COLOURTEMPERATURE)"
         class="mt-4 rounded-xl"
         center
         title="色温"
-        :label="`${config.colourTemperature}K`"
+        :label="`${config[COLOURTEMPERATURE]}K`"
         clickable
         :border="false"
         @click="colorPickerRef.open()"

@@ -2091,6 +2091,13 @@ export const TYPE_VALUE_EXECL = [
   },
 ]
 
+export const USE_KEY = Object.assign(
+  {},
+  ...[...new Set(TYPE_VALUE_EXECL.map((item) => item.use))].map((item) => ({
+    [item.toUpperCase()]: item,
+  }))
+)
+
 const switchColumn = {
   text: '开关',
   value: 'switch',

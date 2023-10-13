@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { CLASSIFY_EXECL } from '@/enums/deviceInfo'
+import { CLASSIFY_EXECL } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 

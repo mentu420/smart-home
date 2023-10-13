@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
 import { getDeviceList } from '@/apis/smartApi'
-import { CLASSIFY_ICON, CLASSIFY_EXECL, TYPE_EXECL, TYPE_VALUE_EXECL } from '@/enums/deviceInfo'
+import { CLASSIFY_ICON, CLASSIFY_EXECL, TYPE_EXECL, TYPE_VALUE_EXECL } from '@/enums/deviceEnums'
 
 const storeName = 'deviceStore'
 
@@ -32,7 +32,15 @@ export default defineStore(storeName, () => {
     const { data } = await getDeviceList({ op: 1 })
     deviceList.value = data
       .map((item) => {
-        const columns = TYPE_VALUE_EXECL.filter((typeItem) => typeItem.category == item.xiaoleixing)
+        const columns = TYPE_VALUE_EXECL.filter(
+          (typeItem) => typeItem.category == item.xiaoleixing
+        ).map((typeItem) => {
+          // 重置开关属性值
+          if (['valueSwitch', 'switch'].includes(typeItem.use) && typeItem.useEn === 'on') {
+            return { ...typeItem, useValue: '1' }
+          }
+          return typeItem
+        })
         const useList = [...new Set(columns?.map((item) => item.use))]
         return {
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
@@ -55,6 +63,7 @@ export default defineStore(storeName, () => {
           classify: item.daleixing,
           sort: item.paixu,
           collect: item.shouye, // 首页是否收藏
+          category: item.xiaoleixing,
         }
       })
       .sort((a, b) => a.sort - b.sort)
