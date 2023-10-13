@@ -64,7 +64,7 @@ const tempCopy = ref(config.value[TEMPERATURE])
 const status = ref(false) //空调开关
 
 const onDeviceChange = debounce((use) => {
-  const { modeList } = deviceItem.value
+  const { modeList, columns } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
     return { ...modeItem, modeValue: config.value[modeItem.use], modeStatus: use }
@@ -76,7 +76,6 @@ const onDeviceChange = debounce((use) => {
   } else {
     // 场景控制数据
     const actions = getSceneActions(status, props.id, useMode)
-
     emits('change', actions, actions)
   }
 }, 500)

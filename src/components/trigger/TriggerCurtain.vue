@@ -1,10 +1,15 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 
+import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
 
+import { useTrigger } from './useTrigger'
+
 const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
+
+const { getSceneActions, getModeColumns } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -22,6 +27,16 @@ const emits = defineEmits(['change'])
 
 const min = ref(0)
 const max = ref(100)
+const { STOP, PERCENT, ANGLE, SWITCH } = USE_KEY
+const config = ref({
+  degree: 0,
+  on: false,
+  off: false,
+  [STOP]: true,
+  [PERCENT]: 0,
+  ANGLE: 0,
+  SWITCH: '',
+})
 
 const deviceItem = computed(() => useGetDeviceItem(props.id), {
   onTrack(e) {
@@ -31,68 +46,68 @@ const deviceItem = computed(() => useGetDeviceItem(props.id), {
     const [minValue, maxValue] = useValueRange.split(',')
     min.value = minValue
     max.value = maxValue
+    console.log(e.target)
   },
   onTrigger(e) {
     console.log('onTrigger', e)
   },
 })
-const config = ref({ degree: 0, stop: true, on: false, off: false })
 
-const theme = '#e39334'
-
-const onDeviceChange = debounce(() => {
+const onDeviceChange = debounce((use) => {
+  const { modeList } = deviceItem.value
+  //设备控制数据
+  const newModeList = modeList.map((modeItem) => {
+    return { ...modeItem, modeValue: config.value[modeItem.use], modeStatus: use }
+  })
+  console.log('newModeList', newModeList)
+  const useMode = newModeList.find((modeItem) => modeItem.use == use)
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value })
   } else {
-    emits('change', { ...deviceItem.value }, config.value)
+    // 场景控制数据
+    // const actions = getSceneActions(status, props.id, useMode)
+    // emits('change', actions, actions)
   }
 }, 500)
 
 const toggle = () => {
-  config.value = { ...config.value, stop: true, on: false, off: false }
-  onDeviceChange()
+  config.value = { ...config.value, [STOP]: true, on: false, off: false }
+  onDeviceChange(STOP)
 }
 
 const onLower = () => {
-  config.value = { ...config.value, stop: false, on: false, off: true }
-  onDeviceChange()
+  config.value = { ...config.value, [STOP]: false, on: false, off: true }
+  onDeviceChange(SWITCH)
 }
 
 const onIncrease = () => {
-  config.value = { ...config.value, stop: false, on: true, off: false }
-  onDeviceChange()
+  config.value = { ...config.value, [STOP]: false, on: true, off: false }
+  onDeviceChange(SWITCH)
 }
 
 const onSliderChange = (value) => {
-  config.value = { ...config.value, degree: value }
-  onDeviceChange()
+  config.value = { ...config.value, [PERCENT]: value }
+  onDeviceChange(PERCENT)
 }
+
+const setIconClass = computed(() => (bool) => (bool ? 'text-primary' : 'text-gray-400'))
 </script>
 
 <template>
   <van-cell-group style="background: transparent" inset :border="false">
     <van-cell class="mt-4 rounded-xl" center :border="false">
       <template #icon>
-        <IconFont
-          :class="config.off ? 'text-primary' : 'text-gray-400'"
-          icon="curtain-off"
-          @click="onLower"
-        />
+        <IconFont :class="setIconClass(config.off)" icon="curtain-off" @click="onLower" />
       </template>
-      <div class="flex items-center justify-center leading-none">
-        <IconFont
-          :class="config.stop ? 'text-primary' : 'text-gray-400'"
-          icon="stop"
-          @click="toggle"
-        />
+      <div
+        class="flex items-center justify-center leading-none"
+        :class="setIconClass(config[STOP])"
+      >
+        <IconFont icon="stop" @click="toggle" />
       </div>
 
       <template #right-icon>
-        <IconFont
-          :class="config.on ? 'text-primary' : 'text-gray-400'"
-          icon="curtain-on"
-          @click="onIncrease"
-        />
+        <IconFont :class="setIconClass(config.on)" icon="curtain-on" @click="onIncrease" />
       </template>
     </van-cell>
     <van-cell
@@ -100,12 +115,12 @@ const onSliderChange = (value) => {
       class="mt-4 rounded-xl"
       center
       title="开合度"
-      :label="`${config.degree}%`"
+      :label="`${config[PERCENT]}%`"
       :border="false"
       title-style="flex:0 0 auto"
     >
       <div class="h-10 p-4 pl-8">
-        <van-slider v-model="config.degree" :min="min" :max="max" @change="onSliderChange" />
+        <van-slider v-model="config[PERCENT]" :min="min" :max="max" @change="onSliderChange" />
       </div>
     </van-cell>
   </van-cell-group>
