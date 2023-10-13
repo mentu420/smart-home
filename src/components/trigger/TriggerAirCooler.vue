@@ -2,6 +2,7 @@
 import { useRect } from '@vant/use'
 import { ref, computed, watch, nextTick } from 'vue'
 
+import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
 
@@ -21,8 +22,10 @@ const props = defineProps({
 
 const emits = defineEmits(['change'])
 
+const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
+
 //温度、风俗、模式
-const config = ref({ temp: 26, fan: 'auto', mode: 'auto' })
+const config = ref({ SWITCH: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' })
 const max = ref(32)
 const min = ref(16)
 const showSpeed = ref(false)
@@ -32,7 +35,7 @@ const deviceItem = computed(() => useGetDeviceItem(props.id), {
   onTrack(e) {
     const { columns = [], modeList = [] } = e.target
     if (columns.length == 0) return
-    const { useValueRange = '16,32' } = columns.find((item) => item.use == 'temperature') || {}
+    const { useValueRange = '16,32' } = columns.find((item) => item.use == TEMPERATURE) || {}
     const [minValue, maxValue] = useValueRange.split(',')
     min.value = minValue
     max.value = maxValue
@@ -42,9 +45,9 @@ const deviceItem = computed(() => useGetDeviceItem(props.id), {
   },
 })
 
-const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == 'fan'))
+const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == FAN))
 
-const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == 'mode'))
+const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
 
 const currentModeItem = computed(() =>
   modeActions.value?.find((item) => item.useEn == config.value.mode)
@@ -53,7 +56,7 @@ const currentSpeedItem = computed(() =>
   speedActions.value?.find((item) => item.useEn == config.value.fan)
 )
 
-const tempCopy = ref(config.value.temp)
+const tempCopy = ref(config.value[TEMPERATURE])
 const status = ref(false) //空调开关
 
 const onDeviceChange = debounce(() => {
@@ -72,7 +75,7 @@ const onDeviceChange = debounce(() => {
 
 const setTemp = () =>
   nextTick(() => {
-    config.value = { ...config.value, temp: tempCopy.value }
+    config.value = { ...config.value, [TEMPERATURE]: tempCopy.value }
     if (!status.value) status.value = true
     onDeviceChange()
   })
@@ -117,7 +120,7 @@ const placement = computed(() => {
       </div>
       <div class="mr-4 flex-shrink-0 text-center">
         <p>
-          <label class="text-lg">{{ config.temp }}</label>
+          <label class="text-lg">{{ config[TEMPERATURE] }}</label>
           <label>℃</label>
         </p>
         <p class="text-xs text-gray-400">当前温度</p>
