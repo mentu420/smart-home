@@ -1,4 +1,5 @@
 <script setup>
+import { UpdateRotation } from '@icon-park/vue-next/es/map'
 import { useRect } from '@vant/use'
 import { ref, computed, watch, nextTick } from 'vue'
 
@@ -12,7 +13,13 @@ const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
 
 const { getSceneActions, getModeColumns } = useTrigger()
 
+const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
+
 const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: null,
+  },
   id: {
     type: String,
     default: '',
@@ -24,17 +31,20 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['change'])
+const emits = defineEmits(['change', 'update:modelValue'])
 
-const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
-
-//温度、风俗、模式
-const config = ref({ SWITCH: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' })
 const max = ref(32)
 const min = ref(16)
 const showSpeed = ref(false)
 const showMode = ref(false)
 const modeRef = ref(null)
+
+//温度、风俗、模式
+const config = computed({
+  get: () => props.modelValue || { [SWITCH]: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' },
+  set: (val) => emits('update:modelValue', val),
+})
+
 const deviceItem = computed(() => useGetDeviceItem(props.id), {
   onTrack(e) {
     const { columns = [], modeList = [] } = e.target

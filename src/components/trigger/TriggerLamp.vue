@@ -13,6 +13,10 @@ const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
 const { getSceneActions, getModeColumns } = useTrigger()
 
 const props = defineProps({
+  modelValue:{
+    type:Object,
+    default:null
+  }
   id: {
     type: String,
     default: '',
@@ -29,7 +33,10 @@ const emits = defineEmits(['update:modelValue', 'update:hue', 'change'])
 const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
 
 const deviceItem = computed(() => useGetDeviceItem(props.id))
-const config = ref({ [SWITCH]: 'off', [BRIGHTNESS]: 0, [COLOURTEMPERATURE]: 1800, color: '#fff' })
+const config = computed({
+  get:()=>props.modelValue || { [SWITCH]: 'off', [BRIGHTNESS]: 0, [COLOURTEMPERATURE]: 1800, color: '#fff' },
+  set:val=>emits('update:modelValue',val)
+})
 const status = computed(() => (config.value[BRIGHTNESS] == 0 ? false : true))
 
 const colorPickerRef = ref(null)
