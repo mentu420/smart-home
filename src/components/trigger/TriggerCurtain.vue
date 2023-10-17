@@ -14,10 +14,6 @@ const { getSceneActions, getModeColumns } = useTrigger()
 const { STOP, PERCENT, ANGLE, SWITCH } = USE_KEY
 
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: null,
-  },
   id: {
     type: String,
     default: '',
@@ -34,18 +30,14 @@ const emits = defineEmits(['change', 'update:modelValue'])
 const min = ref(0)
 const max = ref(100)
 
-const config = computed({
-  get: () =>
-    props.modelValue || {
-      degree: 0,
-      on: false,
-      off: false,
-      [STOP]: true,
-      [PERCENT]: 0,
-      ANGLE: 0,
-      SWITCH: '',
-    },
-  set: (val) => emits('update:modelValue', val),
+const config = ref({
+  degree: 0,
+  on: false,
+  off: false,
+  [STOP]: true,
+  [PERCENT]: 0,
+  ANGLE: 0,
+  SWITCH: '',
 })
 
 const deviceItem = computed(() => useGetDeviceItem(props.id), {

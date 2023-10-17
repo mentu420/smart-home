@@ -2212,7 +2212,7 @@ const cutSongColumn = {
 }
 
 const musicModeColumn = {
-  text: ' 播放模式 ',
+  text: '播放模式 ',
   value: 'mode',
   children: [
     { text: '列表播放', value: 'list' },

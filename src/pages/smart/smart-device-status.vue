@@ -12,6 +12,7 @@ const route = useRoute()
 const router = useRouter()
 const { deviceList } = storeToRefs(deviceStore())
 const deviceItem = ref({})
+const triggerConfig = ref({})
 
 const init = () => {
   deviceItem.value = deviceList.value.find((item) => item.id == route.query.id)

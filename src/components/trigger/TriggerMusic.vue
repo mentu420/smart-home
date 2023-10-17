@@ -13,13 +13,9 @@ const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
 
 const { getSceneActions, getModeColumns } = useTrigger()
 
-const { FAN, MODE, TEMPERATURE, PALYCONTROL } = USE_KEY
+const { MODE, PALYCONTROL } = USE_KEY
 
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: null,
-  },
   id: {
     type: String,
     default: '',
@@ -33,46 +29,27 @@ const props = defineProps({
 
 const emits = defineEmits(['change', 'update:modelValue'])
 
-const max = ref(32)
-const min = ref(16)
-const showSpeed = ref(false)
 const showMode = ref(false)
+const showVolume = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
-const config = computed({
-  get: () =>
-    props.modelValue || { [PALYCONTROL]: 'off', [MODE]: 'list', volume: 'volume', cutSong: '' },
-  set: (val) => emits('update:modelValue', val),
-})
+const config = ref({ [PALYCONTROL]: 'off', [MODE]: 'list', volume: 50, cutSong: '' })
 
 const deviceItem = computed(() => useGetDeviceItem(props.id), {
-  onTrack(e) {
-    const { columns = [], modeList = [] } = e.target
-    if (columns.length == 0) return
-    const { useValueRange = '16,32' } = columns.find((item) => item.use == TEMPERATURE) || {}
-    const [minValue, maxValue] = useValueRange.split(',')
-    min.value = minValue
-    max.value = maxValue
-  },
+  onTrack(e) {},
   onTrigger(e) {
     console.log('onTrigger', e)
   },
 })
-
-const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == FAN))
 
 const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
 
 const currentModeItem = computed(() =>
   modeActions.value?.find((item) => item.useEn == config.value[MODE])
 )
-const currentSpeedItem = computed(() =>
-  speedActions.value?.find((item) => item.useEn == config.value[FAN])
-)
 
-const tempCopy = ref(config.value[TEMPERATURE])
-const status = ref(false) //空调开关
+const status = ref(false) //开关
 
 const onDeviceChange = debounce((use) => {
   const { modeList, columns } = deviceItem.value
@@ -91,30 +68,18 @@ const onDeviceChange = debounce((use) => {
   }
 }, 500)
 
-const setTemp = () =>
-  nextTick(() => {
-    config.value = { ...config.value, [TEMPERATURE]: tempCopy.value }
-    if (!status.value) status.value = true
-    onDeviceChange(TEMPERATURE)
-  })
-
-const onLower = () => {
-  if (tempCopy.value == min.value) return
-  --tempCopy.value
-  setTemp()
-}
-
-const onRise = () => {
-  if (tempCopy.value == max.value) return
-  ++tempCopy.value
-  setTemp()
-}
-
 const onModelSelect = (action) => {
-  if (!status.value) status.value = true
   config.value = { ...config.value, [MODE]: action.useEn }
   showMode.value = false
-  onDeviceChange(action.useEn)
+  // onDeviceChange(action.useEn)
+}
+
+const onStatusChange = () => {
+  status.value = !status.value
+}
+
+const onVolumeChange = (value) => {
+  config.value = { ...config.value, volume: value }
 }
 
 const placement = computed(() => {
@@ -127,48 +92,17 @@ const placement = computed(() => {
 <template>
   <ul class="p-4">
     <li class="mb-4 flex items-center justify-between rounded-lg bg-white p-3">
-      <IconFont :icon="currentModeItem?.useEn" />
       <IconFont icon="prev" />
-      <IconFont icon="play" />
-      <IconFont icon="next" />
+      <IconFont :icon="status ? 'play' : 'stop'" @click="onStatusChange" />
       <IconFont icon="next" />
     </li>
     <div ref="modeRef" class="flex justify-between space-x-4">
-      <!-- <li
-        v-if="speedActions?.length > 0"
-        class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
-      >
-        <van-popover v-model:show="showSpeed" :placement="placement">
-          <template #reference>
-            <div class="flex w-40 items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">{{ currentSpeedItem?.useCn }}</div>
-              <IconFont :icon="`${currentSpeedItem?.use}-${currentSpeedItem?.useEn}`" />
-            </div>
-          </template>
-          <van-cell-group>
-            <van-cell
-              v-for="speedItem in speedActions"
-              :key="speedItem.id"
-              :title="speedItem.useCn"
-              clickable
-              @click="onSpeedSelect(speedItem)"
-            >
-              <template #icon>
-                <IconFont class="mr-2" :icon="`${speedItem.use}-${speedItem.useEn}`" />
-              </template>
-            </van-cell>
-          </van-cell-group>
-        </van-popover>
-      </li> -->
-      <!-- <li
-        v-if="modeActions?.length > 0"
-        class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
-      >
+      <li class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white">
         <van-popover v-model:show="showMode" :placement="placement">
           <template #reference>
             <div class="flex w-40 items-center justify-between p-3">
               <div class="mr-4 flex-shrink-0">
-                <p>模式</p>
+                <p>播放模式</p>
                 <p class="text-xs text-gray-400">{{ currentModeItem?.useCn }}</p>
               </div>
               <IconFont :icon="currentModeItem?.useEn" />
@@ -188,7 +122,26 @@ const placement = computed(() => {
             </van-cell>
           </van-cell-group>
         </van-popover>
-      </li> -->
+      </li>
+      <li class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white">
+        <van-popover v-model:show="showVolume" :placement="placement">
+          <template #reference>
+            <div class="flex w-40 items-center justify-between p-3">
+              <div class="mr-4 flex-shrink-0">播放音量</div>
+              <IconFont :icon="config.volume == 0 ? 'mute' : 'volume'" />
+            </div>
+          </template>
+          <div class="px-[20px] py-4 h-[150px]">
+            <van-slider
+              v-model="config.volume"
+              reverse
+              vertical
+              active-color="#333"
+              @change="onVolumeChange"
+            />
+          </div>
+        </van-popover>
+      </li>
     </div>
   </ul>
 </template>

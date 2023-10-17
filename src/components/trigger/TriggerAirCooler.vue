@@ -16,10 +16,6 @@ const { getSceneActions, getModeColumns } = useTrigger()
 const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
 
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: null,
-  },
   id: {
     type: String,
     default: '',
@@ -40,10 +36,7 @@ const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
-const config = computed({
-  get: () => props.modelValue || { [SWITCH]: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' },
-  set: (val) => emits('update:modelValue', val),
-})
+const config = ref({ [SWITCH]: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' })
 
 const deviceItem = computed(() => useGetDeviceItem(props.id), {
   onTrack(e) {
