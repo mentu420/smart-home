@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia'
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { TriggerLamp, TriggerCurtain, TriggerAirCooler } from '@/components/trigger/'
+import { TriggerLamp, TriggerCurtain, TriggerAirCooler, TriggerMusic } from '@/components/trigger/'
 import deviceStore from '@/store/deviceStore'
 
 defineOptions({ name: 'SmartDeviceStatus' })
@@ -44,6 +44,7 @@ init()
       <TriggerLamp v-if="route.query.classify == '100'" :id="route.query.id" is-use />
       <TriggerCurtain v-if="route.query.classify == '101'" :id="route.query.id" is-use />
       <TriggerAirCooler v-if="route.query.classify == '102'" :id="route.query.id" is-use />
+      <TriggerMusic v-if="route.query.classify == '105'" :id="route.query.id" is-use />
     </section>
   </div>
 </template>

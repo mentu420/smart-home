@@ -13,7 +13,7 @@ const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
 
 const { getSceneActions, getModeColumns } = useTrigger()
 
-const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
+const { FAN, MODE, TEMPERATURE, PALYCONTROL } = USE_KEY
 
 const props = defineProps({
   modelValue: {
@@ -41,7 +41,8 @@ const modeRef = ref(null)
 
 //温度、风俗、模式
 const config = computed({
-  get: () => props.modelValue || { [SWITCH]: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' },
+  get: () =>
+    props.modelValue || { [PALYCONTROL]: 'off', [MODE]: 'list', volume: 'volume', cutSong: '' },
   set: (val) => emits('update:modelValue', val),
 })
 
@@ -109,28 +110,11 @@ const onRise = () => {
   setTemp()
 }
 
-const onSpeedSelect = (action) => {
-  if (!status.value) status.value = true
-  config.value = { ...config.value, [FAN]: action.useEn }
-  showSpeed.value = false
-  onDeviceChange(action.useEn)
-}
-
 const onModelSelect = (action) => {
   if (!status.value) status.value = true
   config.value = { ...config.value, [MODE]: action.useEn }
   showMode.value = false
   onDeviceChange(action.useEn)
-}
-
-const toggle = () => {
-  status.value = !status.value
-  const switchMode = getModeColumns(SWITCH, deviceItem.value.modeList)
-  config.value = {
-    ...config.value,
-    [SWITCH]: switchMode[status.value ? 1 : 0].useEn,
-  }
-  onDeviceChange(SWITCH)
 }
 
 const placement = computed(() => {
@@ -143,32 +127,14 @@ const placement = computed(() => {
 <template>
   <ul class="p-4">
     <li class="mb-4 flex items-center justify-between rounded-lg bg-white p-3">
-      <div>
-        {{ status ? '已开启' : '已关闭' }}
-      </div>
-      <div class="mr-4 flex-shrink-0 text-center">
-        <p>
-          <label class="text-lg">{{ config[TEMPERATURE] }}</label>
-          <label>℃</label>
-        </p>
-        <p class="text-xs text-gray-400">当前温度</p>
-      </div>
-      <IconFont :class="status ? 'text-primary' : 'text-gray-300'" icon="switch" @click="toggle" />
-    </li>
-    <li class="mb-4 flex items-center justify-around rounded-lg bg-white p-3">
-      <div>
-        <van-icon name="minus" size="20" @click="onLower" />
-      </div>
-      <div class="mr-4 flex-shrink-0 text-center">
-        <p>{{ tempCopy }}℃</p>
-        <p class="text-xs text-gray-400">目标温度</p>
-      </div>
-      <div>
-        <van-icon name="plus" size="20" @click="onRise" />
-      </div>
+      <IconFont :icon="currentModeItem?.useEn" />
+      <IconFont icon="prev" />
+      <IconFont icon="play" />
+      <IconFont icon="next" />
+      <IconFont icon="next" />
     </li>
     <div ref="modeRef" class="flex justify-between space-x-4">
-      <li
+      <!-- <li
         v-if="speedActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
       >
@@ -193,8 +159,8 @@ const placement = computed(() => {
             </van-cell>
           </van-cell-group>
         </van-popover>
-      </li>
-      <li
+      </li> -->
+      <!-- <li
         v-if="modeActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
       >
@@ -205,7 +171,7 @@ const placement = computed(() => {
                 <p>模式</p>
                 <p class="text-xs text-gray-400">{{ currentModeItem?.useCn }}</p>
               </div>
-              <IconFont :icon="`${currentModeItem?.use}-${currentModeItem?.useEn}`" />
+              <IconFont :icon="currentModeItem?.useEn" />
             </div>
           </template>
           <van-cell-group>
@@ -217,12 +183,12 @@ const placement = computed(() => {
               @click="onModelSelect(modeItem)"
             >
               <template #icon>
-                <IconFont class="mr-2" :icon="`${modeItem?.use}-${modeItem?.useEn}`" />
+                <IconFont class="mr-2" :icon="modeItem?.useEn" />
               </template>
             </van-cell>
           </van-cell-group>
         </van-popover>
-      </li>
+      </li> -->
     </div>
   </ul>
 </template>
