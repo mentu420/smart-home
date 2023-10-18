@@ -5,32 +5,19 @@ import { debounce } from '@/utils/common'
 const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
 
 export const useTrigger = () => {
-  const getSceneActions = (status, id, useMode) => {
-    const actions = status.value
-      ? [
-          {
-            ziyuanleixing: 1,
-            ziyuanbianhao: id,
-            yanshi: 0,
-            caozuo: {
-              shuxing: 'switch',
-              shuxingzhuangtai: 'off',
-              shuxingzhi: '',
-            },
-          },
-        ]
-      : [
-          {
-            ziyuanleixing: 1,
-            ziyuanbianhao: id,
-            yanshi: 0,
-            caozuo: {
-              shuxing: useMode.use,
-              shuxingzhuangtai: useMode.modeStatus,
-              shuxingzhi: useMode.modeValue,
-            },
-          },
-        ]
+  const getSceneActions = (modeList, id) => {
+    const actions = modeList.map((modeItem) => {
+      return {
+        ziyuanleixing: 1,
+        ziyuanbianhao: id,
+        yanshi: 0,
+        caozuo: {
+          shuxing: modeItem.use,
+          shuxingzhuangtai: modeItem.modeStatus,
+          shuxingzhi: modeItem.modeValue,
+        },
+      }
+    })
 
     return actions
   }

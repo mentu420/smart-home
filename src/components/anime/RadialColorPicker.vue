@@ -243,7 +243,8 @@ export default {
 
     const ratio = computed(() => {
       const angleValue = angle.value > 180 ? 180 - (angle.value - 180) : angle.value
-      return (((props.max - props.min) / 180) * angleValue + props.min).toFixed()
+      const res = ((Number(props.max) - Number(props.min)) / 180) * angleValue + Number(props.min)
+      return res.toFixed()
     })
 
     // ignore testing code that will be removed by dead code elimination for production

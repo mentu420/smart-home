@@ -34,7 +34,7 @@ const showVolume = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
-const config = ref({ [PALYCONTROL]: 'off', [MODE]: 'list', volume: 50, cutSong: '' })
+const config = ref({ [PALYCONTROL]: 'off', [MODE]: 'list', volume: 50, cutSong: '', process: 0 })
 
 const deviceItem = computed(() => useGetDeviceItem(props.id), {
   onTrack(e) {},
@@ -55,7 +55,7 @@ const onDeviceChange = debounce((use) => {
   const { modeList, columns } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeValue: config.value[modeItem.use], modeStatus: use }
+    return { ...modeItem, modeStatus: config.value[modeItem.use], modeValue: '' }
   })
   console.log('newModeList', newModeList)
   const useMode = newModeList.find((modeItem) => modeItem.use == use)
@@ -82,6 +82,8 @@ const onVolumeChange = (value) => {
   config.value = { ...config.value, volume: value }
 }
 
+const onProcessChange = (value) => {}
+
 const placement = computed(() => {
   if (!modeRef.value) return 'top'
   const { top } = useRect(modeRef.value)
@@ -91,10 +93,15 @@ const placement = computed(() => {
 
 <template>
   <ul class="p-4">
-    <li class="mb-4 flex items-center justify-between rounded-lg bg-white p-3">
-      <IconFont icon="prev" />
-      <IconFont :icon="status ? 'play' : 'stop'" @click="onStatusChange" />
-      <IconFont icon="next" />
+    <li class="mb-4 rounded-lg bg-white p-3">
+      <div>
+        <van-slider v-model="config.process" active-color="#333" @change="onProcessChange" />
+      </div>
+      <div class="flex items-center justify-between">
+        <IconFont icon="prev" />
+        <IconFont :icon="status ? 'play' : 'stop'" @click="onStatusChange" />
+        <IconFont icon="next" />
+      </div>
     </li>
     <div ref="modeRef" class="flex justify-between space-x-4">
       <li class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white">

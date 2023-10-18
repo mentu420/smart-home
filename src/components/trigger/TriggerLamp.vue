@@ -35,7 +35,7 @@ const config = ref({
   [COLOURTEMPERATURE]: 1800,
   color: '#fff',
 })
-const status = computed(() => (config.value[BRIGHTNESS] == 0 ? false : true))
+const status = ref(false)
 
 const colorPickerRef = ref(null)
 const colorConfig = reactive({
@@ -53,40 +53,45 @@ const colorTemperatureRange = computed(() => {
   )
 })
 
-const onDeviceChange = debounce((use) => {
+const onDeviceChange = debounce(() => {
+  const switchMode = getModeColumns(SWITCH, deviceItem.value.modeList)
+  config.value = {
+    ...config.value,
+    [SWITCH]: switchMode[status.value ? 1 : 0].useEn,
+  }
   //设备控制数据
   const { modeList } = deviceItem.value
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeValue: config.value[modeItem.use], modeStatus: use }
+    return { ...modeItem, modeStatus: modeItem.use, modeValue: config.value[modeItem.use] }
   })
-  const useMode = newModeList.find((modeItem) => modeItem.use == use)
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value, modeList: newModeList })
   } else {
     // 场景控制数据
-    const actions = getSceneActions(status, props.id, useMode)
-
-    emits('change', actions, actions)
+    const actions = getSceneActions(newModeList, props.id)
+    console.log(actions)
+    emits('change', actions)
   }
 }, 500)
 
 // 开关
 const toggle = () => {
-  const switchMode = getModeColumns(SWITCH, deviceItem.value.modeList)
+  status.value = !status.value
   config.value = {
     ...config.value,
     [BRIGHTNESS]: config.value[BRIGHTNESS] == 0 ? 100 : 0,
-    [SWITCH]: switchMode[config.value[BRIGHTNESS] == 0 ? 0 : 1].useEn,
   }
   onDeviceChange(SWITCH)
 }
 // 色温
 const onColorPickerChange = ({ color, ratio }) => {
+  if (!status.value) status.value = true
   config.value = { ...config.value, [COLOURTEMPERATURE]: ratio, color }
   onDeviceChange(COLOURTEMPERATURE)
 }
 // 亮度
 const onBrightnessChange = () => {
+  if (!status.value) status.value = true
   onDeviceChange(BRIGHTNESS)
 }
 </script>

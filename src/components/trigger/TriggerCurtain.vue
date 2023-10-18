@@ -59,16 +59,14 @@ const onDeviceChange = debounce((use) => {
   const { modeList } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeValue: config.value[modeItem.use], modeStatus: use }
+    return { ...modeItem, modeStatus: modeItem.use, modeValue: config.value[modeItem.use] }
   })
-  console.log('newModeList', newModeList)
-  const useMode = newModeList.find((modeItem) => modeItem.use == use)
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value })
   } else {
     // 场景控制数据
-    // const actions = getSceneActions(status, props.id, useMode)
-    // emits('change', actions, actions)
+    const actions = getSceneActions(newModeList, props.id)
+    emits('change', actions)
   }
 }, 500)
 

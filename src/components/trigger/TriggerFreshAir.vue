@@ -66,19 +66,18 @@ const currentSpeedItem = computed(() =>
 const tempCopy = ref(config.value[TEMPERATURE])
 const status = ref(false) //空调开关
 
-const onDeviceChange = debounce((use) => {
+const onDeviceChange = debounce(() => {
   const { modeList, columns } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeValue: config.value[modeItem.use], modeStatus: use }
+    return { ...modeItem, modeStatus: modeItem.use, modeValue: config.value[modeItem.use] }
   })
-  console.log('newModeList', newModeList)
-  const useMode = newModeList.find((modeItem) => modeItem.use == use)
+
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value })
   } else {
     // 场景控制数据
-    const actions = getSceneActions(status, props.id, useMode)
+    const actions = getSceneActions(newModeList, props.id)
     emits('change', actions, actions)
   }
 }, 500)
