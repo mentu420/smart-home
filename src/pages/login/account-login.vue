@@ -24,7 +24,7 @@ const onSubmit = async (values) => {
     })
     setStorage('account-list', accountList.value)
   }
-  await useLogin({ shoujihaoma: values.username, mima: values.password })
+  await useLogin({ shoujihaoma: values.username, mima: values.password, dengluleixing: 1 })
 
   router.replace({ path: '/tabbar/tabbar-house' })
 }

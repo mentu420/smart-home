@@ -134,7 +134,7 @@ watch(
     </van-form>
     <section class="p-4">
       <ul
-        v-if="sceneCreateItem.fenlei || sceneCreateItem.events.length > 0"
+        v-if="sceneCreateItem.fenlei || sceneCreateItem?.events?.length > 0"
         class="flex items-center justify-between p-2"
       >
         <li>触发事件</li>
