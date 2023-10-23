@@ -7,6 +7,7 @@ import 'tailwindcss/tailwind.css'
 // import 'vant/es/toast/style'
 import 'vant/lib/index.css'
 import { createApp } from 'vue'
+import { createPahoMqttPlugin } from 'vue-paho-mqtt'
 import Vue3TouchEvents from 'vue3-touch-events'
 
 //重置样式

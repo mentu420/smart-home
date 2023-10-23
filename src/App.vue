@@ -4,7 +4,7 @@ import { ref, reactive, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import useRem from '@/utils/flexible/useRem.js'
-
+import { initClient } from '@/utils/socket'
 // new VConsole()
 
 const route = useRoute()
@@ -15,6 +15,7 @@ const theme = ref('light')
 const themeVars = reactive({})
 
 useRem()
+initClient()
 
 watch(
   () => route.path,
@@ -24,44 +25,6 @@ watch(
     if (route.meta.keepAlive) includeList.value.push(route.name)
   }
 )
-
-const client = ref(null)
-const clientID = 'APP_12312312312312' //App_用户编号
-const url = 'ws://152.136.150.207:2883/mqtt'
-const topic = 'console/log/receive'
-
-//连接成功
-function onConnect() {
-  //订阅主题
-  client.value.subscribe(topic)
-}
-
-//连接断开
-function onConnectionLost(responseObject) {
-  console.log('Lost connection')
-}
-
-//收到消息
-function onMessageArrived(message) {
-  console.log('PUBLISH ' + message.destinationName + ' ' + message.payloadString)
-}
-
-//发送消息
-function sendMessage(msg) {
-  var message = new Paho.Message(msg)
-  message.destinationName = 'cloud/device/control'
-  client.value.send(message)
-}
-
-function initClient() {
-  client.value = new Paho.MQTT.Client(url, clientID)
-  client.value.onConnectionLost = onConnectionLost
-  client.value.onMessageArrived = onMessageArrived
-  client.value.connect({ userName: 'acematic', password: 'ACEMATIC2018_', onSuccess: onConnect })
-  console.log('client', client.value)
-}
-
-initClient()
 </script>
 
 <template>
