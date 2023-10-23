@@ -27,7 +27,7 @@ const fileList = ref([])
 
 const { getRepeatTimeText } = sceneStore()
 
-const goCondition = () => {
+const goConditionConfig = () => {
   router.push({ path: '/smart-condition' })
 }
 
@@ -98,6 +98,12 @@ watch(
     if (to == '/smart-scene-create' && form.value === '/tabbar/tabbar-smart') init()
   }
 )
+
+function goEventConfig() {
+  router.push({
+    path: '/smart-task-list',
+  })
+}
 </script>
 
 <template>
@@ -133,12 +139,14 @@ watch(
       </van-cell-group>
     </van-form>
     <section class="p-4">
+      <!--事件-->
+
       <ul
         v-if="sceneCreateItem.fenlei || sceneCreateItem?.events?.length > 0"
         class="flex items-center justify-between p-2"
       >
         <li>触发事件</li>
-        <li @click="goCondition">
+        <li @click="goConditionConfig">
           <van-icon size="24" name="add" color="#e39334" />
         </li>
       </ul>
@@ -194,25 +202,52 @@ watch(
           </p>
         </li>
       </ul>
+      <ul
+        v-if="sceneCreateItem.fenlei || sceneCreateItem?.events?.length > 0"
+        class="flex items-center justify-between p-2"
+      >
+        <li>触发事件</li>
+        <li @click="goConditionConfig">
+          <van-icon size="24" name="add" color="#e39334" />
+        </li>
+      </ul>
+      <!--任务-->
+      <ul
+        v-if="sceneCreateItem.deviceList?.length > 0"
+        class="flex items-center justify-between p-2"
+      >
+        <li>执行任务</li>
+        <li @click="goEventConfig">
+          <van-icon size="24" name="add" color="#e39334" />
+        </li>
+      </ul>
+      <ul>
+        <li
+          v-for="deviceItem in sceneCreateItem.deviceList"
+          :key="deviceItem.id"
+          class="space-x-4 bg-white p-4 rounded-lg"
+        >
+          <label>控制</label>
+          <label class="px-4 py-1 bg-gray-100 rounded-full">{{ deviceItem?.label }}</label>
+        </li>
+      </ul>
     </section>
+    <!--配置条件、任务按钮-->
     <ul class="space-y-4 p-4">
       <li
         v-if="!sceneCreateItem.fenlei && sceneCreateItem.events.length == 0"
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @touchstart="() => {}"
-        @click="goCondition"
+        @click="goConditionConfig"
       >
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加条件</label>
       </li>
       <li
+        v-if="!sceneCreateItem.deviceList || sceneCreateItem.deviceList?.length == 0"
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @touchstart="() => {}"
-        @click="
-          router.push({
-            path: '/smart-task-list',
-          })
-        "
+        @click="goEventConfig"
       >
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加任务</label>

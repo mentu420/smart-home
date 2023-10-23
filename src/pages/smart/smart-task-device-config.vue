@@ -1,4 +1,5 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -7,16 +8,18 @@ import PickerSearch from '@/components/common/PickerSearch.vue'
 import { useTrigger } from '@/components/trigger/useTrigger'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
+import sceneStore from '@/store/sceneStore'
+import { stringToArray } from '@/utils/common'
 
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
 const { useGetDeviceItem, deviceUseList } = deviceStore()
 const { getSceneActions, getModeColumns } = useTrigger()
+const { sceneCreateItem } = storeToRefs(sceneStore())
 
 const route = useRoute()
 const router = useRouter()
-const checked = ref('1')
-const light = ref(0)
+
 const colorPickerRef = ref(null)
 const showLigth = ref(false)
 const useKey = ref('')
@@ -30,9 +33,18 @@ const deviceItem = computed(() => useGetDeviceItem(route.query.id), {
   onTrack(e) {
     const { columns = [], modeList = [] } = e.target
     deviceColumns.value = columns.filter((item) => item.use != SWITCH)
-    console.log('deviceColumns', deviceColumns.value)
-    config.value = Object.assign({}, ...modeList.map((item) => ({ [item.use]: item.modeValue })))
+    config.value = Object.assign({}, ...modeList.map((item) => ({ [item.use]: item.modeValue })), {
+      [SWITCH]: 'on',
+    })
+    console.log('config', config.value)
   },
+})
+
+const colorTemperatureRange = computed(() => {
+  if (!deviceUseList(route.query.id)?.includes(COLOURTEMPERATURE)) return [0, 100]
+  return stringToArray(
+    deviceItem.value.columns.find((item) => item.use === COLOURTEMPERATURE).useValueRange
+  )
 })
 
 const onPickerConfirm = (values) => {
@@ -56,39 +68,56 @@ const openLampConfig = (item) => {
   }
 }
 
-const onChange = (use) => {
-  console.log(use)
+function onColorPickerChange({ color, ratio }) {
+  config.value = { ...config.value, [COLOURTEMPERATURE]: ratio }
+}
 
-  //设备控制数据
-  const { modeList } = deviceItem.value
-  const newModeList = modeList.map((modeItem) => {
-    return {
-      ...modeItem,
-      modeStatus: modeItem.use,
-      modeValue: use == modeItem.use ? config.value[use] : modeItem.modeValue,
-    }
-  })
-  const actions = getSceneActions(newModeList, route.query.id)
-  console.log(actions)
-  //
-  showLigth.value = false
+function onSwitchChange(value) {
+  switch (route.query.classify) {
+    case '100':
+      config.value = { ...config.value, [BRIGHTNESS]: value == 'on' ? 100 : 0 }
+      break
+
+    default:
+      break
+  }
 }
 
 onMounted(() => {})
 
 const onSave = () => {
-  router.push({ path: '/smart-scene-create' })
+  const { modeList } = deviceItem.value
+  //设备控制数据
+  const newModeList = modeList.map((modeItem) => {
+    return { ...modeItem, modeStatus: modeItem.use, modeValue: config.value[modeItem.use] }
+  })
+  // const actions = getSceneActions(newModeList, route.query.id)
+  // const newActions = sceneCreateItem.value.actions
+  //   ? sceneCreateItem.value.actions.map((actionItem) => {
+  //       const newActionItem = actions.find((item) => item.ziyuanbianhao == actionItem.ziyuanbianhao)
+  //       return newActionItem ? newActionItem : actionItem
+  //     })
+  //   : actions
+  const newDeviceItem = { ...deviceItem.value, modeList: newModeList }
+  const deviceList = sceneCreateItem.value.deviceList
+    ? sceneCreateItem.value.deviceList.map((item) => {
+        if (item.id == route.query.id) return newDeviceItem
+        return item
+      })
+    : [newDeviceItem]
+  sceneCreateItem.value = { ...sceneCreateItem.value, deviceList }
+  router.go(-4)
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="设备配置" />
-    <van-radio-group v-model="checked" class="mt-4">
+    <HeaderNavbar :title="`${deviceItem?.label}设备配置`" />
+    <van-radio-group v-model="config[SWITCH]" class="mt-4" @change="onSwitchChange">
       <van-cell-group inset>
-        <van-cell clickable title="开" @click="checked = '1'">
+        <van-cell clickable title="开" @click="config[SWITCH] = 'on'">
           <template #right-icon>
-            <van-radio name="1"> </van-radio>
+            <van-radio name="on"> </van-radio>
           </template>
         </van-cell>
         <!--设备属性-->
@@ -98,23 +127,22 @@ const onSave = () => {
               v-for="(columnItem, columnIndex) in deviceColumns"
               :key="columnIndex"
               clickable
-              :title="columnItem?.text"
+              :title="columnItem?.useName"
               is-link
               @click="openLampConfig(columnItem)"
             >
             </van-cell>
-
             <van-popup v-model:show="showLigth" round teleport="body" position="bottom">
               <ul class="py-4">
                 <li>
                   <van-cell title="亮度" :boder="false">
                     <template #right-icon>
-                      <van-icon name="success" size="26" @click="onChange(BRIGHTNESS)" />
+                      <van-icon name="success" size="26" @click="showLigth = false" />
                     </template>
                   </van-cell>
                   <div class="flex h-40 items-center justify-center p-8">
                     <div class="w-full">
-                      <van-slider v-model="config[BRIGHTNESS]" min="1">
+                      <van-slider v-model="config[BRIGHTNESS]" min="0">
                         <template #button>
                           <div
                             class="w-10 rounded-full bg-white py-1 text-center text-primary shadow"
@@ -128,9 +156,15 @@ const onSave = () => {
                 </li>
               </ul>
             </van-popup>
-            <ColorPicker ref="colorPickerRef" v-bind="colorConfig">
+            <ColorPicker
+              ref="colorPickerRef"
+              v-bind="colorConfig"
+              :min="colorTemperatureRange[0]"
+              :max="colorTemperatureRange[1]"
+              @change="onColorPickerChange"
+            >
               <template #default="{ ratio }">
-                <p>{{ ratio }}</p>
+                <label>{{ ratio }}K</label>
               </template>
             </ColorPicker>
           </template>
@@ -157,9 +191,9 @@ const onSave = () => {
           </template>
         </div>
 
-        <van-cell clickable title="关" @click="checked = '2'">
+        <van-cell clickable title="关" @click="config[SWITCH] = 'off'">
           <template #right-icon>
-            <van-radio name="2"> </van-radio>
+            <van-radio name="off"> </van-radio>
           </template>
         </van-cell>
       </van-cell-group>
