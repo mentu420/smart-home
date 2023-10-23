@@ -1,5 +1,4 @@
 <script setup>
-import { Devices } from '@icon-park/vue-next/es/map'
 import { storeToRefs } from 'pinia'
 import { showToast } from 'vant'
 import { computed, ref } from 'vue'

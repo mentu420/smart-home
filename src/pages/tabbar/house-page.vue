@@ -165,7 +165,7 @@ watch(
   }
 )
 
-const goAddDevice = () => router.push({ path: '/house-ddd-device' })
+const goAddDevice = () => router.push({ path: '/house-add-device' })
 </script>
 
 <template>

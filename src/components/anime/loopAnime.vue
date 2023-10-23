@@ -1,92 +1,57 @@
 <script setup>
-import anime from 'animejs/lib/anime.es.js'
+import { gsap } from 'gsap'
 import { ref, onMounted } from 'vue'
 
-const tl = ref(null)
+const roundRef = ref([])
+const roundList = ref([1, 2, 3, 4])
+const timeline = ref(null)
 
-const init = () => {
-  const wrapperEl = document.querySelector('.wrapper')
-  const numberOfEls = 90
-  const duration = 6000
-  const delay = duration / numberOfEls
-
-  tl.value = anime.timeline({
-    duration: delay,
-    complete: function () {
-      tl.value.restart()
-    },
-  })
-
-  function createEl(i) {
-    let el = document.createElement('div')
-    const rotate = (360 / numberOfEls) * i
-    const translateY = -50
-    const hue = Math.round((360 / numberOfEls) * i)
-    el.classList.add('el')
-    el.style.backgroundColor = 'hsl(' + hue + ', 40%, 60%)'
-    el.style.transform = 'rotate(' + rotate + 'deg) translateY(' + translateY + '%)'
-    tl.value.add({
-      begin: function () {
-        anime({
-          targets: el,
-          backgroundColor: ['hsl(' + hue + ', 40%, 60%)', 'hsl(' + hue + ', 60%, 80%)'],
-          rotate: [rotate + 'deg', rotate + 10 + 'deg'],
-          translateY: [translateY + '%', translateY + 10 + '%'],
-          scale: [1, 1.25],
-          easing: 'easeInOutSine',
-          direction: 'alternate',
-          duration: duration * 0.1,
-        })
-      },
-    })
-    wrapperEl.appendChild(el)
-  }
-
-  for (let i = 0; i < numberOfEls; i++) createEl(i)
+const play = () => {
+  timeline.value.forEach((a) => a?.play())
+}
+const pause = () => {
+  timeline.value.forEach((a) => a?.pause())
 }
 
 onMounted(() => {
-  init()
+  timeline.value = gsap.timeline()
+  const duration = 6
+  timeline.value = roundList.value.map((item, i) => {
+    return gsap.fromTo(
+      roundRef.value[i],
+      { scale: 1, duration: duration, repeat: -1, ease: 'ease' },
+      { scale: 5, opacity: 0, duration: duration, repeat: -1, ease: 'ease', delay: i }
+    )
+  })
+  timeline.value = [
+    ...timeline.value,
+    gsap.fromTo('.conic-round', { rotate: 0 }, { rotate: 360, duration: 6, repeat: -1 }),
+  ]
 })
 
-const restart = () => tl.value.restart()
-
-const pause = () => tl.value.pause()
-
-defineExpose({ restart, pause })
+defineExpose({ play, pause, timeline })
 </script>
 
 <template>
-  <div class="view">
-    <div class="wrapper"></div>
+  <div class="relative h-[212px] w-[212px] rounded-full overflow-hidden">
+    <div
+      class="w-full h-full rounded-full bg-[#666] bg-opacity-5 flex justify-center items-center"
+    ></div>
+    <div
+      v-for="(item, i) in roundList"
+      :key="item"
+      :ref="(el) => (roundRef[i] = el)"
+      class="w-[42px] h-[42px] bg-[#666] rounded-full bg-opacity-30 flex justify-center items-center absolute left-[85px] top-[85px]"
+    ></div>
+    <div
+      class="conic-round h-[212px] w-[212px] bg-green-300 rounded-full absolute left-0 top-0"
+    ></div>
   </div>
 </template>
 
-<style>
-.view {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
-
-.wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  width: 1px;
-  height: 100%;
-}
-
-.el {
-  position: absolute;
-  opacity: 1;
-  width: 2px;
-  height: 12vh;
-  margin-top: -12vh;
-  transform-origin: 50% 100%;
-  background: white;
+<style lang="scss" scoped>
+.conic-round {
+  background: conic-gradient(#5ea8f1 1deg, 1%, transparent 15deg);
+  transform: rotateY(180deg);
 }
 </style>

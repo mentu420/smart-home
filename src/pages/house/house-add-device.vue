@@ -11,7 +11,7 @@ const action = ref(0)
 
 const onStart = () => {
   action.value = 0
-  animeRef.value.restart()
+  animeRef.value.play()
   onPause()
 }
 

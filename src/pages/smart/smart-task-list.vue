@@ -21,7 +21,7 @@ const router = useRouter()
         "
       >
         <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
-          <IconPark size="1.8em" type="switch-one" fill="#fff" />
+          <IconFont class="text-white text-xs" icon="lamp-fill" />
         </div>
         <div class="ml-3">
           <p>智能设备</p>
@@ -33,7 +33,7 @@ const router = useRouter()
         @touchstart="() => {}"
       >
         <div class="h-10 w-10 rounded-full bg-orange-300 p-2">
-          <IconPark size="1.8em" type="application-effect" fill="#fff" />
+          <IconFont class="text-white text-xs" icon="reservation" />
         </div>
         <div class="ml-3">
           <p>控制场景</p>

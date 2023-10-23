@@ -10,10 +10,10 @@ defineOptions({ name: 'MePage' })
 const router = useRouter()
 
 const navList = ref([
-  { path: '/me-house', text: '家庭管理', icon: 'application' },
-  { path: '/me-conceal', text: '隐私政策', icon: 'personal-privacy' },
-  { path: '/me-agreement', text: '软件许可及服务协议', icon: 'agreement' },
-  { path: '/me-about', text: '关于', icon: 'tag-one' },
+  { path: '/me-house', text: '家庭管理', icon: 'wap-home-o' },
+  { path: '/me-conceal', text: '隐私政策', icon: 'miniprogram-o' },
+  { path: '/me-agreement', text: '软件许可及服务协议', icon: 'certificate' },
+  { path: '/me-about', text: '关于', icon: 'warning-o' },
 ])
 
 const { userInfo = {} } = storeToRefs(userStore())
@@ -43,7 +43,7 @@ onActivated(init)
         @click="router.push({ path: navItem.path })"
       >
         <div class="flex items-center">
-          <IconPark size="24" :type="navItem.icon" />
+          <van-icon :name="navItem.icon" size="2em" />
           <p class="ml-4">{{ navItem.text }}</p>
         </div>
         <van-icon name="arrow" />

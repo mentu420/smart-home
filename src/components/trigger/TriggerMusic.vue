@@ -1,5 +1,4 @@
 <script setup>
-import { UpdateRotation } from '@icon-park/vue-next/es/map'
 import { useRect } from '@vant/use'
 import { ref, computed, watch, nextTick } from 'vue'
 

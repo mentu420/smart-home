@@ -158,7 +158,7 @@ watch(
               @select="delEventItem"
             >
               <template #reference>
-                <IconPark type="more-one" />
+                <IconFont class="text-xs" icon="trash" />
               </template>
             </van-popover>
           </p>
@@ -188,7 +188,7 @@ watch(
               @select="delTimeItem(eventIndex)"
             >
               <template #reference>
-                <IconPark type="more-one" />
+                <IconFont class="text-xs" icon="trash" />
               </template>
             </van-popover>
           </p>

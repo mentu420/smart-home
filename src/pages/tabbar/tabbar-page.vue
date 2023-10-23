@@ -11,9 +11,9 @@ const route = useRoute()
 const tabIndex = ref(0)
 
 const tabs = ref([
-  { text: '家', icon: 'home', index: 0, path: '/tabbar/tabbar-house' },
-  { text: '智能', icon: 'config', index: 1, path: '/tabbar/tabbar-smart' },
-  { text: '我的', icon: 'people', index: 2, path: '/tabbar/tabbar-me' },
+  { text: '家', icon: 'wap-home-o', index: 0, path: '/tabbar/tabbar-house' },
+  { text: '智能', icon: 'home-o', index: 1, path: '/tabbar/tabbar-smart' },
+  { text: '我的', icon: 'user-circle-o', index: 2, path: '/tabbar/tabbar-me' },
 ])
 
 const onChange = (index) => {
@@ -54,7 +54,7 @@ export default {
     <van-tabbar
       v-model="tabIndex"
       route
-      active-color="#000"
+      active-color="#e39334"
       placeholder
       z-index="99"
       :border="false"
@@ -66,11 +66,8 @@ export default {
         :key="tabItem.index"
         :name="tabItem.index"
         :to="tabItem.path"
+        :icon="tabItem.icon"
       >
-        <template #icon>
-          <IconPark v-if="tabIndex == tabItem.index" :type="tabItem.icon" theme="filled" />
-          <IconPark v-else :type="tabItem.icon" theme="outline" />
-        </template>
         {{ tabItem.text }}
       </van-tabbar-item>
     </van-tabbar>

@@ -2,6 +2,8 @@
 import { ref, reactive, computed, useAttrs, useSlots } from 'vue'
 import { useRouter } from 'vue-router'
 
+defineOptions({ name: 'HeaderNavbar' })
+
 const router = useRouter()
 
 const attrs = useAttrs()
@@ -26,12 +28,6 @@ const _attrs = computed(() => {
 const onClickLeft = () => {
   if (typeof attrs['onClickLeft'] === 'function') return
   router.back()
-}
-</script>
-
-<script>
-export default {
-  name: 'HeaderNavbar',
 }
 </script>
 

@@ -20,8 +20,6 @@ const onComfirm = () => {
   updateSceneCreateItem({ img: checked.value })
   router.back()
 }
-
-defineOptions({ name: 'SmartSceneGallery' })
 </script>
 
 <template>

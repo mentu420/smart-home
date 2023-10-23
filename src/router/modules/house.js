@@ -1,6 +1,6 @@
 export default [
   {
-    path: '/house-ddd-device',
+    path: '/house-add-device',
     name: 'HouseAddDevice',
     component: () => import('@/pages/house/house-add-device.vue'),
     meta: { title: '添加设备' },

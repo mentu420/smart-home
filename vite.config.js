@@ -3,36 +3,20 @@ import path from 'path'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { VantResolver } from 'unplugin-vue-components/resolvers'
-import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import eslintPlugin from 'vite-plugin-eslint' //打包后文件分析
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          // 解决iconpark-icon 是自定义 html 元素而非 vue 组件
-          isCustomElement: (tag) => tag === 'iconpark-icon',
-        },
-      },
-    }),
     // Components({
     //   resolvers: [VantResolver()],
     // }),
+    vue(),
     eslintPlugin({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
     }),
-    visualizer({ open: true, brotliSize: true, filename: 'report.html' }),
-    [
-      'import',
-      {
-        libraryName: '@icon-park/vue-next',
-        libraryDirectory: 'es/icons',
-        camel2DashComponentName: false,
-      },
-    ],
+    visualizer({ open: false, brotliSize: true, filename: 'report.html' }),
   ],
   base: './',
   resolve: {
