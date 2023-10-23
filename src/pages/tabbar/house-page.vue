@@ -124,7 +124,6 @@ const getFloorTree = () => {
     }
     return { ...item, data: deviceList.value?.filter((deviceItem) => deviceItem.collect == 1) }
   })
-  console.log('collectList', collectList.value)
   floorTree.value = useHouseStore.useGetFloorTree()
 }
 

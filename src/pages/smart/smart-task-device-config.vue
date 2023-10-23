@@ -4,12 +4,14 @@ import { useRouter, useRoute } from 'vue-router'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import PickerSearch from '@/components/common/PickerSearch.vue'
+import { useTrigger } from '@/components/trigger/useTrigger'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
 const { useGetDeviceItem, deviceUseList } = deviceStore()
+const { getSceneActions, getModeColumns } = useTrigger()
 
 const route = useRoute()
 const router = useRouter()
@@ -22,24 +24,16 @@ const showPricker = ref(false)
 
 const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
 
-const deviceItem = computed(() => useGetDeviceItem(route.query.id))
+const deviceColumns = ref([])
 const config = ref({})
-const deviceColumns = computed(
-  () => {
-    return deviceUseList(route.query.id)
-      .filter((use) => use != 'switch')
-      .map((item) => {
-        const list = deviceItem.value.columns.filter((columnItem) => columnItem.use == item)
-        return { use: item, text: list[0].useName, list }
-      })
+const deviceItem = computed(() => useGetDeviceItem(route.query.id), {
+  onTrack(e) {
+    const { columns = [], modeList = [] } = e.target
+    deviceColumns.value = columns.filter((item) => item.use != SWITCH)
+    console.log('deviceColumns', deviceColumns.value)
+    config.value = Object.assign({}, ...modeList.map((item) => ({ [item.use]: item.modeValue })))
   },
-  {
-    onTrack(e) {
-      const { columns = [], modeList = [] } = e.target
-      config.value = Object.assign({}, ...modeList.map((item) => ({ [item.use]: item.modeValue })))
-    },
-  }
-)
+})
 
 const onPickerConfirm = (values) => {
   console.log(values)
@@ -74,7 +68,9 @@ const onChange = (use) => {
       modeValue: use == modeItem.use ? config.value[use] : modeItem.modeValue,
     }
   })
-  console.log('change', newModeList)
+  const actions = getSceneActions(newModeList, route.query.id)
+  console.log(actions)
+  //
   showLigth.value = false
 }
 

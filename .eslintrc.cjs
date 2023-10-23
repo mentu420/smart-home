@@ -38,6 +38,7 @@ module.exports = {
     BMap: 'readonly',
     BMAP_ANIMATION_BOUNCE: 'readonly',
     BMAP_STATUS_SUCCESS: 'readonly',
+    Paho: 'readonly',
   },
   // 这里时配置规则的,自己看情况配置
   rules: {
