@@ -26,9 +26,9 @@ const addPressEvent = () => {
     </div>
     <section class="p-4">
       <button
+        v-clickable-active
         :disabled="sceneCreateItem.fenlei && sceneCreateItem.fenlei == 1"
         class="mb-4 flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
-        @touchstart="() => {}"
         @click="addPressEvent"
       >
         <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
@@ -40,8 +40,8 @@ const addPressEvent = () => {
         </div>
       </button>
       <button
+        v-clickable-active
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50"
-        @touchstart="() => {}"
         @click="
           router.push({
             path: '/smart-condtion-time',

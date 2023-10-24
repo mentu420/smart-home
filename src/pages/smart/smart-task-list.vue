@@ -12,8 +12,8 @@ const router = useRouter()
     <HeaderNavbar title="添加条件" />
     <section class="p-4">
       <div
+        v-clickable-active
         class="mb-4 flex items-center rounded-lg bg-white p-3 active:opacity-50"
-        @touchstart="() => {}"
         @click="
           router.push({
             path: '/smart-task-device-classify',
@@ -28,10 +28,7 @@ const router = useRouter()
           <p class="text-sm text-gray-500">如“打开空调”“关闭空调”</p>
         </div>
       </div>
-      <div
-        class="flex items-center rounded-lg bg-white p-3 active:opacity-50"
-        @touchstart="() => {}"
-      >
+      <div v-clickable-active class="flex items-center rounded-lg bg-white p-3 active:opacity-50">
         <div class="h-10 w-10 rounded-full bg-orange-300 p-2">
           <IconFont class="text-white text-xs" icon="reservation" />
         </div>

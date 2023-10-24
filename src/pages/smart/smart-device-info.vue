@@ -17,7 +17,7 @@ const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(useDeviceStore)
 
 const route = useRoute()
-const showPicker = ref(false)
+const roomPickerRef = ref(false)
 const showForm = ref(false)
 const loading = ref(false)
 const rId = ref(route.query.rId) //房间编号
@@ -40,7 +40,6 @@ const onPickerConfirm = async ({ selectedValues }) => {
     showToast('沒有房间！不能变更')
     return
   }
-  showPicker.value = false
   rId.value = selectedValues[1]
   await setDeviceList({
     params: { op: 3 },
@@ -95,17 +94,16 @@ const onCollectChange = async (value) => {
     <section class="m-4 overflow-hidden rounded-xl">
       <van-cell-group>
         <van-cell title="设备名称" :value="deviceItem?.label" is-link @click="showForm = true" />
-        <van-cell title="所属房间" :value="roomName" is-link @click="showPicker = true" />
+        <van-cell title="所属房间" :value="roomName" is-link @click="roomPickerRef.open()" />
         <van-cell center title="常用设备">
           <van-switch v-model="checked" :loading="loading" @change="onCollectChange" />
         </van-cell>
       </van-cell-group>
     </section>
     <PickerSearch
-      v-model:show="showPicker"
       :columns-field-names="{ text: 'label', value: 'id', children: 'roomList' }"
       :columns="columns"
-      @confirm="onPickerConfirm"
+      @select="onPickerConfirm"
     />
     <!--房间编辑-->
     <van-popup v-model:show="showForm" round teleport="body" position="center" closeable>

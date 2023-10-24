@@ -6,6 +6,7 @@ import { useRouter, useRoute } from 'vue-router'
 
 import { setSceneList } from '@/apis/smartApi.js'
 import SmartUploader from '@/components/common/SmartUploader.vue'
+import TimePicker from '@/components/common/TimePicker.vue'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import sceneStore from '@/store/sceneStore'
@@ -24,20 +25,16 @@ const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
 const executionTime = ref(['12', '00'])
 const eventActive = ref(0) //记录将要改变的事件
 const fileList = ref([])
+const operationRef = ref(null)
+const operationDealy = ref(['00', '00']) // 每个设备的延时
 
 const { getRepeatTimeText } = sceneStore()
 
-const goConditionConfig = () => {
-  router.push({ path: '/smart-condition' })
-}
-
 const onSave = async () => {
-  console.log('sceneCreateItem.value', sceneCreateItem.value)
   if (!sceneCreateItem.value.actions || sceneCreateItem.value?.actions?.length == 0) {
     showToast('请添加任务')
     return
   }
-  console.log('sceneCreateItem', sceneCreateItem.value)
   const params = { op: 2 }
   const data = sceneCreateItem.value
   const { code } = await setSceneList({ params, data })
@@ -80,9 +77,39 @@ const delEventItem = () => {
   updateSceneCreateItem({ fenlei: 2 })
 }
 
-const openGallery = () => {
-  showGallery.value = false
-  router.push({ path: '/smart-scene-gallery' })
+function onDeviceMoreSelect(action, index, deviceItem, modeItem) {
+  console.log('onDeviceMoreSelect', action, index, deviceItem, modeItem)
+  switch (index) {
+    case 0:
+      //TODO：控制设备
+      break
+    case 1:
+      operationRef.value?.open({ deviceItem, modeItem })
+      //延时
+      break
+    default:
+      //删除
+      break
+  }
+}
+
+function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
+  sceneCreateItem.value = {
+    ...sceneCreateItem.value,
+    deviceList: sceneCreateItem.value.deviceList.map((item) => {
+      if (item.id == deviceItem.id) {
+        return {
+          ...deviceItem,
+          modeList: deviceItem.modeList.map((option) => {
+            if (option.use == modeItem.use) {
+              return { ...modeItem, dealy: selectedValues[0] * 60 + Number(selectedValues[1]) }
+            }
+            return option
+          }),
+        }
+      }
+    }),
+  }
 }
 
 const init = () => {
@@ -98,6 +125,15 @@ watch(
     if (to == '/smart-scene-create' && form.value === '/tabbar/tabbar-smart') init()
   }
 )
+
+const goConditionConfig = () => {
+  router.push({ path: '/smart-condition' })
+}
+
+const openGallery = () => {
+  showGallery.value = false
+  router.push({ path: '/smart-scene-gallery' })
+}
 
 function goEventConfig() {
   router.push({
@@ -138,10 +174,19 @@ function goEventConfig() {
         <WeekRepeat v-model="weekChecked" /> -->
       </van-cell-group>
     </van-form>
-    <section class="p-4">
-      <!--事件-->
 
-      <ul
+    <!--事件-->
+    <section class="p-4">
+      <div
+        v-if="!sceneCreateItem.fenlei && sceneCreateItem.events.length == 0"
+        v-clickable-active
+        class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
+        @click="goConditionConfig"
+      >
+        <van-icon size="24" name="add" color="#e39334" />
+        <label class="ml-4">添加条件</label>
+      </div>
+      <ol
         v-if="sceneCreateItem.fenlei || sceneCreateItem?.events?.length > 0"
         class="flex items-center justify-between p-2"
       >
@@ -149,7 +194,8 @@ function goEventConfig() {
         <li @click="goConditionConfig">
           <van-icon size="24" name="add" color="#e39334" />
         </li>
-      </ul>
+      </ol>
+      <!--事件列表-->
       <ul>
         <li
           v-if="sceneCreateItem.fenlei && sceneCreateItem.fenlei == 1"
@@ -181,7 +227,7 @@ function goEventConfig() {
               {{ sceneCreateItem.fenlei && sceneCreateItem.fenlei == 1 ? '或' : '当' }}
             </label>
             <label
-              class="space-x-2 rounded bg-gray-100 px-2 py-1"
+              class="space-x-2 rounded-full bg-gray-100 px-4 py-1"
               @click="openExecutionTime(eventItem, eventIndex)"
             >
               <label>{{ getRepeatTimeText(eventItem.tiaojian.chongfuleixing) }}</label>
@@ -202,17 +248,19 @@ function goEventConfig() {
           </p>
         </li>
       </ul>
-      <ul
-        v-if="sceneCreateItem.fenlei || sceneCreateItem?.events?.length > 0"
-        class="flex items-center justify-between p-2"
+    </section>
+    <!--任务-->
+    <section class="p-4">
+      <div
+        v-if="!sceneCreateItem.deviceList || sceneCreateItem.deviceList?.length == 0"
+        v-clickable-active
+        class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
+        @click="goEventConfig"
       >
-        <li>触发事件</li>
-        <li @click="goConditionConfig">
-          <van-icon size="24" name="add" color="#e39334" />
-        </li>
-      </ul>
-      <!--任务-->
-      <ul
+        <van-icon size="24" name="add" color="#e39334" />
+        <label class="ml-4">添加任务</label>
+      </div>
+      <ol
         v-if="sceneCreateItem.deviceList?.length > 0"
         class="flex items-center justify-between p-2"
       >
@@ -220,39 +268,57 @@ function goEventConfig() {
         <li @click="goEventConfig">
           <van-icon size="24" name="add" color="#e39334" />
         </li>
-      </ul>
+      </ol>
+      <!--任务列表-->
       <ul>
-        <li
-          v-for="deviceItem in sceneCreateItem.deviceList"
-          :key="deviceItem.id"
-          class="space-x-4 bg-white p-4 rounded-lg"
-        >
-          <label>控制</label>
-          <label class="px-4 py-1 bg-gray-100 rounded-full">{{ deviceItem?.label }}</label>
+        <li v-for="deviceItem in sceneCreateItem.deviceList" :key="deviceItem.id" class="space-y-4">
+          <template v-for="(modeItem, modeIndex) in deviceItem.modeList" :key="modeIndex">
+            <div
+              v-if="modeItem.modeValue != ''"
+              class="p-4 bg-white rounded-lg flex justify-between items-center"
+            >
+              <p class="space-x-4">
+                <label>控制</label>
+                <label class="px-4 py-1 bg-gray-100 rounded-full">{{ deviceItem.label }}</label>
+                <label v-clickable-active class="px-4 py-1 bg-gray-100 rounded-full">
+                  {{ deviceItem.modeNames[modeItem.modeValue] }}
+                  <template v-if="modeItem.use != 'switch'"> - {{ modeItem.modeValue }} </template>
+                </label>
+              </p>
+              <van-popover
+                :actions="[{ text: '试一试' }, { text: '延时执行' }, { text: '删除' }]"
+                placement="left"
+                @select="(action, index) => onDeviceMoreSelect(action, index, deviceItem, modeItem)"
+              >
+                <template #reference>
+                  <IconFont v-clickable-active class="text-gray-300" icon="more-round" />
+                </template>
+              </van-popover>
+            </div>
+          </template>
         </li>
       </ul>
     </section>
-    <!--配置条件、任务按钮-->
-    <ul class="space-y-4 p-4">
-      <li
-        v-if="!sceneCreateItem.fenlei && sceneCreateItem.events.length == 0"
-        class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
-        @touchstart="() => {}"
-        @click="goConditionConfig"
-      >
-        <van-icon size="24" name="add" color="#e39334" />
-        <label class="ml-4">添加条件</label>
-      </li>
-      <li
-        v-if="!sceneCreateItem.deviceList || sceneCreateItem.deviceList?.length == 0"
-        class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
-        @touchstart="() => {}"
-        @click="goEventConfig"
-      >
-        <van-icon size="24" name="add" color="#e39334" />
-        <label class="ml-4">添加任务</label>
-      </li>
-    </ul>
+
+    <TimePicker
+      ref="operationRef"
+      v-model="operationDealy"
+      :columns-type="['minute', 'second']"
+      :formatter="
+        (type, option) => {
+          if (type === 'minute') {
+            option.text += '分'
+          }
+          if (type === 'second') {
+            option.text += '秒'
+          }
+          return option
+        }
+      "
+      @select="selectOperationDealy"
+    >
+    </TimePicker>
+
     <div class="p-6">
       <van-button type="primary" block round @click="onSave"> 保存 </van-button>
     </div>

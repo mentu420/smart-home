@@ -8,10 +8,11 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(['update:modelValue', 'select'])
 
 const attrs = useAttrs()
 const slots = useSlots()
+const scopeData = ref(null) // 打开picker时传的数据
 
 const showPicker = ref(false)
 
@@ -22,26 +23,34 @@ const currentTime = computed({
   },
 })
 
-const slotsKeys = computed(() =>
-  Object.keys(slots).filter((key) =>
-    ['default', 'title', 'confirm', 'cancel', 'option', 'columns-top', 'columns-bottom'].includes(
-      key
-    )
-  )
-)
+function open(data) {
+  showPicker.value = true
+  scopeData.value = data
+}
 
-const open = () => (showPicker.value = true)
+function close() {
+  showPicker.value = false
+}
 
-const close = () => (showPicker.value = false)
+function onConfirm(values) {
+  console.log(123)
+  close()
+  emits('select', values, scopeData.value)
+}
 
 defineExpose({ open, close })
 </script>
 
 <template>
   <van-popup v-model:show="showPicker" round position="bottom" teleport="body">
-    <van-time-picker v-model="currentTime" v-bind="attrs" @cancel="showPicker = false">
-      <template v-for="slotName of slotsKeys" #[slotName]>
-        <slot :name="slotName"></slot>
+    <van-time-picker
+      v-model="currentTime"
+      v-bind="attrs"
+      @cancel="showPicker = false"
+      @confirm="onConfirm"
+    >
+      <template v-for="(_, scopeSlotName) in slots" :key="scopeSlotName" #[scopeSlotName]="scope">
+        <slot :name="scopeSlotName" v-bind="scope" />
       </template>
     </van-time-picker>
   </van-popup>

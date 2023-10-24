@@ -24,18 +24,14 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['update:show', 'update:modelValue'])
+const emits = defineEmits(['update:show', 'update:modelValue', 'select'])
 
 const attrs = useAttrs()
 const slots = useSlots()
 const pickerRef = ref(null)
 const searchValue = ref('')
-const showPicker = computed({
-  get: () => props.show,
-  set: (val) => {
-    emits('update:show', val)
-  },
-})
+const scopeData = ref(null)
+const showPicker = ref(false)
 
 const selectedValues = computed({
   get: () => props.modelValue,
@@ -62,7 +58,21 @@ const _columns = computed(() => {
       )
 })
 
-defineExpose({ pickerRef })
+function open(data) {
+  showPicker.value = true
+  scopeData.value = data
+}
+
+function close() {
+  showPicker.value = false
+}
+
+function onConfirm(values) {
+  close()
+  emits('select', values, scopeData.value)
+}
+
+defineExpose({ pickerRef, open, close })
 </script>
 
 <template>
@@ -74,6 +84,7 @@ defineExpose({ pickerRef })
       :class="{ ellipsis: !props.ellipsis }"
       :columns="_columns"
       @cancel="showPicker = false"
+      @confirm="onConfirm"
     >
       <template #columns-top>
         <form v-if="searchKey" action="/">
@@ -82,7 +93,7 @@ defineExpose({ pickerRef })
         <slot name="columns-top"> </slot>
       </template>
       <template v-for="(_, scopeSlotName) in slots" :key="scopeSlotName" #[scopeSlotName]="scope">
-        <slot :name="scopeSlotName" v-bind="scope" :loading="loading" />
+        <slot :name="scopeSlotName" v-bind="scope" />
       </template>
     </van-picker>
   </van-popup>

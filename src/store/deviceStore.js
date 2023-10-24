@@ -41,6 +41,10 @@ export default defineStore(storeName, () => {
           }
           return typeItem
         })
+        const modeNames = Object.assign(
+          {},
+          ...columns.map((columnItem) => ({ [columnItem.useEn]: columnItem.useCn }))
+        )
         const useList = [...new Set(columns?.map((item) => item.use))]
         return {
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
@@ -55,12 +59,9 @@ export default defineStore(storeName, () => {
               useColumns, // 当前模块的选项
               modeValue: '', // 当前模块控制值
               modeStatus: '', //当前模块控制状态
-              modeNames: Object.assign(
-                {},
-                ...columns.map((columnItem) => ({ [columnItem.useEn]: columnItem.useCn }))
-              ),
             }
           }),
+          modeNames,
           label: item.mingcheng,
           id: item.bianhao,
           rId: item.fangjianbianhao, //房间编号

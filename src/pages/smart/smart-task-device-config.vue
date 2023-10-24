@@ -23,7 +23,7 @@ const router = useRouter()
 const colorPickerRef = ref(null)
 const showLigth = ref(false)
 const useKey = ref('')
-const showPricker = ref(false)
+const prickerRef = ref(false)
 
 const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
 
@@ -178,15 +178,14 @@ const onSave = () => {
               @click="
                 () => {
                   useKey = columnItem.use
-                  showPricker = true
+                  prickerRef.open()
                 }
               "
             ></van-cell>
             <PickerSearch
-              v-model:show="showPricker"
               :columns="deviceColumns.find((item) => item.use == useKey)?.list"
               :columns-field-names="{ text: 'useCn', value: 'useEn' }"
-              @confirm="onPickerConfirm"
+              @select="onPickerConfirm"
             />
           </template>
         </div>
