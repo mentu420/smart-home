@@ -15,7 +15,7 @@ const theme = ref('light')
 const themeVars = reactive({})
 
 useRem()
-initClient()
+// initClient()
 
 watch(
   () => route.path,

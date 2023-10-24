@@ -10,6 +10,5 @@ export const request = async (axiosOptions = {}) => {
   if (withParams) config = authSign(config)
   // 带token
   if (withToken) config = authToken(config)
-
   return useAxios(config)
 }

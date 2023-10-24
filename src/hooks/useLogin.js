@@ -4,7 +4,7 @@ import DeviceInfo from '@/utils/deviceInfo.js'
 
 const useLogin = async (loginData) => {
   const { useSetToken } = userStore()
-  const { data } = await setUserConfig(
+  const { data, code, des } = await setUserConfig(
     {
       params: { op: '0' },
       data: {
@@ -18,6 +18,7 @@ const useLogin = async (loginData) => {
     },
     { withToken: false }
   )
+  if (code != 0) throw new Error(des)
   useSetToken(data)
 }
 
