@@ -55,6 +55,10 @@ export default defineStore(storeName, () => {
               useColumns, // 当前模块的选项
               modeValue: '', // 当前模块控制值
               modeStatus: '', //当前模块控制状态
+              modeNames: Object.assign(
+                {},
+                ...columns.map((columnItem) => ({ [columnItem.useEn]: columnItem.useCn }))
+              ),
             }
           }),
           label: item.mingcheng,

@@ -1,4 +1,5 @@
 <script setup>
+import { showDialog } from 'vant'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -13,6 +14,7 @@ const router = useRouter()
 const form = ref({})
 const checked = ref(true) // 是否记住账号密码
 const formRef = ref(null)
+const loading = ref(false)
 
 const getRegisterCode = async () => {
   try {
@@ -24,8 +26,15 @@ const getRegisterCode = async () => {
 }
 
 const onSubmit = async (value) => {
-  await useLogin({ shoujihaoma: value.phone, mima: value.code })
-  router.replace({ path: '/tabbar/tabbar-house' })
+  try {
+    loading.value = true
+    await useLogin({ shoujihaoma: value.phone, mima: value.code })
+    router.replace({ path: '/tabbar/tabbar-house' })
+  } catch (error) {
+    showDialog({ title: '错误', message: JSON.stringify(error) })
+  } finally {
+    loading.value = false
+  }
 }
 
 const goOtherLogin = () => {

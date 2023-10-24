@@ -1,5 +1,5 @@
 <script setup>
-import md5 from 'js-md5'
+import { showDialog } from 'vant'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -15,18 +15,26 @@ const checked = ref(true) // 是否记住账号密码
 const show = ref(false) //是否展示记住的账号
 const showPassword = ref(false)
 const accountList = ref([])
+const loading = ref(false)
 
 const onSubmit = async (values) => {
-  if (checked.value) {
-    accountList.value = accountList.value.map((accountItem) => {
-      if (accountItem.username == values.username) return values
-      return accountItem
-    })
-    setStorage('account-list', accountList.value)
-  }
-  await useLogin({ shoujihaoma: values.username, mima: values.password, dengluleixing: 1 })
+  try {
+    loading.value = true
+    if (checked.value) {
+      accountList.value = accountList.value.map((accountItem) => {
+        if (accountItem.username == values.username) return values
+        return accountItem
+      })
+      setStorage('account-list', accountList.value)
+    }
+    await useLogin({ shoujihaoma: values.username, mima: values.password, dengluleixing: 1 })
 
-  router.replace({ path: '/tabbar/tabbar-house' })
+    router.replace({ path: '/tabbar/tabbar-house' })
+  } catch (error) {
+    showDialog({ title: '错误', message: JSON.stringify(error) })
+  } finally {
+    loading.value = false
+  }
 }
 
 const selectAccountItem = (item) => {
@@ -107,7 +115,9 @@ const goOtherLogin = () => {
         <van-checkbox v-model="checked">记住密码</van-checkbox>
       </div>
       <div class="my-4">
-        <van-button round block type="primary" native-type="submit"> 登录 </van-button>
+        <van-button round block type="primary" :loading="loading" native-type="submit">
+          登录
+        </van-button>
       </div>
       <div class="text-center" @click="goOtherLogin">其他方式登录</div>
     </van-form>
