@@ -22,7 +22,9 @@ function onConnect() {
   const { yonghubianhao } = getStorage(import.meta.env.VITE_APP_STORAGE_TOKEN)
   var topic1 = `Cloud/Device/State/${yonghubianhao}` //设备状态接收主题
   var topic2 = `Cloud/Result/${yonghubianhao}` //通用结果应答主题
-  client.subscribe(topic1)
+  client.subscribe(topic1, (data) => {
+    console.log(topic1, data)
+  })
   client.subscribe(topic2)
 }
 
@@ -39,6 +41,6 @@ function onMessageArrived(message) {
 //发送消息
 function sendMessage(msg) {
   var message = new Message(msg)
-  message.destinationName = 'cloud/device/control'
+  message.destinationName = 'Cloud/device/control'
   client.send(message)
 }

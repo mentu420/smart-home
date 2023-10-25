@@ -27,6 +27,7 @@ const init = () => {
     useLogout()
     return
   }
+
   const tabItem = tabs.value.find((item) => item.path == route.path)
   if (route.path != tabItem.path) return
   tabIndex.value = tabItem.index

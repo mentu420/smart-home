@@ -25,7 +25,8 @@ init()
     <HeaderNavbar :title="route.query.name">
       <template #right>
         <IconFont
-          icon="more-square"
+          class="text-xs text-gray-400"
+          icon="more-round"
           @click="
             router.push({
               path: '/smart-device-info',

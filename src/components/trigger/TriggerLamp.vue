@@ -62,7 +62,7 @@ const onDeviceChange = debounce(() => {
   //设备控制数据
   const { modeList } = deviceItem.value
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeStatus: modeItem.use, modeValue: config.value[modeItem.use] }
+    return { ...modeItem, modeStatus: config.value[modeItem.use], modeValue: '1' }
   })
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value, modeList: newModeList })

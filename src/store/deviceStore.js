@@ -48,11 +48,11 @@ export default defineStore(storeName, () => {
         const useList = [...new Set(columns?.map((item) => item.use))]
         return {
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
-          // 记录暑假原始值
-          columns,
+          columns, // 记录暑假原始值
           // 记录当前设备模块控制值
           modeList: useList.map((use) => {
             const useColumns = columns.filter((item) => item.use == use)
+            // mqtt 对应关系 {use:shuxing, modeValue:shuxingzhi, modeStatus:shuxingzhuangtai}
             return {
               label: useColumns[0].useName, //当前模块名称
               use, // 当前模块标识

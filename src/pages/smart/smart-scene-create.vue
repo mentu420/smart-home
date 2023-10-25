@@ -178,7 +178,7 @@ function goEventConfig() {
     <!--事件-->
     <section class="p-4">
       <div
-        v-if="!sceneCreateItem.fenlei && sceneCreateItem.events.length == 0"
+        v-if="!sceneCreateItem.fenlei && sceneCreateItem?.events?.length == 0"
         v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goConditionConfig"
@@ -218,7 +218,7 @@ function goEventConfig() {
           </p>
         </li>
         <li
-          v-for="(eventItem, eventIndex) in sceneCreateItem.events"
+          v-for="(eventItem, eventIndex) in sceneCreateItem?.events"
           :key="eventIndex"
           class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
         >

@@ -6,7 +6,7 @@ import 'tailwindcss/tailwind.css'
 // import 'vant/es/notify/style'
 // import 'vant/es/toast/style'
 import 'vant/lib/index.css'
-import { createApp } from 'vue'
+import { createApp, provide } from 'vue'
 import { createPahoMqttPlugin } from 'vue-paho-mqtt'
 import Vue3TouchEvents from 'vue3-touch-events'
 
@@ -28,6 +28,8 @@ import Router from './router'
 import { useVant } from './vant'
 
 const app = createApp(App)
+
+app.provide('App', app)
 
 useVant(app)
 

@@ -31,7 +31,7 @@ const onSubmit = async (value) => {
     await useLogin({ shoujihaoma: value.phone, mima: value.code })
     router.replace({ path: '/tabbar/tabbar-house' })
   } catch (error) {
-    showDialog({ title: '错误', message: JSON.stringify(error) })
+    showDialog({ title: '错误', message: error?.data?.des || JSON.stringify(error?.data) })
   } finally {
     loading.value = false
   }

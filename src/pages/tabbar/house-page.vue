@@ -1,6 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { computed, onActivated, onMounted, ref, watch } from 'vue'
+import { $mqtt } from 'vue-paho-mqtt'
 import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
