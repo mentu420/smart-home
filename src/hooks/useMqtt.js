@@ -63,10 +63,14 @@ export default function useMqtt() {
    *  shuxingzhi:'要控制的设备的物模型属性值 说明：只有是动态属性值(亮度，温度，色温等)的才需要传该值，否则可以默认传"1" ',
    * }
    * **/
-  function mqttPublish(message) {
+  function mqttPublish(message, mode = 'B') {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
-    $mqtt.publish(`Device/Control/${yonghubianhao}`, message, 'B')
+    $mqtt.publish(
+      `Device/Control/${yonghubianhao}`,
+      JSON.stringify({ ...message, msgid: new Date().valueOf() }),
+      mode
+    )
   }
 
   //connected | disconnected | connecting | error | lost | null
