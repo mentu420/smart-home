@@ -4,6 +4,7 @@ import { computed, reactive, ref } from 'vue'
 
 import { getDeviceList } from '@/apis/smartApi'
 import { CLASSIFY_ICON, CLASSIFY_EXECL, TYPE_EXECL, TYPE_VALUE_EXECL } from '@/enums/deviceEnums'
+import { imageTypes, isObjectString } from '@/utils/common'
 
 const storeName = 'deviceStore'
 
@@ -47,20 +48,6 @@ export default defineStore(storeName, () => {
         )
         const useList = [...new Set(columns?.map((item) => item.use))]
         return {
-          icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
-          columns, // 记录暑假原始值
-          // 记录当前设备模块控制值
-          modeList: useList.map((use) => {
-            const useColumns = columns.filter((item) => item.use == use)
-            // mqtt 对应关系 {use:shuxing, modeValue:shuxingzhi, modeStatus:shuxingzhuangtai}
-            return {
-              label: useColumns[0].useName, //当前模块名称
-              use, // 当前模块标识
-              useColumns, // 当前模块的选项
-              modeValue: '', // 当前模块控制值
-              modeStatus: '', //当前模块控制状态
-            }
-          }),
           modeNames,
           label: item.mingcheng,
           id: item.bianhao,
@@ -69,6 +56,20 @@ export default defineStore(storeName, () => {
           sort: item.paixu,
           collect: item.shouye, // 首页是否收藏
           category: item.xiaoleixing,
+          icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
+          columns, // 记录暑假原始值
+          // 记录当前设备模块控制值
+          // mqtt 对应关系 {use:shuxing, modeValue:shuxingzhi, modeStatus:shuxingzhuangtai}
+          modeList: useList.map((use) => {
+            const useColumns = columns.filter((item) => item.use == use)
+            return {
+              label: useColumns[0].useName, //当前模块名称
+              use, // 当前模块标识
+              useColumns, // 当前模块的选项
+              modeValue: '1', // 当前模块控制值
+              modeStatus: '', //当前模块控制状态
+            }
+          }),
         }
       })
       .sort((a, b) => a.sort - b.sort)
@@ -87,6 +88,27 @@ export default defineStore(storeName, () => {
     })
   }
 
+  // mqtt 改变设备状态
+  const useDeviceMqttChange = (json) => {
+    //{"bianhao":"9D3109E7-9236-4BE1-84B1-73B2A6FA4D5B","shuxing":"switch","shuxingzhuangtai":"on","shuxingzhi":""}
+    if (!json || !isObjectString(json)) return
+    const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi = '1' } = JSON.parse(json)
+    let deviceItem = deviceList.value.find((item) => item.id == bianhao)
+    if (!deviceItem) return
+    console.log('useDeviceMqttChange', deviceItem)
+    deviceItem = {
+      ...deviceItem,
+      modeList: deviceItem.modeList.map((modeItem) => {
+        if (modeItem.use == shuxing) {
+          return { ...modeItem, modeValue: shuxingzhi, modeStatus: shuxingzhuangtai }
+        }
+        return modeItem
+      }),
+    }
+
+    useDeviceItemChange(deviceItem)
+  }
+
   const reset = () => {
     deviceList.value = []
   }
@@ -98,6 +120,7 @@ export default defineStore(storeName, () => {
     useGetDeviceListSync,
     useDeviceItemChange,
     useGetDeviceItem,
+    useDeviceMqttChange,
     reset,
   }
 })

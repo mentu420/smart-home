@@ -35,12 +35,7 @@ const modeRef = ref(null)
 //温度、风俗、模式
 const config = ref({ [PALYCONTROL]: 'off', [MODE]: 'list', volume: 50, cutSong: '', process: 0 })
 
-const deviceItem = computed(() => useGetDeviceItem(props.id), {
-  onTrack(e) {},
-  onTrigger(e) {
-    console.log('onTrigger', e)
-  },
-})
+const deviceItem = computed(() => useGetDeviceItem(props.id))
 
 const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
 

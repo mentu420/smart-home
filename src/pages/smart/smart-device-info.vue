@@ -22,6 +22,7 @@ const showForm = ref(false)
 const loading = ref(false)
 const rId = ref(route.query.rId) //房间编号
 const deviceItem = computed(() => useDeviceStore.useGetDeviceItem(route.query.id))
+
 const roomName = computed(() => roomList.value.find((item) => item.id == rId.value)?.label)
 const checked = computed({
   get: () => deviceItem.value.collect == 1,

@@ -1,5 +1,6 @@
 <script setup>
 import { useRect } from '@vant/use'
+import { storeToRefs } from 'pinia'
 import { ref, computed, watch, nextTick } from 'vue'
 
 import { USE_KEY } from '@/enums/deviceEnums'
@@ -8,7 +9,7 @@ import { debounce } from '@/utils/common'
 
 import { useTrigger } from './useTrigger'
 
-const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
+const { useDeviceItemChange, useGetDeviceItem } = deviceStore()
 
 const { getSceneActions, getModeColumns } = useTrigger()
 
@@ -35,21 +36,21 @@ const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
-const config = ref({ [SWITCH]: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' })
+const config = ref({ [SWITCH]: 'off', [TEMPERATURE]: 26, [FAN]: 'auto', [MODE]: 'auto' })
 
-const deviceItem = computed(() => useGetDeviceItem(props.id), {
-  onTrack(e) {
-    const { columns = [], modeList = [] } = e.target
+const deviceItem = computed(() => useGetDeviceItem(props.id))
+
+watch(
+  () => deviceItem,
+  (val) => {
+    const { columns = [], modeList = [] } = val
     if (columns.length == 0) return
     const { useValueRange = '16,32' } = columns.find((item) => item.use == TEMPERATURE) || {}
     const [minValue, maxValue] = useValueRange.split(',')
     min.value = minValue
     max.value = maxValue
-  },
-  onTrigger(e) {
-    console.log('onTrigger', e)
-  },
-})
+  }
+)
 
 const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == FAN))
 
@@ -74,7 +75,13 @@ const onDeviceChange = debounce((use) => {
   const { modeList } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeStatus: config.value[modeItem.use], modeValue: '1' }
+    return {
+      ...modeItem,
+      modeStatus: [SWITCH, TEMPERATURE].includes(modeItem.use)
+        ? config.value[modeItem.use]
+        : modeItem.use,
+      modeValue: [SWITCH, TEMPERATURE].includes(modeItem.use) ? '1' : modeItem.use,
+    }
   })
 
   if (props.isUse) {

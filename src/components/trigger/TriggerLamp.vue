@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import { USE_KEY } from '@/enums/deviceEnums'
@@ -27,16 +27,6 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'update:hue', 'change'])
 
 const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
-
-const deviceItem = computed(() => useGetDeviceItem(props.id))
-const config = ref({
-  [SWITCH]: 'off',
-  [BRIGHTNESS]: 0,
-  [COLOURTEMPERATURE]: 1800,
-  color: '#fff',
-})
-const status = ref(false)
-
 const colorPickerRef = ref(null)
 const colorConfig = reactive({
   hue: 0,
@@ -46,6 +36,31 @@ const colorConfig = reactive({
   gradientColors: ['to top', '#FB8C1A', '#FAF6F7'],
   gradientType: 'linear',
 })
+
+const config = ref({
+  [SWITCH]: '0',
+  [BRIGHTNESS]: 0,
+  [COLOURTEMPERATURE]: 1800,
+  color: '#fff',
+})
+const deviceItem = computed(() => useGetDeviceItem(props.id))
+
+watch(
+  () => deviceItem.value,
+  (val) => {
+    console.log('123', val)
+    const { modeList } = val
+    Object.keys(config.value).forEach((key) => {
+      const modeItem = modeList.find((item) => item.use == key)
+      if (modeItem)
+        config.value = {
+          ...config.value,
+          [key]: key == SWITCH ? modeItem.modeStatus : parseInt(modeItem.modeValue),
+        }
+    })
+  }
+)
+
 const colorTemperatureRange = computed(() => {
   if (!deviceUseList(props.id)?.includes(COLOURTEMPERATURE)) return [0, 100]
   return stringToArray(
@@ -53,16 +68,20 @@ const colorTemperatureRange = computed(() => {
   )
 })
 
-const onDeviceChange = debounce(() => {
-  const switchMode = getModeColumns(SWITCH, deviceItem.value.modeList)
+const onDeviceChange = debounce((value) => {
   config.value = {
     ...config.value,
-    [SWITCH]: switchMode[status.value ? 1 : 0].useEn,
+    ...value,
+    [SWITCH]: config.value[SWITCH] == '1' ? '0' : '1',
   }
   //设备控制数据
   const { modeList } = deviceItem.value
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeStatus: config.value[modeItem.use], modeValue: '1' }
+    return {
+      ...modeItem,
+      modeStatus: modeItem.use == SWITCH ? config.value[modeItem.use] : modeItem.use,
+      modeValue: modeItem.use == SWITCH ? '1' : modeItem.use,
+    }
   })
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value, modeList: newModeList })
@@ -76,23 +95,15 @@ const onDeviceChange = debounce(() => {
 
 // 开关
 const toggle = () => {
-  status.value = !status.value
-  config.value = {
-    ...config.value,
-    [BRIGHTNESS]: config.value[BRIGHTNESS] == 0 ? 100 : 0,
-  }
-  onDeviceChange(SWITCH)
+  onDeviceChange({ [BRIGHTNESS]: config.value[BRIGHTNESS] == 0 ? 100 : 0 })
 }
 // 色温
 const onColorPickerChange = ({ color, ratio }) => {
-  if (!status.value) status.value = true
-  config.value = { ...config.value, [COLOURTEMPERATURE]: ratio, color }
-  onDeviceChange(COLOURTEMPERATURE)
+  onDeviceChange({ [COLOURTEMPERATURE]: ratio, color })
 }
 // 亮度
-const onBrightnessChange = () => {
-  if (!status.value) status.value = true
-  onDeviceChange(BRIGHTNESS)
+const onBrightnessChange = (value) => {
+  onDeviceChange({ [BRIGHTNESS]: value })
 }
 </script>
 
@@ -102,12 +113,12 @@ const onBrightnessChange = () => {
       <van-cell
         class="mt-4 rounded-xl"
         center
-        :title="status ? '已开启' : '已关闭'"
+        :title="config[SWITCH] ? '已开启' : '已关闭'"
         :border="false"
       >
         <template #right-icon>
           <IconFont
-            :class="status ? 'text-primary' : 'text-gray-400'"
+            :class="config[SWITCH] ? 'text-primary' : 'text-gray-400'"
             icon="switch"
             @click="toggle"
           />

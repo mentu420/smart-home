@@ -1,5 +1,6 @@
 import { createPahoMqttPlugin, $mqtt } from 'vue-paho-mqtt'
 
+import deviceStore from '@/store/deviceStore'
 import userStore from '@/store/userStore'
 
 export default function useMqtt() {
@@ -10,7 +11,7 @@ export default function useMqtt() {
     const plugins = createPahoMqttPlugin({
       PluginOptions: {
         autoConnect: false, //插件初始化时是否自动连接到代理。
-        showNotifications: true, //是否显示错误和成功通知。
+        showNotifications: false, //是否显示错误和成功通知。
       },
 
       MqttOptions: {
@@ -40,6 +41,8 @@ export default function useMqtt() {
      * **/
     $mqtt.subscribe(`Device/State/${yonghubianhao}`, (data) => {
       console.log('设备状态接收主题', data)
+      const { useDeviceMqttChange } = deviceStore()
+      useDeviceMqttChange(data)
     })
     /**
      * 云端/网关在完成一个操作后，进行应答 云服务器/网关->App

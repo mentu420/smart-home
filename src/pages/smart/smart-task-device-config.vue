@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
@@ -29,16 +29,19 @@ const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
 
 const deviceColumns = ref([])
 const config = ref({})
-const deviceItem = computed(() => useGetDeviceItem(route.query.id), {
-  onTrack(e) {
-    const { columns = [], modeList = [] } = e.target
+const deviceItem = computed(() => useGetDeviceItem(route.query.id))
+
+watch(
+  () => deviceItem.value,
+  (val) => {
+    const { columns = [], modeList = [] } = val
     deviceColumns.value = columns.filter((item) => item.use != SWITCH)
     config.value = Object.assign({}, ...modeList.map((item) => ({ [item.use]: item.modeValue })), {
       [SWITCH]: 'on',
     })
     console.log('config', config.value)
-  },
-})
+  }
+)
 
 const colorTemperatureRange = computed(() => {
   if (!deviceUseList(route.query.id)?.includes(COLOURTEMPERATURE)) return [0, 100]

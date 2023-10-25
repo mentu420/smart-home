@@ -21,8 +21,6 @@ const theme = ref('light')
 
 const themeVars = reactive({})
 
-console.log('app', app)
-
 useRem()
 
 watch(

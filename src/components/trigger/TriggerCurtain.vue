@@ -40,26 +40,29 @@ const config = ref({
   SWITCH: '',
 })
 
-const deviceItem = computed(() => useGetDeviceItem(props.id), {
-  onTrack(e) {
-    const { columns = [] } = e.target
+const deviceItem = computed(() => useGetDeviceItem(props.id))
+
+watch(
+  () => deviceItem.value,
+  (val) => {
+    const { columns = [] } = val
     if (columns.length == 0) return
     const { useValueRange = '0,100' } = columns.find((item) => item.use == 'percent') || {}
     const [minValue, maxValue] = useValueRange.split(',')
     min.value = minValue
     max.value = maxValue
-    console.log(e.target)
-  },
-  onTrigger(e) {
-    console.log('onTrigger', e)
-  },
-})
+  }
+)
 
 const onDeviceChange = debounce((use) => {
   const { modeList } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeStatus: config.value[modeItem.use], modeValue: '1' }
+    return {
+      ...modeItem,
+      modeStatus: modeItem.use == SWITCH ? config.value[modeItem.use] : modeItem.use,
+      modeValue: '1',
+    }
   })
   if (props.isUse) {
     useDeviceItemChange({ ...deviceItem.value })

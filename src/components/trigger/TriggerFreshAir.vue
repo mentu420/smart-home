@@ -37,19 +37,19 @@ const modeRef = ref(null)
 //温度、风俗、模式
 const config = ref({ [SWITCH]: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' })
 
-const deviceItem = computed(() => useGetDeviceItem(props.id), {
-  onTrack(e) {
-    const { columns = [], modeList = [] } = e.target
+const deviceItem = computed(() => useGetDeviceItem(props.id))
+
+watch(
+  () => deviceItem.value,
+  (val) => {
+    const { columns = [], modeList = [] } = val
     if (columns.length == 0) return
     const { useValueRange = '16,32' } = columns.find((item) => item.use == TEMPERATURE) || {}
     const [minValue, maxValue] = useValueRange.split(',')
     min.value = minValue
     max.value = maxValue
-  },
-  onTrigger(e) {
-    console.log('onTrigger', e)
-  },
-})
+  }
+)
 
 const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == FAN))
 
