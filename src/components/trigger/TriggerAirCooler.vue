@@ -13,7 +13,6 @@ import { useTrigger } from './useTrigger'
 const { useDeviceItemChange, useGetDeviceItem } = deviceStore()
 
 const { getSceneActions, getModeColumns, triggerControl } = useTrigger()
-const { mqttPublish } = useMqtt()
 
 const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
 
