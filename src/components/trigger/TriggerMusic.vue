@@ -103,14 +103,6 @@ const onProcessChange = (value) => {}
         />
       </li>
       <li class="flex flex-1 items-center justify-between rounded-lg bg-white px-3">
-        <van-stepper
-          v-model="config[VOLUME].useValue"
-          theme="round"
-          button-size="22"
-          disable-input
-          :min="0"
-          :max="100"
-        />
         <van-popover v-model:show="showVolume" :placement="placement">
           <template #reference>
             <IconFont :icon="config[VOLUME].useValue == 0 ? 'mute' : 'volume'" />
@@ -125,6 +117,14 @@ const onProcessChange = (value) => {}
             />
           </div>
         </van-popover>
+        <van-stepper
+          v-model="config[VOLUME].useValue"
+          theme="round"
+          button-size="22"
+          disable-input
+          :min="0"
+          :max="100"
+        />
       </li>
       <li class="flex flex-1 items-center justify-between rounded-lg bg-white">
         <TriggerModePopover

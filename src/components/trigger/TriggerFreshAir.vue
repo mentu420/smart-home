@@ -8,6 +8,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 
+import TriggerModePopover from './TriggerModePopover.vue'
 import { useTrigger } from './useTrigger'
 
 const { useDeviceItemChange, useGetDeviceItem } = deviceStore()
@@ -78,20 +79,8 @@ const currentSpeedItem = computed(() =>
   speedActions.value?.find((item) => item.useEn == config.value[FAN].useStatus)
 )
 
-const onSpeedSelect = (action) => {
-  if (disabled.value) return
-  config.value[FAN] = { ...config.value[FAN], useStatus: action.useEn }
-  showSpeed.value = false
-  if (config.value[SWITCH].useStatus == 'off') return
-  triggerControl(FAN, deviceItem.value, config.value)
-}
-
-const onModelSelect = (action) => {
-  if (disabled.value) return
-  config.value[MODE] = { ...config.value[MODE], useStatus: action.useEn }
-  showMode.value = false
-  if (config.value[SWITCH].useStatus == 'off') return
-  triggerControl(MODE, deviceItem.value, config.value)
+const onModeChange = (use) => {
+  triggerControl(use, deviceItem.value, config.value)
 }
 
 const toggle = () => {
@@ -117,7 +106,27 @@ const placement = computed(() => getPlacement(modeRef.value))
     </li>
 
     <div ref="modeRef" class="flex justify-between space-x-4" :class="disabledClass(config)">
-      <li
+      <template
+        v-for="modeItem in [
+          { title: '风速', use: FAN, actions: speedActions },
+          { title: '模式', use: MODE, actions: modeActions },
+        ]"
+        :key="modeItem.use"
+      >
+        <li
+          v-if="modeItem.actions?.length > 0"
+          class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
+        >
+          <TriggerModePopover
+            v-model="config[modeItem.use].useStatus"
+            :actions="modeItem.actions"
+            :disabled="disabled"
+            :title="modeItem.title"
+            @change="onModeChange(modeItem.use)"
+          />
+        </li>
+      </template>
+      <!-- <li
         v-if="speedActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
       >
@@ -171,7 +180,7 @@ const placement = computed(() => getPlacement(modeRef.value))
             </van-cell>
           </van-cell-group>
         </van-popover>
-      </li>
+      </li> -->
     </div>
   </ul>
 </template>

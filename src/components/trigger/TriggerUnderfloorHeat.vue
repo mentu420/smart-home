@@ -8,6 +8,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 
+import TriggerModePopover from './TriggerModePopover.vue'
 import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, includesUse } = deviceStore()
@@ -105,12 +106,8 @@ const onRise = () => {
   setTemp()
 }
 
-const onModelSelect = (action) => {
-  if (disabled.value) return
-  config.value[MODE] = { ...config.value[MODE], useStatus: action.useEn }
-  showMode.value = false
-  if (config.value[SWITCH].useStatus == 'off') return
-  triggerControl(MODE, deviceItem.value, config.value)
+const onModeChange = (use) => {
+  triggerControl(use, deviceItem.value, config.value)
 }
 
 const onValveChange = (value) => {
@@ -185,38 +182,14 @@ const toggle = () => {
         v-if="modeActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
       >
-        <van-popover v-model:show="showMode" :placement="placement">
-          <template #reference>
-            <div class="flex w-full items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">
-                <p>模式</p>
-                <p class="text-xs text-gray-400">{{ currentModeItem?.useCn }}</p>
-              </div>
-              <IconFont :icon="`${currentModeItem?.use}-${currentModeItem?.useEn}`" />
-            </div>
-          </template>
-          <van-cell-group>
-            <van-cell
-              v-for="modeItem in modeActions"
-              :key="modeItem.id"
-              :title="modeItem?.useCn"
-              clickable
-              @click="onModelSelect(modeItem)"
-            >
-              <template #icon>
-                <IconFont class="mr-2" :icon="`${modeItem?.use}-${modeItem?.useEn}`" />
-              </template>
-            </van-cell>
-          </van-cell-group>
-        </van-popover>
+        <TriggerModePopover
+          v-model="config[MODE].useStatus"
+          title="模式"
+          :actions="modeActions"
+          :disabled="disabled"
+          @change="onModeChange(MODE)"
+        />
       </li>
     </div>
   </ul>
 </template>
-
-<style lang="scss" scoped>
-:deep(.van-popover__wrapper) {
-  display: block;
-  width: 100%;
-}
-</style>

@@ -17,7 +17,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: '模式',
+    default: '',
   },
   disabled: {
     type: Boolean,
@@ -25,7 +25,7 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['select', 'update:modelValue'])
+const emits = defineEmits(['change', 'update:modelValue'])
 
 const modeRef = ref(null)
 const showMode = ref(false)
@@ -43,7 +43,7 @@ function onModelSelect(action) {
   if (props.disabled) return
   use.value = action.useEn
   showMode.value = false
-  emits('select', action)
+  emits('change', action)
 }
 
 function onToggle() {
@@ -53,10 +53,10 @@ function onToggle() {
 </script>
 
 <template>
-  <div ref="modeRef">
+  <div ref="modeRef" class="mode w-full">
     <van-popover v-model:show="showMode" :placement="placement" trigger="manual">
       <template #reference>
-        <div class="flex w-40 items-center justify-between p-3" @click="onToggle">
+        <div class="flex w-full items-center justify-between p-3" @click="onToggle">
           <div class="mr-4 flex-shrink-0">
             <p>{{ props.title }}</p>
             <p class="text-xs text-gray-400">{{ currentModeItem?.useCn }}</p>
@@ -80,3 +80,10 @@ function onToggle() {
     </van-popover>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.mode:deep(.van-popover__wrapper) {
+  display: block;
+  width: 100%;
+}
+</style>
