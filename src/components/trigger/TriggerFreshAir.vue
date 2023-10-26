@@ -1,18 +1,20 @@
 <script setup>
 import { useRect } from '@vant/use'
+import { storeToRefs } from 'pinia'
 import { ref, computed, watch, nextTick } from 'vue'
 
 import { USE_KEY } from '@/enums/deviceEnums'
+import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
-import { debounce } from '@/utils/common'
+import { throttle } from '@/utils/common'
 
 import { useTrigger } from './useTrigger'
 
-const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
+const { useDeviceItemChange, useGetDeviceItem } = deviceStore()
 
-const { getSceneActions, getModeColumns } = useTrigger()
+const { triggerControl, disabledClass, isDisabled, getPlacement } = useTrigger()
 
-const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
+const { FAN, MODE, SWITCH } = USE_KEY
 
 const props = defineProps({
   id: {
@@ -28,26 +30,40 @@ const props = defineProps({
 
 const emits = defineEmits(['change', 'update:modelValue'])
 
-const max = ref(32)
-const min = ref(16)
 const showSpeed = ref(false)
 const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
-const config = ref({ [SWITCH]: 'off', [TEMPERATURE]: 26, fan: 'auto', mode: 'auto' })
-
+const config = ref({
+  [SWITCH]: {
+    useValue: '0',
+    useStatus: 'off',
+  },
+  [FAN]: {
+    useValue: '1',
+    useStatus: 'auto',
+  },
+  [MODE]: {
+    useValue: '1',
+    useStatus: 'auto',
+  },
+})
 const deviceItem = computed(() => useGetDeviceItem(props.id))
-
+const disabled = computed(() => isDisabled(config.value))
 watch(
   () => deviceItem.value,
   (val) => {
-    const { columns = [], modeList = [] } = val
-    if (columns.length == 0) return
-    const { useValueRange = '16,32' } = columns.find((item) => item.use == TEMPERATURE) || {}
-    const [minValue, maxValue] = useValueRange.split(',')
-    min.value = minValue
-    max.value = maxValue
+    const { modeList } = val
+    Object.keys(config.value).forEach((key) => {
+      const modeItem = modeList.find((item) => item.use == key)
+      if (modeItem) {
+        config.value[key] = {
+          useStatus: modeItem.useStatus,
+          useValue: modeItem.useValue || '1',
+        }
+      }
+    })
   }
 )
 
@@ -56,109 +72,51 @@ const speedActions = computed(() => deviceItem.value?.columns.filter((item) => i
 const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
 
 const currentModeItem = computed(() =>
-  modeActions.value?.find((item) => item.useEn == config.value[MODE])
+  modeActions.value?.find((item) => item.useEn == config.value[MODE].useStatus)
 )
 const currentSpeedItem = computed(() =>
-  speedActions.value?.find((item) => item.useEn == config.value[FAN])
+  speedActions.value?.find((item) => item.useEn == config.value[FAN].useStatus)
 )
 
-const tempCopy = ref(config.value[TEMPERATURE])
-const status = ref(false) //空调开关
-
-const onDeviceChange = debounce(() => {
-  const { modeList, columns } = deviceItem.value
-  //设备控制数据
-  const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, useStatus: modeItem.use, useValue: config.value[modeItem.use] }
-  })
-
-  if (props.isUse) {
-    useDeviceItemChange({ ...deviceItem.value })
-  } else {
-    // 场景控制数据
-    const actions = getSceneActions(newModeList, props.id)
-    emits('change', actions, actions)
-  }
-}, 500)
-
-const setTemp = () =>
-  nextTick(() => {
-    config.value = { ...config.value, [TEMPERATURE]: tempCopy.value }
-    if (!status.value) status.value = true
-    onDeviceChange(TEMPERATURE)
-  })
-
-const onLower = () => {
-  if (tempCopy.value == min.value) return
-  --tempCopy.value
-  setTemp()
-}
-
-const onRise = () => {
-  if (tempCopy.value == max.value) return
-  ++tempCopy.value
-  setTemp()
-}
-
 const onSpeedSelect = (action) => {
-  if (!status.value) status.value = true
-  config.value = { ...config.value, [FAN]: action.useEn }
+  if (disabled.value) return
+  config.value[FAN] = { ...config.value[FAN], useStatus: action.useEn }
   showSpeed.value = false
-  onDeviceChange(action.useEn)
+  if (config.value[SWITCH].useStatus == 'off') return
+  triggerControl(FAN, deviceItem.value, config.value)
 }
 
 const onModelSelect = (action) => {
-  if (!status.value) status.value = true
-  config.value = { ...config.value, [MODE]: action.useEn }
+  if (disabled.value) return
+  config.value[MODE] = { ...config.value[MODE], useStatus: action.useEn }
   showMode.value = false
-  onDeviceChange(action.useEn)
+  if (config.value[SWITCH].useStatus == 'off') return
+  triggerControl(MODE, deviceItem.value, config.value)
 }
 
 const toggle = () => {
-  status.value = !status.value
-  const switchMode = getModeColumns(SWITCH, deviceItem.value.modeList)
-  config.value = {
-    ...config.value,
-    [SWITCH]: switchMode[status.value ? 1 : 0].useEn,
-  }
-  onDeviceChange(SWITCH)
+  const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
+  config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
+  triggerControl(SWITCH, deviceItem.value, config.value)
 }
 
-const placement = computed(() => {
-  if (!modeRef.value) return 'top'
-  const { top } = useRect(modeRef.value)
-  return top > window.innerHeight / 2 ? 'top' : 'bottom'
-})
+const placement = computed(() => getPlacement(modeRef.value))
 </script>
 
 <template>
   <ul class="p-4">
     <li class="mb-4 flex items-center justify-between rounded-lg bg-white p-3">
       <div>
-        {{ status ? '已开启' : '已关闭' }}
+        {{ config[SWITCH]?.useStatus != 'off' ? '已开启' : '已关闭' }}
       </div>
-      <div class="mr-4 flex-shrink-0 text-center">
-        <p>
-          <label class="text-lg">{{ config[TEMPERATURE] }}</label>
-          <label>℃</label>
-        </p>
-        <p class="text-xs text-gray-400">当前温度</p>
-      </div>
-      <IconFont :class="status ? 'text-primary' : 'text-gray-300'" icon="switch" @click="toggle" />
+      <IconFont
+        :class="config[SWITCH]?.useStatus != 'off' ? 'text-primary' : 'text-gray-300'"
+        icon="switch"
+        @click="toggle"
+      />
     </li>
-    <li class="mb-4 flex items-center justify-around rounded-lg bg-white p-3">
-      <div>
-        <van-icon name="minus" size="20" @click="onLower" />
-      </div>
-      <div class="mr-4 flex-shrink-0 text-center">
-        <p>{{ tempCopy }}℃</p>
-        <p class="text-xs text-gray-400">目标温度</p>
-      </div>
-      <div>
-        <van-icon name="plus" size="20" @click="onRise" />
-      </div>
-    </li>
-    <div ref="modeRef" class="flex justify-between space-x-4">
+
+    <div ref="modeRef" class="flex justify-between space-x-4" :class="disabledClass(config)">
       <li
         v-if="speedActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"

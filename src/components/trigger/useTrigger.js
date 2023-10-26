@@ -56,7 +56,6 @@ export const useTrigger = () => {
       return { ...modeItem, ...modeConfig }
     })
     const useMode = newModeList.find((item) => item.use == use)
-    console.log(use, deviceItem, config)
     mqttPublish({ ...useMode, id: deviceItem.id })
     useDeviceItemChange({ ...deviceItem, modeList: newModeList })
   }, 500)
