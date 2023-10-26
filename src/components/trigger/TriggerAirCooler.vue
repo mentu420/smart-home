@@ -11,9 +11,10 @@ import { throttle } from '@/utils/common'
 import TriggerModePopover from './TriggerModePopover.vue'
 import { useTrigger } from './useTrigger'
 
-const { useDeviceItemChange, useGetDeviceItem } = deviceStore()
+const { useGetDeviceItem } = deviceStore()
 
-const { triggerControl, disabledClass, isDisabled, getPlacement } = useTrigger()
+const { triggerControl, disabledClass, isDisabled, getModeActions, onConfigFormat, getModeRange } =
+  useTrigger()
 
 const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
 
@@ -33,8 +34,6 @@ const emits = defineEmits(['change', 'update:modelValue'])
 
 const max = ref(32)
 const min = ref(16)
-const showSpeed = ref(false)
-const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
@@ -62,34 +61,15 @@ watch(
   () => deviceItem.value,
   (val) => {
     const { modeList, columns } = val
-    const { useValueRange = '16,32' } = columns.find((item) => item.use == TEMPERATURE)
-    const [minValue, maxValue] = useValueRange.split(',')
+    const [minValue, maxValue] = getModeRange(columns, TEMPERATURE)
     min.value = minValue
     max.value = maxValue
-
-    Object.keys(config.value).forEach((key) => {
-      const modeItem = modeList.find((item) => item.use == key)
-      if (modeItem) {
-        config.value[key] = {
-          useStatus: modeItem.useStatus,
-          useValue: key == TEMPERATURE ? parseInt(modeItem.useValue) : modeItem.useValue || '1',
-        }
-      }
-    })
+    config.value = onConfigFormat(config.value, modeList)
   }
 )
 const tempCopy = ref(config.value[TEMPERATURE])
-
-const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == FAN))
-
-const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
-
-const currentModeItem = computed(() =>
-  modeActions.value?.find((item) => item.useEn == config.value[MODE].useStatus)
-)
-const currentSpeedItem = computed(() =>
-  speedActions.value?.find((item) => item.useEn == config.value[FAN].useStatus)
-)
+const speedActions = computed(() => getModeActions(deviceItem.value, FAN))
+const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
 const setTemp = () => {
   if (config.value[SWITCH].useStatus == 'off') return
@@ -100,8 +80,7 @@ const setTemp = () => {
 }
 
 const onLower = () => {
-  if (disabled.value) return
-  if (tempCopy.value.useValue == min.value) return
+  if (tempCopy.value.useValue == min.value || disabled.value) return
   --tempCopy.value.useValue
   setTemp()
 }

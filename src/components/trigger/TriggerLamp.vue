@@ -10,7 +10,7 @@ import { throttle, stringToArray } from '@/utils/common'
 import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
-const { triggerControl, disabledClass, isDisabled } = useTrigger()
+const { triggerControl, disabledClass, isDisabled, onConfigFormat } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -60,15 +60,7 @@ watch(
   () => deviceItem.value,
   (val) => {
     const { modeList } = val
-    Object.keys(config.value).forEach((key) => {
-      const modeItem = modeList.find((item) => item.use == key)
-      if (modeItem) {
-        config.value[key] = {
-          useStatus: modeItem.useStatus,
-          useValue: key == BRIGHTNESS ? parseInt(modeItem.useValue) : modeItem.useValue,
-        }
-      }
-    })
+    config.value = onConfigFormat(config.value, modeList)
   }
 )
 

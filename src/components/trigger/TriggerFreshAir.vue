@@ -13,7 +13,8 @@ import { useTrigger } from './useTrigger'
 
 const { useDeviceItemChange, useGetDeviceItem } = deviceStore()
 
-const { triggerControl, disabledClass, isDisabled, getPlacement } = useTrigger()
+const { triggerControl, disabledClass, isDisabled, getPlacement, getModeActions, onConfigFormat } =
+  useTrigger()
 
 const { FAN, MODE, SWITCH } = USE_KEY
 
@@ -56,21 +57,13 @@ watch(
   () => deviceItem.value,
   (val) => {
     const { modeList } = val
-    Object.keys(config.value).forEach((key) => {
-      const modeItem = modeList.find((item) => item.use == key)
-      if (modeItem) {
-        config.value[key] = {
-          useStatus: modeItem.useStatus,
-          useValue: modeItem.useValue || '1',
-        }
-      }
-    })
+    config.value = onConfigFormat(config.value, modeList)
   }
 )
 
-const speedActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == FAN))
+const speedActions = computed(() => getModeActions(deviceItem.value, FAN))
 
-const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
+const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
 const currentModeItem = computed(() =>
   modeActions.value?.find((item) => item.useEn == config.value[MODE].useStatus)
@@ -126,61 +119,6 @@ const placement = computed(() => getPlacement(modeRef.value))
           />
         </li>
       </template>
-      <!-- <li
-        v-if="speedActions?.length > 0"
-        class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
-      >
-        <van-popover v-model:show="showSpeed" :placement="placement">
-          <template #reference>
-            <div class="flex w-40 items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">{{ currentSpeedItem?.useCn }}</div>
-              <IconFont :icon="`${currentSpeedItem?.use}-${currentSpeedItem?.useEn}`" />
-            </div>
-          </template>
-          <van-cell-group>
-            <van-cell
-              v-for="speedItem in speedActions"
-              :key="speedItem.id"
-              :title="speedItem.useCn"
-              clickable
-              @click="onSpeedSelect(speedItem)"
-            >
-              <template #icon>
-                <IconFont class="mr-2" :icon="`${speedItem.use}-${speedItem.useEn}`" />
-              </template>
-            </van-cell>
-          </van-cell-group>
-        </van-popover>
-      </li>
-      <li
-        v-if="modeActions?.length > 0"
-        class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
-      >
-        <van-popover v-model:show="showMode" :placement="placement">
-          <template #reference>
-            <div class="flex w-40 items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">
-                <p>模式</p>
-                <p class="text-xs text-gray-400">{{ currentModeItem?.useCn }}</p>
-              </div>
-              <IconFont :icon="`${currentModeItem?.use}-${currentModeItem?.useEn}`" />
-            </div>
-          </template>
-          <van-cell-group>
-            <van-cell
-              v-for="modeItem in modeActions"
-              :key="modeItem.id"
-              :title="modeItem?.useCn"
-              clickable
-              @click="onModelSelect(modeItem)"
-            >
-              <template #icon>
-                <IconFont class="mr-2" :icon="`${modeItem?.use}-${modeItem?.useEn}`" />
-              </template>
-            </van-cell>
-          </van-cell-group>
-        </van-popover>
-      </li> -->
     </div>
   </ul>
 </template>

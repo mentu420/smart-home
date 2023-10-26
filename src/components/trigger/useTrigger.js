@@ -1,10 +1,10 @@
 import { useRect } from '@vant/use'
 import { computed } from 'vue'
 
-import { TYPE_VALUE_EXECL } from '@/enums/deviceEnums'
+import { TYPE_VALUE_EXECL, USE_KEY } from '@/enums/deviceEnums'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
-import { throttle } from '@/utils/common'
+import { throttle, stringToArray } from '@/utils/common'
 
 const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
 
@@ -72,6 +72,29 @@ export const useTrigger = () => {
     return top > window.innerHeight / 2 ? 'top' : 'bottom'
   }
 
+  const getModeActions = (deviceItem, use) => deviceItem?.columns.filter((item) => item.use == use)
+
+  const getModeRange = (columns, use) => {
+    const { useValueRange = '0,100' } = columns.find((item) => item.use == use)
+    return stringToArray(useValueRange)
+  }
+
+  const onConfigFormat = (config, modeList) => {
+    const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE } = USE_KEY
+    Object.keys(config).forEach((key) => {
+      const modeItem = modeList.find((item) => item.use == key)
+      if (modeItem) {
+        config[key] = {
+          useStatus: modeItem.useStatus,
+          useValue: [VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE].includes(key)
+            ? parseInt(modeItem.useValue)
+            : modeItem.useValue || '1',
+        }
+      }
+    })
+    return config
+  }
+
   return {
     getSceneActions,
     getUseKey,
@@ -80,5 +103,8 @@ export const useTrigger = () => {
     disabledClass,
     isDisabled,
     getPlacement,
+    getModeActions,
+    onConfigFormat,
+    getModeRange,
   }
 }

@@ -13,7 +13,8 @@ import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, includesUse } = deviceStore()
 
-const { triggerControl, isDisabled, disabledClass, getPlacement } = useTrigger()
+const { triggerControl, isDisabled, disabledClass, onConfigFormat, getModeRange, getModeActions } =
+  useTrigger()
 
 const props = defineProps({
   id: {
@@ -58,30 +59,16 @@ const config = ref({
 const deviceItem = computed(() => useGetDeviceItem(props.id))
 const tempCopy = ref(config.value[TEMPERATURE])
 const disabled = computed(() => isDisabled(config.value))
-const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
-const placement = computed(() => getPlacement(modeRef.value))
-const currentModeItem = computed(() =>
-  modeActions.value?.find((item) => item.useEn == config.value[MODE].useStatus)
-)
+const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
 watch(
   () => deviceItem.value,
   (val) => {
     const { modeList, columns } = val
-    const { useValueRange = '16,32' } = columns.find((item) => item.use == TEMPERATURE)
-    const [minValue, maxValue] = useValueRange.split(',')
+    const [minValue, maxValue] = getModeRange(columns, TEMPERATURE)
     min.value = minValue
     max.value = maxValue
-
-    Object.keys(config.value).forEach((key) => {
-      const modeItem = modeList.find((item) => item.use == key)
-      if (modeItem) {
-        config.value[key] = {
-          useStatus: modeItem.useStatus,
-          useValue: key == TEMPERATURE ? parseInt(modeItem.useValue) : modeItem.useValue || '1',
-        }
-      }
-    })
+    config.value = onConfigFormat(config.value, modeList)
   }
 )
 

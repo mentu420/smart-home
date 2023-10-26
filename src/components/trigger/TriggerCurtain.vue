@@ -9,7 +9,8 @@ import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
 
-const { getSceneActions, getModeColumns, triggerControl } = useTrigger()
+const { getSceneActions, getModeColumns, triggerControl, onConfigFormat, getModeRange } =
+  useTrigger()
 
 const props = defineProps({
   id: {
@@ -51,24 +52,11 @@ const config = ref({
 watch(
   () => deviceItem.value,
   (val) => {
-    const { columns = [], modeList } = val
-    const { useValueRange = '0,100' } = columns.find((item) => item.use == 'percent') || {}
-    const [minValue, maxValue] = useValueRange.split(',')
+    const { modeList, columns } = val
+    const [minValue, maxValue] = getModeRange(columns, PERCENT)
     min.value = minValue
     max.value = maxValue
-
-    Object.keys(config.value).forEach((key) => {
-      const modeItem = modeList.find((item) => item.use == key)
-      if (modeItem) {
-        config.value[key] = {
-          useStatus: modeItem.useStatus || key,
-          useValue: [PERCENT, ANGLE].includes(key)
-            ? parseInt(modeItem.useValue)
-            : modeItem.useValue || '1',
-        }
-      }
-    })
-    console.log(config.value)
+    config.value = onConfigFormat(config.value, modeList)
   }
 )
 
