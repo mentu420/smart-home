@@ -10,7 +10,7 @@ const form = ref({
 
 const onDevelopmentChange = (value) => {
   if (value) return
-  window.reload()
+  location.reload()
 }
 
 const onSubmit = async () => {}

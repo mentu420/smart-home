@@ -77,10 +77,10 @@ const onDeviceChange = debounce((use) => {
   const newModeList = modeList.map((modeItem) => {
     return {
       ...modeItem,
-      modeStatus: [SWITCH, TEMPERATURE].includes(modeItem.use)
+      useStatus: [SWITCH, TEMPERATURE].includes(modeItem.use)
         ? config.value[modeItem.use]
         : modeItem.use,
-      modeValue: [SWITCH, TEMPERATURE].includes(modeItem.use) ? '1' : modeItem.use,
+      useValue: [SWITCH, TEMPERATURE].includes(modeItem.use) ? '1' : modeItem.use,
     }
   })
 

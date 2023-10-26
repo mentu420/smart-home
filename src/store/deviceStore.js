@@ -59,15 +59,15 @@ export default defineStore(storeName, () => {
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
           columns, // 记录暑假原始值
           // 记录当前设备模块控制值
-          // mqtt 对应关系 {use:shuxing, modeValue:shuxingzhi, modeStatus:shuxingzhuangtai}
+          // mqtt 对应关系 {use:shuxing, useValue:shuxingzhi, useStatus:shuxingzhuangtai}
           modeList: useList.map((use) => {
             const useColumns = columns.filter((item) => item.use == use)
             return {
               label: useColumns[0].useName, //当前模块名称
               use, // 当前模块标识
               useColumns, // 当前模块的选项
-              modeValue: '1', // 当前模块控制值
-              modeStatus: '', //当前模块控制状态
+              useValue: '1', // 当前模块控制值
+              useStatus: '', //当前模块控制状态
             }
           }),
         }
@@ -95,12 +95,11 @@ export default defineStore(storeName, () => {
     const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi = '1' } = JSON.parse(json)
     let deviceItem = deviceList.value.find((item) => item.id == bianhao)
     if (!deviceItem) return
-    console.log('useDeviceMqttChange', deviceItem)
     deviceItem = {
       ...deviceItem,
       modeList: deviceItem.modeList.map((modeItem) => {
         if (modeItem.use == shuxing) {
-          return { ...modeItem, modeValue: shuxingzhi, modeStatus: shuxingzhuangtai }
+          return { ...modeItem, useValue: shuxingzhi || '1', useStatus: shuxingzhuangtai }
         }
         return modeItem
       }),

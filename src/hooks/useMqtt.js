@@ -40,7 +40,7 @@ export default function useMqtt() {
      * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
      * **/
     $mqtt.subscribe(`Device/State/${yonghubianhao}`, (data) => {
-      console.log('设备状态接收主题', data)
+      console.log('%c设备状态接收主题', 'color: blue; font-weight: bold;', data)
       const { useDeviceMqttChange } = deviceStore()
       useDeviceMqttChange(data)
     })
@@ -49,28 +49,32 @@ export default function useMqtt() {
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
     $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
-      console.log('通用结果应答主题', data)
+      console.log('%c通用结果应答主题', 'color: red; font-weight: bold;', data)
     })
   }
   /**
    * Publish a message
    * @message {msgid,bianhao,shuxing,shuxingzhuangtai,shuxingzhi}
    * {
-   *  msgid: '消息唯一id，服务器会返回该msgid消息的执行结果',
-   *  bianhao: '控制的设备编号',
-   *  shuxing: '要控制的设备的物模型属性',
-   *  shuxingzhuangtai: '要控制的物模型的属性状态',
-   *  shuxingzhi:'要控制的设备的物模型属性值 说明：只有是动态属性值(亮度，温度，色温等)的才需要传该值，否则可以默认传"1" ',
+   *  msgid: 自动生成 '消息唯一id，服务器会返回该msgid消息的执行结果',
+   *  bianhao: id, '控制的设备编号',
+   *  shuxing: use '要控制的设备的物模型属性',
+   *  shuxingzhuangtai: useStatus '要控制的物模型的属性状态',
+   *  shuxingzhi: useValue'要控制的设备的物模型属性值 说明：只有是动态属性值(亮度，温度，色温等)的才需要传该值，否则可以默认传"1" ',
    * }
    * **/
-  function mqttPublish(message, mode = 'B') {
+  function mqttPublish({ id, use, useStatus, useValue }, mode = 'B') {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
-    $mqtt.publish(
-      `Device/Control/${yonghubianhao}`,
-      JSON.stringify({ ...message, msgid: new Date().valueOf() }),
-      mode
-    )
+    const message = JSON.stringify({
+      msgid: new Date().valueOf(),
+      bianhao: id,
+      shuxing: use,
+      shuxingzhuangtai: useStatus,
+      shuxingzhi: useValue || '1',
+    })
+    console.log('%c控制设备', 'color: green; font-weight: bold;', message)
+    $mqtt.publish(`Device/Control/${yonghubianhao}`, message, mode)
   }
 
   //connected | disconnected | connecting | error | lost | null

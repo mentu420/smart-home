@@ -7,12 +7,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import { debounce, stringToArray } from '@/utils/common'
 
-import { useTrigger } from './useTrigger'
-
 const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
-
-const { getSceneActions, getModeColumns } = useTrigger()
-
 const { mqttPublish } = useMqtt()
 
 const props = defineProps({
@@ -30,6 +25,7 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'update:hue', 'change'])
 
 const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
+
 const colorPickerRef = ref(null)
 const colorConfig = reactive({
   hue: 0,
@@ -41,9 +37,18 @@ const colorConfig = reactive({
 })
 
 const config = ref({
-  [SWITCH]: '0',
-  [BRIGHTNESS]: 0,
-  [COLOURTEMPERATURE]: 1800,
+  [SWITCH]: {
+    useValue: '0',
+    useStatus: 'off',
+  },
+  [BRIGHTNESS]: {
+    useValue: 0,
+    useStatus: BRIGHTNESS,
+  },
+  [COLOURTEMPERATURE]: {
+    useValue: 1800,
+    useStatus: COLOURTEMPERATURE,
+  },
   color: '#fff',
 })
 const deviceItem = computed(() => useGetDeviceItem(props.id))
@@ -54,11 +59,12 @@ watch(
     const { modeList } = val
     Object.keys(config.value).forEach((key) => {
       const modeItem = modeList.find((item) => item.use == key)
-      if (modeItem)
-        config.value = {
-          ...config.value,
-          [key]: key == SWITCH ? modeItem.modeStatus : parseInt(modeItem.modeValue),
+      if (modeItem) {
+        config.value[key] = {
+          useStatus: modeItem.useStatus,
+          useValue: key == BRIGHTNESS ? parseInt(modeItem.useValue) : modeItem.useValue,
         }
+      }
     })
   }
 )
@@ -70,38 +76,47 @@ const colorTemperatureRange = computed(() => {
   )
 })
 
-const onDeviceChange = debounce((value) => {
-  console.log(value)
-
-  config.value = {
-    ...config.value,
-    ...value,
-  }
-  //设备控制数据
+const onDeviceChange = (use) => {
   const { modeList } = deviceItem.value
   const newModeList = modeList.map((modeItem) => {
-    return {
-      ...modeItem,
-      modeStatus: modeItem.use == SWITCH ? config.value[modeItem.use] : modeItem.use,
-      modeValue: modeItem.use == SWITCH ? '1' : config.value[modeItem.use],
-    }
+    const modeConfig = config.value[modeItem.use]
+    return { ...modeItem, ...modeConfig }
   })
-  console.log('newModeList', newModeList)
+  const useMode = newModeList.find((item) => item.use == use)
+  mqttPublish(useMode)
   useDeviceItemChange({ ...deviceItem.value, modeList: newModeList })
-}, 500)
+}
 
 // 开关
 const toggle = () => {
-  const value = { [SWITCH]: config.value[SWITCH] == '1' ? '0' : '1' }
-  onDeviceChange({ [BRIGHTNESS]: value[SWITCH] == 1 ? 100 : 0, ...value })
+  const useValue = config.value[SWITCH].useValue == '1' ? '0' : '1'
+  const swithMode = deviceItem.value.columns.filter((item) => item.use == SWITCH)
+  config.value = {
+    ...config.value,
+    [SWITCH]: {
+      useValue,
+      useStatus: swithMode.find((item) => item.useValue == useValue).useEn,
+    },
+  }
+  onDeviceChange(SWITCH)
 }
 // 色温
 const onColorPickerChange = ({ color, ratio }) => {
-  onDeviceChange({ [COLOURTEMPERATURE]: ratio, color, [SWITCH]: '1' })
+  config.value = {
+    ...config.value,
+    [COLOURTEMPERATURE]: {
+      useStatus: COLOURTEMPERATURE,
+      useValue: ratio,
+    },
+    color,
+  }
+  if (config.value[SWITCH].useValue == '0') return
+  onDeviceChange(COLOURTEMPERATURE)
 }
 // 亮度
-const onBrightnessChange = (value) => {
-  onDeviceChange({ [BRIGHTNESS]: value, [SWITCH]: '1' })
+const onBrightnessChange = () => {
+  if (config.value[SWITCH].useValue == '0') return
+  onDeviceChange(BRIGHTNESS)
 }
 </script>
 
@@ -111,12 +126,12 @@ const onBrightnessChange = (value) => {
       <van-cell
         class="mt-4 rounded-xl"
         center
-        :title="config[SWITCH] == 1 ? '已开启' : '已关闭'"
+        :title="config[SWITCH]?.useStatus != 'off' ? '已开启' : '已关闭'"
         :border="false"
       >
         <template #right-icon>
           <IconFont
-            :class="config[SWITCH] == 1 ? 'text-primary' : 'text-gray-400'"
+            :class="config[SWITCH]?.useStatus != 'off' ? 'text-primary' : 'text-gray-400'"
             icon="switch"
             @click="toggle"
           />
@@ -127,12 +142,12 @@ const onBrightnessChange = (value) => {
         class="mt-4 rounded-xl"
         center
         title="亮度"
-        :label="`${config[BRIGHTNESS]}%`"
+        :label="`${config[BRIGHTNESS].useValue}%`"
         :border="false"
         title-style="flex:0 0 auto"
       >
         <div class="h-10 p-4 pl-8">
-          <van-slider v-model="config[BRIGHTNESS]" @change="onBrightnessChange" />
+          <van-slider v-model="config[BRIGHTNESS].useValue" @change="onBrightnessChange" />
         </div>
       </van-cell>
       <van-cell
@@ -140,7 +155,7 @@ const onBrightnessChange = (value) => {
         class="mt-4 rounded-xl"
         center
         title="色温"
-        :label="`${config[COLOURTEMPERATURE]}K`"
+        :label="`${config[COLOURTEMPERATURE].useValue}K`"
         clickable
         :border="false"
         @click="colorPickerRef.open()"

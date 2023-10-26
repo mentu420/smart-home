@@ -13,8 +13,8 @@ export const useTrigger = () => {
         yanshi: 0,
         caozuo: {
           shuxing: modeItem.use,
-          shuxingzhuangtai: modeItem.modeStatus,
-          shuxingzhi: modeItem.modeValue,
+          shuxingzhuangtai: modeItem.useStatus,
+          shuxingzhi: modeItem.useValue,
         },
       }
     })

@@ -274,15 +274,15 @@ function goEventConfig() {
         <li v-for="deviceItem in sceneCreateItem.deviceList" :key="deviceItem.id" class="space-y-4">
           <template v-for="(modeItem, modeIndex) in deviceItem.modeList" :key="modeIndex">
             <div
-              v-if="modeItem.modeValue != ''"
+              v-if="modeItem.useValue != ''"
               class="p-4 bg-white rounded-lg flex justify-between items-center"
             >
               <p class="space-x-4">
                 <label>控制</label>
                 <label class="px-4 py-1 bg-gray-100 rounded-full">{{ deviceItem.label }}</label>
                 <label v-clickable-active class="px-4 py-1 bg-gray-100 rounded-full">
-                  {{ deviceItem.modeNames[modeItem.modeValue] }}
-                  <template v-if="modeItem.use != 'switch'"> - {{ modeItem.modeValue }} </template>
+                  {{ deviceItem.modeNames[modeItem.useValue] }}
+                  <template v-if="modeItem.use != 'switch'"> - {{ modeItem.useValue }} </template>
                 </label>
               </p>
               <van-popover

@@ -36,7 +36,7 @@ watch(
   (val) => {
     const { columns = [], modeList = [] } = val
     deviceColumns.value = columns.filter((item) => item.use != SWITCH)
-    config.value = Object.assign({}, ...modeList.map((item) => ({ [item.use]: item.modeValue })), {
+    config.value = Object.assign({}, ...modeList.map((item) => ({ [item.use]: item.useValue })), {
       [SWITCH]: 'on',
     })
     console.log('config', config.value)
@@ -92,7 +92,7 @@ const onSave = () => {
   const { modeList } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, modeStatus: modeItem.use, modeValue: config.value[modeItem.use] }
+    return { ...modeItem, useStatus: modeItem.use, useValue: config.value[modeItem.use] }
   })
   // const actions = getSceneActions(newModeList, route.query.id)
   // const newActions = sceneCreateItem.value.actions

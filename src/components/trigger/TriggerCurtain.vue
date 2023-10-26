@@ -60,8 +60,8 @@ const onDeviceChange = debounce((use) => {
   const newModeList = modeList.map((modeItem) => {
     return {
       ...modeItem,
-      modeStatus: modeItem.use == SWITCH ? config.value[modeItem.use] : modeItem.use,
-      modeValue: '1',
+      useStatus: modeItem.use == SWITCH ? config.value[modeItem.use] : modeItem.use,
+      useValue: '1',
     }
   })
   if (props.isUse) {
