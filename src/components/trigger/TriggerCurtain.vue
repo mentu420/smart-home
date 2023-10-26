@@ -7,7 +7,7 @@ import { debounce } from '@/utils/common'
 
 import { useTrigger } from './useTrigger'
 
-const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
+const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
 
 const { getSceneActions, getModeColumns, triggerControl } = useTrigger()
 
@@ -122,7 +122,7 @@ const onAngleChange = () => {
       :key="modeKey"
     >
       <van-cell
-        v-if="deviceUseList(props.id)?.includes(modeKey)"
+        v-if="includesUse(props.id, modeKey)"
         class="mt-4 rounded-xl"
         center
         :title="modeLabel"

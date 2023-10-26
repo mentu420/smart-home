@@ -13,7 +13,7 @@ import { stringToArray } from '@/utils/common'
 
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
-const { useGetDeviceItem, deviceUseList } = deviceStore()
+const { useGetDeviceItem, includesUse } = deviceStore()
 const { getSceneActions, getModeColumns } = useTrigger()
 const { sceneCreateItem } = storeToRefs(sceneStore())
 
@@ -44,7 +44,7 @@ watch(
 )
 
 const colorTemperatureRange = computed(() => {
-  if (!deviceUseList(route.query.id)?.includes(COLOURTEMPERATURE)) return [0, 100]
+  if (!includesUse(route.query.id, COLOURTEMPERATURE)) return [0, 100]
   return stringToArray(
     deviceItem.value.columns.find((item) => item.use === COLOURTEMPERATURE).useValueRange
   )

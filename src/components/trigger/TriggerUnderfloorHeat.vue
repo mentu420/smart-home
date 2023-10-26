@@ -10,7 +10,7 @@ import { throttle } from '@/utils/common'
 
 import { useTrigger } from './useTrigger'
 
-const { useGetDeviceItem, deviceUseList } = deviceStore()
+const { useGetDeviceItem, includesUse } = deviceStore()
 
 const { triggerControl, isDisabled, disabledClass, getPlacement } = useTrigger()
 
@@ -133,10 +133,7 @@ const toggle = () => {
       <div>
         {{ config[SWITCH]?.useStatus != 'off' ? '已开启' : '已关闭' }}
       </div>
-      <div
-        v-if="deviceUseList(props.id)?.includes(TEMPERATURE)"
-        class="mr-4 flex-shrink-0 text-center"
-      >
+      <div v-if="includesUse(props.id, TEMPERATURE)" class="mr-4 flex-shrink-0 text-center">
         <p>
           <label class="text-lg">{{ config[TEMPERATURE].useValue }}</label>
           <label>℃</label>
@@ -144,14 +141,14 @@ const toggle = () => {
         <p class="text-xs text-gray-400">当前温度</p>
       </div>
       <IconFont
-        v-if="deviceUseList(props.id)?.includes(SWITCH)"
+        v-if="includesUse(props.id, SWITCH)"
         :class="config[SWITCH]?.useStatus != 'off' ? 'text-primary' : 'text-gray-300'"
         icon="switch"
         @click="toggle"
       />
     </li>
     <li
-      v-if="deviceUseList(props.id)?.includes(TEMPERATURE)"
+      v-if="includesUse(props.id, TEMPERATURE)"
       class="mb-4 flex items-center justify-around rounded-lg bg-white p-3"
       :class="disabledClass(config)"
     >
@@ -178,7 +175,7 @@ const toggle = () => {
     </li>
     <div ref="modeRef" class="flex justify-between space-x-4" :class="disabledClass(config)">
       <li
-        v-if="deviceUseList(props.id)?.includes(VALUESWITCH)"
+        v-if="includesUse(props.id, VALUESWITCH)"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white px-4"
       >
         <p>阀门开关</p>

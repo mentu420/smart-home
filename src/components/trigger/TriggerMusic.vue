@@ -6,13 +6,12 @@ import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
 
+import TriggerModePopover from './TriggerModePopover.vue'
 import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
 
-const { getSceneActions, getModeColumns } = useTrigger()
-
-const { MODE, PALYCONTROL } = USE_KEY
+const { getSceneActions, getModeColumns, getPlacement } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -31,110 +30,94 @@ const emits = defineEmits(['change', 'update:modelValue'])
 const showMode = ref(false)
 const showVolume = ref(false)
 const modeRef = ref(null)
-
-//温度、风俗、模式
-const config = ref({ [PALYCONTROL]: 'off', [MODE]: 'list', volume: 50, cutSong: '', process: 0 })
-
 const deviceItem = computed(() => useGetDeviceItem(props.id))
+
+const { MODE, PALYCONTROL, CUTSONG, VOLUME, PROCESS, LIST, SOURCE, TUNNELS } = USE_KEY
+//温度、风俗、模式
+const config = ref({
+  [PALYCONTROL]: {
+    useValue: '0',
+    useStatus: 'pause',
+  },
+  [MODE]: {
+    useValue: '1',
+    useStatus: 'list',
+  },
+  [CUTSONG]: {
+    useValue: '',
+    useStatus: '',
+  },
+  [VOLUME]: {
+    useValue: 50,
+    useStatus: VOLUME,
+  },
+  [PROCESS]: {
+    useValue: 0,
+    useStatus: PROCESS,
+  },
+  [LIST]: {
+    useValue: '1',
+    useStatus: LIST,
+  },
+  [SOURCE]: {
+    useValue: '1',
+    useStatus: 'local',
+  },
+  [TUNNELS]: {
+    useValue: '1',
+    useStatus: TUNNELS,
+  },
+})
 
 const modeActions = computed(() => deviceItem.value?.columns.filter((item) => item.use == MODE))
 
-const currentModeItem = computed(() =>
-  modeActions.value?.find((item) => item.useEn == config.value[MODE])
-)
+const placement = computed(() => getPlacement(modeRef.value))
 
-const status = ref(false) //开关
-
-const onDeviceChange = debounce((use) => {
-  const { modeList, columns } = deviceItem.value
-  //设备控制数据
-  const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, useStatus: config.value[modeItem.use], useValue: '1' }
-  })
-  console.log('newModeList', newModeList)
-  const useMode = newModeList.find((modeItem) => modeItem.use == use)
-  if (props.isUse) {
-    useDeviceItemChange({ ...deviceItem.value })
-  } else {
-    // 场景控制数据
-    const actions = getSceneActions(status, props.id, useMode)
-    emits('change', actions, actions)
-  }
-}, 500)
-
-const onModelSelect = (action) => {
-  config.value = { ...config.value, [MODE]: action.useEn }
-  showMode.value = false
-  // onDeviceChange(action.useEn)
-}
-
-const onStatusChange = () => {
-  status.value = !status.value
-}
+const onStatusChange = () => {}
 
 const onVolumeChange = (value) => {
   config.value = { ...config.value, volume: value }
 }
 
 const onProcessChange = (value) => {}
-
-const placement = computed(() => {
-  if (!modeRef.value) return 'top'
-  const { top } = useRect(modeRef.value)
-  return top > window.innerHeight / 2 ? 'top' : 'bottom'
-})
 </script>
 
 <template>
   <ul class="p-4">
     <li class="mb-4 rounded-lg bg-white p-3">
-      <div>
+      <div class="p-4 h-[56px]">
         <van-slider v-model="config.process" active-color="#333" @change="onProcessChange" />
       </div>
       <div class="flex items-center justify-between">
         <IconFont icon="prev" />
-        <IconFont :icon="status ? 'play' : 'stop'" @click="onStatusChange" />
+        <IconFont :icon="config[PALYCONTROL].useStatus" @click="onStatusChange" />
         <IconFont icon="next" />
       </div>
     </li>
-    <div ref="modeRef" class="flex justify-between space-x-4">
-      <li class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white">
-        <van-popover v-model:show="showMode" :placement="placement">
-          <template #reference>
-            <div class="flex w-40 items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">
-                <p>播放模式</p>
-                <p class="text-xs text-gray-400">{{ currentModeItem?.useCn }}</p>
-              </div>
-              <IconFont :icon="currentModeItem?.useEn" />
-            </div>
-          </template>
-          <van-cell-group>
-            <van-cell
-              v-for="modeItem in modeActions"
-              :key="modeItem.id"
-              :title="modeItem?.useCn"
-              clickable
-              @click="onModelSelect(modeItem)"
-            >
-              <template #icon>
-                <IconFont class="mr-2" :icon="modeItem?.useEn" />
-              </template>
-            </van-cell>
-          </van-cell-group>
-        </van-popover>
+    <div ref="modeRef" class="grid gap-4 grid-cols-2">
+      <li class="flex flex-1 items-center justify-between rounded-lg bg-white">
+        <TriggerModePopover
+          v-model="config[MODE].useStatus"
+          title="播放模式"
+          :actions="modeActions"
+        />
       </li>
-      <li class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white">
+      <li class="flex flex-1 items-center justify-between rounded-lg bg-white px-3">
+        <van-stepper
+          v-model="config[VOLUME].useValue"
+          theme="round"
+          button-size="22"
+          disable-input
+          :min="0"
+          :max="100"
+        />
         <van-popover v-model:show="showVolume" :placement="placement">
           <template #reference>
-            <div class="flex w-40 items-center justify-between p-3">
-              <div class="mr-4 flex-shrink-0">播放音量</div>
-              <IconFont :icon="config.volume == 0 ? 'mute' : 'volume'" />
-            </div>
+            <IconFont :icon="config[VOLUME].useValue == 0 ? 'mute' : 'volume'" />
           </template>
           <div class="px-[20px] py-4 h-[150px]">
             <van-slider
-              v-model="config.volume"
+              v-model="config[VOLUME].useValue"
               reverse
               vertical
               active-color="#333"
@@ -142,6 +125,13 @@ const placement = computed(() => {
             />
           </div>
         </van-popover>
+      </li>
+      <li class="flex flex-1 items-center justify-between rounded-lg bg-white">
+        <TriggerModePopover
+          v-model="config[MODE].useStatus"
+          title="播放模式"
+          :actions="modeActions"
+        />
       </li>
     </div>
   </ul>

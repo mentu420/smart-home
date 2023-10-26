@@ -9,7 +9,7 @@ import { throttle, stringToArray } from '@/utils/common'
 
 import { useTrigger } from './useTrigger'
 
-const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
+const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
 const { triggerControl, disabledClass, isDisabled } = useTrigger()
 
 const props = defineProps({
@@ -73,7 +73,7 @@ watch(
 )
 
 const colorTemperatureRange = computed(() => {
-  if (!deviceUseList(props.id)?.includes(COLOURTEMPERATURE)) return [0, 100]
+  if (!includesUse(props.id, COLOURTEMPERATURE)) return [0, 100]
   return stringToArray(
     deviceItem.value.columns.find((item) => item.use === COLOURTEMPERATURE).useValueRange
   )
@@ -123,7 +123,7 @@ const onBrightnessChange = () => {
         </template>
       </van-cell>
       <van-cell
-        v-if="deviceUseList(props.id)?.includes(BRIGHTNESS)"
+        v-if="includesUse(props.id, BRIGHTNESS)"
         class="mt-4 rounded-xl"
         center
         title="亮度"
@@ -141,7 +141,7 @@ const onBrightnessChange = () => {
         </div>
       </van-cell>
       <van-cell
-        v-if="deviceUseList(props.id)?.includes(COLOURTEMPERATURE)"
+        v-if="includesUse(props.id, COLOURTEMPERATURE)"
         class="mt-4 rounded-xl"
         center
         title="色温"

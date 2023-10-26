@@ -6,7 +6,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 
-const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
+const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
 
 const { mqttPublish } = useMqtt()
 

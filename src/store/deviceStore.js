@@ -21,10 +21,11 @@ export default defineStore(storeName, () => {
   // 获取设备图片
   const getDeviceIcon = (classify) => CLASSIFY_ICON[classify]
 
-  const deviceUseList = computed(() => (id) => {
-    return [
+  const includesUse = computed(() => (id, use) => {
+    const useList = [
       ...new Set(deviceList.value.find((item) => item.id == id)?.columns?.map((item) => item.use)),
     ]
+    return useList.includes(use)
   })
 
   //异步获取设备列表
@@ -114,7 +115,7 @@ export default defineStore(storeName, () => {
 
   return {
     deviceList,
-    deviceUseList,
+    includesUse,
     getDeviceIcon,
     useGetDeviceListSync,
     useDeviceItemChange,
