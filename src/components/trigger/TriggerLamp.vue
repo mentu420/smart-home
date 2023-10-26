@@ -5,10 +5,13 @@ import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import { USE_KEY } from '@/enums/deviceEnums'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
-import { debounce, stringToArray } from '@/utils/common'
+import { throttle, stringToArray } from '@/utils/common'
+
+import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
 const { mqttPublish } = useMqtt()
+const { triggerControl } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -76,29 +79,11 @@ const colorTemperatureRange = computed(() => {
   )
 })
 
-const onDeviceChange = (use) => {
-  const { modeList } = deviceItem.value
-  const newModeList = modeList.map((modeItem) => {
-    const modeConfig = config.value[modeItem.use]
-    return { ...modeItem, ...modeConfig }
-  })
-  const useMode = newModeList.find((item) => item.use == use)
-  mqttPublish(useMode)
-  useDeviceItemChange({ ...deviceItem.value, modeList: newModeList })
-}
-
 // 开关
 const toggle = () => {
-  const useValue = config.value[SWITCH].useValue == '1' ? '0' : '1'
-  const swithMode = deviceItem.value.columns.filter((item) => item.use == SWITCH)
-  config.value = {
-    ...config.value,
-    [SWITCH]: {
-      useValue,
-      useStatus: swithMode.find((item) => item.useValue == useValue).useEn,
-    },
-  }
-  onDeviceChange(SWITCH)
+  const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
+  config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
+  triggerControl(SWITCH, deviceItem.value, config.value)
 }
 // 色温
 const onColorPickerChange = ({ color, ratio }) => {
@@ -110,13 +95,13 @@ const onColorPickerChange = ({ color, ratio }) => {
     },
     color,
   }
-  if (config.value[SWITCH].useValue == '0') return
-  onDeviceChange(COLOURTEMPERATURE)
+  if (config.value[SWITCH].useStatus == 'off') return
+  triggerControl(COLOURTEMPERATURE, deviceItem.value, config.value)
 }
 // 亮度
 const onBrightnessChange = () => {
-  if (config.value[SWITCH].useValue == '0') return
-  onDeviceChange(BRIGHTNESS)
+  if (config.value[SWITCH].useStatus == 'off') return
+  triggerControl(BRIGHTNESS, deviceItem.value, config.value)
 }
 </script>
 
