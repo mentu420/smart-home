@@ -12,7 +12,7 @@ import { useTrigger } from './useTrigger'
 
 const { useDeviceItemChange, useGetDeviceItem } = deviceStore()
 
-const { getSceneActions, getModeColumns, triggerControl } = useTrigger()
+const { triggerControl, disabledClass, isDisabled, getPlacement } = useTrigger()
 
 const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
 
@@ -37,8 +37,6 @@ const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
-
-const deviceItem = computed(() => useGetDeviceItem(props.id))
 const config = ref({
   [SWITCH]: {
     useValue: '0',
@@ -57,7 +55,8 @@ const config = ref({
     useStatus: 'auto',
   },
 })
-
+const deviceItem = computed(() => useGetDeviceItem(props.id))
+const disabled = computed(() => isDisabled(config.value))
 watch(
   () => deviceItem.value,
   (val) => {
@@ -100,18 +99,21 @@ const setTemp = () => {
 }
 
 const onLower = () => {
+  if (disabled.value) return
   if (tempCopy.value.useValue == min.value) return
   --tempCopy.value.useValue
   setTemp()
 }
 
 const onRise = () => {
+  if (disabled.value) return
   if (tempCopy.value.useValue == max.value) return
   ++tempCopy.value.useValue
   setTemp()
 }
 
 const onSpeedSelect = (action) => {
+  if (disabled.value) return
   config.value[FAN] = { ...config.value[FAN], useStatus: action.useEn }
   showSpeed.value = false
   if (config.value[SWITCH].useStatus == 'off') return
@@ -119,6 +121,7 @@ const onSpeedSelect = (action) => {
 }
 
 const onModelSelect = (action) => {
+  if (disabled.value) return
   config.value[MODE] = { ...config.value[MODE], useStatus: action.useEn }
   showMode.value = false
   if (config.value[SWITCH].useStatus == 'off') return
@@ -131,11 +134,7 @@ const toggle = () => {
   triggerControl(SWITCH, deviceItem.value, config.value)
 }
 
-const placement = computed(() => {
-  if (!modeRef.value) return 'top'
-  const { top } = useRect(modeRef.value)
-  return top > window.innerHeight / 2 ? 'top' : 'bottom'
-})
+const placement = computed(() => getPlacement(modeRef.value))
 </script>
 
 <template>
@@ -157,7 +156,10 @@ const placement = computed(() => {
         @click="toggle"
       />
     </li>
-    <li class="mb-4 flex items-center justify-around rounded-lg bg-white p-3">
+    <li
+      class="mb-4 flex items-center justify-around rounded-lg bg-white p-3"
+      :class="disabledClass(config)"
+    >
       <div>
         <van-icon
           :class="{ 'text-gray-300': tempCopy.useValue == min }"
@@ -179,7 +181,7 @@ const placement = computed(() => {
         />
       </div>
     </li>
-    <div ref="modeRef" class="flex justify-between space-x-4">
+    <div ref="modeRef" class="flex justify-between space-x-4" :class="disabledClass(config)">
       <li
         v-if="speedActions?.length > 0"
         class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"

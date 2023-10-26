@@ -10,8 +10,7 @@ import { throttle, stringToArray } from '@/utils/common'
 import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, deviceUseList, useDeviceItemChange } = deviceStore()
-const { mqttPublish } = useMqtt()
-const { triggerControl } = useTrigger()
+const { triggerControl, disabledClass, isDisabled } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -54,6 +53,7 @@ const config = ref({
   },
   color: '#fff',
 })
+const disabled = computed(() => isDisabled(config.value))
 const deviceItem = computed(() => useGetDeviceItem(props.id))
 
 watch(
@@ -127,12 +127,17 @@ const onBrightnessChange = () => {
         class="mt-4 rounded-xl"
         center
         title="亮度"
-        :label="`${config[BRIGHTNESS].useValue}%`"
-        :border="false"
         title-style="flex:0 0 auto"
+        :border="false"
+        :class="disabledClass(config)"
+        :label="`${config[BRIGHTNESS].useValue}%`"
       >
         <div class="h-10 p-4 pl-8">
-          <van-slider v-model="config[BRIGHTNESS].useValue" @change="onBrightnessChange" />
+          <van-slider
+            v-model="config[BRIGHTNESS].useValue"
+            :disabled="disabled"
+            @change="onBrightnessChange"
+          />
         </div>
       </van-cell>
       <van-cell
@@ -140,10 +145,15 @@ const onBrightnessChange = () => {
         class="mt-4 rounded-xl"
         center
         title="色温"
-        :label="`${config[COLOURTEMPERATURE].useValue}K`"
         clickable
         :border="false"
-        @click="colorPickerRef.open()"
+        :class="disabledClass(config)"
+        :label="`${config[COLOURTEMPERATURE].useValue}K`"
+        @click="
+          () => {
+            if (!disabled) colorPickerRef.open()
+          }
+        "
       >
         <template #right-icon>
           <span class="h-6 w-6 rounded-full" :style="{ backgroundColor: config.color }"></span>

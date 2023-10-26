@@ -3,7 +3,14 @@ import { storeToRefs } from 'pinia'
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { TriggerLamp, TriggerCurtain, TriggerAirCooler, TriggerMusic } from '@/components/trigger/'
+import {
+  TriggerLamp,
+  TriggerCurtain,
+  TriggerAirCooler,
+  TriggerUnderfloorHeat,
+  TriggerFreshAir,
+  TriggerMusic,
+} from '@/components/trigger/'
 import deviceStore from '@/store/deviceStore'
 
 defineOptions({ name: 'SmartDeviceStatus' })
@@ -12,7 +19,14 @@ const route = useRoute()
 const router = useRouter()
 const { deviceList } = storeToRefs(deviceStore())
 const deviceItem = ref({})
-const triggerConfig = ref({})
+const triggerComponents = {
+  100: TriggerLamp,
+  101: TriggerCurtain,
+  102: TriggerAirCooler,
+  103: TriggerUnderfloorHeat,
+  104: TriggerFreshAir,
+  105: TriggerMusic,
+}
 
 const init = () => {
   deviceItem.value = deviceList.value.find((item) => item.id == route.query.id)
@@ -43,10 +57,7 @@ init()
         fit="cover"
         src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
       />
-      <TriggerLamp v-if="route.query.classify == '100'" :id="route.query.id" />
-      <TriggerCurtain v-if="route.query.classify == '101'" :id="route.query.id" />
-      <TriggerAirCooler v-if="route.query.classify == '102'" :id="route.query.id" />
-      <TriggerMusic v-if="route.query.classify == '105'" :id="route.query.id" />
+      <component :is="triggerComponents[route.query.classify]" :id="route.query.id" />
     </section>
   </div>
 </template>

@@ -1,3 +1,6 @@
+import { useRect } from '@vant/use'
+import { computed } from 'vue'
+
 import { TYPE_VALUE_EXECL } from '@/enums/deviceEnums'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
@@ -53,9 +56,30 @@ export const useTrigger = () => {
       return { ...modeItem, ...modeConfig }
     })
     const useMode = newModeList.find((item) => item.use == use)
-    mqttPublish(useMode)
+    console.log(use, deviceItem, config)
+    mqttPublish({ ...useMode, id: deviceItem.id })
     useDeviceItemChange({ ...deviceItem, modeList: newModeList })
   }, 500)
 
-  return { getSceneActions, getUseKey, getModeColumns, triggerControl }
+  const isDisabled = (config) => config?.switch?.useStatus == 'off'
+
+  const disabledClass = computed(() => (config) => ({
+    '!opacity-60': isDisabled(config),
+  }))
+
+  const getPlacement = (el) => {
+    if (!el) return 'top'
+    const { top } = useRect(el)
+    return top > window.innerHeight / 2 ? 'top' : 'bottom'
+  }
+
+  return {
+    getSceneActions,
+    getUseKey,
+    getModeColumns,
+    triggerControl,
+    disabledClass,
+    isDisabled,
+    getPlacement,
+  }
 }
