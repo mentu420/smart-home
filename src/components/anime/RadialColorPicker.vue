@@ -1,8 +1,315 @@
+<script setup>
+import Rotator from '@radial-color-picker/rotator'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, toRefs } from 'vue'
+
+import { debounce } from '@/utils/common'
+
+defineOptions({ name: 'ColorPicker' })
+
+const keys = {
+  ArrowUp: (oldAngle, step) => oldAngle + step,
+  ArrowRight: (oldAngle, step) => oldAngle + step,
+  ArrowDown: (oldAngle, step) => oldAngle - step,
+  ArrowLeft: (oldAngle, step) => oldAngle - step,
+  PageUp: (oldAngle, step) => oldAngle + step * 10,
+  PageDown: (oldAngle, step) => oldAngle - step * 10,
+  Home: () => 0,
+  End: () => 359,
+}
+
+const props = defineProps({
+  gradientColors: {
+    type: Array,
+    default: () => ['to top', '#FB8C1A', '#FAF6F7'],
+  },
+  gradientType: {
+    type: String,
+    default: 'linear', //
+  },
+  hue: {
+    type: Number,
+    default: 0,
+  },
+  saturation: {
+    type: Number,
+    default: 100,
+  },
+  luminosity: {
+    type: Number,
+    default: 50,
+  },
+  alpha: {
+    type: Number,
+    default: 1,
+  },
+  step: {
+    type: Number,
+    default: 1,
+  },
+  mouseScroll: {
+    type: Boolean,
+    default: false,
+  },
+  variant: {
+    type: String,
+    default: 'collapsible', // collapsible | persistent
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  initiallyCollapsed: {
+    type: Boolean,
+    default: false,
+  },
+  ariaLabel: {
+    type: String,
+    default: 'color picker',
+  },
+  ariaRoledescription: {
+    type: String,
+    default: 'radial slider',
+  },
+  ariaValuetext: {
+    type: String,
+    default: '',
+  },
+  ariaLabelColorWell: {
+    type: String,
+    default: 'color well',
+  },
+  range: {
+    type: Array,
+    default: () => [0, 100],
+  },
+})
+
+const emits = defineEmits(['select', 'input', 'change', 'confirm'])
+
+const show = ref(false)
+// template refs
+const el = ref(null)
+const rotator = ref(null)
+const { hue, initiallyCollapsed } = toRefs(props)
+// instance values
+let rcp = null
+// state
+const initialAngle = hue.value + 'deg'
+const angle = ref(hue.value)
+const isPaletteIn = ref(!initiallyCollapsed.value)
+const isKnobIn = ref(!initiallyCollapsed.value)
+const isPressed = ref(false)
+const isRippling = ref(false)
+const isDragging = ref(false)
+const scopeData = ref(null)
+
+const drawGradientCircle = (gradientType, colors, angle) => {
+  const canvas = document.createElement('canvas')
+  canvas.width = 400
+  canvas.height = 400
+  // document.body.appendChild(canvas)
+  const ctx = canvas.getContext('2d')
+  const centerX = canvas.width / 2
+  const centerY = canvas.height / 2
+  const radius = Math.min(centerX, centerY) - 10
+  const startAngle = -Math.PI / 2
+  const endAngle = startAngle + Math.PI * 2
+
+  // 创建渐变色
+  let gradient
+  if (gradientType === 'linear') {
+    gradient = ctx.createLinearGradient(centerX - radius, centerY, centerX + radius, centerY)
+  } else if (gradientType === 'radial') {
+    gradient = ctx.createRadialGradient(centerX, centerY, radius / 2, centerX, centerY, radius)
+  }
+
+  colors.forEach((color, index) => {
+    gradient.addColorStop(index / (colors.length - 1), color)
+  })
+
+  // 绘制圆环
+  ctx.beginPath()
+  ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
+  ctx.closePath()
+
+  ctx.fillStyle = gradient
+  ctx.fill()
+
+  const radians = ((angle - 90) * Math.PI) / 180 // 将角度转化为弧度
+  const x = canvas.width / 2 + Math.cos(radians) * (canvas.width / 2) // 计算点的x坐标
+  const y = canvas.height / 2 + Math.sin(radians) * (canvas.height / 2) // 计算点的y坐标
+  const imageData = ctx.getImageData(x, y, 1, 1)
+  const color = `rgb(${imageData.data[0]}, ${imageData.data[1]}, ${imageData.data[2]})`
+
+  return color
+}
+
+const color = computed(() => {
+  const hexColorRegex = /^#([0-9a-fA-F]{3}){1,2}$/
+  const colors = props.gradientColors.filter((color) => hexColorRegex.test(color))
+  return drawGradientCircle(props.gradientType, colors, angle.value)
+})
+
+const rcpStyles = computed(() => {
+  return {
+    background: `${props.gradientType}-gradient(${props.gradientColors.join(',')})`,
+  }
+})
+
+const valuetext = computed(() => {
+  const n = props.gradientColors.length >= 6 ? 6 : props.gradientColors.length
+  return props.gradientColors[Math.round(angle.value / n)]
+})
+
+watch(
+  () => props.hue,
+  (value) => {
+    angle.value = value
+    rcp.angle = value
+  }
+)
+
+const ratio = computed({
+  set: () => scopeData.value.ratio || 0,
+  get: () => {
+    const angleValue = angle.value > 180 ? 180 - (angle.value - 180) : angle.value
+    const { min, max } = scopeData.value
+    const minValue = min || props.range[0]
+    const maxValue = max || props.range[1]
+    const res = ((Number(maxValue) - Number(minValue)) / 180) * angleValue + Number(minValue)
+    return res.toFixed()
+  },
+})
+
+// ignore testing code that will be removed by dead code elimination for production
+// istanbul ignore next
+if (props.initiallyCollapsed && props.variant === 'persistent') {
+  console.warn(
+    `Incorrect config: using variant="persistent" and :initiallyCollapsed="true" at the same time is not supported.`
+  )
+}
+
+const onInput = () => {
+  const values = { angle: angle.value, ratio: ratio.value, color: color.value }
+  emits('input', values)
+}
+
+const onChange = debounce(() => {
+  const values = { angle: angle.value, ratio: ratio.value, color: color.value }
+  emits('change', values)
+}, 350)
+
+watch(
+  () => show.value,
+  (val) => {
+    if (!val) return
+    nextTick(() => {
+      rcp = new Rotator(rotator.value, {
+        angle: angle.value,
+        onRotate(hue) {
+          angle.value = hue
+          onInput()
+        },
+        onDragStart() {
+          isDragging.value = true
+        },
+        onDragStop() {
+          isDragging.value = false
+          onChange()
+        },
+      })
+    })
+  },
+  { immediate: true }
+)
+
+onBeforeUnmount(() => {
+  if (!rcp) return
+  rcp.destroy()
+  rcp = null
+})
+
+const onKeyDown = (ev) => {
+  if (props.disabled || isPressed.value || !isKnobIn.value || !(ev.key in keys)) return
+
+  ev.preventDefault()
+
+  rcp.angle = keys[ev.key](rcp.angle, props.step)
+
+  angle.value = rcp.angle
+  onInput()
+  onChange()
+}
+
+const onScroll = (ev) => {
+  if (isPressed.value || !isKnobIn.value) return
+
+  ev.preventDefault()
+
+  if (ev.deltaY > 0) {
+    rcp.angle += props.step
+  } else {
+    rcp.angle -= props.step
+  }
+
+  angle.value = rcp.angle
+  onInput()
+  onChange()
+}
+
+const selectColor = () => {
+  isPressed.value = true
+
+  if (isPaletteIn.value && isKnobIn.value) {
+    emits('select', angle.value)
+    isRippling.value = true
+  } else {
+    isPaletteIn.value = true
+  }
+}
+
+const togglePicker = () => {
+  if (props.variant !== 'persistent') {
+    if (isKnobIn.value) {
+      isKnobIn.value = false
+    } else {
+      isKnobIn.value = true
+      isPaletteIn.value = true
+    }
+  }
+
+  isRippling.value = false
+  isPressed.value = false
+}
+
+const hidePalette = () => {
+  if (!isKnobIn.value) {
+    isPaletteIn.value = false
+  }
+}
+
+function open(data) {
+  scopeData.value = data
+  ratio.value = data.ratio
+  console.log(data, ratio.value)
+  show.value = true
+}
+
+const close = () => (show.value = false)
+
+function onConfirm() {
+  close()
+  emits('confirm', { ratio: ratio.value, color: color.value, angle: angle.value }, scopeData.value)
+}
+
+defineExpose({ open, close })
+</script>
+
 <template>
   <van-popup v-model:show="show" round teleport="body" position="bottom">
     <van-cell title="色温">
       <template #right-icon>
-        <van-icon name="success" size="26" @click="close" />
+        <van-icon name="success" size="26" @click="onConfirm" />
       </template>
     </van-cell>
     <div class="flex items-center justify-center p-8">
@@ -63,360 +370,6 @@
     </div>
   </van-popup>
 </template>
-
-<script>
-import Rotator from '@radial-color-picker/rotator'
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, toRefs } from 'vue'
-
-import { debounce } from '@/utils/common'
-
-const keys = {
-  ArrowUp: (oldAngle, step) => oldAngle + step,
-  ArrowRight: (oldAngle, step) => oldAngle + step,
-  ArrowDown: (oldAngle, step) => oldAngle - step,
-  ArrowLeft: (oldAngle, step) => oldAngle - step,
-  PageUp: (oldAngle, step) => oldAngle + step * 10,
-  PageDown: (oldAngle, step) => oldAngle - step * 10,
-  Home: () => 0,
-  End: () => 359,
-}
-
-export default {
-  name: 'ColorPicker',
-  props: {
-    gradientColors: {
-      type: Array,
-      default: () => ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta', 'red'],
-    },
-    gradientType: {
-      type: String,
-      default: 'linear', //
-    },
-    hue: {
-      type: Number,
-      default: 0,
-    },
-    saturation: {
-      type: Number,
-      default: 100,
-    },
-    luminosity: {
-      type: Number,
-      default: 50,
-    },
-    alpha: {
-      type: Number,
-      default: 1,
-    },
-    step: {
-      type: Number,
-      default: 1,
-    },
-    mouseScroll: {
-      type: Boolean,
-      default: false,
-    },
-    variant: {
-      type: String,
-      default: 'collapsible', // collapsible | persistent
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    initiallyCollapsed: {
-      type: Boolean,
-      default: false,
-    },
-    ariaLabel: {
-      type: String,
-      default: 'color picker',
-    },
-    ariaRoledescription: {
-      type: String,
-      default: 'radial slider',
-    },
-    ariaValuetext: {
-      type: String,
-      default: '',
-    },
-    ariaLabelColorWell: {
-      type: String,
-      default: 'color well',
-    },
-    min: {
-      type: [String, Number],
-      default: 0,
-    },
-    max: {
-      type: [String, Number],
-      default: 100,
-    },
-  },
-  emits: ['select', 'input', 'change'],
-  setup(props, { emit }) {
-    const show = ref(false)
-    // template refs
-    const el = ref(null)
-    const rotator = ref(null)
-    const { hue, initiallyCollapsed } = toRefs(props)
-    // instance values
-    let rcp = null
-    // state
-    const initialAngle = hue.value + 'deg'
-    const angle = ref(hue.value)
-    const isPaletteIn = ref(!initiallyCollapsed.value)
-    const isKnobIn = ref(!initiallyCollapsed.value)
-    const isPressed = ref(false)
-    const isRippling = ref(false)
-    const isDragging = ref(false)
-
-    const drawGradientCircle = (gradientType, colors, angle) => {
-      const canvas = document.createElement('canvas')
-      canvas.width = 400
-      canvas.height = 400
-      // document.body.appendChild(canvas)
-      const ctx = canvas.getContext('2d')
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      const radius = Math.min(centerX, centerY) - 10
-      const startAngle = -Math.PI / 2
-      const endAngle = startAngle + Math.PI * 2
-
-      // 创建渐变色
-      let gradient
-      if (gradientType === 'linear') {
-        gradient = ctx.createLinearGradient(centerX - radius, centerY, centerX + radius, centerY)
-      } else if (gradientType === 'radial') {
-        gradient = ctx.createRadialGradient(centerX, centerY, radius / 2, centerX, centerY, radius)
-      }
-
-      colors.forEach((color, index) => {
-        gradient.addColorStop(index / (colors.length - 1), color)
-      })
-
-      // 绘制圆环
-      ctx.beginPath()
-      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
-      ctx.closePath()
-
-      ctx.fillStyle = gradient
-      ctx.fill()
-
-      const radians = ((angle - 90) * Math.PI) / 180 // 将角度转化为弧度
-      const x = canvas.width / 2 + Math.cos(radians) * (canvas.width / 2) // 计算点的x坐标
-      const y = canvas.height / 2 + Math.sin(radians) * (canvas.height / 2) // 计算点的y坐标
-      const imageData = ctx.getImageData(x, y, 1, 1)
-      const color = `rgb(${imageData.data[0]}, ${imageData.data[1]}, ${imageData.data[2]})`
-
-      return color
-    }
-
-    // const color = computed(
-    //   () => `hsla(${angle.value}, ${props.saturation}%, ${props.luminosity}%, ${props.alpha})`
-    // )
-
-    const color = computed(() => {
-      const hexColorRegex = /^#([0-9a-fA-F]{3}){1,2}$/
-      const colors = props.gradientColors.filter((color) => hexColorRegex.test(color))
-      return drawGradientCircle(props.gradientType, colors, angle.value)
-    })
-
-    const rcpStyles = computed(() => {
-      return {
-        background: `${props.gradientType}-gradient(${props.gradientColors.join(',')})`,
-      }
-    })
-
-    const valuetext = computed(() => {
-      const n = props.gradientColors.length >= 6 ? 6 : props.gradientColors.length
-      return props.gradientColors[Math.round(angle.value / n)]
-    })
-
-    watch(
-      () => props.hue,
-      (value) => {
-        angle.value = value
-        rcp.angle = value
-      }
-    )
-
-    const ratio = computed(() => {
-      const angleValue = angle.value > 180 ? 180 - (angle.value - 180) : angle.value
-      const res = ((Number(props.max) - Number(props.min)) / 180) * angleValue + Number(props.min)
-      return res.toFixed()
-    })
-
-    // ignore testing code that will be removed by dead code elimination for production
-    // istanbul ignore next
-    if (props.initiallyCollapsed && props.variant === 'persistent') {
-      console.warn(
-        `Incorrect config: using variant="persistent" and :initiallyCollapsed="true" at the same time is not supported.`
-      )
-    }
-
-    const onInput = () => {
-      const values = { angle: angle.value, ratio: ratio.value, color: color.value }
-      emit('input', values)
-    }
-
-    const onChange = debounce(() => {
-      const values = { angle: angle.value, ratio: ratio.value, color: color.value }
-      emit('change', values)
-    }, 350)
-
-    watch(
-      () => show.value,
-      (val) => {
-        if (!val) return
-        nextTick(() => {
-          rcp = new Rotator(rotator.value, {
-            angle: angle.value,
-            onRotate(hue) {
-              angle.value = hue
-              onInput()
-            },
-            onDragStart() {
-              isDragging.value = true
-            },
-            onDragStop() {
-              isDragging.value = false
-              onChange()
-            },
-          })
-        })
-      },
-      { immediate: true }
-    )
-
-    onMounted(() => {
-      // the Rorator module already has an extensive test suite
-      // istanbul ignore next
-    })
-    //三个参数：红色值（r）、绿色值（g）和蓝色值（b）
-    const rgbToHex = (r, g, b) => {
-      return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
-    }
-    //十六进制格式的颜色值转换为红绿蓝值
-    const hexToRgb = (hex) => {
-      // 去除可能存在的 # 符号
-      hex = hex.replace('#', '')
-
-      // 将十六进制颜色值分割成红绿蓝三个部分
-      var r = parseInt(hex.substring(0, 2), 16)
-      var g = parseInt(hex.substring(2, 4), 16)
-      var b = parseInt(hex.substring(4, 6), 16)
-
-      // 返回红绿蓝值对象
-      return { r, g, b }
-    }
-
-    onBeforeUnmount(() => {
-      if (!rcp) return
-      rcp.destroy()
-      rcp = null
-    })
-
-    const onKeyDown = (ev) => {
-      if (props.disabled || isPressed.value || !isKnobIn.value || !(ev.key in keys)) return
-
-      ev.preventDefault()
-
-      rcp.angle = keys[ev.key](rcp.angle, props.step)
-
-      angle.value = rcp.angle
-      onInput()
-      onChange()
-    }
-
-    const onScroll = (ev) => {
-      if (isPressed.value || !isKnobIn.value) return
-
-      ev.preventDefault()
-
-      if (ev.deltaY > 0) {
-        rcp.angle += props.step
-      } else {
-        rcp.angle -= props.step
-      }
-
-      angle.value = rcp.angle
-      onInput()
-      onChange()
-    }
-
-    const selectColor = () => {
-      isPressed.value = true
-
-      if (isPaletteIn.value && isKnobIn.value) {
-        emit('select', angle.value)
-        isRippling.value = true
-      } else {
-        isPaletteIn.value = true
-      }
-    }
-
-    const togglePicker = () => {
-      if (props.variant !== 'persistent') {
-        if (isKnobIn.value) {
-          isKnobIn.value = false
-        } else {
-          isKnobIn.value = true
-          isPaletteIn.value = true
-        }
-      }
-
-      isRippling.value = false
-      isPressed.value = false
-    }
-
-    const hidePalette = () => {
-      if (!isKnobIn.value) {
-        isPaletteIn.value = false
-      }
-    }
-
-    const open = () => (show.value = true)
-
-    const close = () => (show.value = false)
-
-    return {
-      show,
-      // private API intented for testing memory leaks
-      rcp,
-
-      // refs
-      el,
-      rotator,
-
-      // state
-      initialAngle,
-      angle,
-      ratio,
-      isPaletteIn,
-      isKnobIn,
-      isDragging,
-      isRippling,
-      isPressed,
-
-      // computed
-      color,
-      valuetext,
-
-      rcpStyles,
-
-      // methods
-      onKeyDown,
-      onScroll,
-      selectColor,
-      togglePicker,
-      hidePalette,
-      open,
-      close,
-    }
-  },
-}
-</script>
 
 <style>
 .rcp,

@@ -77,7 +77,6 @@ export const useTrigger = () => {
   }
 
   return {
-    getSceneActions,
     getUseKey,
     getModeColumns,
     triggerControl,

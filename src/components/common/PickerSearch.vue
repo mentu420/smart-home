@@ -48,10 +48,11 @@ const popupAttrs = computed(() =>
 )
 
 const _columns = computed(() => {
-  if (!props.searchKey) return props.columns
+  const columns = props.columns.length > 0 ? props.columns : scopeData.value.columns
+  if (!props.searchKey) return columns
   return searchValue.value == ''
-    ? props.columns
-    : props.columns.filter(
+    ? columns
+    : columns.filter(
         (item) =>
           item[props.searchKey].includes(searchValue.value) ||
           searchValue.value.includes(item[props.searchKey])

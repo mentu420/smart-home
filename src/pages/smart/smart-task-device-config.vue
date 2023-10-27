@@ -63,15 +63,6 @@ const onPickerConfirm = (values) => {
   console.log(values)
 }
 
-const colorConfig = reactive({
-  hue: 0,
-  saturation: 100,
-  luminosity: 50,
-  alpha: 1,
-  gradientColors: ['to top', '#FB8C1A', '#FAF6F7'],
-  gradientType: 'linear',
-})
-
 const openLampConfig = (item) => {
   if (item.use === BRIGHTNESS) {
     showLigth.value = true
@@ -160,10 +151,8 @@ const onSave = () => {
             </van-popup>
             <ColorPicker
               ref="colorPickerRef"
-              v-bind="colorConfig"
-              :min="colorTemperatureRange[0]"
-              :max="colorTemperatureRange[1]"
-              @change="onColorPickerChange"
+              :range="colorTemperatureRange"
+              @confirm="onColorPickerChange"
             >
               <template #default="{ ratio }">
                 <label>{{ ratio }}K</label>

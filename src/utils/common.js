@@ -424,3 +424,35 @@ export const colorHex = (color) => {
     return String(color)
   }
 }
+
+//对象key与value 互换
+export function swapKeysAndValues(obj) {
+  const entries = Object.entries(obj).map(([key, value]) => [value, key])
+  return Object.fromEntries(entries)
+}
+/**
+ * 把第一个对象参数的key转化为第二个对象参数的value,不改变data的结构和value
+ * @data {key:value} 需要转化的数据
+ * @objKeys {key:value} 需要转化的key
+ * @filter boolean 是否过滤掉没有对应key的数据
+ * @reverse boolean 是否反转keys
+ * **/
+export function transformKeys(data, objKeys, filter = false, reverse = false) {
+  if (reverse) objKeys = swapKeysAndValues(objKeys)
+  const hasOwnProperty = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop)
+  const transformedObj = {}
+
+  for (let key in data) {
+    if (hasOwnProperty(data, key)) {
+      if (typeof data[key] === 'object') {
+        transformedObj[key] = transformKeys(data[key], objKeys)
+      } else if (hasOwnProperty(objKeys, key)) {
+        transformedObj[objKeys[key]] = data[key]
+      } else if (!filter) {
+        transformedObj[key] = data[key]
+      }
+    }
+  }
+
+  return transformedObj
+}

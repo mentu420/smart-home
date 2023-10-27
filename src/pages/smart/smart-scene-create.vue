@@ -5,13 +5,20 @@ import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { setSceneList } from '@/apis/smartApi.js'
+import ColorPicker from '@/components/anime/RadialColorPicker.vue'
+import pickerSearch from '@/components/common/PickerSearch.vue'
+import SliderPicker from '@/components/common/SliderPicker.vue'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import TimePicker from '@/components/common/TimePicker.vue'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
+import { useTrigger } from '@/components/trigger/useTrigger'
+import { USE_KEY } from '@/enums/deviceEnums'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import sceneStore from '@/store/sceneStore'
 
 defineOptions({ name: 'SmartSceneCreate' })
+
+const { getModeRange } = useTrigger()
 
 const router = useRouter()
 const route = useRoute()
@@ -28,43 +35,12 @@ const fileList = ref([])
 const operationRef = ref(null)
 const operationDealy = ref(['00', '00']) // 每个设备的延时
 const formRef = ref(null)
+const pickerSearchRef = ref(null)
+const colorPickerRef = ref(null)
+const sliderPickerRef = ref(null)
 
 const { getRepeatTimeText } = sceneStore()
 
-const getSceneActions = ({ modeList, id }) => {
-  const actions = modeList.map((modeItem) => {
-    return {
-      ziyuanleixing: 1,
-      ziyuanbianhao: id,
-      yanshi: 0,
-      caozuo: {
-        shuxing: modeItem.use,
-        shuxingzhuangtai: modeItem.useStatus,
-        shuxingzhi: modeItem.useValue,
-      },
-    }
-  })
-
-  return actions
-}
-
-const onSave = async () => {
-  try {
-    await formRef.value?.validate()
-    const { deviceList = [], ...data } = sceneCreateItem.value
-    if (deviceList.length == 0) {
-      showToast('请添加任务')
-      return
-    }
-    const params = { op: 2 }
-    const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem))
-    const { code } = await setSceneList({ params, data: { ...data, actions } })
-    console.log(code)
-  } catch (error) {
-    console.warn(error)
-    formRef.value?.scrollToField(error[0].name)
-  }
-}
 // 打开执行时间
 const openExecutionTime = (eventItem, eventIndex) => {
   const { tiaojian } = eventItem
@@ -103,7 +79,6 @@ const delEventItem = () => {
 }
 
 function onDeviceMoreSelect(action, index, deviceItem, modeItem) {
-  console.log('onDeviceMoreSelect', action, index, deviceItem, modeItem)
   switch (index) {
     case 0:
       //TODO：控制设备
@@ -115,6 +90,68 @@ function onDeviceMoreSelect(action, index, deviceItem, modeItem) {
     default:
       //删除
       break
+  }
+}
+
+function openDeviceModeItem(modeItem, deviceItem) {
+  const [min, max] = getModeRange(modeItem.useColumns, modeItem.use)
+  const { BRIGHTNESS, COLOURTEMPERATURE, TEMPERATURE, PERCENT, ANGLE, VOLUME, PROCESS } = USE_KEY
+  switch (modeItem.use) {
+    case BRIGHTNESS:
+    case TEMPERATURE:
+    case PERCENT:
+    case ANGLE:
+    case VOLUME:
+    case PROCESS:
+      sliderPickerRef.value.open({
+        modeItem,
+        id: deviceItem.id,
+        title: `${deviceItem.label}-${modeItem.label}`,
+        modelValue: modeItem.useValue,
+      })
+      break
+    case COLOURTEMPERATURE:
+      colorPickerRef.value?.open({
+        modeItem,
+        id: deviceItem.id,
+        ratio: modeItem.useValue,
+        min,
+        max,
+      })
+      break
+    default:
+      pickerSearchRef.value.open({ modeItem, id: deviceItem.id, columns: modeItem.useColumns })
+      break
+  }
+}
+// 进度条
+function onColorPickerChange({ ratio }, { modeItem, id }) {
+  onSelectMode({ selectedOptions: [{ useValue: ratio, useEn: modeItem.use }] }, { modeItem, id })
+}
+
+function onSliderPickerChange(useValue, { modeItem, id }) {
+  onSelectMode({ selectedOptions: [{ useValue, useEn: modeItem.use }] }, { modeItem, id })
+}
+
+function onSelectMode({ selectedOptions }, { modeItem, id }) {
+  const { useValue, useEn } = selectedOptions[0]
+  const { deviceList } = sceneCreateItem.value
+  const newDeviceList = deviceList.map((deviceItem) => {
+    if (deviceItem.id == id) {
+      return {
+        ...deviceItem,
+        modeList: deviceItem.modeList.map((item) => {
+          console.log(item.use, modeItem.use)
+          if (item.use == modeItem.use) return { ...item, useValue, useStatus: useEn }
+          return item
+        }),
+      }
+    }
+    return deviceItem
+  })
+  sceneCreateItem.value = {
+    ...sceneCreateItem.value,
+    deviceList: newDeviceList,
   }
 }
 
@@ -138,6 +175,40 @@ function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
         }
       }
     }),
+  }
+}
+
+const getSceneActions = ({ modeList, id }) => {
+  const actions = modeList.map((modeItem) => {
+    return {
+      ziyuanleixing: 1,
+      ziyuanbianhao: id,
+      yanshi: modeItem.dealy,
+      caozuo: {
+        shuxing: modeItem.use,
+        shuxingzhuangtai: modeItem.useStatus,
+        shuxingzhi: modeItem.useValue,
+      },
+    }
+  })
+  return actions
+}
+
+const onSave = async () => {
+  try {
+    await formRef.value?.validate()
+    const { deviceList = [], ...data } = sceneCreateItem.value
+    if (deviceList.length == 0) {
+      showToast('请添加任务')
+      return
+    }
+    const params = { op: 2 }
+    const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
+    await setSceneList({ params, data: { ...data, actions } })
+    router.back()
+  } catch (error) {
+    console.warn(error)
+    formRef.value?.scrollToField(error[0].name)
   }
 }
 
@@ -306,11 +377,19 @@ function goEventConfig() {
               <p class="space-x-4">
                 <label>控制</label>
                 <label class="px-4 py-1 bg-gray-100 rounded-full">{{ deviceItem.label }}</label>
-                <label v-clickable-active class="px-4 py-1 bg-gray-100 rounded-full">
+                <label
+                  v-clickable-active
+                  class="px-4 py-1 bg-gray-100 rounded-full"
+                  @click="openDeviceModeItem(modeItem, deviceItem)"
+                >
                   {{ deviceItem.modeNames[modeItem.useStatus] }}
                   <template v-if="modeItem.use != 'switch'"> - {{ modeItem.useValue }} </template>
                 </label>
-                <label v-if="modeItem.dealyText" class="px-4 py-1 bg-gray-100 rounded-full">
+                <label
+                  v-if="modeItem.dealyText"
+                  class="px-4 py-1 bg-gray-100 rounded-full"
+                  @click="operationRef.open({ deviceItem, modeItem })"
+                >
                   {{ modeItem.dealyText }}
                 </label>
               </p>
@@ -329,6 +408,11 @@ function goEventConfig() {
       </ul>
     </section>
 
+    <div class="p-6">
+      <van-button type="primary" block round @click="onSave"> 保存 </van-button>
+    </div>
+
+    <!--设备模块的延时-->
     <TimePicker
       ref="operationRef"
       v-model="operationDealy"
@@ -345,13 +429,23 @@ function goEventConfig() {
         }
       "
       @select="selectOperationDealy"
-    >
-    </TimePicker>
+    />
 
-    <div class="p-6">
-      <van-button type="primary" block round @click="onSave"> 保存 </van-button>
-    </div>
+    <pickerSearch
+      ref="pickerSearchRef"
+      :columns-field-names="{ text: 'useCn', value: 'useEn' }"
+      @select="onSelectMode"
+    />
 
+    <ColorPicker ref="colorPickerRef" @confirm="onColorPickerChange">
+      <template #default="{ ratio }">
+        <label>{{ ratio }}K</label>
+      </template>
+    </ColorPicker>
+
+    <SliderPicker ref="sliderPickerRef" @confirm="onSliderPickerChange" />
+
+    <!--场景图库-->
     <van-action-sheet v-model:show="showGallery" cancel-text="取消" close-on-click-action>
       <ul class="space-y-6 py-4 text-center">
         <li @click="openGallery">默认图库</li>
@@ -369,6 +463,7 @@ function goEventConfig() {
         </li>
       </ul>
     </van-action-sheet>
+    <!--场景执行时间-->
     <van-popup v-model:show="showExecutionTime" round safe-area-inset-bottom position="bottom">
       <div class="py-4">
         <van-time-picker

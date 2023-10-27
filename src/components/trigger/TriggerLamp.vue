@@ -3,9 +3,8 @@ import { ref, reactive, computed, watch } from 'vue'
 
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import { USE_KEY } from '@/enums/deviceEnums'
-import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
-import { throttle, stringToArray } from '@/utils/common'
+import { stringToArray } from '@/utils/common'
 
 import { useTrigger } from './useTrigger'
 
@@ -29,14 +28,6 @@ const emits = defineEmits(['update:modelValue', 'update:hue', 'change'])
 const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
 
 const colorPickerRef = ref(null)
-const colorConfig = reactive({
-  hue: 0,
-  saturation: 100,
-  luminosity: 50,
-  alpha: 1,
-  gradientColors: ['to top', '#FB8C1A', '#FAF6F7'],
-  gradientType: 'linear',
-})
 
 const config = ref({
   [SWITCH]: {
@@ -156,13 +147,10 @@ const onBrightnessChange = () => {
         </template>
       </van-cell>
     </van-cell-group>
-    <ColorPicker
-      ref="colorPickerRef"
-      v-bind="colorConfig"
-      :min="colorTemperatureRange[0]"
-      :max="colorTemperatureRange[1]"
-      @change="onColorPickerChange"
-    >
+    <ColorPicker ref="colorPickerRef" :range="colorTemperatureRange" @confirm="onColorPickerChange">
+      <template #default="{ ratio }">
+        <label>{{ ratio }}K</label>
+      </template>
     </ColorPicker>
   </div>
 </template>
