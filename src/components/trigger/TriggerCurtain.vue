@@ -9,8 +9,7 @@ import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
 
-const { getSceneActions, getModeColumns, triggerControl, onConfigFormat, getModeRange } =
-  useTrigger()
+const { getModeColumns, triggerControl, onConfigFormat, getModeRange } = useTrigger()
 
 const props = defineProps({
   id: {

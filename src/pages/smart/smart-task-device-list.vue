@@ -1,9 +1,11 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
+import sceneStore from '@/store/sceneStore'
 
 defineOptions({ name: 'SmartTaskDeviceList' })
 
@@ -15,6 +17,7 @@ const checkboxRefs = ref([])
 const checkedAll = ref(false)
 const checkboxGroup = ref(null)
 const floorTree = ref([])
+const { sceneCreateItem } = storeToRefs(sceneStore())
 
 const toggle = (index) => {
   checkboxRefs.value[index].toggle()
@@ -67,7 +70,9 @@ init()
             <van-cell-group v-for="roomItem in floorItem.roomList" :key="roomItem.id">
               <van-cell
                 v-for="deviceItem in roomItem.deviceList.filter(
-                  (item) => item.classify == route.query.classify
+                  (item) =>
+                    item.classify == route.query.classify ||
+                    sceneCreateItem?.deviceList?.some((dItem) => dItem.id != item.id)
                 )"
                 :key="deviceItem.id"
                 :title="deviceItem.label"

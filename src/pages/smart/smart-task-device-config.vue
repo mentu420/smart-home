@@ -14,7 +14,7 @@ import { stringToArray } from '@/utils/common'
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
 const { useGetDeviceItem, includesUse } = deviceStore()
-const { getSceneActions, getModeColumns, onConfigFormat } = useTrigger()
+const { getModeColumns, onConfigFormat } = useTrigger()
 const { sceneCreateItem } = storeToRefs(sceneStore())
 
 const route = useRoute()
@@ -44,9 +44,7 @@ watch(
       ...modeList.map((item) => ({
         [item.use]: {
           useStatus: item.useColumns[0].useEn,
-          useValue: [VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE].includes(item.use)
-            ? parseInt(item.useColumns[0].useValue)
-            : item.useColumns[0].useValue,
+          useValue: item.useValue,
         },
       }))
     )

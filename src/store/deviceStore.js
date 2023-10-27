@@ -48,7 +48,8 @@ export default defineStore(storeName, () => {
           ...columns.map((columnItem) => ({ [columnItem.useEn]: columnItem.useCn }))
         )
         const useList = [...new Set(columns?.map((item) => item.use))]
-        const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE } = USE_KEY
+        const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE, COLOURTEMPERATURE } =
+          USE_KEY
         return {
           modeNames,
           label: item.mingcheng,
@@ -64,14 +65,24 @@ export default defineStore(storeName, () => {
           // mqtt 对应关系 {use:shuxing, useValue:shuxingzhi, useStatus:shuxingzhuangtai}
           modeList: useList.map((use) => {
             const useColumns = columns.filter((item) => item.use == use)
+            const valueIsNum = [
+              VOLUME,
+              PROCESS,
+              PERCENT,
+              ANGLE,
+              BRIGHTNESS,
+              TEMPERATURE,
+              COLOURTEMPERATURE,
+            ].includes(use)
+            const [min] = stringToArray(useColumns[0].useValueRange)
+            const useValue = valueIsNum ? (min ? parseInt(min) : 1) : '1'
             return {
               label: useColumns[0].useName, //当前模块名称
               use, // 当前模块标识
               useColumns, // 当前模块的选项
-              useValue: [VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE].includes(use)
-                ? 1
-                : '1', // 当前模块控制值
+              useValue, // 当前模块控制值
               useStatus: '', //当前模块控制状态
+              valueIsNum,
             }
           }),
         }

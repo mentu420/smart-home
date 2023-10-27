@@ -27,18 +27,43 @@ const eventActive = ref(0) //记录将要改变的事件
 const fileList = ref([])
 const operationRef = ref(null)
 const operationDealy = ref(['00', '00']) // 每个设备的延时
+const formRef = ref(null)
 
 const { getRepeatTimeText } = sceneStore()
 
+const getSceneActions = ({ modeList, id }) => {
+  const actions = modeList.map((modeItem) => {
+    return {
+      ziyuanleixing: 1,
+      ziyuanbianhao: id,
+      yanshi: 0,
+      caozuo: {
+        shuxing: modeItem.use,
+        shuxingzhuangtai: modeItem.useStatus,
+        shuxingzhi: modeItem.useValue,
+      },
+    }
+  })
+
+  return actions
+}
+
 const onSave = async () => {
-  if (!sceneCreateItem.value.actions || sceneCreateItem.value?.actions?.length == 0) {
-    showToast('请添加任务')
-    return
+  try {
+    await formRef.value?.validate()
+    const { deviceList = [], ...data } = sceneCreateItem.value
+    if (deviceList.length == 0) {
+      showToast('请添加任务')
+      return
+    }
+    const params = { op: 2 }
+    const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem))
+    const { code } = await setSceneList({ params, data: { ...data, actions } })
+    console.log(code)
+  } catch (error) {
+    console.warn(error)
+    formRef.value?.scrollToField(error[0].name)
   }
-  const params = { op: 2 }
-  const data = sceneCreateItem.value
-  const { code } = await setSceneList({ params, data })
-  console.log(code)
 }
 // 打开执行时间
 const openExecutionTime = (eventItem, eventIndex) => {
@@ -102,7 +127,11 @@ function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
           ...deviceItem,
           modeList: deviceItem.modeList.map((option) => {
             if (option.use == modeItem.use) {
-              return { ...modeItem, dealy: selectedValues[0] * 60 + Number(selectedValues[1]) }
+              return {
+                ...modeItem,
+                dealy: selectedValues[0] * 60 + Number(selectedValues[1]),
+                dealyText: `${selectedValues[0]}分${selectedValues[1]}秒`,
+              }
             }
             return option
           }),
@@ -145,7 +174,7 @@ function goEventConfig() {
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="创建场景" />
-    <van-form class="m-4">
+    <van-form ref="formRef" class="m-4">
       <van-cell-group class="overflow-hidden rounded-lg">
         <van-field
           v-model="sceneCreateItem.mingcheng"
@@ -272,7 +301,7 @@ function goEventConfig() {
       <!--任务列表-->
       <ul>
         <li v-for="deviceItem in sceneCreateItem.deviceList" :key="deviceItem.id" class="space-y-4">
-          <template v-for="(modeItem, modeIndex) in deviceItem.modeList" :key="modeIndex">
+          <template v-for="modeItem in deviceItem.modeList" :key="modeItem.use">
             <div class="p-4 bg-white rounded-lg flex justify-between items-center">
               <p class="space-x-4">
                 <label>控制</label>
@@ -280,6 +309,9 @@ function goEventConfig() {
                 <label v-clickable-active class="px-4 py-1 bg-gray-100 rounded-full">
                   {{ deviceItem.modeNames[modeItem.useStatus] }}
                   <template v-if="modeItem.use != 'switch'"> - {{ modeItem.useValue }} </template>
+                </label>
+                <label v-if="modeItem.dealyText" class="px-4 py-1 bg-gray-100 rounded-full">
+                  {{ modeItem.dealyText }}
                 </label>
               </p>
               <van-popover

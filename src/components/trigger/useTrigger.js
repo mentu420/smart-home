@@ -11,23 +11,6 @@ const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
 const { mqttPublish } = useMqtt()
 
 export const useTrigger = () => {
-  const getSceneActions = (modeList, id) => {
-    const actions = modeList.map((modeItem) => {
-      return {
-        ziyuanleixing: 1,
-        ziyuanbianhao: id,
-        yanshi: 0,
-        caozuo: {
-          shuxing: modeItem.use,
-          shuxingzhuangtai: modeItem.useStatus,
-          shuxingzhi: modeItem.useValue,
-        },
-      }
-    })
-
-    return actions
-  }
-
   const getUseKey = (category) => {
     const USE_KEY = Object.assign(
       {},
@@ -80,15 +63,13 @@ export const useTrigger = () => {
   }
 
   const onConfigFormat = (config, modeList) => {
-    const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE, SWITCH } = USE_KEY
+    const { SWITCH } = USE_KEY
     Object.keys(config).forEach((key) => {
       const modeItem = modeList.find((item) => item.use == key)
       if (modeItem) {
         config[key] = {
           useStatus: [SWITCH].includes(key) ? modeItem.useStatus || 'off' : modeItem.useStatus,
-          useValue: [VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE].includes(key)
-            ? parseInt(modeItem.useValue)
-            : modeItem.useValue || '1',
+          useValue: modeItem.valueIsNum ? parseInt(modeItem.useValue) : modeItem.useValue || '1',
         }
       }
     })
