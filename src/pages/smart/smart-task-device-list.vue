@@ -12,7 +12,7 @@ const router = useRouter()
 const deviceChecked = ref([])
 const deviceList = ref([])
 const checkboxRefs = ref([])
-const chedkAll = ref(false)
+const checkedAll = ref(false)
 const checkboxGroup = ref(null)
 const floorTree = ref([])
 
@@ -21,12 +21,12 @@ const toggle = (index) => {
 }
 
 const onAllChecked = () => {
-  chedkAll.value = !chedkAll.value
-  checkboxGroup.value.toggleAll(chedkAll.value)
+  checkedAll.value = !checkedAll.value
+  checkboxGroup.value?.toggleAll()
 }
 
 const onCheckChange = (values) => {
-  chedkAll.value = values.length == deviceList.value.length
+  checkedAll.value = values.length == deviceList.value.length
 }
 
 const goDeviceConfig = (item) => {
@@ -56,7 +56,7 @@ init()
     <div class="flex items-center justify-between p-4">
       <p class="text-gray-500">选择希望控制的设备</p>
       <van-button class="!px-6" size="small" type="primary" round @click="onAllChecked">
-        {{ chedkAll ? '反选' : '全选' }}
+        {{ checkedAll ? '反选' : '全选' }}
       </van-button>
     </div>
     <section class="px-4">

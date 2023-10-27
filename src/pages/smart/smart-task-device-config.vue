@@ -14,7 +14,7 @@ import { stringToArray } from '@/utils/common'
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
 const { useGetDeviceItem, includesUse } = deviceStore()
-const { getSceneActions, getModeColumns } = useTrigger()
+const { getSceneActions, getModeColumns, onConfigFormat } = useTrigger()
 const { sceneCreateItem } = storeToRefs(sceneStore())
 
 const route = useRoute()
@@ -25,22 +25,33 @@ const showLigth = ref(false)
 const useKey = ref('')
 const prickerRef = ref(false)
 
-const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
-
-const deviceColumns = ref([])
-const config = ref({})
 const deviceItem = computed(() => useGetDeviceItem(route.query.id))
+const deviceColumns = ref([])
+const { COLOURTEMPERATURE, BRIGHTNESS, SWITCH } = USE_KEY
+const config = ref({ [SWITCH]: { useStatus: 'on', useValue: '1' } })
+
+console.log(useGetDeviceItem(route.query.id))
 
 watch(
   () => deviceItem.value,
   (val) => {
-    const { columns = [], modeList = [] } = val
-    deviceColumns.value = columns.filter((item) => item.use != SWITCH)
-    config.value = Object.assign({}, ...modeList.map((item) => ({ [item.use]: item.useValue })), {
-      [SWITCH]: 'on',
-    })
-    console.log('config', config.value)
-  }
+    if (!val) return
+    const { modeList = [] } = val
+    deviceColumns.value = modeList?.filter((item) => item.use != SWITCH)
+    const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE } = USE_KEY
+    config.value = Object.assign(
+      {},
+      ...modeList.map((item) => ({
+        [item.use]: {
+          useStatus: item.useColumns[0].useEn,
+          useValue: [VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE].includes(item.use)
+            ? parseInt(item.useColumns[0].useValue)
+            : item.useColumns[0].useValue,
+        },
+      }))
+    )
+  },
+  { immediate: true }
 )
 
 const colorTemperatureRange = computed(() => {
@@ -71,19 +82,14 @@ const openLampConfig = (item) => {
   }
 }
 
-function onColorPickerChange({ color, ratio }) {
-  config.value = { ...config.value, [COLOURTEMPERATURE]: ratio }
+const onConfigChange = (use, payload) => (config.value[use] = { ...config.value[use], ...payload })
+
+function onColorPickerChange({ ratio }) {
+  onConfigChange(COLOURTEMPERATURE, { useValue: ratio, useStatus: COLOURTEMPERATURE })
 }
 
 function onSwitchChange(value) {
-  switch (route.query.classify) {
-    case '100':
-      config.value = { ...config.value, [BRIGHTNESS]: value == 'on' ? 100 : 0 }
-      break
-
-    default:
-      break
-  }
+  onConfigChange(SWITCH, { useStatus: value, useValue: value == 'on' ? '1' : '0' })
 }
 
 onMounted(() => {})
@@ -92,15 +98,9 @@ const onSave = () => {
   const { modeList } = deviceItem.value
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
-    return { ...modeItem, useStatus: modeItem.use, useValue: config.value[modeItem.use] }
+    return { ...modeItem, ...config.value[modeItem.use] }
   })
-  // const actions = getSceneActions(newModeList, route.query.id)
-  // const newActions = sceneCreateItem.value.actions
-  //   ? sceneCreateItem.value.actions.map((actionItem) => {
-  //       const newActionItem = actions.find((item) => item.ziyuanbianhao == actionItem.ziyuanbianhao)
-  //       return newActionItem ? newActionItem : actionItem
-  //     })
-  //   : actions
+  console.log('newModeList', newModeList)
   const newDeviceItem = { ...deviceItem.value, modeList: newModeList }
   const deviceList = sceneCreateItem.value.deviceList
     ? sceneCreateItem.value.deviceList.map((item) => {
@@ -109,6 +109,7 @@ const onSave = () => {
       })
     : [newDeviceItem]
   sceneCreateItem.value = { ...sceneCreateItem.value, deviceList }
+  console.log('sceneCreateItem', sceneCreateItem.value)
   router.go(-4)
 }
 </script>
@@ -116,9 +117,9 @@ const onSave = () => {
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar :title="`${deviceItem?.label}设备配置`" />
-    <van-radio-group v-model="config[SWITCH]" class="mt-4" @change="onSwitchChange">
+    <van-radio-group v-model="config[SWITCH].useStatus" class="mt-4" @change="onSwitchChange">
       <van-cell-group inset>
-        <van-cell clickable title="开" @click="config[SWITCH] = 'on'">
+        <van-cell clickable title="开" @click="config[SWITCH].useStatus = 'on'">
           <template #right-icon>
             <van-radio name="on"> </van-radio>
           </template>
@@ -130,7 +131,7 @@ const onSave = () => {
               v-for="(columnItem, columnIndex) in deviceColumns"
               :key="columnIndex"
               clickable
-              :title="columnItem?.useName"
+              :title="columnItem?.label"
               is-link
               @click="openLampConfig(columnItem)"
             >
@@ -145,12 +146,12 @@ const onSave = () => {
                   </van-cell>
                   <div class="flex h-40 items-center justify-center p-8">
                     <div class="w-full">
-                      <van-slider v-model="config[BRIGHTNESS]" min="0">
+                      <van-slider v-model="config[BRIGHTNESS].useValue" min="0">
                         <template #button>
                           <div
                             class="w-10 rounded-full bg-white py-1 text-center text-primary shadow"
                           >
-                            {{ config[BRIGHTNESS] }}
+                            {{ config[BRIGHTNESS].useValue }}
                           </div>
                         </template>
                       </van-slider>
@@ -193,7 +194,7 @@ const onSave = () => {
           </template>
         </div>
 
-        <van-cell clickable title="关" @click="config[SWITCH] = 'off'">
+        <van-cell clickable title="关" @click="config[SWITCH].useStatus = 'off'">
           <template #right-icon>
             <van-radio name="off"> </van-radio>
           </template>

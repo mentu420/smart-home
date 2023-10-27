@@ -58,7 +58,8 @@ watch(
   (val) => {
     const { modeList } = val
     config.value = onConfigFormat(config.value, modeList)
-  }
+  },
+  { immediate: true }
 )
 
 const speedActions = computed(() => getModeActions(deviceItem.value, FAN))

@@ -65,7 +65,8 @@ watch(
     min.value = minValue
     max.value = maxValue
     config.value = onConfigFormat(config.value, modeList)
-  }
+  },
+  { immediate: true }
 )
 const tempCopy = ref(config.value[TEMPERATURE])
 const speedActions = computed(() => getModeActions(deviceItem.value, FAN))

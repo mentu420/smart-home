@@ -3,8 +3,8 @@ import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
 import { getDeviceList } from '@/apis/smartApi'
-import { CLASSIFY_ICON, CLASSIFY_EXECL, TYPE_EXECL, TYPE_VALUE_EXECL } from '@/enums/deviceEnums'
-import { imageTypes, isObjectString } from '@/utils/common'
+import { CLASSIFY_ICON, USE_KEY, TYPE_VALUE_EXECL } from '@/enums/deviceEnums'
+import { isObjectString, stringToArray } from '@/utils/common'
 
 const storeName = 'deviceStore'
 
@@ -48,6 +48,7 @@ export default defineStore(storeName, () => {
           ...columns.map((columnItem) => ({ [columnItem.useEn]: columnItem.useCn }))
         )
         const useList = [...new Set(columns?.map((item) => item.use))]
+        const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE } = USE_KEY
         return {
           modeNames,
           label: item.mingcheng,
@@ -67,7 +68,9 @@ export default defineStore(storeName, () => {
               label: useColumns[0].useName, //当前模块名称
               use, // 当前模块标识
               useColumns, // 当前模块的选项
-              useValue: '1', // 当前模块控制值
+              useValue: [VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE].includes(use)
+                ? 1
+                : '1', // 当前模块控制值
               useStatus: '', //当前模块控制状态
             }
           }),

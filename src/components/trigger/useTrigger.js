@@ -80,12 +80,12 @@ export const useTrigger = () => {
   }
 
   const onConfigFormat = (config, modeList) => {
-    const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE } = USE_KEY
+    const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE, SWITCH } = USE_KEY
     Object.keys(config).forEach((key) => {
       const modeItem = modeList.find((item) => item.use == key)
       if (modeItem) {
         config[key] = {
-          useStatus: modeItem.useStatus,
+          useStatus: [SWITCH].includes(key) ? modeItem.useStatus || 'off' : modeItem.useStatus,
           useValue: [VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE].includes(key)
             ? parseInt(modeItem.useValue)
             : modeItem.useValue || '1',

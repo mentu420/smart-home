@@ -57,7 +57,8 @@ watch(
     min.value = minValue
     max.value = maxValue
     config.value = onConfigFormat(config.value, modeList)
-  }
+  },
+  { immediate: true }
 )
 
 const onStopToggle = () => {

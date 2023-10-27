@@ -61,6 +61,10 @@ watch(
   (val) => {
     const { modeList } = val
     config.value = onConfigFormat(config.value, modeList)
+    console.log(config.value)
+  },
+  {
+    immediate: true,
   }
 )
 
