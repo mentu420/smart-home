@@ -25,11 +25,20 @@ const toggle = (index) => {
 
 const onAllChecked = () => {
   checkedAll.value = !checkedAll.value
-  checkboxGroup.value?.toggleAll()
+  checkboxGroup.value?.toggleAll(checkedAll.value)
 }
 
 const onCheckChange = (values) => {
-  checkedAll.value = values.length == deviceList.value.length
+  const length = floorTree.value
+    .map((floorItem) =>
+      floorItem.roomList.map((roomItem) => {
+        return roomItem.deviceList.length
+      })
+    )
+    .flat(2)
+    .reduce((a, b) => a + b, 0)
+  console.log(length)
+  checkedAll.value = values.length == length
 }
 
 const goDeviceConfig = (item) => {
@@ -39,15 +48,50 @@ const goDeviceConfig = (item) => {
   })
 }
 
-const onSave = () => {
+const onSave = async () => {
+  const { useGetDeviceListSync, setModeColumns } = deviceStore()
+  const deviceList = await useGetDeviceListSync()
+  console.log('deviceChecked', deviceChecked.value, deviceList)
+  const checkList = deviceList.filter((deviceItem) => deviceChecked.value.includes(deviceItem.id))
+  console.log('checkList', checkList)
+  sceneCreateItem.value = {
+    ...sceneCreateItem.value,
+    deviceList: [
+      ...(sceneCreateItem.value.deviceList || []),
+      ...checkList.map((checkItem) => {
+        return { ...checkItem, modeList: setModeColumns(checkItem.columns) }
+      }),
+    ],
+  }
   router.push({ path: '/smart-scene-create' })
 }
 
 const init = () => {
   const { useGetFloorTree } = houseStore()
-  floorTree.value = useGetFloorTree().filter((item) =>
-    item.roomList.some((roomItem) => roomItem.deviceList.length > 0)
-  )
+  floorTree.value = useGetFloorTree()
+    .filter((floorItem) => {
+      return floorItem.roomList.some((roomItem) => {
+        return roomItem.deviceList.length > 0
+      })
+    })
+    .map((floorItem) => {
+      return {
+        ...floorItem,
+        roomList: floorItem.roomList.map((roomItem) => {
+          return {
+            ...roomItem,
+            deviceList: roomItem.deviceList.filter((deviceItem) => {
+              const { deviceList = [] } = sceneCreateItem.value
+              const ids = deviceList.map((item) => item.id)
+              return (
+                deviceItem.classify == route.query.classify && //过滤类型
+                !ids.includes(deviceItem.id) //过滤已经选择了的设备
+              )
+            }),
+          }
+        }),
+      }
+    })
 }
 
 init()
@@ -69,11 +113,7 @@ init()
           <div class="rounded-lg overflow-hidden">
             <van-cell-group v-for="roomItem in floorItem.roomList" :key="roomItem.id">
               <van-cell
-                v-for="deviceItem in roomItem.deviceList.filter(
-                  (item) =>
-                    item.classify == route.query.classify ||
-                    sceneCreateItem?.deviceList?.some((dItem) => dItem.id != item.id)
-                )"
+                v-for="deviceItem in roomItem.deviceList"
                 :key="deviceItem.id"
                 :title="deviceItem.label"
                 :label="roomItem.label"

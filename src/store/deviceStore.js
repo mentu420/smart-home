@@ -28,6 +28,33 @@ export default defineStore(storeName, () => {
     return useList.includes(use)
   })
 
+  function setModeColumns(columns) {
+    const useList = [...new Set(columns?.map((item) => item.use))]
+    const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE, COLOURTEMPERATURE } = USE_KEY
+    return useList.map((use) => {
+      const useColumns = columns.filter((item) => item.use == use)
+      const valueIsNum = [
+        VOLUME,
+        PROCESS,
+        PERCENT,
+        ANGLE,
+        BRIGHTNESS,
+        TEMPERATURE,
+        COLOURTEMPERATURE,
+      ].includes(use)
+      const [min] = stringToArray(useColumns[0].useValueRange)
+      const useValue = valueIsNum ? (min ? parseInt(min) : 1) : '1'
+      return {
+        label: useColumns[0].useName, //当前模块名称
+        use, // 当前模块标识
+        useColumns, // 当前模块的选项
+        useValue, // 当前模块控制值
+        useStatus: useColumns[0].useEn, //当前模块控制状态
+        valueIsNum,
+      }
+    })
+  }
+
   //异步获取设备列表
   const useGetDeviceListSync = async (reload = false) => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
@@ -47,9 +74,7 @@ export default defineStore(storeName, () => {
           {},
           ...columns.map((columnItem) => ({ [columnItem.useEn]: columnItem.useCn }))
         )
-        const useList = [...new Set(columns?.map((item) => item.use))]
-        const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE, COLOURTEMPERATURE } =
-          USE_KEY
+
         return {
           modeNames,
           label: item.mingcheng,
@@ -63,28 +88,7 @@ export default defineStore(storeName, () => {
           columns, // 记录暑假原始值
           // 记录当前设备模块控制值
           // mqtt 对应关系 {use:shuxing, useValue:shuxingzhi, useStatus:shuxingzhuangtai}
-          modeList: useList.map((use) => {
-            const useColumns = columns.filter((item) => item.use == use)
-            const valueIsNum = [
-              VOLUME,
-              PROCESS,
-              PERCENT,
-              ANGLE,
-              BRIGHTNESS,
-              TEMPERATURE,
-              COLOURTEMPERATURE,
-            ].includes(use)
-            const [min] = stringToArray(useColumns[0].useValueRange)
-            const useValue = valueIsNum ? (min ? parseInt(min) : 1) : '1'
-            return {
-              label: useColumns[0].useName, //当前模块名称
-              use, // 当前模块标识
-              useColumns, // 当前模块的选项
-              useValue, // 当前模块控制值
-              useStatus: '', //当前模块控制状态
-              valueIsNum,
-            }
-          }),
+          modeList: setModeColumns(columns),
         }
       })
       .sort((a, b) => a.sort - b.sort)
@@ -136,5 +140,6 @@ export default defineStore(storeName, () => {
     useGetDeviceItem,
     useDeviceMqttChange,
     reset,
+    setModeColumns,
   }
 })

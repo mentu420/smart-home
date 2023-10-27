@@ -371,9 +371,13 @@ function goEventConfig() {
       </ol>
       <!--任务列表-->
       <ul>
-        <li v-for="deviceItem in sceneCreateItem.deviceList" :key="deviceItem.id" class="space-y-4">
+        <li
+          v-for="deviceItem in sceneCreateItem.deviceList"
+          :key="deviceItem.id"
+          class="mb-4 bg-white rounded-lg"
+        >
           <template v-for="modeItem in deviceItem.modeList" :key="modeItem.use">
-            <div class="p-4 bg-white rounded-lg flex justify-between items-center">
+            <div class="p-4 flex justify-between items-center van-hairline--bottom">
               <p class="space-x-4">
                 <label>控制</label>
                 <label class="px-4 py-1 bg-gray-100 rounded-full">{{ deviceItem.label }}</label>
