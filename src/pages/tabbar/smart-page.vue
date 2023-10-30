@@ -17,8 +17,6 @@ const globalSceneList = computed(() => sceneList.value?.filter((option) => optio
 const smartList = ref([])
 
 const createSceneItem = () => {
-  const { clearSceneCreateItem } = sceneStore()
-  clearSceneCreateItem()
   router.push({ path: '/smart-scene-create' })
 }
 

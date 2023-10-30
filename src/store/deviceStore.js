@@ -72,7 +72,9 @@ export default defineStore(storeName, () => {
         })
         const modeNames = Object.assign(
           {},
-          ...columns.map((columnItem) => ({ [columnItem.useEn]: columnItem.useCn }))
+          ...columns.map((columnItem) => ({
+            [`${columnItem.use}-${columnItem.useEn}`]: columnItem.useCn,
+          }))
         )
 
         return {

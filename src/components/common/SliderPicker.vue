@@ -14,6 +14,8 @@ const attrs = useAttrs()
 const scopeData = ref(null)
 const showPicker = ref(false)
 const sliderValue = ref(0)
+const min = ref(0)
+const max = ref(100)
 
 const popupAttrsKeys = ['click-overlay', 'click-close-icon', 'open', 'close', 'opened', 'closed']
 
@@ -28,6 +30,8 @@ function open(data) {
   showPicker.value = true
   scopeData.value = data
   sliderValue.value = data.modelValue || 0
+  min.value = data.min || 0
+  max.value = data.max || 100
 }
 
 function close() {
@@ -51,7 +55,7 @@ defineExpose({ open, close })
     </van-cell>
     <div class="h-[200px] pl-8 pr-10 flex justify-center items-center">
       <div class="flex-1">
-        <van-slider v-model="sliderValue" v-bind="attrs" bar-height="4px">
+        <van-slider v-model="sliderValue" v-bind="attrs" bar-height="4px" :min="min" :max="max">
           <template #button>
             <div class="px-4 py-1 rounded-full bg-[#e39334] text-white">{{ sliderValue }}</div>
           </template>

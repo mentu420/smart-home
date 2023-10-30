@@ -63,7 +63,7 @@ const onSave = async () => {
       }),
     ],
   }
-  router.push({ path: '/smart-scene-create' })
+  router.go(-3)
 }
 
 const init = () => {

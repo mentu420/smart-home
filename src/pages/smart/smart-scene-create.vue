@@ -111,6 +111,8 @@ function openDeviceModeItem(modeItem, deviceItem) {
         id: deviceItem.id,
         title: `${deviceItem.label}-${modeItem.label}`,
         modelValue: modeItem.useValue,
+        min,
+        max,
       })
       break
     case COLOURTEMPERATURE:
@@ -218,9 +220,8 @@ const onSave = async () => {
 
 const init = () => {
   const { clearSceneCreateItem } = sceneStore()
-
+  clearSceneCreateItem()
   if (route.query.id) {
-    clearSceneCreateItem()
     const { id, rId, label, actions, ...data } = sceneList.value.find(
       (item) => item.id == route.query.id
     )
@@ -427,8 +428,19 @@ function goEventConfig() {
                   class="px-4 py-1 bg-gray-100 rounded-full"
                   @click="openDeviceModeItem(modeItem, deviceItem)"
                 >
-                  {{ deviceItem.modeNames[modeItem.useStatus] }}
-                  <template v-if="modeItem.use != 'switch'"> - {{ modeItem.useValue }} </template>
+                  {{
+                    modeItem.valueIsNum
+                      ? deviceItem.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
+                      : modeItem.label
+                  }}
+                  <template v-if="modeItem.use != 'switch'">
+                    -
+                    {{
+                      modeItem.valueIsNum
+                        ? modeItem.useValue
+                        : deviceItem.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
+                    }}
+                  </template>
                 </label>
                 <label
                   v-if="modeItem.dealyText"
