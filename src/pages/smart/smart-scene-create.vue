@@ -208,9 +208,13 @@ const onSave = async () => {
       return
     }
     const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
+    const op = route.query.id ? 3 : 2
     const data = { ...residue, leixing: 1, isor: 0, actions, fangjianbianhao: '' }
-    console.log('onSave', data)
-    await setSceneList({ params: { op: 2 }, data })
+    await setSceneList({
+      params: { op },
+      data: op == 3 ? { bianhao: route.query.id, ...data } : data,
+    })
+    await sceneStore().useGetSceneListSync(true)
     router.back()
   } catch (error) {
     console.warn(error)

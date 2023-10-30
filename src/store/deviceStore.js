@@ -30,7 +30,8 @@ export default defineStore(storeName, () => {
 
   function setModeColumns(columns) {
     const useList = [...new Set(columns?.map((item) => item.use))]
-    const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE, COLOURTEMPERATURE } = USE_KEY
+    const { VOLUME, PROCESS, PERCENT, ANGLE, BRIGHTNESS, TEMPERATURE, COLOURTEMPERATURE, SWITCH } =
+      USE_KEY
     return useList.map((use) => {
       const useColumns = columns.filter((item) => item.use == use)
       const valueIsNum = [
@@ -43,13 +44,13 @@ export default defineStore(storeName, () => {
         COLOURTEMPERATURE,
       ].includes(use)
       const [min] = stringToArray(useColumns[0].useValueRange)
-      const useValue = valueIsNum ? (min ? parseInt(min) : 1) : '1'
+      const useValue = valueIsNum ? (min ? parseInt(min) : 1) : '0'
       return {
         label: useColumns[0].useName, //当前模块名称
         use, // 当前模块标识
         useColumns, // 当前模块的选项
         useValue, // 当前模块控制值
-        useStatus: useColumns[0].useEn, //当前模块控制状态
+        useStatus: SWITCH == use ? 'off' : useColumns[0].useEn, //当前模块控制状态
         valueIsNum,
       }
     })
