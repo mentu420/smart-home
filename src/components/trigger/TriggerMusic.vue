@@ -94,7 +94,13 @@ const onStatusChange = () => {
   triggerControl(PLAYCONTROL, deviceItem.value, config.value)
 }
 
+const onSrotChange = (useStatus) => {
+  config.value[CUTSONG] = { useValue: '1', useStatus }
+  triggerControl(CUTSONG, deviceItem.value, config.value)
+}
+
 const onVolumeChange = () => {
+  config.value[VOLUME] = { useValue: config.value[VOLUME].useValue, useStatus: VOLUME }
   triggerControl(VOLUME, deviceItem.value, config.value)
 }
 
@@ -118,16 +124,33 @@ const onProcessChange = () => {
         />
       </div>
       <div class="flex items-center justify-between">
-        <IconFont class="text-xs" icon="prev" />
-        <IconFont :icon="config[PLAYCONTROL].useStatus" @click="onStatusChange" />
-        <IconFont class="text-xs" icon="next" />
+        <IconFont
+          v-clickable-active="{ color: '#e39334' }"
+          class="text-xs"
+          icon="prev"
+          @click="onSrotChange('next')"
+        />
+        <IconFont
+          v-clickable-active="{ color: '#e39334' }"
+          :icon="config[PLAYCONTROL].useStatus"
+          @click="onStatusChange"
+        />
+        <IconFont
+          v-clickable-active="{ color: '#e39334' }"
+          class="text-xs"
+          icon="next"
+          @click="onSrotChange('prev')"
+        />
       </div>
     </li>
     <div ref="modeRef" class="grid gap-4 grid-cols-2">
       <li class="flex flex-1 items-center justify-between rounded-lg bg-white px-3">
         <van-popover v-model:show="showVolume" :placement="placement">
           <template #reference>
-            <IconFont :icon="config[VOLUME].useValue == 0 ? 'mute' : 'volume'" />
+            <IconFont
+              v-clickable-active="{ color: '#e39334' }"
+              :icon="config[VOLUME].useValue == 0 ? 'mute' : 'volume'"
+            />
           </template>
           <div class="px-[20px] py-4 h-[150px]">
             <van-slider

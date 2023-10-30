@@ -25,7 +25,7 @@ const { houseList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { getDeviceIcon } = useDeviceStore
 const { sceneList } = storeToRefs(useSceneStore)
-const { mqttScenePublish } = useMqtt()
+const { mqttScenePublish, mqttDevicePublish } = useMqtt()
 
 const showHomeList = ref(false)
 const loading = ref(false)
@@ -78,6 +78,19 @@ const openDeviceStatus = (item) => {
     path: '/smart-device-status',
     query: { id: item.id, name: item.label, classify: item.classify },
   })
+}
+
+const onSwitchDeviceItem = ({ modeList, id }) => {
+  console.log(modeList)
+  const switchMode = modeList.find((item) => ['switch'].includes(item.use))
+  if (switchMode) {
+    const useStatus = switchMode.useStatus == 'on' ? 'off' : 'on'
+    mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
+  } else {
+    const playMode = modeList.find((item) => ['playControl'].includes(item.use))
+    const useStatus = playMode.useStatus == 'play' ? 'pause' : 'play'
+    mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
+  }
 }
 
 // 初始化数据 hId 初始化房屋id
@@ -251,7 +264,11 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     :status="getDeviceStatus(commonItem)"
                     @click="
                       () => {
-                        if (collectItem.id == 0) mqttScenePublish({ id: commonItem.id })
+                        if (collectItem.id == 0) {
+                          mqttScenePublish({ id: commonItem.id })
+                        } else {
+                          onSwitchDeviceItem(commonItem)
+                        }
                       }
                     "
                     @click-right-icon="openDeviceStatus(commonItem)"
@@ -330,6 +347,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     :label="deviceItem.label"
                     :icon="getDeviceIcon(deviceItem.classify)"
                     :status="getDeviceStatus(deviceItem)"
+                    @click="onSwitchDeviceItem(deviceItem)"
                     @click-right-icon="openDeviceStatus(deviceItem)"
                   >
                     <template v-if="!dragOptions.disabled" #right-icon>
