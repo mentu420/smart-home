@@ -11,7 +11,7 @@ import { throttle } from '@/utils/common'
 import TriggerModePopover from './TriggerModePopover.vue'
 import { useTrigger } from './useTrigger'
 
-const { useGetDeviceItem } = deviceStore()
+const { useGetDeviceItem, includesUse } = deviceStore()
 
 const { triggerControl, disabledClass, isDisabled, getModeActions, onConfigFormat, getModeRange } =
   useTrigger()
@@ -60,6 +60,7 @@ const disabled = computed(() => isDisabled(config.value))
 watch(
   () => deviceItem.value,
   (val) => {
+    if (!val) return
     const { modeList, columns } = val
     const [minValue, maxValue] = getModeRange(columns, TEMPERATURE)
     min.value = minValue
@@ -110,7 +111,7 @@ const toggle = () => {
       <div>
         {{ config[SWITCH]?.useStatus != 'off' ? '已开启' : '已关闭' }}
       </div>
-      <div class="mr-4 flex-shrink-0 text-center">
+      <div v-if="includesUse(props.id, TEMPERATURE)" class="mr-4 flex-shrink-0 text-center">
         <p>
           <label class="text-lg">{{ config[TEMPERATURE].useValue }}</label>
           <label>℃</label>
@@ -124,6 +125,7 @@ const toggle = () => {
       />
     </li>
     <li
+      v-if="includesUse(props.id, TEMPERATURE)"
       class="mb-4 flex items-center justify-around rounded-lg bg-white p-3"
       :class="disabledClass(config)"
     >

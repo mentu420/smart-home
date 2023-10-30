@@ -51,6 +51,7 @@ const config = ref({
 watch(
   () => deviceItem.value,
   (val) => {
+    if (!val) return
     const { modeList, columns } = val
     const [minValue, maxValue] = getModeRange(columns, PERCENT)
     min.value = minValue

@@ -25,7 +25,10 @@ const openConfig = () => emits('click-right-icon')
   <div v-clickable-active class="rounded-lg bg-white p-3 space-y-2">
     <div class="flex justify-between">
       <slot name="icon">
-        <IconFont class="text-primary" :icon="props.icon" />
+        <IconFont
+          :class="props.status == 1 ? 'text-primary' : 'text-gray-400'"
+          :icon="props.icon"
+        />
       </slot>
       <slot name="right-icon">
         <IconFont class="text-gray-300 text-[10px]" icon="more-round" @click.stop="openConfig" />

@@ -64,6 +64,7 @@ const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 watch(
   () => deviceItem.value,
   (val) => {
+    if (!val) return
     const { modeList, columns } = val
     const [minValue, maxValue] = getModeRange(columns, TEMPERATURE)
     min.value = minValue

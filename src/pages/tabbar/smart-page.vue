@@ -4,12 +4,14 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
+import useMqtt from '@/hooks/useMqtt'
 import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
 
 defineOptions({ name: 'SmartPage' })
 
 const router = useRouter()
+const { mqttScenePublish } = useMqtt()
 const loading = ref(false)
 const { sceneList } = storeToRefs(sceneStore())
 const globalSceneList = computed(() => sceneList.value?.filter((option) => option.rId == ''))
@@ -66,11 +68,16 @@ init()
         <section class="mb-6">
           <h4 class="mb-2 text-gray-600">全局</h4>
           <div class="grid grid-cols-2 gap-4">
-            <ScenenCardItem v-for="sceneItem in globalSceneList" :key="sceneItem.id" is-edit>
+            <ScenenCardItem
+              v-for="sceneItem in globalSceneList"
+              :key="sceneItem.id"
+              is-edit
+              @click="mqttScenePublish({ id: sceneItem.id })"
+            >
               {{ sceneItem.mingcheng }}
               <div
                 class="absolute right-0 top-0 text-white px-3 py-1"
-                @click="onEditScene(sceneItem)"
+                @click.stop="onEditScene(sceneItem)"
               >
                 <van-icon name="ellipsis" />
               </div>
@@ -82,7 +89,12 @@ init()
           <div v-for="roomItem in floorItem.roomList" :key="roomItem.id">
             <h4 class="mb-2 text-gray-600">{{ roomItem.label }}</h4>
             <div class="grid grid-cols-2 gap-4">
-              <ScenenCardItem v-for="sceneItem in roomItem.sceneList" :key="sceneItem.id" is-edit>
+              <ScenenCardItem
+                v-for="sceneItem in roomItem.sceneList"
+                :key="sceneItem.id"
+                is-edit
+                @click.stop="mqttScenePublish({ id: sceneItem.id })"
+              >
                 {{ sceneItem.mingcheng }}
                 <div
                   class="absolute right-0 top-0 text-white px-3 py-1"

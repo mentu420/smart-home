@@ -1,13 +1,13 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { computed, onActivated, onMounted, ref, watch } from 'vue'
-import { $mqtt } from 'vue-paho-mqtt'
 import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
 import DeviceCardItem from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
+import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
@@ -25,6 +25,7 @@ const { houseList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { getDeviceIcon } = useDeviceStore
 const { sceneList } = storeToRefs(useSceneStore)
+const { mqttScenePublish } = useMqtt()
 
 const showHomeList = ref(false)
 const loading = ref(false)
@@ -54,6 +55,17 @@ const collectList = ref([
     component: DeviceCardItem,
   },
 ]) //收藏的场景、设备
+
+const getDeviceStatus = computed(() => (deviceItem) => {
+  const { modeList, classify } = deviceItem
+  if (['100', '102', '103', '104'].includes(classify)) {
+    return modeList.some((modeItem) => modeItem.use == 'switch' && modeItem.useStatus == 'on')
+      ? 1
+      : 0
+  } else {
+    return 0
+  }
+})
 
 const onConfigSelect = (action) => {
   console.log(action)
@@ -236,6 +248,12 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     :is="{ ...collectItem.component }"
                     v-for="commonItem in collectItem.data"
                     :key="commonItem.id"
+                    :status="getDeviceStatus(commonItem)"
+                    @click="
+                      () => {
+                        if (collectItem.id == 0) mqttScenePublish({ id: commonItem.id })
+                      }
+                    "
                     @click-right-icon="openDeviceStatus(commonItem)"
                   >
                     <label>
@@ -263,7 +281,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: sceneItem }">
-                  <ScenenCardItem>
+                  <ScenenCardItem @click="mqttScenePublish({ id: sceneItem.id })">
                     <label>{{ sceneItem.label }}</label>
                     <div v-if="!dragOptions.disabled" class="absolute top-2 right-2">
                       <van-icon name="wap-nav" />
@@ -275,7 +293,15 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <template v-if="roomItem.deviceList.length > 0">
                 <div class="flex items-center py-4">
                   <h4 class="text-gray-600">照明</h4>
-                  <label class="ml-2 text-xs text-gray-400">2个灯亮</label>
+                  <label class="ml-2 text-xs text-gray-400"
+                    >{{
+                      roomItem.deviceList.filter((deviceItem) =>
+                        deviceItem.modeList.some(
+                          (modeItem) => modeItem.use == 'switch' && modeItem.useEn == 'on'
+                        )
+                      ).length
+                    }}个灯亮</label
+                  >
                 </div>
                 <div class="mb-4 grid grid-cols-2 gap-4">
                   <ScenenCardItem
@@ -303,6 +329,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   <DeviceCardItem
                     :label="deviceItem.label"
                     :icon="getDeviceIcon(deviceItem.classify)"
+                    :status="getDeviceStatus(deviceItem)"
                     @click-right-icon="openDeviceStatus(deviceItem)"
                   >
                     <template v-if="!dragOptions.disabled" #right-icon>

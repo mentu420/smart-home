@@ -78,6 +78,7 @@ const placement = computed(() => getPlacement(modeRef.value))
 watch(
   () => deviceItem.value,
   (val) => {
+    if (!val) return
     const { modeList, columns } = val
     const [minValue, maxValue] = getModeRange(columns, VOLUME)
     min.value = minValue

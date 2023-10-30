@@ -63,18 +63,30 @@ export default function useMqtt() {
    *  shuxingzhi: useValue'要控制的设备的物模型属性值 说明：只有是动态属性值(亮度，温度，色温等)的才需要传该值，否则可以默认传"1" ',
    * }
    * **/
-  function mqttPublish({ id, use, useStatus, useValue }, mode = 'B') {
-    const { useGetToken } = userStore()
-    const { yonghubianhao } = useGetToken()
-    const message = JSON.stringify({
-      msgid: new Date().valueOf(),
+  function mqttDevicePublish({ id, use, useStatus, useValue }, mode = 'B') {
+    const message = {
       bianhao: id,
       shuxing: use,
       shuxingzhuangtai: useStatus,
       shuxingzhi: useValue || '1',
-    })
-    console.log('%c控制设备', 'color: green; font-weight: bold;', message)
-    $mqtt.publish(`Device/Control/${yonghubianhao}`, message, mode)
+    }
+    useMqttPublish('Device', message, mode)
+  }
+
+  function mqttScenePublish({ id }, mode = 'B') {
+    const message = { bianhao: id }
+    useMqttPublish('Sence', message, mode)
+  }
+
+  function useMqttPublish(theme, message, mode) {
+    const { useGetToken } = userStore()
+    const { yonghubianhao } = useGetToken()
+    console.log(`%c主题${theme}`, 'color: green; font-weight: bold;', message)
+    $mqtt.publish(
+      `${theme}/Control/${yonghubianhao}`,
+      JSON.stringify({ msgid: new Date().valueOf(), ...message }),
+      mode
+    )
   }
 
   //connected | disconnected | connecting | error | lost | null
@@ -82,5 +94,5 @@ export default function useMqtt() {
     return $mqtt.status()
   }
 
-  return { createMqtt, mqttSubscribe, getMqttStatus, mqttPublish }
+  return { createMqtt, mqttSubscribe, getMqttStatus, mqttDevicePublish, mqttScenePublish }
 }

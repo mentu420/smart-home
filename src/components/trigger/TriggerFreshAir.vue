@@ -56,6 +56,7 @@ const disabled = computed(() => isDisabled(config.value))
 watch(
   () => deviceItem.value,
   (val) => {
+    if (!val) return
     const { modeList } = val
     config.value = onConfigFormat(config.value, modeList)
   },

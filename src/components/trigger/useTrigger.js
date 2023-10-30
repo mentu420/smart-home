@@ -8,7 +8,7 @@ import { throttle, stringToArray } from '@/utils/common'
 
 const { useGetDeviceItem, useDeviceItemChange } = deviceStore()
 
-const { mqttPublish } = useMqtt()
+const { mqttDevicePublish } = useMqtt()
 
 export const useTrigger = () => {
   const getUseKey = (category) => {
@@ -39,7 +39,7 @@ export const useTrigger = () => {
       return { ...modeItem, ...modeConfig }
     })
     const useMode = newModeList.find((item) => item.use == use)
-    mqttPublish({ ...useMode, id: deviceItem.id })
+    mqttDevicePublish({ ...useMode, id: deviceItem.id })
     useDeviceItemChange({ ...deviceItem, modeList: newModeList })
   }, 500)
 
@@ -58,7 +58,7 @@ export const useTrigger = () => {
   const getModeActions = (deviceItem, use) => deviceItem?.columns.filter((item) => item.use == use)
 
   const getModeRange = (columns, use) => {
-    const { useValueRange = '0,100' } = columns.find((item) => item.use == use)
+    const { useValueRange = '0,100' } = columns.find((item) => item.use == use) || {}
     return stringToArray(useValueRange)
   }
 
