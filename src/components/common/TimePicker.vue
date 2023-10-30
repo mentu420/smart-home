@@ -33,7 +33,6 @@ function close() {
 }
 
 function onConfirm(values) {
-  console.log(123)
   close()
   emits('select', values, scopeData.value)
 }

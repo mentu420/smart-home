@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showToast } from 'vant'
+import { showConfirmDialog, showToast } from 'vant'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -14,6 +14,7 @@ import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import { useTrigger } from '@/components/trigger/useTrigger'
 import { USE_KEY } from '@/enums/deviceEnums'
 import { trimFormat } from '@/hooks/useFormValidator.js'
+import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import sceneStore from '@/store/sceneStore'
 import { transformKeys } from '@/utils/common'
@@ -21,12 +22,11 @@ import { transformKeys } from '@/utils/common'
 defineOptions({ name: 'SmartSceneCreate' })
 
 const { getModeRange } = useTrigger()
+const { mqttDevicePublish } = useMqtt()
 
 const router = useRouter()
 const route = useRoute()
 
-const uploaderRef = ref(null)
-const form = ref({})
 const showGallery = ref(false)
 const showExecutionTime = ref(false)
 const { sceneCreateItem, sceneGallery, sceneList } = storeToRefs(sceneStore())
@@ -81,18 +81,23 @@ const delEventItem = () => {
   updateSceneCreateItem({ fenlei: 2 })
 }
 
-function onDeviceMoreSelect(action, index, deviceItem, modeItem) {
-  switch (index) {
-    case 0:
-      //TODO：控制设备
-      break
-    case 1:
-      operationRef.value?.open({ deviceItem, modeItem })
-      //延时
-      break
-    default:
-      //删除
-      break
+async function onDeviceMoreSelect(action, deviceItem, modeItem) {
+  if (action.id == 0) {
+    mqttDevicePublish({ id: deviceItem.id, ...modeItem })
+  } else if (action.id == 1) {
+    operationRef.value?.open({ deviceItem, modeItem })
+  } else if (action.id == 2) {
+    try {
+      await showConfirmDialog({ title: '提示', message: `是否删除${modeItem.label}模块` })
+      const { deviceList } = sceneCreateItem.value
+      const newDeviceList = deviceList.map((item) => ({
+        ...item,
+        modeList: item.modeList.filter((option) => option.use != modeItem.use),
+      }))
+      sceneCreateItem.value = { ...sceneCreateItem.value, deviceList: newDeviceList }
+    } catch (error) {
+      //
+    }
   }
 }
 
@@ -146,7 +151,6 @@ function onSelectMode({ selectedOptions }, { modeItem, id }) {
       return {
         ...deviceItem,
         modeList: deviceItem.modeList.map((item) => {
-          console.log(item.use, modeItem.use)
           if (item.use == modeItem.use) return { ...item, useValue, useStatus: useEn }
           return item
         }),
@@ -161,25 +165,29 @@ function onSelectMode({ selectedOptions }, { modeItem, id }) {
 }
 
 function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
+  console.log(selectedValues, deviceItem, modeItem)
+  const { deviceList } = sceneCreateItem.value
+  const newDeviceList = deviceList.map((item) => {
+    if (item.id == deviceItem.id) {
+      return {
+        ...item,
+        modeList: deviceItem.modeList.map((option) => {
+          if (option.use == modeItem.use) {
+            return {
+              ...option,
+              dealy: selectedValues[0] * 60 + Number(selectedValues[1]),
+            }
+          }
+          return option
+        }),
+      }
+    }
+    return item
+  })
+  console.log('newDeviceList', newDeviceList)
   sceneCreateItem.value = {
     ...sceneCreateItem.value,
-    deviceList: sceneCreateItem.value.deviceList.map((item) => {
-      if (item.id == deviceItem.id) {
-        return {
-          ...deviceItem,
-          modeList: deviceItem.modeList.map((option) => {
-            if (option.use == modeItem.use) {
-              return {
-                ...modeItem,
-                dealy: selectedValues[0] * 60 + Number(selectedValues[1]),
-                dealyText: `${selectedValues[0]}分${selectedValues[1]}秒`,
-              }
-            }
-            return option
-          }),
-        }
-      }
-    }),
+    deviceList: newDeviceList,
   }
 }
 
@@ -231,7 +239,6 @@ const init = () => {
     )
     console.log('data', data)
     const modeActions = actions.map(({ caozuo, ...item }) => {
-      console.log('object', { ...caozuo, ...item })
       return transformKeys(
         { ...caozuo, ...item },
         {
@@ -423,10 +430,27 @@ function goEventConfig() {
           class="mb-4 bg-white rounded-lg"
         >
           <template v-for="modeItem in deviceItem.modeList" :key="modeItem.use">
-            <div class="p-4 flex justify-between items-center van-hairline--bottom">
-              <p class="space-x-4">
-                <label>控制</label>
-                <label class="px-4 py-1 bg-gray-100 rounded-full">{{ deviceItem.label }}</label>
+            <dl class="p-4 van-hairline--bottom flex-wrap space-y-2">
+              <dt class="flex justify-between items-center">
+                <p class="space-x-2">
+                  <label>控制</label>
+                  <label>{{ deviceItem.label }}</label>
+                </p>
+                <van-popover
+                  :actions="[
+                    { id: 0, text: '试一试' },
+                    { id: 1, text: '延时执行' },
+                    { id: 2, text: '删除' },
+                  ]"
+                  placement="left"
+                  @select="(action) => onDeviceMoreSelect(action, deviceItem, modeItem)"
+                >
+                  <template #reference>
+                    <IconFont v-clickable-active class="text-gray-300" icon="more-round" />
+                  </template>
+                </van-popover>
+              </dt>
+              <dd class="space-x-2">
                 <label
                   v-clickable-active
                   class="px-4 py-1 bg-gray-100 rounded-full"
@@ -437,33 +461,22 @@ function goEventConfig() {
                       ? deviceItem.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
                       : modeItem.label
                   }}
-                  <template v-if="modeItem.use != 'switch'">
-                    -
-                    {{
-                      modeItem.valueIsNum
-                        ? modeItem.useValue
-                        : deviceItem.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
-                    }}
-                  </template>
+                  -
+                  {{
+                    modeItem.valueIsNum
+                      ? modeItem.useValue
+                      : deviceItem.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
+                  }}
                 </label>
                 <label
-                  v-if="modeItem.dealyText"
+                  v-if="modeItem.dealy"
                   class="px-4 py-1 bg-gray-100 rounded-full"
                   @click="operationRef.open({ deviceItem, modeItem })"
                 >
-                  {{ modeItem.dealyText }}
+                  延时 - {{ `${Math.floor(modeItem.dealy / 60)}分${modeItem.dealy % 60}秒` }}
                 </label>
-              </p>
-              <van-popover
-                :actions="[{ text: '试一试' }, { text: '延时执行' }, { text: '删除' }]"
-                placement="left"
-                @select="(action, index) => onDeviceMoreSelect(action, index, deviceItem, modeItem)"
-              >
-                <template #reference>
-                  <IconFont v-clickable-active class="text-gray-300" icon="more-round" />
-                </template>
-              </van-popover>
-            </div>
+              </dd>
+            </dl>
           </template>
         </li>
       </ul>

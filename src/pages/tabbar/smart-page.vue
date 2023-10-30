@@ -1,8 +1,10 @@
 <script setup>
 import { storeToRefs } from 'pinia'
+import { showConfirmDialog } from 'vant'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { setSceneList } from '@/apis/smartApi'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import useMqtt from '@/hooks/useMqtt'
 import houseStore from '@/store/houseStore'
@@ -18,12 +20,28 @@ const globalSceneList = computed(() => sceneList.value?.filter((option) => optio
 
 const smartList = ref([])
 
+const sceneActions = [
+  { id: 0, text: '编辑' },
+  { id: 1, text: '删除' },
+]
+
 const createSceneItem = () => {
   router.push({ path: '/smart-scene-create' })
 }
 
-function onEditScene(item) {
-  router.push({ path: '/smart-scene-create', query: { id: item.id } })
+async function onMoreSelect(action, item) {
+  if (action.id == 0) {
+    router.push({ path: '/smart-scene-create', query: { id: item.id } })
+  } else {
+    try {
+      await showConfirmDialog({ title: '提示', message: `是否删除${item.label}场景？` })
+      await setSceneList({ params: { op: 4, changjingbianhao: item.id } })
+      const { useGetSceneListSync } = sceneStore()
+      useGetSceneListSync(true)
+    } catch (error) {
+      //
+    }
+  }
 }
 
 const onRefresh = async () => {
@@ -68,20 +86,22 @@ init()
         <section class="mb-6">
           <h4 class="mb-2 text-gray-600">全局</h4>
           <div class="grid grid-cols-2 gap-4">
-            <ScenenCardItem
-              v-for="sceneItem in globalSceneList"
-              :key="sceneItem.id"
-              is-edit
-              @click="mqttScenePublish({ id: sceneItem.id })"
-            >
-              {{ sceneItem.mingcheng }}
-              <div
-                class="absolute right-0 top-0 text-white px-3 py-1"
-                @click.stop="onEditScene(sceneItem)"
-              >
-                <van-icon name="ellipsis" />
+            <div v-for="sceneItem in globalSceneList" :key="sceneItem.id" class="relative">
+              <ScenenCardItem is-edit @click="mqttScenePublish({ id: sceneItem.id })">
+                {{ sceneItem.mingcheng }}
+              </ScenenCardItem>
+              <div class="absolute right-0 top-0 text-white px-3 py-1 z-10">
+                <van-popover
+                  :actions="sceneActions"
+                  placement="left"
+                  @select="(action) => onMoreSelect(action, sceneItem)"
+                >
+                  <template #reference>
+                    <van-icon name="ellipsis" />
+                  </template>
+                </van-popover>
               </div>
-            </ScenenCardItem>
+            </div>
           </div>
         </section>
         <section v-for="floorItem in smartList" :key="floorItem.id" class="mb-6">
@@ -89,20 +109,22 @@ init()
           <div v-for="roomItem in floorItem.roomList" :key="roomItem.id">
             <h4 class="mb-2 text-gray-600">{{ roomItem.label }}</h4>
             <div class="grid grid-cols-2 gap-4">
-              <ScenenCardItem
-                v-for="sceneItem in roomItem.sceneList"
-                :key="sceneItem.id"
-                is-edit
-                @click.stop="mqttScenePublish({ id: sceneItem.id })"
-              >
-                {{ sceneItem.mingcheng }}
-                <div
-                  class="absolute right-0 top-0 text-white px-3 py-1"
-                  @click="onEditScene(sceneItem)"
-                >
-                  <van-icon name="ellipsis" />
+              <div v-for="sceneItem in roomItem.sceneList" :key="sceneItem.id" class="relative">
+                <ScenenCardItem is-edit @click.stop="mqttScenePublish({ id: sceneItem.id })">
+                  {{ sceneItem.mingcheng }}
+                </ScenenCardItem>
+                <div class="absolute right-0 top-0 text-white px-3 py-1 z-10">
+                  <van-popover
+                    :actions="sceneActions"
+                    placement="left"
+                    @select="(action) => onMoreSelect(action, sceneItem)"
+                  >
+                    <template #reference>
+                      <van-icon name="ellipsis" />
+                    </template>
+                  </van-popover>
                 </div>
-              </ScenenCardItem>
+              </div>
             </div>
           </div>
         </section>
