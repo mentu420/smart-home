@@ -8,6 +8,10 @@ const props = defineProps({
     type: String,
     default: image1,
   },
+  isEdit: {
+    type: Boolean,
+    default: false,
+  },
 })
 </script>
 

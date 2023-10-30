@@ -14,13 +14,17 @@ const loading = ref(false)
 const { sceneList } = storeToRefs(sceneStore())
 const globalSceneList = computed(() => sceneList.value?.filter((option) => option.rId == ''))
 
+const smartList = ref([])
+
 const createSceneItem = () => {
   const { clearSceneCreateItem } = sceneStore()
   clearSceneCreateItem()
   router.push({ path: '/smart-scene-create' })
 }
 
-const smartList = ref([])
+function onEditScene(item) {
+  router.push({ path: '/smart-scene-create', query: { id: item.id } })
+}
 
 const onRefresh = async () => {
   try {
@@ -53,17 +57,25 @@ init()
 <template>
   <div class="min-h-screen bg-page-gray">
     <van-pull-refresh v-model="loading" class="min-h-[80vh]" @refresh="onRefresh">
-      <van-cell title="我的场景">
-        <template #right-icon>
-          <van-icon size="20" name="plus" @click="createSceneItem" />
-        </template>
-      </van-cell>
+      <van-sticky>
+        <van-cell title="我的场景">
+          <template #right-icon>
+            <van-icon size="20" name="plus" @click="createSceneItem" />
+          </template>
+        </van-cell>
+      </van-sticky>
       <div class="p-4">
         <section class="mb-6">
           <h4 class="mb-2 text-gray-600">全局</h4>
           <div class="grid grid-cols-2 gap-4">
-            <ScenenCardItem v-for="sceneItem in globalSceneList" :key="sceneItem.id">
+            <ScenenCardItem v-for="sceneItem in globalSceneList" :key="sceneItem.id" is-edit>
               {{ sceneItem.mingcheng }}
+              <div
+                class="absolute right-0 top-0 text-white px-3 py-1"
+                @click="onEditScene(sceneItem)"
+              >
+                <van-icon name="ellipsis" />
+              </div>
             </ScenenCardItem>
           </div>
         </section>
@@ -72,8 +84,14 @@ init()
           <div v-for="roomItem in floorItem.roomList" :key="roomItem.id">
             <h4 class="mb-2 text-gray-600">{{ roomItem.label }}</h4>
             <div class="grid grid-cols-2 gap-4">
-              <ScenenCardItem v-for="sceneItem in roomItem.sceneList" :key="sceneItem.id">
+              <ScenenCardItem v-for="sceneItem in roomItem.sceneList" :key="sceneItem.id" is-edit>
                 {{ sceneItem.mingcheng }}
+                <div
+                  class="absolute right-0 top-0 text-white px-3 py-1"
+                  @click="onEditScene(sceneItem)"
+                >
+                  <van-icon name="ellipsis" />
+                </div>
               </ScenenCardItem>
             </div>
           </div>

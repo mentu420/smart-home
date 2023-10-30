@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { showToast } from 'vant'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { setSceneList } from '@/apis/smartApi.js'
@@ -14,7 +14,9 @@ import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import { useTrigger } from '@/components/trigger/useTrigger'
 import { USE_KEY } from '@/enums/deviceEnums'
 import { trimFormat } from '@/hooks/useFormValidator.js'
+import deviceStore from '@/store/deviceStore'
 import sceneStore from '@/store/sceneStore'
+import { transformKeys } from '@/utils/common'
 
 defineOptions({ name: 'SmartSceneCreate' })
 
@@ -27,7 +29,8 @@ const uploaderRef = ref(null)
 const form = ref({})
 const showGallery = ref(false)
 const showExecutionTime = ref(false)
-const { sceneCreateItem, sceneGallery } = storeToRefs(sceneStore())
+const { sceneCreateItem, sceneGallery, sceneList } = storeToRefs(sceneStore())
+const { deviceList } = storeToRefs(deviceStore())
 const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
 const executionTime = ref(['12', '00'])
 const eventActive = ref(0) //记录将要改变的事件
@@ -197,14 +200,15 @@ const getSceneActions = ({ modeList, id }) => {
 const onSave = async () => {
   try {
     await formRef.value?.validate()
-    const { deviceList = [], ...data } = sceneCreateItem.value
+    const { deviceList = [], ...residue } = sceneCreateItem.value
     if (deviceList.length == 0) {
       showToast('请添加任务')
       return
     }
-    const params = { op: 2 }
     const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
-    await setSceneList({ params, data: { ...data, actions } })
+    const data = { ...residue, leixing: 1, isor: 0, actions, fangjianbianhao: '' }
+    console.log('onSave', data)
+    await setSceneList({ params: { op: 2 }, data })
     router.back()
   } catch (error) {
     console.warn(error)
@@ -213,16 +217,54 @@ const onSave = async () => {
 }
 
 const init = () => {
-  const { updateSceneCreateItem } = sceneStore()
-  updateSceneCreateItem({ img: sceneGallery.value[0].src })
+  const { clearSceneCreateItem } = sceneStore()
+
+  if (route.query.id) {
+    clearSceneCreateItem()
+    const { id, rId, label, actions, ...data } = sceneList.value.find(
+      (item) => item.id == route.query.id
+    )
+    console.log('data', data)
+    const modeActions = actions.map(({ caozuo, ...item }) => {
+      console.log('object', { ...caozuo, ...item })
+      return transformKeys(
+        { ...caozuo, ...item },
+        {
+          ziyuanbianhao: 'id',
+          yanshi: 'dealy',
+          shuxing: 'use',
+          shuxingzhuangtai: 'useStatus',
+          shuxingzhi: 'useValue',
+        },
+        true
+      )
+    })
+
+    const sceneDeviceList = deviceList.value
+      .filter((item) => modeActions.some((action) => action.id == item.id))
+      .map((deviceItem) => {
+        return {
+          ...deviceItem,
+          modeList: deviceItem.modeList.map((modeItem) => {
+            const { id, ...newModeItem } =
+              modeActions.find((action) => action.use == modeItem.use) || {}
+            return { ...modeItem, ...newModeItem }
+          }),
+        }
+      })
+
+    sceneCreateItem.value = { ...sceneCreateItem.value, ...data, deviceList: sceneDeviceList }
+  } else {
+    sceneCreateItem.value = { ...sceneCreateItem.value, img: sceneGallery.value[0].src }
+  }
 }
 
-init()
+onMounted(init)
 
 watch(
   () => route.path,
   (to, from) => {
-    if (to == '/smart-scene-create' && form.value === '/tabbar/tabbar-smart') init()
+    if (to == '/smart-scene-create' && from === '/tabbar/tabbar-smart') init()
   }
 )
 
@@ -278,7 +320,7 @@ function goEventConfig() {
     <!--事件-->
     <section class="p-4">
       <div
-        v-if="!sceneCreateItem.fenlei && sceneCreateItem?.events?.length == 0"
+        v-if="sceneCreateItem?.events.length == 0 && !sceneCreateItem.fenlei"
         v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goConditionConfig"
@@ -286,19 +328,16 @@ function goEventConfig() {
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加条件</label>
       </div>
-      <ol
-        v-if="sceneCreateItem.fenlei || sceneCreateItem?.events?.length > 0"
-        class="flex items-center justify-between p-2"
-      >
+      <ol v-else class="flex items-center justify-between p-2">
         <li>触发事件</li>
         <li @click="goConditionConfig">
           <van-icon size="24" name="add" color="#e39334" />
         </li>
       </ol>
-      <!--事件列表-->
+      <!--条件列表-->
       <ul>
         <li
-          v-if="sceneCreateItem.fenlei && sceneCreateItem.fenlei == 1"
+          v-if="sceneCreateItem?.fenlei == 1"
           class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
         >
           <p>
@@ -317,36 +356,38 @@ function goEventConfig() {
             </van-popover>
           </p>
         </li>
-        <li
-          v-for="(eventItem, eventIndex) in sceneCreateItem?.events"
-          :key="eventIndex"
-          class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
-        >
-          <p>
-            <label class="mr-2">
-              {{ sceneCreateItem.fenlei && sceneCreateItem.fenlei == 1 ? '或' : '当' }}
-            </label>
-            <label
-              class="space-x-2 rounded-full bg-gray-100 px-4 py-1"
-              @click="openExecutionTime(eventItem, eventIndex)"
-            >
-              <label>{{ getRepeatTimeText(eventItem.tiaojian.chongfuleixing) }}</label>
-              <label>{{ eventItem.tiaojian.shijian }}</label>
-            </label>
-            <label class="m-2">时</label>
-          </p>
-          <p>
-            <van-popover
-              :actions="[{ text: '删除' }]"
-              placement="bottom-end"
-              @select="delTimeItem(eventIndex)"
-            >
-              <template #reference>
-                <IconFont class="text-xs" icon="trash" />
-              </template>
-            </van-popover>
-          </p>
-        </li>
+        <template v-if="sceneCreateItem?.events.length > 0">
+          <li
+            v-for="(eventItem, eventIndex) in sceneCreateItem?.events"
+            :key="eventIndex"
+            class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
+          >
+            <p>
+              <label class="mr-2">
+                {{ sceneCreateItem?.fenlei == 1 ? '或' : '当' }}
+              </label>
+              <label
+                class="space-x-2 rounded-full bg-gray-100 px-4 py-1"
+                @click="openExecutionTime(eventItem, eventIndex)"
+              >
+                <label>{{ getRepeatTimeText(eventItem.tiaojian.chongfuleixing) }}</label>
+                <label>{{ eventItem.tiaojian.shijian }}</label>
+              </label>
+              <label class="m-2">时</label>
+            </p>
+            <p>
+              <van-popover
+                :actions="[{ text: '删除' }]"
+                placement="bottom-end"
+                @select="delTimeItem(eventIndex)"
+              >
+                <template #reference>
+                  <IconFont class="text-xs" icon="trash" />
+                </template>
+              </van-popover>
+            </p>
+          </li>
+        </template>
       </ul>
     </section>
     <!--任务-->
