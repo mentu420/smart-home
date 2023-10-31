@@ -16,22 +16,29 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['click-right-icon'])
+const emits = defineEmits(['click-right-icon', 'click-icon'])
 
-const openConfig = () => emits('click-right-icon')
+const onRightIconClick = () => emits('click-right-icon')
+
+const onIconClcik = () => emits('click-icon')
 </script>
 
 <template>
-  <div v-clickable-active class="rounded-lg bg-white p-3 space-y-2">
+  <div v-clickable-active class="rounded-lg bg-white p-3 space-y-2 relative">
     <div class="flex justify-between">
       <slot name="icon">
         <IconFont
           :class="props.status == 1 ? 'text-primary' : 'text-gray-400'"
           :icon="props.icon"
+          @click.stop="onIconClcik"
         />
       </slot>
       <slot name="right-icon">
-        <IconFont class="text-gray-300 text-[10px]" icon="more-round" @click.stop="openConfig" />
+        <!-- <IconFont
+          class="text-gray-300 text-[10px]"
+          icon="more-round"
+          @click.stop="onRightIconClick"
+        /> -->
       </slot>
     </div>
     <slot>

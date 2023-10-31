@@ -5,6 +5,7 @@ import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
+import { setDeviceItem } from '@/apis/smartApi'
 import DeviceCardItem from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import useMqtt from '@/hooks/useMqtt'
@@ -80,6 +81,26 @@ const openDeviceStatus = (item) => {
   })
 }
 
+const onDeviceCollect = async (item) => {
+  try {
+    const leixing = item.collect ? 2 : 1
+    await setDeviceItem({
+      params: { op: 4 },
+      data: {
+        shebeibianhao: item.id,
+        leixing,
+        paixu: item.sort,
+      },
+    })
+    const { useDeviceItemChange } = deviceStore()
+    useDeviceItemChange({ ...item, collect: leixing == 1 })
+    getFloorTree()
+    setCurrentFloorRoomList()
+  } finally {
+    //
+  }
+}
+
 const onSwitchDeviceItem = ({ modeList, id }) => {
   console.log(modeList)
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
@@ -153,6 +174,12 @@ const getFloorTree = () => {
   floorTree.value = useHouseStore.useGetFloorTree()
 }
 
+function setCurrentFloorRoomList() {
+  currentFloorRoomList.value = floorTree.value.find(
+    (item) => item.id == currentFloorId.value
+  )?.roomList
+}
+
 const init = async () => {
   try {
     const { useGetToken } = userStore()
@@ -161,9 +188,7 @@ const init = async () => {
     await onReload(token.fangwubianhao)
     getFloorTree()
     currentFloorId.value = floorTree.value[0]?.id
-    currentFloorRoomList.value = floorTree.value.find(
-      (item) => item.id == currentFloorId.value
-    )?.roomList
+    setCurrentFloorRoomList()
   } catch (err) {
     console.warn(err)
   } finally {
@@ -175,9 +200,7 @@ onMounted(init)
 
 onActivated(() => {
   getFloorTree()
-  currentFloorRoomList.value = floorTree.value.find(
-    (item) => item.id == currentFloorId.value
-  )?.roomList
+  setCurrentFloorRoomList()
 })
 
 watch(
@@ -267,11 +290,11 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                         if (collectItem.id == 0) {
                           mqttScenePublish({ id: commonItem.id })
                         } else {
-                          onSwitchDeviceItem(commonItem)
+                          openDeviceStatus(commonItem)
                         }
                       }
                     "
-                    @click-right-icon="openDeviceStatus(commonItem)"
+                    @click-icon="onSwitchDeviceItem(commonItem)"
                   >
                     <label>
                       {{ commonItem.label }}
@@ -310,15 +333,15 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <template v-if="roomItem.deviceList.length > 0">
                 <div class="flex items-center py-4">
                   <h4 class="text-gray-600">照明</h4>
-                  <label class="ml-2 text-xs text-gray-400"
-                    >{{
+                  <label class="ml-2 text-xs text-gray-400">
+                    {{
                       roomItem.deviceList.filter((deviceItem) =>
                         deviceItem.modeList.some(
                           (modeItem) => modeItem.use == 'switch' && modeItem.useEn == 'on'
                         )
                       ).length
-                    }}个灯亮</label
-                  >
+                    }}个灯亮
+                  </label>
                 </div>
                 <div class="mb-4 grid grid-cols-2 gap-4">
                   <ScenenCardItem
@@ -347,11 +370,17 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     :label="deviceItem.label"
                     :icon="getDeviceIcon(deviceItem.classify)"
                     :status="getDeviceStatus(deviceItem)"
-                    @click="onSwitchDeviceItem(deviceItem)"
-                    @click-right-icon="openDeviceStatus(deviceItem)"
+                    @click-icon="onSwitchDeviceItem(deviceItem)"
+                    @click.stop="openDeviceStatus(deviceItem)"
                   >
-                    <template v-if="!dragOptions.disabled" #right-icon>
-                      <van-icon name="wap-nav" />
+                    <template #right-icon>
+                      <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
+                      <van-icon
+                        v-else
+                        :name="deviceItem.collect ? 'like' : 'like-o'"
+                        :color="deviceItem.collect ? '#e39334' : '#999'"
+                        @click.stop="onDeviceCollect(deviceItem)"
+                      />
                     </template>
                   </DeviceCardItem>
                 </template>

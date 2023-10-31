@@ -41,9 +41,7 @@ const onHouseChange = async () => {
 const onDelHouse = async () => {
   try {
     loading.value = true
-    await getHouseList({
-      params: { op: 4, fangwubianhao: currentHouse.value.id },
-    })
+    await getHouseList({ op: 4, fangwubianhao: currentHouse.value.id })
     const { useGetHouseListSync, setCurrentHouse } = houseStore()
     const houseList = await useGetHouseListSync(true)
     if (houseList.length > 0) {

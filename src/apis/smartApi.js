@@ -5,7 +5,7 @@ import { request } from '@/utils/request/'
  * **/
 export const getDeviceList = (params) => request({ url: '/V1/SheBei.aspx', params })
 
-export const setDeviceList = (config) =>
+export const setDeviceItem = (config) =>
   request({ url: '/V1/SheBei.aspx', ...config, method: 'POST' })
 
 /**
