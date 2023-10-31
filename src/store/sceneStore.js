@@ -129,14 +129,18 @@ export default defineStore(storeName, () => {
   const useGetSceneListSync = async (reload = false) => {
     if (sceneList.value.length > 0 && !reload) return sceneList.value
     const { data } = await getSceneList({ op: 1 })
-    sceneList.value = data.map((item) => {
-      return {
-        ...item,
-        id: item.bianhao,
-        label: item.mingcheng,
-        rId: item.fangjianbianhao,
-      }
-    })
+    sceneList.value = data
+      .map((item, i) => {
+        return {
+          ...item,
+          id: item.bianhao,
+          label: item.mingcheng,
+          rId: item.fangjianbianhao,
+          sort: item.paixu || i,
+          collect: item.shouye == 1,
+        }
+      })
+      .sort((a, b) => a.sort - b.sort)
   }
 
   const getRoomSceneList = computed(

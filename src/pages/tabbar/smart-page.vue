@@ -20,10 +20,18 @@ const globalSceneList = computed(() => sceneList.value?.filter((option) => optio
 
 const smartList = ref([])
 
-const sceneActions = [
-  { id: 0, text: '编辑' },
-  { id: 1, text: '删除' },
-]
+const sceneActions = computed(() => (item) => {
+  return [
+    { id: 0, text: '编辑', icon: 'setting-o' },
+    { id: 1, text: '删除', icon: 'delete-o' },
+    {
+      id: 2,
+      text: item.collect ? '已收藏' : '收藏',
+      icon: item.collect ? 'like' : 'like-o',
+      className: item.collect ? 'text-[#e39334]' : null,
+    },
+  ]
+})
 
 const createSceneItem = () => {
   router.push({ path: '/smart-scene-create' })
@@ -32,7 +40,7 @@ const createSceneItem = () => {
 async function onMoreSelect(action, item) {
   if (action.id == 0) {
     router.push({ path: '/smart-scene-create', query: { id: item.id } })
-  } else {
+  } else if (action.id == 1) {
     try {
       await showConfirmDialog({ title: '提示', message: `是否删除${item.label}场景？` })
       await setSceneList({ params: { op: 4, changjingbianhao: item.id } })
@@ -41,6 +49,12 @@ async function onMoreSelect(action, item) {
     } catch (error) {
       //
     }
+  } else if (action.id == 2) {
+    const leixing = item.collect ? 2 : 1
+    setSceneList({
+      params: { op: 5 },
+      data: { changjingbianhao: item.id, leixing, paixu: item.sort },
+    })
   }
 }
 
@@ -92,7 +106,7 @@ init()
               </ScenenCardItem>
               <div class="absolute right-0 top-0 text-white px-3 py-1 z-10">
                 <van-popover
-                  :actions="sceneActions"
+                  :actions="sceneActions(sceneItem)"
                   placement="left"
                   @select="(action) => onMoreSelect(action, sceneItem)"
                 >
@@ -115,7 +129,7 @@ init()
                 </ScenenCardItem>
                 <div class="absolute right-0 top-0 text-white px-3 py-1 z-10">
                   <van-popover
-                    :actions="sceneActions"
+                    :actions="sceneActions(sceneItem)"
                     placement="left"
                     @select="(action) => onMoreSelect(action, sceneItem)"
                   >

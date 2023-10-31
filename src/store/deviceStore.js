@@ -85,7 +85,7 @@ export default defineStore(storeName, () => {
           rId: item.fangjianbianhao, //房间编号
           classify: item.daleixing,
           sort: item.paixu,
-          collect: item.shouye, // 首页是否收藏
+          collect: item.shouye == 1, // 首页是否收藏
           category: item.xiaoleixing,
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
           columns, // 记录暑假原始值
