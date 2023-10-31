@@ -35,7 +35,7 @@ export default defineStore(storeName, () => {
     currentHouse.value = houseList.value.find((item) => item.bianhao == id)
   }
 
-  const setHouseItem = (payload) => {
+  const setHouseList = (payload) => {
     houseList.value = houseList.value.map((item) => {
       if (item.id == payload.id) return { ...item, ...payload }
       return item
@@ -152,7 +152,7 @@ export default defineStore(storeName, () => {
     useSetRoomItem,
     useGetFloorListSync,
     useGetFamilyListSync,
-    setHouseItem,
+    setHouseList,
     reset,
   }
 })

@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { useRouter } from 'vue-router'
 
+import { setHouseItem, getHouseList } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
 
@@ -12,13 +13,48 @@ defineOptions({ name: 'MeHouse' })
 const router = useRouter()
 const showQrCode = ref(false)
 const { currentHouse } = storeToRefs(houseStore())
-const fileList = ref([])
+const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
+const loading = ref(false)
 
-console.log('currentHouse', currentHouse)
+//变更图片
+const onHouseChange = async () => {
+  try {
+    loading.value = true
+    await setHouseItem({
+      params: { op: 2 },
+      data: {
+        bianhao: currentHouse.value.id,
+        mingcheng: currentHouse.value.label,
+        img: houseImage.value,
+      },
+    })
+    const { setHouseList } = houseStore()
+    setHouseList({
+      ...currentHouse,
+      img: houseImage.value,
+    })
+  } finally {
+    loading.value = false
+  }
+}
 
-const houseDetail = ref({
-  image: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg',
-})
+const onDelHouse = async () => {
+  try {
+    loading.value = true
+    await getHouseList({
+      params: { op: 4, fangwubianhao: currentHouse.value.id },
+    })
+    const { useGetHouseListSync, setCurrentHouse } = houseStore()
+    const houseList = await useGetHouseListSync(true)
+    if (houseList.length > 0) {
+      setCurrentHouse(houseList[0].id)
+      return
+    }
+    router.back()
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -51,7 +87,14 @@ const houseDetail = ref({
         @click="router.push({ path: '/me-house-map' })"
       />
       <van-cell center clickable title="家庭图片" is-link>
-        <SmartUploader v-model="fileList" accept="image/*" :max-count="1" reupload />
+        <SmartUploader
+          v-model="houseImage"
+          v-model:loading="loading"
+          accept="image/*"
+          string-separator=","
+          :max-count="1"
+          @success="onHouseChange"
+        />
       </van-cell>
       <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
         <IconFont icon="system-QRcode" />
@@ -74,7 +117,9 @@ const houseDetail = ref({
       />
     </van-cell-group>
     <div class="m-6">
-      <van-button round block type="primary">删除家庭</van-button>
+      <van-button :loading="loading" round block type="primary" @click="onDelHouse">
+        删除家庭
+      </van-button>
     </div>
 
     <van-popup v-model:show="showQrCode" round teleport="body" position="center">

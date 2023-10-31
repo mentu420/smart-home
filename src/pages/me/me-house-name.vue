@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { setHouseList } from '@/apis/houseApi'
+import { setHouseItem } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
 
 defineOptions({ name: 'MeHouseName' })
@@ -22,13 +22,13 @@ init()
 const onSubmit = async () => {
   try {
     loading.value = true
-    await setHouseList({
+    await setHouseItem({
       params: { op: 3 },
       data: { mingcheng: houseName.value, bianhao: route.query.id },
     })
     const payload = houseList.value.find((item) => item.bianhao == route.query.id)
-    const { setHouseItem } = houseStore()
-    setHouseItem({
+    const { setHouseList } = houseStore()
+    setHouseList({
       ...payload,
       fangwumingcheng: houseName.value,
       label: houseName.value,

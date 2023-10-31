@@ -91,7 +91,15 @@ const onDelFamily = async () => {
       >
         设为管理员
       </van-button>
-      <van-button v-loading-click="onDelFamily" round block type="danger">删除成员</van-button>
+      <van-button
+        v-if="familyItem.juese != 1"
+        v-loading-click="onDelFamily"
+        round
+        block
+        type="danger"
+      >
+        删除成员
+      </van-button>
     </div>
   </div>
 </template>

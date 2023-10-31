@@ -73,6 +73,7 @@ const onDelFloor = (floorItem) => {
     await showConfirmDialog({ title: '提示', message: `是否删除${floorItem.label}楼层` })
     await getFloorList({ op: 4, quyubianhao: floorItem.id })
     await useGetFloorListSync(true)
+    init()
     showAddFloor.value = false
   })
 }
@@ -87,12 +88,13 @@ const onUpdateFloor = () => {
         bianhao: id,
         mingcheng: label,
         fangwubianhao: currentHouse.value?.id,
-        // paixu: floorList.value.length,
+        paixu: floorList.value.length,
       }),
     }
     console.log(config)
     await setFloorList(config)
     await useGetFloorListSync(true)
+    init()
     showAddFloor.value = false
   })
 }
@@ -114,6 +116,7 @@ const onDelectRoom = async (roomItem) => {
     await showConfirmDialog({ title: '提示', message: `是否删除 ${roomItem.label} 房间` })
     await getRoomList({ op: 4, fangjianbianhao: roomItem.id })
     await useGetRoomListSync(true)
+    init()
   })
 }
 
@@ -145,6 +148,7 @@ const onAddRoomItem = () => {
       })
     )
     await useGetRoomListSync(true)
+    init()
     showRoomChecked.value = false
   })
 }
@@ -164,6 +168,7 @@ const onSubmitRoomCustom = () => {
       data: op == 2 ? { ...data, quyubianhao: fId, fangwubianhao: currentHouse.value?.id } : data,
     })
     await useGetRoomListSync(true)
+    init()
     showRoomForm.value = false
     showRoomChecked.value = false
   })
@@ -246,7 +251,7 @@ init()
                   @click.stop="onEditFloor(floorItem)"
                 />
                 <van-button
-                  v-if="!floorItem.roomList.some((item) => item.deviceCount > 0)"
+                  v-if="!floorItem?.roomList?.some((item) => item.deviceCount > 0)"
                   round
                   class="!mr-4"
                   size="small"

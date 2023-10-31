@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { setHouseList } from '@/apis/houseApi'
+import { setHouseItem } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
 
@@ -10,13 +10,13 @@ defineOptions({ name: 'MeHouseCreate' })
 
 const router = useRouter()
 const houseName = ref(null)
-const houseImage = ref('')
-const fileList = ref([])
+const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
+const loading = ref(false)
 
 const onSubmit = async () => {
   const { useGetHouseListSync } = houseStore()
-  const { code, data } = await setHouseList({
-    poarams: { op: 2 },
+  await setHouseItem({
+    params: { op: 2 },
     data: {
       bianhao: '',
       mingcheng: houseName.value,
@@ -44,11 +44,20 @@ const onSubmit = async () => {
           :rules="[{ required: true, message: '家庭名称必填项' }]"
         />
         <van-cell center clickable title="家庭图片">
-          <SmartUploader v-model="fileList" accept="image/*" :max-count="1" reupload />
+          <SmartUploader
+            v-model="houseImage"
+            v-model:loading="loading"
+            reupload
+            accept="image/*"
+            string-separator=","
+            :max-count="1"
+          />
         </van-cell>
       </van-cell-group>
       <div class="m-6">
-        <van-button round block type="primary" native-type="submit"> 提交 </van-button>
+        <van-button :loading="loading" round block type="primary" native-type="submit">
+          提交
+        </van-button>
       </div>
     </van-form>
   </div>

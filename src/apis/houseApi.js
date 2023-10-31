@@ -5,7 +5,7 @@ import { request } from '@/utils/request/'
  * **/
 export const getHouseList = (params) => request({ url: '/V1/FangWu.aspx', params })
 //添加或者编辑房屋
-export const setHouseList = (config) =>
+export const setHouseItem = (config) =>
   request({ url: '/V1/FangWu.aspx', ...config, method: 'POST' })
 
 /**

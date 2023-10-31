@@ -1,9 +1,11 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { showConfirmDialog } from 'vant'
 import Vconsole from 'vconsole'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { setUserConfig } from '@/apis/commonApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
@@ -11,6 +13,7 @@ import userStore from '@/store/userStore'
 defineOptions({ name: 'MeInfo' })
 
 const router = useRouter()
+const { userInfo } = storeToRefs(userStore())
 const clickCount = ref(0)
 const navList = ref([
   { id: 0, text: '昵称', value: '李先生', path: '/meNickname' },
@@ -19,11 +22,16 @@ const navList = ref([
   { id: 3, text: '版本', value: '', path: '/meVersion' },
 ])
 const avatar = ref('')
-const fileList = ref([])
 
 const onLogout = async () => {
   await showConfirmDialog({ title: '提示', message: '是否退出登录？' })
   useLogout('退出成功')
+}
+
+const onEditAvatar = async (file) => {
+  console.log(file)
+  console.log(avatar.value)
+  //
 }
 
 const init = async () => {
@@ -62,9 +70,18 @@ const onNavItemClick = (navItem) => {
     <HeaderNavbar title="个人信息" />
     <div class="flex justify-center">
       <div class="px-6 py-10">
-        <SmartUploader v-model="fileList" accept="image/*" :max-count="1" reupload>
-          <template #default>
-            <van-image width="4rem" height="4rem" fit="cover" round :src="fileList[0]?.url" />
+        <SmartUploader
+          v-model="avatar"
+          reupload
+          accept="image/*"
+          string-separator=","
+          :max-count="1"
+          :deletable="false"
+          @success="onEditAvatar"
+        >
+          <template #default="scopeProps">
+            <van-loading v-if="scopeProps.loading" />
+            <van-image v-else width="4rem" height="4rem" fit="cover" round :src="avatar" />
           </template>
         </SmartUploader>
         <p class="text-md text-center">修改头像</p>

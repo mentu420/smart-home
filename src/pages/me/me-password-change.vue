@@ -9,14 +9,19 @@ import userStore from '@/store/userStore'
 defineOptions({ name: 'MePasswordChange' })
 
 const router = useRouter()
-const password = ref('')
-const newPassword = ref('')
 const formRef = ref(null)
+const showPassword = ref(false)
+const form = ref({})
+
+const repeatValid = () => {
+  const { newPassword = '', repeatPassword = '' } = form.value
+  return newPassword != '' && repeatPassword != '' && newPassword == repeatPassword
+}
 
 const onSubmit = async () => {
   await setUserConfig({
     params: { op: 3 },
-    data: { oldmima: password.value, mima: newPassword.value },
+    data: { oldmima: form.value.password, mima: form.value.newPassword },
   })
   useLogout('密码修改成功，请使用新密码重新登录')
 }
@@ -25,20 +30,35 @@ const onSubmit = async () => {
 <template>
   <div class="min-h-screen">
     <HeaderNavbar title="修改密码" />
-    <van-form ref="formRef" class="m-6" @submit="onSubmit">
+    <van-form ref="formRef" validate-trigger="onSubmit" class="m-6" @submit="onSubmit">
       <van-field
-        v-model="password"
+        v-for="(formLabel, formKey) in {
+          password: '旧密码',
+          newPassword: '新密码',
+          repeatPassword: '确认密码',
+        }"
+        :key="formKey"
+        v-model="form[formKey]"
+        center
         name="password"
-        placeholder="请输入旧密码"
-        :rules="[{ required: true, message: '旧密码不能为空' }]"
-      />
-      <van-field
-        v-model="newPassword"
-        name="newPassword"
-        placeholder="请输入新密码"
-        maxlength="6"
-        :rules="[{ required: true, message: '新密码不能为空' }]"
-      />
+        maxlength="18"
+        :placeholder="formLabel"
+        :type="showPassword ? 'text' : 'password'"
+        :rules="[
+          { required: true, message: `${formLabel}不能为空` },
+          {
+            validator: formKey == 'password' ? () => true : repeatValid,
+            message: '新密码与确认密码不一致',
+          },
+        ]"
+      >
+        <template #right-icon>
+          <van-icon
+            :name="showPassword ? 'eye-o' : 'closed-eye'"
+            @click="showPassword = !showPassword"
+          />
+        </template>
+      </van-field>
       <div class="my-10">
         <van-button round block type="primary" native-type="submit"> 完成 </van-button>
         <div

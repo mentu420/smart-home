@@ -10,7 +10,7 @@ export const getSms = (data) =>
  * 文件上传 op=1 二进制 op=2 base64
  * **/
 export const uploadFile = (config) => {
-  const { params, data } = config
+  const { params, data, onUploadProgress } = config
   const formData = new FormData()
   formData.append('file', data.file)
   return request({
@@ -19,6 +19,7 @@ export const uploadFile = (config) => {
     data: formData,
     method: 'POST',
     headers: { 'content-type': 'multipart/form-data' },
+    onUploadProgress,
   })
 }
 
