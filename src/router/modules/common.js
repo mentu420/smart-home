@@ -21,7 +21,7 @@ export default [
     path: '/forget-password',
     name: 'ForgetPassword',
     component: () => import('@/pages/login/forget-password.vue'),
-    meta: { title: '忘记密码' },
+    meta: { title: '忘记密码', keepAlive: true },
   },
   {
     path: '/forget-vaildator',

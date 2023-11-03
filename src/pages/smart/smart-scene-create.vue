@@ -4,6 +4,7 @@ import { showConfirmDialog, showToast } from 'vant'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
+import { getRoomList } from '@/apis/houseApi'
 import { setSceneList } from '@/apis/smartApi.js'
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import pickerSearch from '@/components/common/PickerSearch.vue'
@@ -16,6 +17,7 @@ import { USE_KEY } from '@/enums/deviceEnums'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
+import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
 import { transformKeys } from '@/utils/common'
 
@@ -30,6 +32,7 @@ const route = useRoute()
 const showGallery = ref(false)
 const showExecutionTime = ref(false)
 const { sceneCreateItem, sceneGallery, sceneList } = storeToRefs(sceneStore())
+const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(deviceStore())
 const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
 const executionTime = ref(['12', '00'])
@@ -41,8 +44,16 @@ const formRef = ref(null)
 const pickerSearchRef = ref(null)
 const colorPickerRef = ref(null)
 const sliderPickerRef = ref(null)
+const roomPickerRef = ref(null)
 
 const { getRepeatTimeText } = sceneStore()
+
+function openRoomPicker() {
+  roomPickerRef.value?.open({ columns: roomList.value })
+}
+function onSelectRoomItem({ selectedValues }) {
+  sceneCreateItem.value = { ...sceneCreateItem.value, fangjianbianhao: selectedValues[0] }
+}
 
 // 打开执行时间
 const openExecutionTime = (eventItem, eventIndex) => {
@@ -215,9 +226,13 @@ const onSave = async () => {
       showToast('请添加任务')
       return
     }
+    if (!sceneCreateItem.fenlei) {
+      showToast('请添加条件')
+      return
+    }
     const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
     const op = route.query.id ? 3 : 2
-    const data = { ...residue, leixing: 1, isor: 0, actions, fangjianbianhao: '' }
+    const data = { ...residue, leixing: 1, isor: 0, actions }
     await setSceneList({
       params: { op },
       data: op == 3 ? { bianhao: route.query.id, ...data } : data,
@@ -313,6 +328,9 @@ function goEventConfig() {
           :rules="[{ required: true, message: '请填写场景名称' }]"
         >
         </van-field>
+        <van-cell center is-link title="所属房间" @click="openRoomPicker">
+          {{ roomList.find((roomItem) => roomItem.id == sceneCreateItem.fangjianbianhao)?.label }}
+        </van-cell>
         <van-cell center is-link title="场景图片">
           <van-image
             width="8rem"
@@ -323,8 +341,7 @@ function goEventConfig() {
             @click="showGallery = true"
           />
         </van-cell>
-        <!-- <van-cell center is-link title="房间编号" />
-        <van-cell center is-link title="有效时间" />
+        <!-- <van-cell center is-link title="有效时间" />
         <WeekRepeat v-model="weekChecked" /> -->
       </van-cell-group>
     </van-form>
@@ -509,6 +526,12 @@ function goEventConfig() {
       ref="pickerSearchRef"
       :columns-field-names="{ text: 'useCn', value: 'useEn' }"
       @select="onSelectMode"
+    />
+
+    <pickerSearch
+      ref="roomPickerRef"
+      :columns-field-names="{ text: 'label', value: 'id' }"
+      @select="onSelectRoomItem"
     />
 
     <ColorPicker ref="colorPickerRef" @confirm="onColorPickerChange">

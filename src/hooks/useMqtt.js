@@ -37,9 +37,17 @@ export default function useMqtt() {
     heartTimer.value = setInterval(() => {
       if (getMqttStatus() !== 'connected') return
       const { useGetToken } = userStore()
-      const { acessToken } = useGetToken()
+      const { acessToken, yonghubianhao } = useGetToken()
       console.log('%cMQTT发送心跳', 'color: orange; font-weight: bold;', getMqttStatus())
-      $mqtt.publish(`Cloud/App/Heartbeat`, JSON.stringify({ acessToken }), 'B')
+      $mqtt.publish(
+        `App/Heartbeat/${yonghubianhao}`,
+        JSON.stringify({
+          acessToken,
+          msgid: yonghubianhao + '-' + new Date().valueOf(),
+          timeStamp: new Date().valueOf(),
+        }),
+        'B'
+      )
     }, heartDuration.value)
   }
 
@@ -82,7 +90,7 @@ export default function useMqtt() {
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
     $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
-      console.log('%c通用结果应答主题', 'color: yellow; font-weight: bold;', data)
+      console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
     })
   }
   /**

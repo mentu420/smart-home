@@ -56,7 +56,6 @@ export default defineStore(storeName, () => {
     if (!currentHouse.value || Object.keys(currentHouse.value).length == 0) {
       currentHouse.value = houseList.value[0]
     }
-
     return houseList.value
   }
 

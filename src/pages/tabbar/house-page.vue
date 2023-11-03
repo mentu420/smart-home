@@ -22,7 +22,7 @@ const route = useRoute()
 const useHouseStore = houseStore()
 const useDeviceStore = deviceStore()
 const useSceneStore = sceneStore()
-const { houseList, currentHouse, roomList } = storeToRefs(useHouseStore)
+const { houseList, floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { getDeviceIcon } = useDeviceStore
 const { sceneList } = storeToRefs(useSceneStore)
@@ -41,21 +41,6 @@ const dragOptions = ref({
   disabled: true, //是否可以拖拽排序
   ghostClass: 'ghost',
 })
-
-const collectList = ref([
-  {
-    id: 0,
-    label: '常用场景',
-    data: [],
-    component: ScenenCardItem,
-  },
-  {
-    id: 1,
-    label: '常用设备',
-    data: [],
-    component: DeviceCardItem,
-  },
-]) //收藏的场景、设备
 
 const getDeviceStatus = computed(() => (deviceItem) => {
   const { modeList, classify } = deviceItem
@@ -150,6 +135,8 @@ const onHouseSelect = async (action) => {
     await getHouseList({ op: 5, fangwubianhao: hId })
     await onReload(hId)
     useSetToken({ ...useGetToken(), fangwubianhao: hId })
+    getFloorTree()
+    setCurrentFloorRoomList()
   } finally {
     loading.value = false
   }
@@ -159,18 +146,16 @@ const onFloorSelect = (action) => {
   console.log(action)
   currentFloorId.value = action.id
   showFloorConfig.value = false
-  currentFloorRoomList.value = floorTree.value.find(
-    (item) => item.id == currentFloorId.value
-  )?.roomList
+  setCurrentFloorRoomList()
 }
 
 const getFloorTree = () => {
-  collectList.value = collectList.value.map((item) => {
-    if (item.id == 0) {
-      return { ...item, data: sceneList.value?.filter((sceneItem) => sceneItem.collect) }
-    }
-    return { ...item, data: deviceList.value?.filter((deviceItem) => deviceItem.collect) }
-  })
+  // collectList.value = collectList.value.map((item) => {
+  //   if (item.id == 0) {
+  //     return { ...item, data: sceneList.value?.filter((sceneItem) => sceneItem.collect) }
+  //   }
+  //   return { ...item, data: deviceList.value?.filter((deviceItem) => deviceItem.collect) }
+  // })
   floorTree.value = useHouseStore.useGetFloorTree()
 }
 
@@ -277,31 +262,40 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           </template>
           <van-tab title="全屋" :disabled="!dragOptions.disabled" name="''">
             <section class="p-4">
-              <template v-for="collectItem in collectList" :key="collectItem.id">
-                <h4 class="mb-2 text-gray-600">{{ collectItem.label }}</h4>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                  <component
-                    :is="{ ...collectItem.component }"
-                    v-for="commonItem in collectItem.data"
-                    :key="commonItem.id"
-                    :status="getDeviceStatus(commonItem)"
-                    @click="
-                      () => {
-                        if (collectItem.id == 0) {
-                          mqttScenePublish({ id: commonItem.id })
-                        } else {
-                          openDeviceStatus(commonItem)
-                        }
-                      }
-                    "
-                    @click-icon="onSwitchDeviceItem(commonItem)"
-                  >
-                    <label>
-                      {{ commonItem.label }}
-                    </label>
-                  </component>
+              <h4 class="mb-2 text-gray-600">常用场景</h4>
+              <div class="grid grid-cols-2 gap-4 mb-6">
+                <div
+                  v-for="sceneItem in sceneList.filter((sceneItem) => sceneItem.collect)"
+                  :key="sceneItem.id"
+                >
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="dragOptions.disabled" />
                 </div>
-              </template>
+              </div>
+              <h4 class="mb-2 text-gray-600">常用设备</h4>
+              <div class="grid grid-cols-2 gap-4 mb-6">
+                <div
+                  v-for="deviceItem in deviceList.filter((deviceItem) => deviceItem.collect)"
+                  :key="deviceItem.id"
+                >
+                  <DeviceCardItem
+                    :label="deviceItem.label"
+                    :icon="getDeviceIcon(deviceItem.classify)"
+                    :status="getDeviceStatus(deviceItem)"
+                    @click-icon="onSwitchDeviceItem(deviceItem)"
+                    @click.stop="openDeviceStatus(deviceItem)"
+                  >
+                    <template #right-icon>
+                      <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
+                      <van-icon
+                        v-else
+                        :name="deviceItem.collect ? 'like' : 'like-o'"
+                        :color="deviceItem.collect ? '#e39334' : '#999'"
+                        @click.stop="onDeviceCollect(deviceItem)"
+                      />
+                    </template>
+                  </DeviceCardItem>
+                </div>
+              </div>
             </section>
           </van-tab>
           <!--当前楼层所有房间-->
@@ -321,12 +315,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: sceneItem }">
-                  <ScenenCardItem @click="mqttScenePublish({ id: sceneItem.id })">
-                    <label>{{ sceneItem.label }}</label>
-                    <div v-if="!dragOptions.disabled" class="absolute top-2 right-2">
-                      <van-icon name="wap-nav" />
-                    </div>
-                  </ScenenCardItem>
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
                 </template>
               </draggable>
 

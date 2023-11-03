@@ -143,6 +143,13 @@ export default defineStore(storeName, () => {
       .sort((a, b) => a.sort - b.sort)
   }
 
+  const updateSceneList = (palyload) => {
+    sceneList.value = sceneList.value.map((sceneItem) => {
+      if (sceneItem.id == palyload.id) return { ...sceneItem, ...palyload }
+      return sceneItem
+    })
+  }
+
   const getRoomSceneList = computed(
     () => (rid) => sceneList.value?.filter((item) => item.rid == rid)
   )
@@ -163,6 +170,7 @@ export default defineStore(storeName, () => {
     updateSceneCreateItem,
     clearSceneCreateItem,
     useGetSceneListSync,
+    updateSceneList,
     reset,
   }
 })

@@ -1,67 +1,48 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showConfirmDialog } from 'vant'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
-import { setSceneList } from '@/apis/smartApi'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
-import useMqtt from '@/hooks/useMqtt'
 import houseStore from '@/store/houseStore'
 import sceneStore from '@/store/sceneStore'
 
 defineOptions({ name: 'SmartPage' })
 
 const router = useRouter()
-const { mqttScenePublish } = useMqtt()
 const loading = ref(false)
+const tabActive = ref('0')
 const { sceneList } = storeToRefs(sceneStore())
+const { roomList, floorList } = storeToRefs(houseStore())
 const globalSceneList = computed(() => sceneList.value?.filter((option) => option.rId == ''))
-const smartList = ref([])
+const roomSceneList = computed(() =>
+  roomList.value
+    .map((roomItem) => {
+      const floorRes = floorList.value.find((floorItem) => floorItem.id == roomItem.fId)
+      return {
+        ...roomItem,
+        floorName: floorRes?.label,
+        floorSort: floorRes?.sort,
+        sceneList: sceneList.value.filter((sceneItem) => sceneItem.rId == roomItem.id),
+      }
+    })
+    .filter((item) => item.sceneList.length > 0)
+)
 const dragOptions = ref({
   animation: 200,
   disabled: true, //是否可以拖拽排序
   ghostClass: 'ghost',
 })
 
-const sceneActions = computed(() => (item) => {
-  return [
-    { id: 0, text: '编辑', icon: 'setting-o' },
-    { id: 1, text: '删除', icon: 'delete-o' },
-    {
-      id: 2,
-      text: item.collect ? '已收藏' : '收藏',
-      icon: item.collect ? 'like' : 'like-o',
-      className: item.collect ? 'text-[#e39334]' : null,
-    },
-  ]
-})
+function onDrag() {
+  dragOptions.value.disabled = !dragOptions.value.disabled
+  if (!dragOptions.value.disabled) return
+  //TODO:排序
+}
 
 const createSceneItem = () => {
   router.push({ path: '/smart-scene-create' })
-}
-
-async function onMoreSelect(action, item) {
-  const { useGetSceneListSync } = sceneStore()
-  if (action.id == 0) {
-    router.push({ path: '/smart-scene-create', query: { id: item.id } })
-  } else if (action.id == 1) {
-    try {
-      await showConfirmDialog({ title: '提示', message: `是否删除${item.label}场景？` })
-      await setSceneList({ params: { op: 4, changjingbianhao: item.id } })
-      useGetSceneListSync(true)
-    } catch (error) {
-      //
-    }
-  } else if (action.id == 2) {
-    const leixing = item.collect ? 2 : 1
-    await setSceneList({
-      params: { op: 5 },
-      data: { changjingbianhao: item.id, leixing, paixu: item.sort },
-    })
-    useGetSceneListSync(true)
-  }
 }
 
 const onRefresh = async () => {
@@ -80,104 +61,73 @@ const onRefresh = async () => {
   }
 }
 
-const init = () => {
-  const { useGetFloorTree } = houseStore()
-  const floorList = useGetFloorTree()
-  console.log(floorList)
-  smartList.value = floorList.map((floorItem) => {
-    return floorItem.roomList.some((roomItem) => roomItem.sceneList.length > 0)
-  })
-}
+const init = () => {}
 
-init()
+onMounted(init)
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <van-pull-refresh v-model="loading" class="min-h-[80vh]" @refresh="onRefresh">
-      <van-sticky>
-        <van-cell title="我的场景">
-          <template #right-icon>
+    <van-pull-refresh
+      v-model="loading"
+      :disabled="!dragOptions.disabled"
+      class="min-h-[80vh]"
+      @refresh="onRefresh"
+    >
+      <van-tabs
+        v-model:active="tabActive"
+        background="#f7f7f7"
+        sticky
+        shrink
+        line-width="0"
+        animated
+        :swipeable="dragOptions.disabled"
+        @scroll="({ isFixed }) => (isTabsFixed = isFixed)"
+      >
+        <template #nav-right>
+          <div v-if="dragOptions.disabled" class="flex-1 text-right p-3">
             <van-icon size="20" name="plus" @click="createSceneItem" />
-          </template>
-        </van-cell>
-      </van-sticky>
-      <div class="p-4">
-        <section class="mb-6">
-          <h4 class="mb-2 text-gray-600">全局</h4>
-          <draggable
-            v-model="globalSceneList"
-            item-key="id"
-            group="scene"
-            v-bind="dragOptions"
-            class="grid grid-cols-2 gap-4"
-          >
-            <template #item="{ element: sceneItem }">
-              <div class="relative">
-                <ScenenCardItem is-edit @click="mqttScenePublish({ id: sceneItem.id })">
-                  {{ sceneItem.mingcheng }}
-                </ScenenCardItem>
-                <div class="absolute right-0 top-0 text-white px-3 py-1 z-10">
-                  <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
-                  <van-popover
-                    v-else
-                    :actions="sceneActions(sceneItem)"
-                    placement="left"
-                    @select="(action) => onMoreSelect(action, sceneItem)"
-                  >
-                    <template #reference>
-                      <van-icon name="ellipsis" />
-                    </template>
-                  </van-popover>
-                </div>
-              </div>
-            </template>
-          </draggable>
-        </section>
-        <section v-for="floorItem in smartList" :key="floorItem.id" class="mb-6">
-          <h4 class="mb-2 text-gray-600">{{ floorItem.label }}</h4>
-          <div v-for="roomItem in floorItem.roomList" :key="roomItem.id">
-            <h4 class="mb-2 text-gray-600">{{ roomItem.label }}</h4>
-            <div class="grid grid-cols-2 gap-4">
-              <!-- <draggable
-              v-model="roomItem.sceneList"
-              item-key="id"
-              group="scene"
-              v-bind="dragOptions"
-              class="grid grid-cols-2 gap-4"
-            > -->
-              <div v-for="sceneItem in roomItem.sceneList" :key="sceneItem.id" class="relative">
-                <ScenenCardItem is-edit @click.stop="mqttScenePublish({ id: sceneItem.id })">
-                  {{ sceneItem.mingcheng }}
-                </ScenenCardItem>
-                <div class="absolute right-0 top-0 text-white px-3 py-1 z-10">
-                  <van-popover
-                    :actions="sceneActions(sceneItem)"
-                    placement="left"
-                    @select="(action) => onMoreSelect(action, sceneItem)"
-                  >
-                    <template #reference>
-                      <van-icon name="ellipsis" />
-                    </template>
-                  </van-popover>
-                </div>
-              </div>
-              <!-- </draggable> -->
-            </div>
           </div>
-        </section>
-      </div>
-      <div v-if="globalSceneList.length > 0" class="p-6 text-center">
-        <van-button
-          class="!px-6"
-          size="small"
-          type="primary"
-          round
-          @click="dragOptions.disabled = !dragOptions.disabled"
-        >
-          {{ dragOptions.disabled ? '编辑' : '完成' }}
-        </van-button>
-      </div>
+        </template>
+        <van-tab title="自动化" :disabled="!dragOptions.disabled" name="0"> 123 </van-tab>
+        <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
+          <div class="p-4">
+            <section class="mb-6">
+              <h4 class="mb-2 text-gray-600">全局</h4>
+              <draggable
+                v-model="globalSceneList"
+                item-key="id"
+                group="scene"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 gap-4"
+              >
+                <template #item="{ element: sceneItem }">
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="dragOptions.disabled" />
+                </template>
+              </draggable>
+            </section>
+            <section v-for="roomItem in roomSceneList" :key="roomItem.id" class="mb-6">
+              <h4 class="mb-2 text-gray-600">{{ roomItem.floorName }}-{{ roomItem.label }}</h4>
+              <draggable
+                v-model="roomItem.sceneList"
+                item-key="id"
+                group="scene"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 gap-4"
+              >
+                <template #item="{ element: sceneItem }">
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="dragOptions.disabled" />
+                </template>
+              </draggable>
+            </section>
+          </div>
+          <div v-if="globalSceneList.length > 0" class="p-6 text-center">
+            <van-button class="!px-6" size="small" type="primary" round @click="onDrag">
+              {{ dragOptions.disabled ? '编辑' : '完成' }}
+            </van-button>
+          </div>
+        </van-tab>
+      </van-tabs>
     </van-pull-refresh>
   </div>
 </template>
