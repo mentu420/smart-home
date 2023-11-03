@@ -86,13 +86,15 @@ const onDeviceCollect = async (item) => {
   }
 }
 
-const onSwitchDeviceItem = ({ modeList, id }) => {
+const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
   console.log(modeList)
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
   if (switchMode) {
-    const useStatus = switchMode.useStatus == 'on' ? 'off' : 'on'
+    const useStatus = status || switchMode.useStatus == 'on' ? 'off' : 'on'
+    console.log('status', useStatus)
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
   } else {
+    if (status) return
     const playMode = modeList.find((item) => ['playControl'].includes(item.use))
     const useStatus = playMode.useStatus == 'play' ? 'pause' : 'play'
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
@@ -150,12 +152,6 @@ const onFloorSelect = (action) => {
 }
 
 const getFloorTree = () => {
-  // collectList.value = collectList.value.map((item) => {
-  //   if (item.id == 0) {
-  //     return { ...item, data: sceneList.value?.filter((sceneItem) => sceneItem.collect) }
-  //   }
-  //   return { ...item, data: deviceList.value?.filter((deviceItem) => deviceItem.collect) }
-  // })
   floorTree.value = useHouseStore.useGetFloorTree()
 }
 
@@ -163,6 +159,12 @@ function setCurrentFloorRoomList() {
   currentFloorRoomList.value = floorTree.value.find(
     (item) => item.id == currentFloorId.value
   )?.roomList
+}
+
+function onAllDeviceToggle(deviceList, status) {
+  deviceList.forEach((deviceItem) => {
+    onSwitchDeviceItem(deviceItem, status)
+  })
 }
 
 const init = async () => {
@@ -333,12 +335,27 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   </label>
                 </div>
                 <div class="mb-4 grid grid-cols-2 gap-4">
-                  <ScenenCardItem
-                    v-for="(sceneItem, sceneIndex) in ['全开', '全关']"
-                    :key="sceneIndex"
+                  <div
+                    v-for="(switchItem, switchIndex) in [
+                      { text: '全开', status: 'on' },
+                      { text: '全关', status: 'off' },
+                    ]"
+                    :key="switchIndex"
+                    v-clickable-active
+                    class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 h-[76px] relative"
+                    @click="onAllDeviceToggle(roomItem.deviceList, switchItem.status)"
                   >
-                    <label>{{ sceneItem }}</label>
-                  </ScenenCardItem>
+                    <van-image
+                      class="w-full h-full"
+                      fit="cover"
+                      src="https://derucci-app-obs.iderucci.com/cloud-derucci-system/20230330/c21hcnQtYmctMS4xNjgwMTYzNzE5NzM2.jpg"
+                    />
+                    <div
+                      class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white"
+                    >
+                      {{ switchItem.text }}
+                    </div>
+                  </div>
                 </div>
               </template>
               <van-empty v-else image="search" description="暂无设备">
