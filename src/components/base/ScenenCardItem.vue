@@ -69,18 +69,18 @@ async function onCollect(item) {
     <dt
       v-clickable-active
       class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white pr-8"
-      @click="mqttScenePublish({ id: sceneItem.id })"
+      @click="mqttScenePublish({ id: sceneItem?.id })"
     >
       <slot>
-        <label>{{ sceneItem.label }}</label>
+        <label>{{ sceneItem?.label }}</label>
       </slot>
     </dt>
     <dd class="absolute top-1 right-2 z-10 text-white text-[20px]">
       <van-icon v-if="!props.isDrag" name="wap-nav" />
       <template v-else>
         <van-icon
-          :name="sceneItem.collect ? 'like' : 'like-o'"
-          :class="sceneItem.collect ? 'text-[#e39334]' : null"
+          :name="sceneItem?.collect ? 'like' : 'like-o'"
+          :class="sceneItem?.collect ? 'text-[#e39334]' : null"
           @click.stop="onCollect(sceneItem)"
         />
       </template>
