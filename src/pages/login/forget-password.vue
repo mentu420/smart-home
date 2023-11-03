@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 import { getSms } from '@/apis/commonApi'
 import CountDown from '@/components/common/CountDown.vue'
@@ -9,6 +9,7 @@ import { vaildPhone, trimFormat } from '@/hooks/useFormValidator.js'
 defineOptions({ name: 'ForgetPassword' })
 
 const router = useRouter()
+const route = useRoute()
 const formRef = ref(null)
 const form = ref({})
 
@@ -22,11 +23,20 @@ const onSubmit = async () => {
 const sendCode = async () => {
   try {
     await formRef.value.validate(['phone'])
-    return getSms({ shouji: form.value.phone, leixing: 1 })
+    return getSms({ shouji: form.value.phone, leixing: 2 }) //1注册验证码 2找回密码验证码 3验证码登录
   } catch (error) {
     return error
   }
 }
+
+watch(
+  () => route.path,
+  (to, from) => {
+    if (to === '/forget-password' && ['/me-password-change', '/account-login'].includes(from)) {
+      form.value = {}
+    }
+  }
+)
 </script>
 
 <template>

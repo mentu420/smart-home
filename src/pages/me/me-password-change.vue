@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setUserConfig } from '@/apis/commonApi.js'
+import { validPassword } from '@/hooks/useFormValidator'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
 
@@ -50,6 +51,10 @@ const onSubmit = async () => {
             validator: formKey == 'password' ? () => true : repeatValid,
             message: '新密码与确认密码不一致',
           },
+          {
+            validator: formKey == 'password' ? () => true : validPassword,
+            message: '新密码不能包含中文、全角字符、问号和空格',
+          },
         ]"
       >
         <template #right-icon>
@@ -59,6 +64,9 @@ const onSubmit = async () => {
           />
         </template>
       </van-field>
+      <p class="p-4 text-gray-300 text-xs">
+        提示：密码不能含有中文、全角字符、问号和空格。密码最短不能少于6位，密码最长不能超过32字符
+      </p>
       <div class="my-10">
         <van-button round block type="primary" native-type="submit"> 完成 </van-button>
         <div

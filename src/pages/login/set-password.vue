@@ -45,7 +45,11 @@ const onSubmit = async () => {
         maxlength="18"
         :rules="[
           { required: true, message: '请填写密码' },
-          { validator: (value) => validPassword(value), message: '密码必须包含大、小写字母和数字' },
+          {
+            validator: (value) => validPassword(value),
+            message:
+              '密码不能含有中文、全角字符、问号和空格。密码最短不能少于6位，密码最长不能超过32字符',
+          },
         ]"
       />
       <div class="my-10">
