@@ -1,9 +1,13 @@
+import { ref } from 'vue'
 import { createPahoMqttPlugin, $mqtt } from 'vue-paho-mqtt'
 
 import deviceStore from '@/store/deviceStore'
 import userStore from '@/store/userStore'
 
 export default function useMqtt() {
+  const heartTimer = ref(null) //记录心跳定时器
+  const heartDuration = ref(10 * 1000) // 心跳时长
+
   function createMqtt(app) {
     const { useGetToken } = userStore()
     const { yonghubianhao, acessToken } = useGetToken() || {}
@@ -28,12 +32,41 @@ export default function useMqtt() {
     app.use(plugins)
   }
 
-  // 添加订阅
+  function createHeartTimer() {
+    if (heartTimer.value) return
+    heartTimer.value = setInterval(() => {
+      if (getMqttStatus() !== 'connected') return
+      const { useGetToken } = userStore()
+      const { acessToken } = useGetToken()
+      console.log('%cMQTT发送心跳', 'color: orange; font-weight: bold;', getMqttStatus())
+      $mqtt.publish(`Cloud/App/Heartbeat`, JSON.stringify({ acessToken }), 'B')
+    }, heartDuration.value)
+  }
+
+  function clearHeartTimer() {
+    clearInterval(heartTimer.value)
+    heartTimer.value = null
+  }
+
+  // 发起链接、心跳
   function mqttSubscribe() {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
 
-    $mqtt.connect()
+    $mqtt.connect({
+      onConnect: (res) => {
+        console.log(res)
+        createHeartTimer()
+      },
+      onFailure: (err) => {
+        console.log('%cMQTT链接失败', 'color: red; font-weight: bold;', err)
+        clearHeartTimer()
+      },
+      onConnectionLost: (err) => {
+        console.log('%cMQTT链接丢失', 'color: red; font-weight: bold;', err)
+        clearHeartTimer()
+      },
+    })
 
     /**
      * 当设备的状态发生改变，云端或者网关会主动推送设备状态给App； 云端/网关->App
@@ -49,7 +82,7 @@ export default function useMqtt() {
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
     $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
-      console.log('%c通用结果应答主题', 'color: red; font-weight: bold;', data)
+      console.log('%c通用结果应答主题', 'color: yellow; font-weight: bold;', data)
     })
   }
   /**
