@@ -247,7 +247,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           <p class="ml-1 mr-4 text-sm">℃</p>
         </div>
       </template>
-      <!--tab-->
       <div class="relative">
         <van-tabs
           v-model:active="tabActive"
@@ -270,7 +269,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   v-for="sceneItem in sceneList.filter((sceneItem) => sceneItem.collect)"
                   :key="sceneItem.id"
                 >
-                  <ScenenCardItem :id="sceneItem.id" :is-drag="dragOptions.disabled" />
+                  <ScenenCardItem :id="sceneItem.id" />
                 </div>
               </div>
               <h4 class="mb-2 text-gray-600">常用设备</h4>
@@ -287,9 +286,10 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     @click.stop="openDeviceStatus(deviceItem)"
                   >
                     <template #right-icon>
-                      <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
+                      <van-icon v-if="!dragOptions.disabled" class="!text-[20px]" name="wap-nav" />
                       <van-icon
                         v-else
+                        class="!text-[20px]"
                         :name="deviceItem.collect ? 'like' : 'like-o'"
                         :color="deviceItem.collect ? '#e39334' : '#999'"
                         @click.stop="onDeviceCollect(deviceItem)"
@@ -317,7 +317,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: sceneItem }">
-                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
+                  <ScenenCardItem :id="sceneItem.id" />
                 </template>
               </draggable>
 
@@ -380,9 +380,10 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     @click.stop="openDeviceStatus(deviceItem)"
                   >
                     <template #right-icon>
-                      <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
+                      <van-icon v-if="!dragOptions.disabled" class="!text-[20px]" name="wap-nav" />
                       <van-icon
                         v-else
+                        class="!text-[20px]"
                         :name="deviceItem.collect ? 'like' : 'like-o'"
                         :color="deviceItem.collect ? '#e39334' : '#999'"
                         @click.stop="onDeviceCollect(deviceItem)"

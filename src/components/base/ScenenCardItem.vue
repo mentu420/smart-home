@@ -76,7 +76,7 @@ async function onCollect(item) {
       </slot>
     </dt>
     <dd class="absolute top-1 right-2 z-10 text-white text-[20px]">
-      <van-icon v-if="!props.isDrag" name="wap-nav" />
+      <van-icon v-if="props.isDrag" name="wap-nav" />
       <template v-else>
         <van-icon
           :name="sceneItem?.collect ? 'like' : 'like-o'"

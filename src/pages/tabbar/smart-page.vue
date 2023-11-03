@@ -86,10 +86,14 @@ onMounted(init)
       >
         <template #nav-right>
           <div v-if="dragOptions.disabled" class="flex-1 text-right p-3">
-            <van-icon size="20" name="plus" @click="createSceneItem" />
+            <div class="bg-white h-[76px] rounded-lg">
+              <van-icon size="20" name="plus" @click="createSceneItem" />
+            </div>
           </div>
         </template>
-        <van-tab title="自动化" :disabled="!dragOptions.disabled" name="0"> 123 </van-tab>
+        <van-tab title="自动化" :disabled="!dragOptions.disabled" name="0">
+          <van-switch v-model="dragOptions.disabled" />
+        </van-tab>
         <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
           <div class="p-4">
             <section class="mb-6">
@@ -102,7 +106,7 @@ onMounted(init)
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: sceneItem }">
-                  <ScenenCardItem :id="sceneItem.id" :is-drag="dragOptions.disabled" />
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
                 </template>
               </draggable>
             </section>
@@ -116,7 +120,7 @@ onMounted(init)
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: sceneItem }">
-                  <ScenenCardItem :id="sceneItem.id" :is-drag="dragOptions.disabled" />
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
                 </template>
               </draggable>
             </section>
