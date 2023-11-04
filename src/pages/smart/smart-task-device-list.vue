@@ -52,16 +52,22 @@ const onSave = async () => {
   const { useGetDeviceListSync, setModeColumns } = deviceStore()
   const deviceList = await useGetDeviceListSync()
   console.log('deviceChecked', deviceChecked.value, deviceList)
-  const checkList = deviceList.filter((deviceItem) => deviceChecked.value.includes(deviceItem.id))
-  console.log('checkList', checkList)
+  const checkList = deviceList
+    .filter((deviceItem) => deviceChecked.value.includes(deviceItem.id))
+    .map((checkItem) => ({ ...checkItem, modeList: setModeColumns(checkItem.columns) }))
+
+  const newDeviceList =
+    sceneCreateItem.value?.deviceList?.length > 0
+      ? [
+          ...sceneCreateItem.value.deviceList.filter(
+            (item) => !deviceChecked.value.includes(item.id)
+          ),
+          ...checkList,
+        ]
+      : checkList
   sceneCreateItem.value = {
     ...sceneCreateItem.value,
-    deviceList: [
-      ...(sceneCreateItem.value.deviceList || []),
-      ...checkList.map((checkItem) => {
-        return { ...checkItem, modeList: setModeColumns(checkItem.columns) }
-      }),
-    ],
+    deviceList: newDeviceList,
   }
   router.go(-3)
 }
@@ -81,12 +87,7 @@ const init = () => {
           return {
             ...roomItem,
             deviceList: roomItem.deviceList.filter((deviceItem) => {
-              const { deviceList = [] } = sceneCreateItem.value
-              const ids = deviceList.map((item) => item.id)
-              return (
-                deviceItem.classify == route.query.classify && //过滤类型
-                !ids.includes(deviceItem.id) //过滤已经选择了的设备
-              )
+              return deviceItem.classify == route.query.classify
             }),
           }
         }),
