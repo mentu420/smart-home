@@ -1,3 +1,4 @@
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { createPahoMqttPlugin, $mqtt } from 'vue-paho-mqtt'
 
@@ -82,8 +83,20 @@ export default function useMqtt() {
      * **/
     $mqtt.subscribe(`Device/State/${yonghubianhao}`, (data) => {
       console.log('%c设备状态接收主题', 'color: blue; font-weight: bold;', data)
-      const { useDeviceMqttChange } = deviceStore()
-      useDeviceMqttChange(data)
+      const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = data
+      const { deviceList } = storeToRefs(deviceStore())
+      deviceList.value = deviceList.value.map((item) => {
+        if (item.id == bianhao)
+          return {
+            ...item,
+            modeList: item.modeList.map((modeItem) => {
+              if (modeItem.use == shuxing)
+                return { ...modeItem, useStatus: shuxingzhuangtai, useValue: shuxingzhi }
+            }),
+          }
+        return item
+      })
+      // useDeviceMqttChange()
     })
     /**
      * 云端/网关在完成一个操作后，进行应答 云服务器/网关->App

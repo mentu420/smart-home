@@ -267,7 +267,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <h4 class="mb-2 text-gray-600">常用场景</h4>
               <div class="grid grid-cols-2 gap-4 mb-6">
                 <div
-                  v-for="sceneItem in sceneList.filter((sceneItem) => sceneItem.collect)"
+                  v-for="sceneItem in sceneList?.filter((sceneItem) => sceneItem.collect)"
                   :key="sceneItem.id"
                 >
                   <ScenenCardItem :id="sceneItem.id" />
@@ -276,7 +276,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <h4 class="mb-2 text-gray-600">常用设备</h4>
               <div class="grid grid-cols-2 gap-4 mb-6">
                 <div
-                  v-for="deviceItem in deviceList.filter((deviceItem) => deviceItem.collect)"
+                  v-for="deviceItem in deviceList?.filter((deviceItem) => deviceItem.collect)"
                   :key="deviceItem.id"
                 >
                   <DeviceCardItem
