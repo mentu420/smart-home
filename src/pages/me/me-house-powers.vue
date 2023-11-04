@@ -10,65 +10,110 @@ import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'MeHousePowers' })
 
-const { useGetFamilyListSync } = houseStore()
-
 const route = useRoute()
 
 const { deviceList } = storeToRefs(deviceStore())
 const { sceneList } = storeToRefs(smartStore())
-const { roomList, familyList } = storeToRefs(houseStore())
+const { roomList, familyList, powerList } = storeToRefs(houseStore())
 const loading = ref(false)
+const checkboxRefs = ref([])
+const checked = ref([])
 
 const powerKey = computed(
   () => ['fangjianquanxian', 'shebeiquanxian', 'changjingquanxian'][route.query.power]
 )
 
-const powerIds = computed(() => {
-  if (familyList.value.length == 0) return []
-  const familyItem = familyList.value?.find((item) => item.id == route.query.id)
-  return familyItem[powerKey.value]
-})
-
-const powerList = computed(() =>
+const list = computed(() =>
   [roomList.value, deviceList.value, sceneList.value][route.query.power].map((item) => ({
     ...item,
-    checked: powerIds.value.includes(item.id),
+    checked: checked.value.includes(item.id),
   }))
 )
 
-const onSwitchClick = async (id) => {
+const onEditPower = async () => {
   try {
     loading.value = true
-    let ids = []
-    if (powerIds.value.includes(id)) {
-      ids = powerIds.value.filter((item) => item != id)
-    } else {
-      ids = [...powerIds, id]
-    }
     await setFamily({
       params: { op: 3 },
-      data: { shouji: route.query.shouji, bianhao: route.query.id, [powerKey.value]: ids },
+      data: {
+        shouji: route.query.shouji,
+        bianhao: route.query.id,
+        [powerKey.value]: checked.value,
+      },
     })
-    await useGetFamilyListSync(true)
-  } catch (error) {
-    //
+    familyList.value = familyList.value.map((item) => {
+      if (item.id == route.query.id) return { ...item, [powerKey.value]: checked.value }
+      return item
+    })
   } finally {
     loading.value = false
   }
 }
+
+const toggle = (index) => {
+  checkboxRefs.value[index].toggle()
+}
+
+async function onSubmit() {
+  if (route.query.id) {
+    onEditPower()
+  } else {
+    powerList.value.map((item, i) => {
+      if (route.query.power == i) return checked.value
+      return item
+    })
+  }
+}
+
+function init() {
+  if (route.query.id) {
+    if (familyList.value.length == 0) return []
+    const familyItem = familyList.value?.find((item) => item.id == route.query.id)
+    checked.value = familyItem[powerKey.value]
+  } else {
+    checked.value = list.value.map((item) => item.id)
+  }
+}
+
+init()
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar :title="['房间权限', '设备权限', '场景权限'][route.query.power]" />
-    <van-cell-group>
-      <van-cell v-for="powerItem in powerList" :key="powerItem.id" :title="powerItem.label">
-        <van-switch
-          v-model="powerItem.checked"
-          :loading="loading"
-          @change="onSwitchClick(powerItem.id)"
-        />
-      </van-cell>
-    </van-cell-group>
+    <HeaderNavbar :title="['房间权限', '设备权限', '场景权限'][route.query.power]">
+      <template #right>
+        <van-button type="primary" size="small" :loading="loading" @click="onSubmit">
+          保存
+        </van-button>
+      </template>
+    </HeaderNavbar>
+    <div class="p-4 text-xs">
+      {{
+        [
+          '选择房间，改用户可查看和控制房间内所有设备',
+          '选择设备并保存，该用户可查看和控制此设备',
+          '',
+        ][route.query.power]
+      }}
+    </div>
+    <van-checkbox-group v-model="checked">
+      <van-cell-group inset>
+        <van-cell
+          v-for="(powerItem, powerIndex) in list"
+          :key="powerItem.id"
+          clickable
+          :title="powerItem.label"
+          @click="toggle(powerIndex)"
+        >
+          <template #right-icon>
+            <van-checkbox
+              :ref="(el) => (checkboxRefs[powerIndex] = el)"
+              :name="powerItem.id"
+              @click.stop
+            />
+          </template>
+        </van-cell>
+      </van-cell-group>
+    </van-checkbox-group>
   </div>
 </template>

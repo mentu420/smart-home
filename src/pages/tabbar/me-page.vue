@@ -10,7 +10,7 @@ defineOptions({ name: 'MePage' })
 const router = useRouter()
 
 const navList = ref([
-  { path: '/me-house', text: '家庭管理', icon: 'wap-home-o' },
+  { path: '/me-house-list', text: '家庭管理', icon: 'wap-home-o' },
   { path: '/me-conceal', text: '隐私政策', icon: 'miniprogram-o' },
   { path: '/me-agreement', text: '软件许可及服务协议', icon: 'certificate' },
   { path: '/me-about', text: '关于', icon: 'warning-o' },

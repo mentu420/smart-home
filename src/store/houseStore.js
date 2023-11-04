@@ -16,6 +16,7 @@ export default defineStore(storeName, () => {
   const floorList = ref([]) //当前房屋的所有楼层
   const familyList = ref([]) //当前房屋的所有成员
   const currentHouse = ref({}) //当前房屋
+  const powerList = ref([], [], []) //编辑家人时的权限列表里 [id]
 
   const { deviceList } = storeToRefs(deviceStore())
   const { sceneList } = storeToRefs(smartStore())
@@ -25,6 +26,7 @@ export default defineStore(storeName, () => {
     houseList.value = storeRes?.houseList
     roomList.value = storeRes?.roomList
     floorList.value = storeRes?.floorList
+    familyList.value = storeRes?.familyList
     currentHouse.value = storeRes?.currentHouse
   }
 
@@ -143,6 +145,7 @@ export default defineStore(storeName, () => {
     floorList,
     familyList,
     currentHouse,
+    powerList,
     useGetFloorTree,
     editHouseList,
     setCurrentHouse,

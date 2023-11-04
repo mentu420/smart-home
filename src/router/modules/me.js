@@ -18,9 +18,15 @@ export default [
     meta: { title: '隐私' },
   },
   {
-    path: '/me-house',
+    path: '/me-house-list',
+    name: 'MeHouseList',
+    component: () => import('@/pages/me/me-house-list.vue'),
+    meta: { title: '家庭列表' },
+  },
+  {
+    path: '/me-house-item',
     name: 'MeHouse',
-    component: () => import('@/pages/me/me-house.vue'),
+    component: () => import('@/pages/me/me-house-item.vue'),
     meta: { title: '家庭管理' },
   },
   {
@@ -36,9 +42,9 @@ export default [
     meta: { title: '家庭位置' },
   },
   {
-    path: '/me-house-member-list',
-    name: 'MeHouseMemberList',
-    component: () => import('@/pages/me/me-house-member-list.vue'),
+    path: '/me-house-invite',
+    name: 'MeHouseInvite',
+    component: () => import('@/pages/me/me-house-invite.vue'),
     meta: { title: '成员列表' },
   },
   {

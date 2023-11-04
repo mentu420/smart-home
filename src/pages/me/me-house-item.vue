@@ -12,7 +12,7 @@ defineOptions({ name: 'MeHouse' })
 
 const router = useRouter()
 const showQrCode = ref(false)
-const { currentHouse } = storeToRefs(houseStore())
+const { currentHouse, familyList } = storeToRefs(houseStore())
 const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
 
@@ -99,13 +99,13 @@ const onDelHouse = async () => {
       </van-cell>
       <div class="h-4 bg-page-gray"></div>
       <van-cell center clickable title="我的权限" value="管理员" is-link />
-      <van-cell
+      <!-- <van-cell
         center
         clickable
         title="成员与权限"
         is-link
-        @click="router.push({ path: '/me-house-member-list' })"
-      />
+        @click="router.push({ path: '/me-house-invite' })"
+      /> -->
       <van-cell
         center
         clickable
@@ -114,6 +114,36 @@ const onDelHouse = async () => {
         @click="router.push({ path: '/me-room-manage' })"
       />
     </van-cell-group>
+
+    <section class="p-4">
+      <dl class="rounded-lg bg-white overflow-hidden">
+        <dt class="p-4 flex justify-between items-center">
+          <p class="space-x-2">
+            <label>家庭成员</label>
+            <label class="text-xs text-gray-300">({{ familyList.length }})</label>
+          </p>
+          <p class="space-x-2 text-primary" @click="router.push({ path: '/me-house-invite' })">
+            <van-icon name="plus" />
+            <label>添加</label>
+          </p>
+        </dt>
+        <dd>
+          <van-cell-group>
+            <van-cell
+              v-for="familyItem in familyList"
+              :key="familyItem.id"
+              center
+              clickable
+              is-link
+              :title="familyItem.label"
+              :value="familyItem.juese == 1 ? '家庭所有者' : '普通成员'"
+              @click="router.push({ path: '/me-house-member-item', query: { id: familyItem.id } })"
+            />
+          </van-cell-group>
+        </dd>
+      </dl>
+    </section>
+
     <div class="m-6">
       <van-button :loading="loading" round block type="primary" @click="onDelHouse">
         删除家庭
