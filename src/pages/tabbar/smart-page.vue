@@ -6,14 +6,14 @@ import draggable from 'vuedraggable'
 
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import houseStore from '@/store/houseStore'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartPage' })
 
 const router = useRouter()
 const loading = ref(false)
 const tabActive = ref('0')
-const { sceneList } = storeToRefs(sceneStore())
+const { sceneList } = storeToRefs(smartStore())
 const { roomList, floorList } = storeToRefs(houseStore())
 const globalSceneList = computed(() => sceneList.value?.filter((option) => option.rId == ''))
 const roomSceneList = computed(() =>
@@ -49,11 +49,12 @@ const onRefresh = async () => {
   try {
     loading.value = true
     const { useGetFloorListSync, useGetRoomListSync } = houseStore()
-    const { useGetSceneListSync } = sceneStore()
+    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
     await Promise.all([
       useGetFloorListSync(true),
       useGetRoomListSync(true),
       useGetSceneListSync(true),
+      useGetSmartListSync(true),
     ])
     init()
   } finally {
@@ -86,13 +87,13 @@ onMounted(init)
       >
         <template #nav-right>
           <div v-if="dragOptions.disabled" class="flex-1 text-right p-3">
-            <div class="bg-white h-[76px] rounded-lg">
+            <div class="rounded-lg">
               <van-icon size="20" name="plus" @click="createSceneItem" />
             </div>
           </div>
         </template>
         <van-tab title="自动化" :disabled="!dragOptions.disabled" name="0">
-          <van-switch v-model="dragOptions.disabled" />
+          <!-- <van-switch v-model="dragOptions.disabled" /> -->
         </van-tab>
         <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
           <div class="p-4">
@@ -106,7 +107,11 @@ onMounted(init)
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: sceneItem }">
-                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
+                  <ScenenCardItem
+                    :id="sceneItem.id"
+                    :is-drag="!dragOptions.disabled"
+                    :is-more="dragOptions.disabled"
+                  />
                 </template>
               </draggable>
             </section>
@@ -120,7 +125,11 @@ onMounted(init)
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: sceneItem }">
-                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
+                  <ScenenCardItem
+                    :id="sceneItem.id"
+                    :is-drag="!dragOptions.disabled"
+                    :is-more="dragOptions.disabled"
+                  />
                 </template>
               </draggable>
             </section>

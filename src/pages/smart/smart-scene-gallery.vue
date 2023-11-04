@@ -3,20 +3,20 @@ import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartSceneGallery' })
 
 const checkboxRefs = ref([])
 
-const { sceneGallery, sceneCreateItem } = storeToRefs(sceneStore())
+const { sceneGallery, sceneCreateItem } = storeToRefs(smartStore())
 
 const route = useRoute()
 const router = useRouter()
 const checked = ref(sceneCreateItem.value.img)
 
 const onComfirm = () => {
-  const { updateSceneCreateItem } = sceneStore()
+  const { updateSceneCreateItem } = smartStore()
   updateSceneCreateItem({ img: checked.value })
   router.back()
 }

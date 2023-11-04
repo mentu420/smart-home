@@ -3,12 +3,12 @@ import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartCondtion' })
 
 const router = useRouter()
-const { sceneCreateItem } = storeToRefs(sceneStore())
+const { sceneCreateItem } = storeToRefs(smartStore())
 
 const addPressEvent = () => {
   if (sceneCreateItem.value.fenlei === 1) return

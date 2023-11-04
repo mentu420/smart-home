@@ -4,9 +4,9 @@ import { storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
 
 import TimePicker from '@/components/common/TimePicker.vue'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
-const { repeatActions, weekData, getRepeatTimeText } = storeToRefs(sceneStore())
+const { repeatActions, weekData, getRepeatTimeText } = storeToRefs(smartStore())
 
 const props = defineProps({
   modelValue: {

@@ -8,14 +8,14 @@ import PickerSearch from '@/components/common/PickerSearch.vue'
 import { useTrigger } from '@/components/trigger/useTrigger'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 import { stringToArray } from '@/utils/common'
 
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
 const { useGetDeviceItem, includesUse } = deviceStore()
 const { getModeColumns, onConfigFormat } = useTrigger()
-const { sceneCreateItem } = storeToRefs(sceneStore())
+const { sceneCreateItem } = storeToRefs(smartStore())
 
 const route = useRoute()
 const router = useRouter()

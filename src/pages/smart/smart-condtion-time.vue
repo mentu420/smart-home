@@ -6,11 +6,11 @@ import { useRouter } from 'vue-router'
 
 import TimePicker from '@/components/common/TimePicker.vue'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartCondtionTime' })
 
-const { sceneCreateItem } = storeToRefs(sceneStore())
+const { sceneCreateItem } = storeToRefs(smartStore())
 
 const router = useRouter()
 const columsType = ref(['hour', 'minute'])
@@ -30,7 +30,7 @@ const delTimeItem = (i) => {
 }
 
 const onSave = () => {
-  const { updateSceneCreateItem } = sceneStore()
+  const { updateSceneCreateItem } = smartStore()
 
   const events = [
     ...sceneCreateItem.value.events,

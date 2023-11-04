@@ -102,6 +102,7 @@ const onCollectChange = async (value) => {
       </van-cell-group>
     </section>
     <PickerSearch
+      ref="roomPickerRef"
       :columns-field-names="{ text: 'label', value: 'id', children: 'roomList' }"
       :columns="columns"
       @select="onPickerConfirm"

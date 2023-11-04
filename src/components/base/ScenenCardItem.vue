@@ -7,13 +7,18 @@ import { useRouter } from 'vue-router'
 import { setSceneList } from '@/apis/smartApi'
 import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 import useMqtt from '@/hooks/useMqtt'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
 const { mqttScenePublish } = useMqtt()
 
 const props = defineProps({
   isDrag: {
     //是否可以拖拽
+    type: Boolean,
+    default: false,
+  },
+  isMore: {
+    //是否可以更多编辑
     type: Boolean,
     default: false,
   },
@@ -29,7 +34,7 @@ const actions = [
   { id: 0, text: '编辑', icon: 'setting-o' },
   { id: 1, text: '删除', icon: 'delete-o' },
 ]
-const { sceneList } = storeToRefs(sceneStore())
+const { sceneList } = storeToRefs(smartStore())
 const sceneItem = computed(() => sceneList.value.find((item) => item.id == props.id))
 
 async function onMoreSelect(action, item) {
@@ -85,7 +90,7 @@ async function onCollect(item) {
         />
       </template>
     </dd>
-    <dd class="absolute bottom-1 right-2 z-10">
+    <dd v-if="isMore" class="absolute bottom-1 right-2 z-10">
       <van-popover
         :actions="actions"
         placement="left"

@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router'
 import { setFamily } from '@/apis/houseApi'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'MeHousePowers' })
 
@@ -15,7 +15,7 @@ const { useGetFamilyListSync } = houseStore()
 const route = useRoute()
 
 const { deviceList } = storeToRefs(deviceStore())
-const { sceneList } = storeToRefs(sceneStore())
+const { sceneList } = storeToRefs(smartStore())
 const { roomList, familyList } = storeToRefs(houseStore())
 const loading = ref(false)
 

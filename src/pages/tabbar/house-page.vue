@@ -11,7 +11,7 @@ import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 
 defineOptions({ name: 'HousePage' })
@@ -21,11 +21,11 @@ const route = useRoute()
 
 const useHouseStore = houseStore()
 const useDeviceStore = deviceStore()
-const useSceneStore = sceneStore()
+const usesmartStore = smartStore()
 const { houseList, floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { getDeviceIcon } = useDeviceStore
-const { sceneList } = storeToRefs(useSceneStore)
+const { sceneList } = storeToRefs(usesmartStore)
 const { mqttScenePublish, mqttDevicePublish } = useMqtt()
 
 const showHomeList = ref(false)
@@ -107,13 +107,14 @@ const onReload = async (hId) => {
   const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
     houseStore()
   const { useGetDeviceListSync } = deviceStore()
-  const { useGetSceneListSync } = sceneStore()
+  const { useGetSceneListSync, useGetSmartListSync } = smartStore()
   await Promise.all([
     useGetHouseListSync(true),
     useGetRoomListSync(true),
     useGetFloorListSync(true),
     useGetDeviceListSync(true),
     useGetSceneListSync(true),
+    useGetSmartListSync(true),
     useGetFamilyListSync(true),
   ])
   useHouseStore.setCurrentHouse(hId)
@@ -317,7 +318,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: sceneItem }">
-                  <ScenenCardItem :id="sceneItem.id" />
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
                 </template>
               </draggable>
 

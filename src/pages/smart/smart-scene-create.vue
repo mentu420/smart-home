@@ -18,7 +18,7 @@ import { trimFormat } from '@/hooks/useFormValidator.js'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 import { transformKeys } from '@/utils/common'
 
 defineOptions({ name: 'SmartSceneCreate' })
@@ -31,7 +31,7 @@ const route = useRoute()
 
 const showGallery = ref(false)
 const showExecutionTime = ref(false)
-const { sceneCreateItem, sceneGallery, sceneList } = storeToRefs(sceneStore())
+const { sceneCreateItem, sceneGallery, sceneList } = storeToRefs(smartStore())
 const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(deviceStore())
 const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
@@ -46,7 +46,7 @@ const colorPickerRef = ref(null)
 const sliderPickerRef = ref(null)
 const roomPickerRef = ref(null)
 
-const { getRepeatTimeText } = sceneStore()
+const { getRepeatTimeText } = smartStore()
 
 function openRoomPicker() {
   roomPickerRef.value?.open({ columns: roomList.value })
@@ -65,7 +65,7 @@ const openExecutionTime = (eventItem, eventIndex) => {
 }
 // 确认修改执行时间
 const onExecutionTimeConfirm = ({ selectedValues }) => {
-  const { updateSceneCreateItem } = sceneStore()
+  const { updateSceneCreateItem } = smartStore()
   const events = sceneCreateItem.value.events.map((eventItem, eventIndex) => {
     if (eventIndex == eventActive.value)
       return {
@@ -82,13 +82,13 @@ const onExecutionTimeConfirm = ({ selectedValues }) => {
 }
 //删除时间事件
 const delTimeItem = (eventIndex) => {
-  const { updateSceneCreateItem } = sceneStore()
+  const { updateSceneCreateItem } = smartStore()
   const events = sceneCreateItem.value.events.filter((item, index) => index != eventIndex)
   updateSceneCreateItem({ events })
 }
 //删除点击事件
 const delEventItem = () => {
-  const { updateSceneCreateItem } = sceneStore()
+  const { updateSceneCreateItem } = smartStore()
   updateSceneCreateItem({ fenlei: 2 })
 }
 
@@ -226,18 +226,14 @@ const onSave = async () => {
       showToast('请添加任务')
       return
     }
-    if (!sceneCreateItem.fenlei) {
-      showToast('请添加条件')
-      return
-    }
     const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
     const op = route.query.id ? 3 : 2
-    const data = { ...residue, leixing: 1, isor: 0, actions }
+    const data = { fenlei: 2, ...residue, leixing: 1, isor: 0, actions }
     await setSceneList({
       params: { op },
       data: op == 3 ? { bianhao: route.query.id, ...data } : data,
     })
-    await sceneStore().useGetSceneListSync(true)
+    await smartStore().useGetSceneListSync(true)
     router.back()
   } catch (error) {
     console.warn(error)
@@ -246,7 +242,7 @@ const onSave = async () => {
 }
 
 const init = () => {
-  const { clearSceneCreateItem } = sceneStore()
+  const { clearSceneCreateItem } = smartStore()
   clearSceneCreateItem()
   if (route.query.id) {
     const { id, rId, label, actions, ...data } = sceneList.value.find(

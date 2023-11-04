@@ -5,11 +5,11 @@ import { useRouter, useRoute } from 'vue-router'
 
 import { TriggerLamp, TriggerCurtain, TriggerAirCooler } from '@/components/trigger/'
 import deviceStore from '@/store/deviceStore'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
-const { sceneCreateItem } = storeToRefs(sceneStore())
+const { sceneCreateItem } = storeToRefs(smartStore())
 
 const route = useRoute()
 const router = useRouter()

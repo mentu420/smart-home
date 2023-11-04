@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
-import sceneStore from '@/store/sceneStore'
+import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartTaskDeviceList' })
 
@@ -17,7 +17,7 @@ const checkboxRefs = ref([])
 const checkedAll = ref(false)
 const checkboxGroup = ref(null)
 const floorTree = ref([])
-const { sceneCreateItem } = storeToRefs(sceneStore())
+const { sceneCreateItem } = storeToRefs(smartStore())
 
 const toggle = (index) => {
   checkboxRefs.value[index].toggle()

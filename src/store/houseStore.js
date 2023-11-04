@@ -5,7 +5,7 @@ import { computed, reactive, ref } from 'vue'
 import { getHouseList, getRoomList, getFloorList, getFamily } from '@/apis/houseApi'
 
 import deviceStore from './deviceStore'
-import sceneStore from './sceneStore'
+import smartStore from './smartStore'
 import userStore from './userStore'
 
 const storeName = 'houseStore'
@@ -18,7 +18,7 @@ export default defineStore(storeName, () => {
   const currentHouse = ref({}) //当前房屋
 
   const { deviceList } = storeToRefs(deviceStore())
-  const { sceneList } = storeToRefs(sceneStore())
+  const { sceneList } = storeToRefs(smartStore())
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))

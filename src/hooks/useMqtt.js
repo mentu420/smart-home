@@ -135,5 +135,17 @@ export default function useMqtt() {
     return $mqtt.status()
   }
 
-  return { createMqtt, mqttSubscribe, getMqttStatus, mqttDevicePublish, mqttScenePublish }
+  function mqttDisconnect() {
+    $mqtt.disconnect()
+    clearHeartTimer
+  }
+
+  return {
+    createMqtt,
+    mqttSubscribe,
+    getMqttStatus,
+    mqttDevicePublish,
+    mqttScenePublish,
+    mqttDisconnect,
+  }
 }

@@ -26,7 +26,7 @@ const useAxios = axios.create({
 const responseHandle = (response) => {
   if (response.status === 200 && response.data.code === 3) {
     //退出登录
-    // useLogout(response.data.des)
+    useLogout(response.data.des)
   } else if (
     response.status === 200 &&
     response.data.code != 0 &&

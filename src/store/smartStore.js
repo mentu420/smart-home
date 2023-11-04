@@ -2,9 +2,9 @@ import localforage from 'localforage'
 import { defineStore } from 'pinia'
 import { reactive, ref, computed } from 'vue'
 
-import { getSceneList } from '@/apis/smartApi'
+import { getSceneList, getSmartList } from '@/apis/smartApi'
 
-const storeName = 'sceneStore'
+const storeName = 'smartStore'
 
 export default defineStore(storeName, () => {
   // 重复时间类型
@@ -30,6 +30,7 @@ export default defineStore(storeName, () => {
   })
 
   const sceneList = ref([]) //全部场景列表
+  const smartList = ref([]) //自动化列表
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
@@ -126,10 +127,8 @@ export default defineStore(storeName, () => {
   // 清空场景数据
   const clearSceneCreateItem = () => (sceneCreateItem.value = { events: [] })
 
-  const useGetSceneListSync = async (reload = false) => {
-    if (sceneList.value.length > 0 && !reload) return sceneList.value
-    const { data } = await getSceneList({ op: 1 })
-    sceneList.value = data
+  const transformList = (data) =>
+    data
       .map((item, i) => {
         return {
           ...item,
@@ -141,6 +140,17 @@ export default defineStore(storeName, () => {
         }
       })
       .sort((a, b) => a.sort - b.sort)
+
+  const useGetSceneListSync = async (reload = false) => {
+    if (sceneList.value.length > 0 && !reload) return sceneList.value
+    const { data } = await getSceneList({ op: 1 })
+    sceneList.value = transformList(data)
+  }
+
+  const useGetSmartListSync = async (reload = false) => {
+    if (smartList.value.length > 0 && !reload) return smartList.value
+    const { data } = await getSmartList({ op: 1 })
+    smartList.value = transformList(data)
   }
 
   const updateSceneList = (palyload) => {
@@ -170,6 +180,7 @@ export default defineStore(storeName, () => {
     updateSceneCreateItem,
     clearSceneCreateItem,
     useGetSceneListSync,
+    useGetSmartListSync,
     updateSceneList,
     reset,
   }
