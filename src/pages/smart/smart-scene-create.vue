@@ -1,11 +1,11 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { showConfirmDialog, showToast } from 'vant'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { getRoomList } from '@/apis/houseApi'
-import { setSceneList } from '@/apis/smartApi.js'
+import { setSceneList, setSmartList } from '@/apis/smartApi.js'
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import pickerSearch from '@/components/common/PickerSearch.vue'
 import SliderPicker from '@/components/common/SliderPicker.vue'
@@ -31,7 +31,7 @@ const route = useRoute()
 
 const showGallery = ref(false)
 const showExecutionTime = ref(false)
-const { sceneCreateItem, sceneGallery, sceneList } = storeToRefs(smartStore())
+const { sceneCreateItem, sceneGallery, sceneList, smartList } = storeToRefs(smartStore())
 const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(deviceStore())
 const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
@@ -45,6 +45,7 @@ const pickerSearchRef = ref(null)
 const colorPickerRef = ref(null)
 const sliderPickerRef = ref(null)
 const roomPickerRef = ref(null)
+const pageName = computed(() => (route.query.auto ? '自动化' : '场景'))
 
 const { getRepeatTimeText } = smartStore()
 
@@ -229,15 +230,42 @@ const onSave = async () => {
     const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
     const op = route.query.id ? 3 : 2
     const data = { fenlei: 2, ...residue, leixing: 1, isor: 0, actions }
-    await setSceneList({
+    const config = {
       params: { op },
       data: op == 3 ? { bianhao: route.query.id, ...data } : data,
-    })
-    await smartStore().useGetSceneListSync(true)
+    }
+    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
+    if (route.query.auto) {
+      await setSmartList(config)
+      await useGetSmartListSync(true)
+    } else {
+      await setSceneList(config)
+      await useGetSceneListSync(true)
+    }
+
     router.back()
   } catch (error) {
-    console.warn(error)
     formRef.value?.scrollToField(error[0].name)
+  }
+}
+
+async function onDelect() {
+  try {
+    await showConfirmDialog({
+      title: '提示',
+      message: `是否删除${sceneCreateItem.value.mingcheng}${pageName.value}？`,
+    })
+    if (route.query.auto) {
+      await setSmartList({ params: { op: 4, zhinenghuabianhao: route.query.id } })
+      smartList.value = smartList.value.filter((sceneItem) => sceneItem.id != route.query.id)
+    } else {
+      await setSceneList({ params: { op: 4, changjingbianhao: route.query.id } })
+      sceneList.value = sceneList.value.filter((sceneItem) => sceneItem.id != route.query.id)
+    }
+
+    router.back()
+  } catch (error) {
+    //取消删除
   }
 }
 
@@ -248,7 +276,6 @@ const init = () => {
     const { id, rId, label, actions, ...data } = sceneList.value.find(
       (item) => item.id == route.query.id
     )
-    console.log('data', data)
     const modeActions = actions.map(({ caozuo, ...item }) => {
       return transformKeys(
         { ...caozuo, ...item },
@@ -277,7 +304,7 @@ const init = () => {
       })
 
     sceneCreateItem.value = { ...sceneCreateItem.value, ...data, deviceList: sceneDeviceList }
-  } else {
+  } else if (!route.query.auto) {
     sceneCreateItem.value = { ...sceneCreateItem.value, img: sceneGallery.value[0].src }
   }
 }
@@ -309,7 +336,11 @@ function goEventConfig() {
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="创建场景" />
+    <HeaderNavbar :title="`创建${pageName}`">
+      <template #right>
+        <van-button type="primary" size="small" @click="onSave">保存</van-button>
+      </template>
+    </HeaderNavbar>
     <van-form ref="formRef" class="m-4">
       <van-cell-group class="overflow-hidden rounded-lg">
         <van-field
@@ -317,26 +348,28 @@ function goEventConfig() {
           center
           clearable
           name="mingcheng"
-          label="场景名称"
-          placeholder="场景名称"
+          :label="`${pageName}名称`"
+          :placeholder="`${pageName}名称`"
           maxlength="30"
           :formatter="trimFormat"
-          :rules="[{ required: true, message: '请填写场景名称' }]"
+          :rules="[{ required: true, message: `请填写${pageName}名称` }]"
         >
         </van-field>
-        <van-cell center is-link title="所属房间" @click="openRoomPicker">
-          {{ roomList.find((roomItem) => roomItem.id == sceneCreateItem.fangjianbianhao)?.label }}
-        </van-cell>
-        <van-cell center is-link title="场景图片">
-          <van-image
-            width="8rem"
-            height="4rem"
-            fit="cover"
-            radius="10"
-            :src="sceneCreateItem.img"
-            @click="showGallery = true"
-          />
-        </van-cell>
+        <template v-if="!route.query.auto">
+          <van-cell center is-link title="所属房间" @click="openRoomPicker">
+            {{ roomList.find((roomItem) => roomItem.id == sceneCreateItem.fangjianbianhao)?.label }}
+          </van-cell>
+          <van-cell center is-link title="场景图片">
+            <van-image
+              width="8rem"
+              height="4rem"
+              fit="cover"
+              radius="10"
+              :src="sceneCreateItem.img"
+              @click="showGallery = true"
+            />
+          </van-cell>
+        </template>
         <!-- <van-cell center is-link title="有效时间" />
         <WeekRepeat v-model="weekChecked" /> -->
       </van-cell-group>
@@ -495,8 +528,8 @@ function goEventConfig() {
       </ul>
     </section>
 
-    <div class="p-6">
-      <van-button type="primary" block round @click="onSave"> 保存 </van-button>
+    <div v-if="route.query.id" class="p-6">
+      <van-button type="primary" block round @click="onDelect"> 删除 </van-button>
     </div>
 
     <!--设备模块的延时-->

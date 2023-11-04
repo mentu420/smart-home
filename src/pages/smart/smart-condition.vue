@@ -24,11 +24,11 @@ const addPressEvent = () => {
       <h4>触发事件</h4>
       <p>满足所触发条件时，场景将会执行</p>
     </div>
-    <section class="p-4">
-      <button
+    <ul class="p-4 space-y-4">
+      <li
         v-clickable-active
         :disabled="sceneCreateItem.fenlei && sceneCreateItem.fenlei == 1"
-        class="mb-4 flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
+        class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
         @click="addPressEvent"
       >
         <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
@@ -38,8 +38,8 @@ const addPressEvent = () => {
           <p>手动点击</p>
           <p class="text-sm text-gray-500">点击场景卡片时</p>
         </div>
-      </button>
-      <button
+      </li>
+      <li
         v-clickable-active
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50"
         @click="
@@ -55,7 +55,19 @@ const addPressEvent = () => {
           <p>时间日程</p>
           <p class="text-sm text-gray-500">如：“每天8点时”</p>
         </div>
-      </button>
-    </section>
+      </li>
+      <li
+        v-clickable-active
+        class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
+      >
+        <div class="h-10 w-10 rounded-full bg-green-400 p-2">
+          <IconFont class="text-white text-xs" icon="game" />
+        </div>
+        <div class="ml-3 text-left">
+          <p>智能设备</p>
+          <p class="text-sm text-gray-500">如"开灯时"检测到烟雾时</p>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>

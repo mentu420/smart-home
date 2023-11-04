@@ -41,8 +41,9 @@ function onDrag() {
   //TODO:排序
 }
 
-const createSceneItem = () => {
-  router.push({ path: '/smart-scene-create' })
+const createSmart = () => {
+  const query = tabActive.value == '0' ? { auto: 1 } : {}
+  router.push({ path: '/smart-scene-create', query })
 }
 
 const onRefresh = async () => {
@@ -88,7 +89,7 @@ onMounted(init)
         <template #nav-right>
           <div v-if="dragOptions.disabled" class="flex-1 text-right p-3">
             <div class="rounded-lg">
-              <van-icon size="20" name="plus" @click="createSceneItem" />
+              <van-icon size="20" name="plus" @click="createSmart" />
             </div>
           </div>
         </template>

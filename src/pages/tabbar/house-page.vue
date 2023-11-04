@@ -114,7 +114,7 @@ const onReload = async (hId) => {
     useGetFloorListSync(true),
     useGetDeviceListSync(true),
     useGetSceneListSync(true),
-    useGetSmartListSync(true),
+    // useGetSmartListSync(true),
     useGetFamilyListSync(true),
   ])
   useHouseStore.setCurrentHouse(hId)
