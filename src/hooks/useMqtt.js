@@ -5,7 +5,8 @@ import { createPahoMqttPlugin, $mqtt } from 'vue-paho-mqtt'
 import deviceStore from '@/store/deviceStore'
 import userStore from '@/store/userStore'
 
-export default function useMqtt() {
+// showNotifications 是否打印
+export default function useMqtt(showNotifications = true) {
   const heartTimer = ref(null) //记录心跳定时器
   const heartDuration = ref(10 * 1000) // 心跳时长
 
@@ -16,7 +17,7 @@ export default function useMqtt() {
     const plugins = createPahoMqttPlugin({
       PluginOptions: {
         autoConnect: false, //插件初始化时是否自动连接到代理。
-        showNotifications: false, //是否显示错误和成功通知。
+        showNotifications, //是否显示错误和成功通知。
       },
 
       MqttOptions: {
@@ -39,7 +40,8 @@ export default function useMqtt() {
       if (getMqttStatus() !== 'connected') return
       const { useGetToken } = userStore()
       const { acessToken, yonghubianhao } = useGetToken()
-      console.log('%cMQTT发送心跳', 'color: orange; font-weight: bold;', getMqttStatus())
+      if (showNotifications)
+        console.log('%cMQTT发送心跳', 'color: orange; font-weight: bold;', getMqttStatus())
       $mqtt.publish(
         `App/Heartbeat/${yonghubianhao}`,
         JSON.stringify({
@@ -64,15 +66,15 @@ export default function useMqtt() {
 
     $mqtt.connect({
       onConnect: (res) => {
-        console.log(res)
+        if (showNotifications) console.log(res)
         createHeartTimer()
       },
       onFailure: (err) => {
-        console.log('%cMQTT链接失败', 'color: red; font-weight: bold;', err)
+        if (showNotifications) console.log('%cMQTT链接失败', 'color: red; font-weight: bold;', err)
         clearHeartTimer()
       },
       onConnectionLost: (err) => {
-        console.log('%cMQTT链接丢失', 'color: red; font-weight: bold;', err)
+        if (showNotifications) console.log('%cMQTT链接丢失', 'color: red; font-weight: bold;', err)
         clearHeartTimer()
       },
     })
@@ -82,11 +84,13 @@ export default function useMqtt() {
      * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
      * **/
     $mqtt.subscribe(`Device/State/${yonghubianhao}`, (data) => {
-      console.log('%c设备状态接收主题', 'color: blue; font-weight: bold;', data)
-      const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = data
+      if (showNotifications)
+        console.log('%c设备状态接收主题', 'color: blue; font-weight: bold;', data)
+      const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
       const { deviceList } = storeToRefs(deviceStore())
       deviceList.value = deviceList.value.map((item) => {
-        if (item.id == bianhao)
+        if (item.id == bianhao) {
+          if (showNotifications) console.log(item.label)
           return {
             ...item,
             modeList: item.modeList.map((modeItem) => {
@@ -94,6 +98,7 @@ export default function useMqtt() {
                 return { ...modeItem, useStatus: shuxingzhuangtai, useValue: shuxingzhi }
             }),
           }
+        }
         return item
       })
       // useDeviceMqttChange()
@@ -103,7 +108,8 @@ export default function useMqtt() {
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
     $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
-      console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
+      if (showNotifications)
+        console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
     })
   }
   /**
@@ -135,7 +141,8 @@ export default function useMqtt() {
   function useMqttPublish(theme, message, mode) {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
-    console.log(`%c主题${theme}`, 'color: green; font-weight: bold;', message)
+    if (showNotifications)
+      console.log(`%c主题${theme}`, 'color: green; font-weight: bold;', message)
     $mqtt.publish(
       `${theme}/Control/${yonghubianhao}`,
       JSON.stringify({ msgid: new Date().valueOf(), ...message }),

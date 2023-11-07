@@ -24,18 +24,17 @@ const useDeviceStore = deviceStore()
 const usesmartStore = smartStore()
 const { houseList, floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
-const { getDeviceIcon } = useDeviceStore
 const { sceneList } = storeToRefs(usesmartStore)
-const { mqttScenePublish, mqttDevicePublish } = useMqtt()
+const { getDeviceIcon } = useDeviceStore
+const { mqttDevicePublish } = useMqtt()
 
 const showHomeList = ref(false)
 const loading = ref(false)
 const showFloorConfig = ref(false)
-const tabActive = ref(0)
-const floorTree = ref([]) // 楼层树状结构数据
+const tabActive = ref('') //当前房间编号
 const currentFloorId = ref('') //当前楼层id
-const currentFloorRoomList = ref([]) // 当前楼层房间
 const isTabsFixed = ref(false) // tabs 吸顶
+const roomFilterList = ref([]) // 当前楼层房间列表
 const dragOptions = ref({
   animation: 200,
   disabled: true, //是否可以拖拽排序
@@ -79,7 +78,6 @@ const onDeviceCollect = async (item) => {
     })
     const { useDeviceItemChange } = deviceStore()
     useDeviceItemChange({ ...item, collect: leixing == 1 })
-    getFloorTree()
     setCurrentFloorRoomList()
   } finally {
     //
@@ -123,10 +121,6 @@ const onReload = async (hId) => {
 // 拖拽排序
 const onDragEnd = () => {
   dragOptions.value.disabled = !dragOptions.value.disabled
-  const { deviceList, sceneList } = currentFloorRoomList.value.find(
-    (item) => item.id == tabActive.value
-  )
-  console.log(deviceList, sceneList)
 }
 
 const onHouseSelect = async (action) => {
@@ -138,7 +132,6 @@ const onHouseSelect = async (action) => {
     await getHouseList({ op: 5, fangwubianhao: hId })
     await onReload(hId)
     useSetToken({ ...useGetToken(), fangwubianhao: hId })
-    getFloorTree()
     setCurrentFloorRoomList()
   } finally {
     loading.value = false
@@ -146,20 +139,21 @@ const onHouseSelect = async (action) => {
 }
 
 const onFloorSelect = (action) => {
-  console.log(action)
-  currentFloorId.value = action.id
   showFloorConfig.value = false
+  currentFloorId.value = action.id
   setCurrentFloorRoomList()
 }
 
-const getFloorTree = () => {
-  floorTree.value = useHouseStore.useGetFloorTree()
-}
-
 function setCurrentFloorRoomList() {
-  currentFloorRoomList.value = floorTree.value.find(
-    (item) => item.id == currentFloorId.value
-  )?.roomList
+  roomFilterList.value = roomList.value
+    .filter((roomItem) => roomItem.fId == currentFloorId.value)
+    .map((roomItem) => {
+      return {
+        ...roomItem,
+        deviceList: deviceList.value.filter((item) => item.rId == roomItem.id),
+        sceneList: sceneList.value.filter((item) => item.rId == roomItem.id),
+      }
+    })
 }
 
 function onAllDeviceToggle(deviceList, status) {
@@ -174,8 +168,7 @@ const init = async () => {
     const token = useGetToken()
     if (!token) return
     await onReload(token.fangwubianhao)
-    getFloorTree()
-    currentFloorId.value = floorTree.value[0]?.id
+    currentFloorId.value = floorList.value[0]?.id
     setCurrentFloorRoomList()
   } catch (err) {
     console.warn(err)
@@ -185,11 +178,6 @@ const init = async () => {
 }
 
 onMounted(init)
-
-onActivated(() => {
-  getFloorTree()
-  setCurrentFloorRoomList()
-})
 
 watch(
   () => route.path,
@@ -303,7 +291,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           </van-tab>
           <!--当前楼层所有房间-->
           <van-tab
-            v-for="(roomItem, roomIndex) in currentFloorRoomList"
+            v-for="(roomItem, roomIndex) in roomFilterList"
             :key="roomIndex"
             :title="roomItem.label"
             :disabled="!dragOptions.disabled"
@@ -429,14 +417,14 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <template #reference>
                 <div class="flex items-center px-2 py-1 rounded-md bg-white space-x-1">
                   <p class="w-[40px] truncate text-xs shrink-0 text-center">
-                    {{ floorTree.find((floorItem) => floorItem.id == currentFloorId)?.label }}
+                    {{ floorList.find((floorItem) => floorItem.id == currentFloorId)?.label }}
                   </p>
                   <van-icon name="arrow-down" />
                 </div>
               </template>
               <van-cell-group class="w-[50vw]">
                 <van-cell
-                  v-for="floorItem in floorTree"
+                  v-for="floorItem in floorList"
                   :key="floorItem.id"
                   @click="onFloorSelect(floorItem)"
                 >
