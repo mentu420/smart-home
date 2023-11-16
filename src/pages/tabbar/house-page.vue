@@ -44,7 +44,7 @@ const dragOptions = ref({
 const getDeviceStatus = computed(() => (deviceItem) => {
   const { modeList, classify } = deviceItem
   if (['100', '102', '103', '104'].includes(classify)) {
-    return modeList.some((modeItem) => modeItem.use == 'switch' && modeItem.useStatus == 'on')
+    return modeList.some((modeItem) => modeItem?.use == 'switch' && modeItem?.useStatus == 'on')
       ? 1
       : 0
   } else {
@@ -112,10 +112,11 @@ const onReload = async (hId) => {
     useGetFloorListSync(true),
     useGetDeviceListSync(true),
     useGetSceneListSync(true),
-    // useGetSmartListSync(true),
+    useGetSmartListSync(true),
     useGetFamilyListSync(true),
   ])
   useHouseStore.setCurrentHouse(hId)
+  currentFloorId.value = floorList.value[0]?.id
 }
 
 // 拖拽排序
@@ -317,7 +318,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     {{
                       roomItem.deviceList.filter((deviceItem) =>
                         deviceItem.modeList.some(
-                          (modeItem) => modeItem.use == 'switch' && modeItem.useEn == 'on'
+                          (modeItem) => modeItem?.use == 'switch' && modeItem?.useEn == 'on'
                         )
                       ).length
                     }}个灯亮
