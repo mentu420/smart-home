@@ -1,8 +1,8 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { setHouseItem, getHouseList } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
@@ -10,11 +10,15 @@ import houseStore from '@/store/houseStore'
 
 defineOptions({ name: 'MeHouse' })
 
+const route = useRoute()
 const router = useRouter()
 const showQrCode = ref(false)
-const { currentHouse, familyList } = storeToRefs(houseStore())
+const { familyList, houseList } = storeToRefs(houseStore())
 const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
+const houseItem = computed(() =>
+  houseList.value.find((houseItem) => houseItem.id == route.query.id)
+)
 
 //变更图片
 const onHouseChange = async () => {
@@ -23,14 +27,14 @@ const onHouseChange = async () => {
     await setHouseItem({
       params: { op: 2 },
       data: {
-        bianhao: currentHouse.value.id,
-        mingcheng: currentHouse.value.label,
+        bianhao: houseItem.value.id,
+        mingcheng: houseItem.value.label,
         img: houseImage.value,
       },
     })
     const { setHouseList } = houseStore()
     setHouseList({
-      ...currentHouse,
+      ...houseItem.value,
       img: houseImage.value,
     })
   } finally {
@@ -41,7 +45,7 @@ const onHouseChange = async () => {
 const onDelHouse = async () => {
   try {
     loading.value = true
-    await getHouseList({ op: 4, fangwubianhao: currentHouse.value.id })
+    await getHouseList({ op: 4, fangwubianhao: houseItem.value.id })
     const { useGetHouseListSync, setCurrentHouse } = houseStore()
     const houseList = await useGetHouseListSync(true)
     if (houseList.length > 0) {
@@ -67,12 +71,12 @@ const onDelHouse = async () => {
         center
         clickable
         title="家庭名称"
-        :value="currentHouse.fangwumingcheng"
+        :value="houseItem.fangwumingcheng"
         is-link
         @click="
           router.push({
             path: '/me-house-name',
-            query: { houseName: currentHouse.fangwumingcheng, id: currentHouse.bianhao },
+            query: { houseName: houseItem.fangwumingcheng, id: houseItem.bianhao },
           })
         "
       />
@@ -80,7 +84,7 @@ const onDelHouse = async () => {
         center
         clickable
         title="家庭位置"
-        :value="currentHouse.dizhi"
+        :value="houseItem.dizhi"
         is-link
         @click="router.push({ path: '/me-house-map' })"
       />
@@ -152,7 +156,7 @@ const onDelHouse = async () => {
 
     <van-popup v-model:show="showQrCode" round teleport="body" position="center">
       <div>
-        <vue-qr :text="currentHouse?.id" :size="200"></vue-qr>
+        <vue-qr :text="houseItem?.id" :size="200"></vue-qr>
       </div>
     </van-popup>
   </div>

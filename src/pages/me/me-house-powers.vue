@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { setFamily } from '@/apis/houseApi'
 import deviceStore from '@/store/deviceStore'
@@ -11,6 +11,7 @@ import smartStore from '@/store/smartStore'
 defineOptions({ name: 'MeHousePowers' })
 
 const route = useRoute()
+const router = useRouter()
 
 const { deviceList } = storeToRefs(deviceStore())
 const { sceneList } = storeToRefs(smartStore())
@@ -63,6 +64,7 @@ async function onSubmit() {
       return item
     })
   }
+  router.back()
 }
 
 function init() {
