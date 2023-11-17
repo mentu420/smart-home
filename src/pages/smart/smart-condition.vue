@@ -11,8 +11,7 @@ const router = useRouter()
 const { sceneCreateItem } = storeToRefs(smartStore())
 
 const addPressEvent = () => {
-  if (sceneCreateItem.value.fenlei === 1) return
-  sceneCreateItem.value = { ...sceneCreateItem.value, fenlei: 1 }
+  sceneCreateItem.value = { ...sceneCreateItem.value, press: 1 }
   router.back()
 }
 </script>
@@ -27,7 +26,7 @@ const addPressEvent = () => {
     <ul class="p-4 space-y-4">
       <li
         v-clickable-active
-        :disabled="sceneCreateItem.fenlei && sceneCreateItem.fenlei == 1"
+        :disabled="sceneCreateItem?.press"
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
         @click="addPressEvent"
       >

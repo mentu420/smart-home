@@ -42,8 +42,8 @@ function onDrag() {
 }
 
 const createSmart = () => {
-  const query = tabActive.value == '0' ? { auto: 1 } : {}
-  router.push({ path: '/smart-scene-create', query })
+  const fenlei = tabActive.value == '0' ? 2 : 1
+  router.push({ path: '/smart-scene-create', query: { fenlei } })
 }
 
 const onRefresh = async () => {

@@ -45,7 +45,7 @@ const pickerSearchRef = ref(null)
 const colorPickerRef = ref(null)
 const sliderPickerRef = ref(null)
 const roomPickerRef = ref(null)
-const pageName = computed(() => (route.query.auto ? '自动化' : '场景'))
+const pageName = computed(() => (route.query.fenlei == 2 ? '自动化' : '场景'))
 
 const { getRepeatTimeText } = smartStore()
 
@@ -89,8 +89,8 @@ const delTimeItem = (eventIndex) => {
 }
 //删除点击事件
 const delEventItem = () => {
-  const { updateSceneCreateItem } = smartStore()
-  updateSceneCreateItem({ fenlei: 2 })
+  const { press, ...data } = sceneCreateItem.value
+  sceneCreateItem.value = data
 }
 
 async function onDeviceMoreSelect(action, deviceItem, modeItem) {
@@ -229,13 +229,19 @@ const onSave = async () => {
     }
     const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
     const op = route.query.id ? 3 : 2
-    const data = { fenlei: 2, ...residue, leixing: 1, isor: 0, actions }
+    const data = {
+      ...residue,
+      fenlei: route.query.fenlei,
+      leixing: 1,
+      isor: 0,
+      actions,
+    }
     const config = {
       params: { op },
       data: op == 3 ? { bianhao: route.query.id, ...data } : data,
     }
     const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-    if (route.query.auto) {
+    if (route.query.fenlei == 2) {
       await setSmartList(config)
       await useGetSmartListSync(true)
     } else {
@@ -255,7 +261,7 @@ async function onDelect() {
       title: '提示',
       message: `是否删除${sceneCreateItem.value.mingcheng}${pageName.value}？`,
     })
-    if (route.query.auto) {
+    if (route.query.fenlei == 2) {
       await setSmartList({ params: { op: 4, zhinenghuabianhao: route.query.id } })
       smartList.value = smartList.value.filter((sceneItem) => sceneItem.id != route.query.id)
     } else {
@@ -304,7 +310,7 @@ const init = () => {
       })
 
     sceneCreateItem.value = { ...sceneCreateItem.value, ...data, deviceList: sceneDeviceList }
-  } else if (!route.query.auto) {
+  } else if (route.query.fenlei == 1) {
     sceneCreateItem.value = { ...sceneCreateItem.value, img: sceneGallery.value[0].src }
   }
 }
@@ -355,7 +361,7 @@ function goEventConfig() {
           :rules="[{ required: true, message: `请填写${pageName}名称` }]"
         >
         </van-field>
-        <template v-if="!route.query.auto">
+        <template v-if="route.query.fenlei == 1">
           <van-cell center is-link title="所属房间" @click="openRoomPicker">
             {{ roomList.find((roomItem) => roomItem.id == sceneCreateItem.fangjianbianhao)?.label }}
           </van-cell>
@@ -374,11 +380,10 @@ function goEventConfig() {
         <WeekRepeat v-model="weekChecked" /> -->
       </van-cell-group>
     </van-form>
-
     <!--事件-->
     <section class="p-4">
       <div
-        v-if="sceneCreateItem?.events.length == 0 && !sceneCreateItem.fenlei"
+        v-if="sceneCreateItem?.events.length == 0 && !sceneCreateItem.press"
         v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goConditionConfig"
@@ -395,7 +400,7 @@ function goEventConfig() {
       <!--条件列表-->
       <ul>
         <li
-          v-if="sceneCreateItem?.fenlei == 1"
+          v-if="sceneCreateItem?.press"
           class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
         >
           <p>
@@ -422,7 +427,7 @@ function goEventConfig() {
           >
             <p>
               <label class="mr-2">
-                {{ sceneCreateItem?.fenlei == 1 ? '或' : '当' }}
+                {{ sceneCreateItem?.press ? '或' : '当' }}
               </label>
               <label
                 class="space-x-2 rounded-full bg-gray-100 px-4 py-1"

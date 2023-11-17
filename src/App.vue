@@ -42,8 +42,8 @@ function init() {
     if (status == 'connected') $mqtt.disconnect()
   } else {
     if (!useGetToken() || status == 'connected') return
-    createMqtt(app)
-    mqttSubscribe()
+    // createMqtt(app)
+    // mqttSubscribe()
   }
 }
 
