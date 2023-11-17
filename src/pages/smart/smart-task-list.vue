@@ -9,7 +9,7 @@ const router = useRouter()
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="添加条件" />
+    <HeaderNavbar title="添加任务" />
     <section class="p-4">
       <div
         v-clickable-active

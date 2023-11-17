@@ -102,10 +102,15 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
     try {
       await showConfirmDialog({ title: '提示', message: `是否删除${modeItem.label}模块` })
       const { deviceList } = sceneCreateItem.value
-      const newDeviceList = deviceList.map((item) => ({
-        ...item,
-        modeList: item.modeList.filter((option) => option.use != modeItem.use),
-      }))
+      const newDeviceList = deviceList.map((item) => {
+        if (item.id == deviceItem.id) {
+          return {
+            ...item,
+            modeList: item.modeList.filter((option) => option.use != modeItem.use),
+          }
+        }
+        return item
+      })
       sceneCreateItem.value = { ...sceneCreateItem.value, deviceList: newDeviceList }
     } catch (error) {
       //
