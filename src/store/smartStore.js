@@ -172,6 +172,7 @@ export default defineStore(storeName, () => {
   return {
     sceneCreateItem,
     sceneList,
+    smartList,
     sceneGallery,
     repeatActions,
     weekData,
