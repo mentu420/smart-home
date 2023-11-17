@@ -381,7 +381,7 @@ function goEventConfig() {
       </van-cell-group>
     </van-form>
     <!--事件-->
-    <section class="p-4">
+    <section v-if="route.query.fenlei == 2" class="p-4">
       <div
         v-if="sceneCreateItem?.events.length == 0 && !sceneCreateItem.press"
         v-clickable-active
