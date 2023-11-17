@@ -22,5 +22,5 @@ export const useLogout = async (message = '请重新登陆') => {
   storeReset()
   mqttDisconnect()
   showToast(message)
-  router.push({ path: '/account-login' })
+  router.replace({ path: '/account-login', replace: true })
 }

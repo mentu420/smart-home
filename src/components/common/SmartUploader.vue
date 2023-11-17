@@ -100,6 +100,7 @@ const createFileItem = (origin) => {
 
 // 初始化文件列表
 const initFileList = (value = '') => {
+  if (!value) return []
   if (typeof value === 'string') {
     if (!isObjectString(value) && props.stringSeparator) {
       value = stringToArray(value, props.stringSeparator)

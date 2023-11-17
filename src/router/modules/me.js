@@ -96,6 +96,12 @@ export default [
     meta: { title: '修改密码' },
   },
   {
+    path: '/me-not-password',
+    name: 'meNotPassword',
+    component: () => import('@/pages/me/me-not-password.vue'),
+    meta: { title: '首次设置密码' },
+  },
+  {
     path: '/me-development',
     name: 'MeDevelopment',
     component: () => import('@/pages/me/me-development.vue'),

@@ -24,6 +24,10 @@ const navList = ref([
 const avatar = ref('')
 
 const onLogout = async () => {
+  if (userInfo.value?.shifouyishezhimim == 1) {
+    router.push({ path: '/me-not-password' })
+    return
+  }
   await showConfirmDialog({ title: '提示', message: '是否退出登录？' })
   useLogout('退出成功')
 }

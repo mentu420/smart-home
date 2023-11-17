@@ -44,13 +44,13 @@ const getRegisterCode = async () => {
 const onSubmit = async () => {
   try {
     loading.value = true
-    const { phone, code } = route.query
+    const { shouji } = await userStore().useUserInfoSync()
     await setUserConfig({
       params: { op: 5 },
       data: {
-        mima: password.value,
-        shoujihaoma: phone,
-        yanzhengma: code,
+        mima: form.value.password,
+        shoujihaoma: shouji,
+        yanzhengma: form.value.code,
       },
     })
     useLogout('密码修改成功，请使用新密码登录')
@@ -87,7 +87,7 @@ const onSubmit = async () => {
         :rules="[{ required: true, message: '请填写验证码' }]"
       >
         <template #extra>
-          <CountDown :disabled="!form.phone" :duration="60" :request="getRegisterCode" />
+          <CountDown :duration="60" :request="getRegisterCode" />
         </template>
       </van-field>
       <div class="my-10">
