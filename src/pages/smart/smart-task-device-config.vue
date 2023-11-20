@@ -67,7 +67,8 @@ const openLampConfig = (item) => {
   if (item.use === BRIGHTNESS) {
     showLigth.value = true
   } else {
-    colorPickerRef.value.open()
+    const [min, max] = stringToArray(item.useValueRange)
+    colorPickerRef.value.open({ ratio: config.value[COLOURTEMPERATURE], min, max })
   }
 }
 

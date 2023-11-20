@@ -291,7 +291,7 @@ const hidePalette = () => {
 function open(data) {
   scopeData.value = data
   ratio.value = data.ratio
-  console.log(data, ratio.value)
+  console.log('scopeData', scopeData.value, ratio.value)
   show.value = true
 }
 

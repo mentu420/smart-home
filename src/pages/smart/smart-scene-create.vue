@@ -19,7 +19,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
-import { transformKeys } from '@/utils/common'
+import { transformKeys, stringToArray } from '@/utils/common'
 
 defineOptions({ name: 'SmartSceneCreate' })
 

@@ -27,7 +27,8 @@ const { getDeviceIcon } = deviceStore()
 const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
 
 const getDeviceStatus = computed(() => {
-  const { modeList, classify } = deviceItem.value
+  if (!deviceItem.value) return 0
+  const { modeList = [], classify } = deviceItem.value
   if (['100', '102', '103', '104'].includes(classify)) {
     return modeList.some((modeItem) => modeItem?.use == 'switch' && modeItem?.useStatus == 'on')
       ? 1
@@ -67,26 +68,22 @@ const onIconClcik = () => {
   }
 }
 
-const openDeviceStatus = (item) => {
-  console.log(item)
+const openDevice = () => {
+  const { id, label, classify } = deviceItem.value
   router.push({
     path: '/smart-device-status',
-    query: { id: item.id, name: item.label, classify: item.classify },
+    query: { id, name: label, classify },
   })
 }
 </script>
 
 <template>
-  <div
-    v-clickable-active
-    class="rounded-lg bg-white p-3 space-y-2 relative"
-    @click="openDeviceStatus"
-  >
+  <div v-clickable-active class="rounded-lg bg-white p-3 space-y-2 relative" @click="openDevice">
     <div class="flex justify-between">
       <slot name="icon">
         <IconFont
           :class="getDeviceStatus == 1 ? 'text-primary' : 'text-gray-400'"
-          :icon="getDeviceIcon(deviceItem.classify)"
+          :icon="getDeviceIcon(deviceItem?.classify)"
           @click.stop="onIconClcik"
         />
       </slot>
@@ -95,14 +92,14 @@ const openDeviceStatus = (item) => {
         <van-icon
           v-else
           class="!text-[20px]"
-          :name="deviceItem.collect ? 'like' : 'like-o'"
-          :color="deviceItem.collect ? '#e39334' : '#999'"
+          :name="deviceItem?.collect ? 'like' : 'like-o'"
+          :color="deviceItem?.collect ? '#e39334' : '#999'"
           @click.stop="onDeviceCollect(deviceItem)"
         />
       </slot>
     </div>
     <slot>
-      <div>{{ deviceItem.label }}</div>
+      <div>{{ deviceItem?.label }}</div>
     </slot>
     <div class="text-sm text-gray-400">{{ ['关', '开', '离线'][getDeviceStatus] }}</div>
   </div>

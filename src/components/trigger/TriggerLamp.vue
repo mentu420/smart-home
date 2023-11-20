@@ -9,7 +9,7 @@ import { stringToArray } from '@/utils/common'
 import { useTrigger } from './useTrigger'
 
 const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
-const { triggerControl, disabledClass, isDisabled, onConfigFormat } = useTrigger()
+const { triggerControl, disabledClass, isDisabled, onConfigFormat, getModeRange } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -53,7 +53,6 @@ watch(
     if (!val) return
     const { modeList } = val
     config.value = onConfigFormat(config.value, modeList)
-    console.log(config.value)
   },
   {
     immediate: true,
@@ -139,7 +138,14 @@ const onBrightnessChange = () => {
         :label="`${config[COLOURTEMPERATURE].useValue}K`"
         @click="
           () => {
-            if (!disabled) colorPickerRef.open()
+            if (!disabled) {
+              const [min, max] = getModeRange(modeItem.useColumns, COLOURTEMPERATURE)
+              colorPickerRef.open({
+                ratio: config[COLOURTEMPERATURE].useValue,
+                min,
+                max,
+              })
+            }
           }
         "
       >

@@ -46,7 +46,6 @@ const onConfigSelect = (action) => {
 }
 
 const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
-  console.log(modeList)
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
   if (switchMode) {
     const useStatus = status || switchMode.useStatus == 'on' ? 'off' : 'on'
@@ -261,7 +260,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   <label class="ml-2 text-xs text-gray-400">
                     {{
                       roomItem.deviceList.filter((deviceItem) =>
-                        deviceItem.modeList.some(
+                        deviceItem.modeList?.filter(
                           (modeItem) => modeItem?.use == 'switch' && modeItem?.useEn == 'on'
                         )
                       ).length
