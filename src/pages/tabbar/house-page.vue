@@ -5,7 +5,6 @@ import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
-import { setDeviceItem } from '@/apis/smartApi'
 import DeviceCardItem from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import useMqtt from '@/hooks/useMqtt'
@@ -41,47 +40,9 @@ const dragOptions = ref({
   ghostClass: 'ghost',
 })
 
-const getDeviceStatus = computed(() => (deviceItem) => {
-  const { modeList, classify } = deviceItem
-  if (['100', '102', '103', '104'].includes(classify)) {
-    return modeList.some((modeItem) => modeItem?.use == 'switch' && modeItem?.useStatus == 'on')
-      ? 1
-      : 0
-  } else {
-    return 0
-  }
-})
-
 const onConfigSelect = (action) => {
   console.log(action)
   tabActive.value = roomList.value.findIndex((value) => value.id == action.id) + 1
-}
-
-const openDeviceStatus = (item) => {
-  console.log(item)
-  router.push({
-    path: '/smart-device-status',
-    query: { id: item.id, name: item.label, classify: item.classify },
-  })
-}
-
-const onDeviceCollect = async (item) => {
-  try {
-    const leixing = item.collect ? 2 : 1
-    await setDeviceItem({
-      params: { op: 4 },
-      data: {
-        shebeibianhao: item.id,
-        leixing,
-        paixu: item.sort,
-      },
-    })
-    const { useDeviceItemChange } = deviceStore()
-    useDeviceItemChange({ ...item, collect: leixing == 1 })
-    setCurrentFloorRoomList()
-  } finally {
-    //
-  }
 }
 
 const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
@@ -268,24 +229,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   v-for="deviceItem in deviceList?.filter((deviceItem) => deviceItem.collect)"
                   :key="deviceItem.id"
                 >
-                  <DeviceCardItem
-                    :label="deviceItem.label"
-                    :icon="getDeviceIcon(deviceItem.classify)"
-                    :status="getDeviceStatus(deviceItem)"
-                    @click-icon="onSwitchDeviceItem(deviceItem)"
-                    @click.stop="openDeviceStatus(deviceItem)"
-                  >
-                    <template #right-icon>
-                      <van-icon v-if="!dragOptions.disabled" class="!text-[20px]" name="wap-nav" />
-                      <van-icon
-                        v-else
-                        class="!text-[20px]"
-                        :name="deviceItem.collect ? 'like' : 'like-o'"
-                        :color="deviceItem.collect ? '#e39334' : '#999'"
-                        @click.stop="onDeviceCollect(deviceItem)"
-                      />
-                    </template>
-                  </DeviceCardItem>
+                  <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
                 </div>
               </div>
             </section>
@@ -362,24 +306,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 class="grid grid-cols-2 gap-4"
               >
                 <template #item="{ element: deviceItem }">
-                  <DeviceCardItem
-                    :label="deviceItem.label"
-                    :icon="getDeviceIcon(deviceItem.classify)"
-                    :status="getDeviceStatus(deviceItem)"
-                    @click-icon="onSwitchDeviceItem(deviceItem)"
-                    @click.stop="openDeviceStatus(deviceItem)"
-                  >
-                    <template #right-icon>
-                      <van-icon v-if="!dragOptions.disabled" class="!text-[20px]" name="wap-nav" />
-                      <van-icon
-                        v-else
-                        class="!text-[20px]"
-                        :name="deviceItem.collect ? 'like' : 'like-o'"
-                        :color="deviceItem.collect ? '#e39334' : '#999'"
-                        @click.stop="onDeviceCollect(deviceItem)"
-                      />
-                    </template>
-                  </DeviceCardItem>
+                  <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
                 </template>
               </draggable>
             </section>
