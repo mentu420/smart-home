@@ -17,20 +17,8 @@ const tabActive = ref('0')
 const { sceneList, smartList } = storeToRefs(smartStore())
 const { roomList, floorList } = storeToRefs(houseStore())
 
-const globalSceneList = computed(() => sceneList.value?.filter((option) => option.rId == ''))
-const roomSceneList = computed(() =>
-  roomList.value
-    .map((roomItem) => {
-      const floorRes = floorList.value.find((floorItem) => floorItem.id == roomItem.fId)
-      return {
-        ...roomItem,
-        floorName: floorRes?.label,
-        floorSort: floorRes?.sort,
-        sceneList: sceneList.value.filter((sceneItem) => sceneItem.rId == roomItem.id),
-      }
-    })
-    .filter((item) => item.sceneList.length > 0)
-)
+const globalSceneList = ref([])
+const roomSceneList = ref([])
 
 const dragOptions = ref({
   animation: 200,
@@ -41,7 +29,9 @@ const dragOptions = ref({
 function onDrag() {
   dragOptions.value.disabled = !dragOptions.value.disabled
   if (!dragOptions.value.disabled) return
+  console.log('globalSceneList', globalSceneList)
   //TODO:排序
+  console.log('roomSceneList', roomSceneList)
 }
 
 const createSmart = () => {
@@ -70,7 +60,20 @@ const onSmartChange = (value, item) => {
   setSmartList({ params: { op: 6 }, data: { bianhao: item.id, shifouqiyong: value ? 1 : 0 } })
 }
 
-const init = () => {}
+const init = () => {
+  globalSceneList.value = sceneList.value?.filter((option) => option.rId == '')
+  roomSceneList.value = roomList.value
+    .map((roomItem) => {
+      const floorRes = floorList.value.find((floorItem) => floorItem.id == roomItem.fId)
+      return {
+        ...roomItem,
+        floorName: floorRes?.label,
+        floorSort: floorRes?.sort,
+        sceneList: sceneList.value.filter((sceneItem) => sceneItem.rId == roomItem.id),
+      }
+    })
+    .filter((item) => item.sceneList.length > 0)
+}
 
 onMounted(init)
 </script>
@@ -91,7 +94,7 @@ onMounted(init)
         line-width="0"
         animated
         :swipeable="dragOptions.disabled"
-        @scroll="({ isFixed }) => (isTabsFixed = isFixed)"
+        @change="init"
       >
         <template #nav-right>
           <div v-if="dragOptions.disabled" class="flex-1 text-right p-3">
@@ -101,7 +104,7 @@ onMounted(init)
           </div>
         </template>
         <van-tab title="自动化" :disabled="!dragOptions.disabled" name="0">
-          <div class="p-4">
+          <div v-if="smartList.length > 0" class="p-4">
             <section class="mb-6">
               <h4 class="mb-2 text-gray-600">全局</h4>
               <draggable v-model="smartList" item-key="id" group="scene" v-bind="dragOptions">
@@ -119,6 +122,7 @@ onMounted(init)
               </draggable>
             </section>
           </div>
+          <van-empty v-else image="network" description="暂无自动化" />
         </van-tab>
         <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
           <div class="p-4">

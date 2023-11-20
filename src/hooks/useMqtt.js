@@ -93,14 +93,15 @@ export default function useMqtt(showLog = false) {
           return {
             ...item,
             modeList: item.modeList.map((modeItem) => {
-              if (modeItem.use == shuxing)
+              if (modeItem.use == shuxing) {
                 return { ...modeItem, useStatus: shuxingzhuangtai, useValue: shuxingzhi }
+              }
+              return modeItem
             }),
           }
         }
         return item
       })
-      // useDeviceMqttChange()
     })
     /**
      * 云端/网关在完成一个操作后，进行应答 云服务器/网关->App
