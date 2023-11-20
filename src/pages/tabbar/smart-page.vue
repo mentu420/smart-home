@@ -131,7 +131,7 @@ onMounted(init)
               <draggable
                 v-model="globalSceneList"
                 item-key="id"
-                group="scene"
+                group="globalScene"
                 v-bind="dragOptions"
                 class="grid grid-cols-2 gap-4"
               >
@@ -149,7 +149,7 @@ onMounted(init)
               <draggable
                 v-model="roomItem.sceneList"
                 item-key="id"
-                group="scene"
+                :group="`${roomItem.id}-scene`"
                 v-bind="dragOptions"
                 class="grid grid-cols-2 gap-4"
               >
