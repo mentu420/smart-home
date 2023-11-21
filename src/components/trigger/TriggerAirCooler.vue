@@ -16,7 +16,9 @@ const { useGetDeviceItem, includesUse } = deviceStore()
 const { triggerControl, disabledClass, isDisabled, getModeActions, onConfigFormat, getModeRange } =
   useTrigger()
 
-const { FAN, MODE, TEMPERATURE, SWITCH } = USE_KEY
+const { FAN, MODE, TEMPERATURE, SETTEMPERATURE, CURRENTTEMPERATURE, SWITCH } = USE_KEY
+
+console.log(USE_KEY)
 
 const props = defineProps({
   id: {
@@ -44,8 +46,10 @@ const config = ref({
   },
   [TEMPERATURE]: {
     useValue: 26,
-    useStatus: TEMPERATURE,
+    useStatus: SETTEMPERATURE,
   },
+  [SETTEMPERATURE]: 26, //可以控制
+  [CURRENTTEMPERATURE]: 25, // 不可控制
   [FAN]: {
     useValue: '1',
     useStatus: 'auto',
@@ -66,31 +70,32 @@ watch(
     min.value = minValue
     max.value = maxValue
     config.value = onConfigFormat(config.value, modeList)
+    config.value[config.value[TEMPERATURE].useStatus] = config.value[TEMPERATURE].useValue
   },
   { immediate: true }
 )
-const tempCopy = ref(config.value[TEMPERATURE])
 const speedActions = computed(() => getModeActions(deviceItem.value, FAN))
 const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
 const setTemp = () => {
-  if (config.value[SWITCH].useStatus == 'off') return
   nextTick(() => {
-    config.value[TEMPERATURE] = { ...config.value[TEMPERATURE], useValue: tempCopy.value.useValue }
+    config.value[TEMPERATURE] = {
+      ...config.value[TEMPERATURE],
+      useValue: config.value[SETTEMPERATURE],
+    }
     triggerControl(TEMPERATURE, deviceItem.value, config.value)
   })
 }
 
 const onLower = () => {
-  if (tempCopy.value.useValue == min.value || disabled.value) return
-  --tempCopy.value.useValue
+  if (config.value[SETTEMPERATURE] == min.value || disabled.value) return
+  --config.value[SETTEMPERATURE]
   setTemp()
 }
 
 const onRise = () => {
-  if (disabled.value) return
-  if (tempCopy.value.useValue == max.value) return
-  ++tempCopy.value.useValue
+  if (config.value[SETTEMPERATURE] == max.value || disabled.value) return
+  ++config.value[SETTEMPERATURE]
   setTemp()
 }
 
@@ -113,7 +118,7 @@ const toggle = () => {
       </div>
       <div v-if="includesUse(props.id, TEMPERATURE)" class="mr-4 flex-shrink-0 text-center">
         <p>
-          <label class="text-lg">{{ config[TEMPERATURE].useValue }}</label>
+          <label class="text-lg">{{ config[SETTEMPERATURE] }}</label>
           <label>℃</label>
         </p>
         <p class="text-xs text-gray-400">当前温度</p>
@@ -131,19 +136,19 @@ const toggle = () => {
     >
       <div>
         <van-icon
-          :class="{ 'text-gray-300': tempCopy.useValue == min }"
+          :class="{ 'text-gray-300': config[SETTEMPERATURE] == min }"
           name="minus"
           size="20"
           @click="onLower"
         />
       </div>
       <div class="mr-4 flex-shrink-0 text-center">
-        <p>{{ tempCopy.useValue }}℃</p>
+        <p>{{ config[CURRENTTEMPERATURE] }}℃</p>
         <p class="text-xs text-gray-400">目标温度</p>
       </div>
       <div>
         <van-icon
-          :class="{ 'text-gray-300': tempCopy.useValue == max }"
+          :class="{ 'text-gray-300': config[SETTEMPERATURE] == max }"
           name="plus"
           size="20"
           @click="onRise"

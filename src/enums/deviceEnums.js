@@ -555,7 +555,7 @@ export const TYPE_VALUE_EXECL = [
     use: 'temperature',
     useName: '温度',
     useEn: 'currentTemperature',
-    useCn: '环境问题',
+    useCn: '环境温度',
     useValue: '1',
     useValueRange: '16,32',
   },
@@ -690,7 +690,7 @@ export const TYPE_VALUE_EXECL = [
     use: 'temperature',
     useName: '温度',
     useEn: 'currentTemperature',
-    useCn: '环境问题',
+    useCn: '环境温度',
     useValue: '1',
     useValueRange: '16,32',
   },
@@ -807,7 +807,7 @@ export const TYPE_VALUE_EXECL = [
     use: 'temperature',
     useName: '温度',
     useEn: 'currentTemperature',
-    useCn: '环境问题',
+    useCn: '环境温度',
     useValue: '1',
     useValueRange: '16,32',
   },
@@ -924,7 +924,7 @@ export const TYPE_VALUE_EXECL = [
     use: 'temperature',
     useName: '温度',
     useEn: 'currentTemperature',
-    useCn: '环境问题',
+    useCn: '环境温度',
     useValue: '1',
     useValueRange: '16,32',
   },
@@ -1023,7 +1023,7 @@ export const TYPE_VALUE_EXECL = [
     use: 'temperature',
     useName: '温度',
     useEn: 'currentTemperature',
-    useCn: '环境问题',
+    useCn: '环境温度',
     useValue: '1',
     useValueRange: '16,32',
   },
@@ -1122,7 +1122,7 @@ export const TYPE_VALUE_EXECL = [
     use: 'temperature',
     useName: '温度',
     useEn: 'currentTemperature',
-    useCn: '环境问题',
+    useCn: '环境温度',
     useValue: '1',
     useValueRange: '16,32',
   },
@@ -1158,7 +1158,7 @@ export const TYPE_VALUE_EXECL = [
     use: 'temperature',
     useName: '温度',
     useEn: 'currentTemperature',
-    useCn: '环境问题',
+    useCn: '环境温度',
     useValue: '1',
     useValueRange: '16,32',
   },
@@ -1239,7 +1239,7 @@ export const TYPE_VALUE_EXECL = [
     use: 'temperature',
     useName: '温度',
     useEn: 'currentTemperature',
-    useCn: '环境问题',
+    useCn: '环境温度',
     useValue: '1',
     useValueRange: '16,32',
   },
@@ -2093,7 +2093,12 @@ export const TYPE_VALUE_EXECL = [
 
 export const USE_KEY = Object.assign(
   {},
-  ...[...new Set(TYPE_VALUE_EXECL.map((item) => item.use))].map((item) => ({
+  ...[
+    ...new Set([
+      ...TYPE_VALUE_EXECL.map((item) => item.use),
+      ...TYPE_VALUE_EXECL.map((item) => item.useEn),
+    ]),
+  ].map((item) => ({
     [item.toUpperCase()]: item,
   }))
 )
@@ -2161,7 +2166,7 @@ const temperatureColumn = {
   value: 'temperature',
   children: [
     { text: '设置温度', value: 'setTemperature' },
-    { text: '环境问题', value: 'currentTemperature' },
+    { text: '环境温度', value: 'currentTemperature' },
   ],
 }
 

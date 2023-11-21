@@ -37,7 +37,7 @@ const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
-const { VALUESWITCH, MODE, TEMPERATURE, SWITCH } = USE_KEY
+const { VALUESWITCH, MODE, TEMPERATURE, SETTEMPERATURE, CURRENTTEMPERATURE, SWITCH } = USE_KEY
 const config = ref({
   [SWITCH]: {
     useValue: '0',
@@ -45,8 +45,10 @@ const config = ref({
   },
   [TEMPERATURE]: {
     useValue: 26,
-    useStatus: TEMPERATURE,
+    useStatus: SETTEMPERATURE,
   },
+  [SETTEMPERATURE]: 26, //可以控制
+  [CURRENTTEMPERATURE]: 25, // 不可控制
   [VALUESWITCH]: {
     useValue: '0',
     useStatus: 'off',
@@ -57,7 +59,7 @@ const config = ref({
   },
 })
 const deviceItem = computed(() => useGetDeviceItem(props.id))
-const tempCopy = ref(config.value[TEMPERATURE])
+const temp = ref(config.value[TEMPERATURE])
 const disabled = computed(() => isDisabled(config.value))
 const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
@@ -70,28 +72,30 @@ watch(
     min.value = minValue
     max.value = maxValue
     config.value = onConfigFormat(config.value, modeList)
+    config.value[config.value[TEMPERATURE].useStatus] = config.value[TEMPERATURE].useValue
   },
   { immediate: true }
 )
 
 const setTemp = () => {
   nextTick(() => {
-    config.value[TEMPERATURE] = { ...config.value[TEMPERATURE], useValue: tempCopy.value.useValue }
+    config.value[TEMPERATURE] = {
+      ...config.value[TEMPERATURE],
+      useValue: config.value[SETTEMPERATURE],
+    }
     triggerControl(TEMPERATURE, deviceItem.value, config.value)
   })
 }
 
 const onLower = () => {
-  if (disabled.value) return
-  if (tempCopy.value.useValue == min.value) return
-  --tempCopy.value.useValue
+  if (config.value[SETTEMPERATURE] == min.value || disabled.value) return
+  --config.value[SETTEMPERATURE]
   setTemp()
 }
 
 const onRise = () => {
-  if (disabled.value) return
-  if (tempCopy.value.useValue == max.value) return
-  ++tempCopy.value.useValue
+  if (config.value[SETTEMPERATURE] == max.value || disabled.value) return
+  ++config.value[SETTEMPERATURE]
   setTemp()
 }
 
@@ -140,19 +144,19 @@ const toggle = () => {
     >
       <div>
         <van-icon
-          :class="{ 'text-gray-300': tempCopy.useValue == min }"
+          :class="{ 'text-gray-300': temp.useValue == min }"
           name="minus"
           size="20"
           @click="onLower"
         />
       </div>
       <div class="mr-4 flex-shrink-0 text-center">
-        <p>{{ tempCopy.useValue }}℃</p>
+        <p>{{ temp.useValue }}℃</p>
         <p class="text-xs text-gray-400">目标温度</p>
       </div>
       <div>
         <van-icon
-          :class="{ 'text-gray-300': tempCopy.useValue == max }"
+          :class="{ 'text-gray-300': temp.useValue == max }"
           name="plus"
           size="20"
           @click="onRise"

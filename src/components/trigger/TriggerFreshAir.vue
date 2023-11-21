@@ -67,13 +67,6 @@ const speedActions = computed(() => getModeActions(deviceItem.value, FAN))
 
 const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
-const currentModeItem = computed(() =>
-  modeActions.value?.find((item) => item.useEn == config.value[MODE].useStatus)
-)
-const currentSpeedItem = computed(() =>
-  speedActions.value?.find((item) => item.useEn == config.value[FAN].useStatus)
-)
-
 const onModeChange = (use) => {
   triggerControl(use, deviceItem.value, config.value)
 }
@@ -83,8 +76,6 @@ const toggle = () => {
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
   triggerControl(SWITCH, deviceItem.value, config.value)
 }
-
-const placement = computed(() => getPlacement(modeRef.value))
 </script>
 
 <template>

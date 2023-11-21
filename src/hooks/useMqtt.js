@@ -6,19 +6,20 @@ import deviceStore from '@/store/deviceStore'
 import userStore from '@/store/userStore'
 
 // showNotifications 是否打印
-export default function useMqtt(showLog = false) {
+export default function useMqtt() {
   const heartTimer = ref(null) //记录心跳定时器
   const heartDuration = ref(10 * 1000) // 心跳时长
+  const PluginOptions = {
+    autoConnect: false, //插件初始化时是否自动连接到代理。
+    showNotifications: true, //是否显示错误和成功通知。
+  }
 
   function createMqtt(app) {
     const { useGetToken } = userStore()
     const { yonghubianhao, acessToken } = useGetToken() || {}
     const clientID = `APP_${yonghubianhao}` //App_用户编号
     const plugins = createPahoMqttPlugin({
-      PluginOptions: {
-        autoConnect: false, //插件初始化时是否自动连接到代理。
-        showNotifications: false, //是否显示错误和成功通知。
-      },
+      PluginOptions,
 
       MqttOptions: {
         host: '152.136.150.207', //MQTT 代理的主机名或 IP 地址
@@ -40,7 +41,7 @@ export default function useMqtt(showLog = false) {
       if (getMqttStatus() !== 'connected') return
       const { useGetToken } = userStore()
       const { acessToken, yonghubianhao } = useGetToken()
-      if (showLog)
+      if (PluginOptions.showNotifications)
         console.log('%cMQTT发送心跳', 'color: orange; font-weight: bold;', getMqttStatus())
       $mqtt.publish(
         `App/Heartbeat/${yonghubianhao}`,
@@ -60,21 +61,23 @@ export default function useMqtt(showLog = false) {
   }
 
   // 发起链接、心跳
-  function mqttSubscribe() {
+  function mqttSubscribe(bool) {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
-
+    PluginOptions.showNotifications = bool
     $mqtt.connect({
       onConnect: (res) => {
-        if (showLog) console.log(res)
+        if (PluginOptions.showNotifications) console.log(res)
         createHeartTimer()
       },
       onFailure: (err) => {
-        if (showLog) console.log('%cMQTT链接失败', 'color: red; font-weight: bold;', err)
+        if (PluginOptions.showNotifications)
+          console.log('%cMQTT链接失败', 'color: red; font-weight: bold;', err)
         clearHeartTimer()
       },
       onConnectionLost: (err) => {
-        if (showLog) console.log('%cMQTT链接丢失', 'color: red; font-weight: bold;', err)
+        if (PluginOptions.showNotifications)
+          console.log('%cMQTT链接丢失', 'color: red; font-weight: bold;', err)
         clearHeartTimer()
       },
     })
@@ -84,12 +87,13 @@ export default function useMqtt(showLog = false) {
      * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
      * **/
     $mqtt.subscribe(`Device/State/${yonghubianhao}`, (data) => {
-      if (showLog) console.log('%c设备状态接收主题', 'color: blue; font-weight: bold;', data)
+      if (PluginOptions.showNotifications)
+        console.log('%c设备状态接收主题', 'color: blue; font-weight: bold;', data)
       const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
       const { deviceList } = storeToRefs(deviceStore())
       deviceList.value = deviceList.value.map((item) => {
         if (item.id == bianhao) {
-          if (showLog) console.log(item.label)
+          if (PluginOptions.showNotifications) console.log(item.label)
           return {
             ...item,
             modeList: item.modeList.map((modeItem) => {
@@ -108,7 +112,8 @@ export default function useMqtt(showLog = false) {
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
     $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
-      if (showLog) console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
+      if (PluginOptions.showNotifications)
+        console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
     })
   }
   /**
@@ -140,7 +145,9 @@ export default function useMqtt(showLog = false) {
   function useMqttPublish(theme, message, mode) {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
-    if (showLog) console.log(`%c主题${theme}`, 'color: green; font-weight: bold;', message)
+    console.log('这几天哦', PluginOptions.showNotifications)
+    if (PluginOptions.showNotifications)
+      console.log('%c主题', 'color: green; font-weight: bold;', theme, message)
     $mqtt.publish(
       `${theme}/Control/${yonghubianhao}`,
       JSON.stringify({ msgid: new Date().valueOf(), ...message }),

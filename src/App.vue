@@ -35,7 +35,7 @@ watch(
 
 function init() {
   const { useGetToken } = userStore()
-  const { createMqtt, mqttSubscribe, getMqttStatus } = useMqtt(true)
+  const { createMqtt, mqttSubscribe, getMqttStatus } = useMqtt()
   const isWhite = [...commonRouters.map((item) => item.path), '/']
   const status = getMqttStatus()
   if (isWhite.includes(route.path)) {
@@ -43,7 +43,7 @@ function init() {
   } else {
     if (!useGetToken() || status == 'connected') return
     createMqtt(app)
-    mqttSubscribe()
+    mqttSubscribe(true)
   }
 }
 
