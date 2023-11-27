@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { setHouseItem, getHouseList } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
+import userStore from '@/store/userStore'
 
 defineOptions({ name: 'MeHouse' })
 
@@ -14,6 +15,7 @@ const route = useRoute()
 const router = useRouter()
 const showQrCode = ref(false)
 const { familyList, houseList } = storeToRefs(houseStore())
+const { userInfo } = storeToRefs(userStore())
 const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
 const houseItem = computed(() =>
@@ -22,6 +24,14 @@ const houseItem = computed(() =>
 const houseFamilyList = computed(() =>
   familyList.value.filter((familyItem) => familyItem.fangwubianhao == houseItem.value.id)
 )
+
+const hasEdit = computed(() => {
+  const result = familyList.value.find(
+    (familyItem) =>
+      familyItem.fangwubianhao == route.query.id && familyItem.shouji == userInfo.value?.shouji
+  )
+  return result?.fangzhu == 1 || result?.juese == 1
+})
 
 //变更图片
 const onHouseChange = async () => {
@@ -74,12 +84,12 @@ const onDelHouse = async () => {
         center
         clickable
         title="家庭名称"
-        :value="houseItem.fangwumingcheng"
+        :value="houseItem?.fangwumingcheng"
         is-link
         @click="
           router.push({
             path: '/me-house-name',
-            query: { houseName: houseItem.fangwumingcheng, id: houseItem.bianhao },
+            query: { houseName: houseItem?.fangwumingcheng, id: houseItem.bianhao },
           })
         "
       />
@@ -87,7 +97,7 @@ const onDelHouse = async () => {
         center
         clickable
         title="家庭位置"
-        :value="houseItem.dizhi"
+        :value="houseItem?.dizhi"
         is-link
         @click="router.push({ path: '/me-house-map' })"
       />
@@ -130,6 +140,7 @@ const onDelHouse = async () => {
             <label class="text-xs text-gray-300">({{ houseFamilyList.length }})</label>
           </p>
           <p
+            v-if="hasEdit"
             class="space-x-2 text-primary"
             @click="router.push({ path: '/me-house-invite', query: route.query })"
           >
