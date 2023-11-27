@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { showConfirmDialog, showDialog } from 'vant'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setHouseItem, getHouseList } from '@/apis/houseApi'
@@ -13,6 +13,10 @@ const router = useRouter()
 const { familyList, houseList, currentHouse } = storeToRefs(houseStore())
 const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
+
+const familyLength = computed(
+  () => (id) => familyList.value.filter((familyItem) => familyItem.fangwubianhao == id).length
+)
 
 async function onDelect({ id, label }) {
   try {
@@ -42,9 +46,7 @@ async function onDelect({ id, label }) {
           class="rounded-lg overflow-hidden"
         >
           <van-cell
-            :label="`${
-              familyList.filter((familyItem) => familyItem.fangwubianhao == houseItem.id).length
-            }名成员`"
+            :label="`${familyLength(houseItem.id)}名成员`"
             center
             is-link
             @click="router.push({ path: '/me-house-item', query: { id: houseItem.id } })"

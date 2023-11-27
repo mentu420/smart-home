@@ -14,7 +14,7 @@ const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
 
 const onSubmit = async () => {
-  const { useGetHouseListSync } = houseStore()
+  const { useGetHouseListSync, useGetFamilyListSync } = houseStore()
   await setHouseItem({
     params: { op: 2 },
     data: {
@@ -23,7 +23,8 @@ const onSubmit = async () => {
       img: houseImage.value,
     },
   })
-  await useGetHouseListSync()
+  await useGetHouseListSync(true)
+  await useGetFamilyListSync(true)
   router.back()
 }
 </script>
