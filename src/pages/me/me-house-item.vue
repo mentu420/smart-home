@@ -19,6 +19,9 @@ const loading = ref(false)
 const houseItem = computed(() =>
   houseList.value.find((houseItem) => houseItem.id == route.query.id)
 )
+const houseFamilyList = computed(() =>
+  familyList.value.filter((familyItem) => familyItem.fangwubianhao == houseItem.value.id)
+)
 
 //变更图片
 const onHouseChange = async () => {
@@ -124,9 +127,12 @@ const onDelHouse = async () => {
         <dt class="p-4 flex justify-between items-center">
           <p class="space-x-2">
             <label>家庭成员</label>
-            <label class="text-xs text-gray-300">({{ familyList.length }})</label>
+            <label class="text-xs text-gray-300">({{ houseFamilyList.length }})</label>
           </p>
-          <p class="space-x-2 text-primary" @click="router.push({ path: '/me-house-invite' })">
+          <p
+            class="space-x-2 text-primary"
+            @click="router.push({ path: '/me-house-invite', query: route.query })"
+          >
             <van-icon name="plus" />
             <label>添加</label>
           </p>
@@ -134,7 +140,7 @@ const onDelHouse = async () => {
         <dd>
           <van-cell-group>
             <van-cell
-              v-for="familyItem in familyList"
+              v-for="familyItem in houseFamilyList"
               :key="familyItem.id"
               center
               clickable

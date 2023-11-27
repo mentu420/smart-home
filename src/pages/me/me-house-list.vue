@@ -42,7 +42,9 @@ async function onDelect({ id, label }) {
           class="rounded-lg overflow-hidden"
         >
           <van-cell
-            :label="`${familyList.length}名成员`"
+            :label="`${
+              familyList.filter((familyItem) => familyItem.fangwubianhao == houseItem.id).length
+            }名成员`"
             center
             is-link
             @click="router.push({ path: '/me-house-item', query: { id: houseItem.id } })"

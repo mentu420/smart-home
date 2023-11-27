@@ -48,7 +48,7 @@ export default function useMqtt() {
         `App/HeartBeat/${yonghubianhao}`,
         JSON.stringify({
           acessToken,
-          msgid: yonghubianhao + '/' + new Date().valueOf(),
+          msgid: `${yonghubianhao}/${new Date().valueOf()}`,
           timeStamp: new Date().valueOf(),
         }),
         'B',
@@ -143,7 +143,6 @@ export default function useMqtt() {
   function useMqttPublish(theme, message, mode) {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
-    console.log('这几天哦', showLog.value)
     if (showLog.value) console.log('%c主题', 'color: green; font-weight: bold;', theme, message)
     $mqtt.publish(
       `${theme}/Control/${yonghubianhao}`,

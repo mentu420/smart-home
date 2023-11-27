@@ -1,13 +1,16 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 import { setFamily } from '@/apis/houseApi'
 import { vaildPhone } from '@/hooks/useFormValidator'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
+
+const router = useRouter()
+const route = useRoute()
 
 const { deviceList } = storeToRefs(deviceStore())
 const { sceneList } = storeToRefs(smartStore())
@@ -24,7 +27,13 @@ async function onSubmit() {
     const [fangjianquanxian, shebeiquanxian, changjingquanxian] = powerList.value
     await setFamily({
       params: { op: 2 },
-      data: { ...form.value, fangjianquanxian, shebeiquanxian, changjingquanxian },
+      data: {
+        ...form.value,
+        fangjianquanxian,
+        shebeiquanxian,
+        changjingquanxian,
+        fangwubianhao: route.query.id,
+      },
     })
     const { useGetFamilyListSync } = houseStore()
     await useGetFamilyListSync(true)
@@ -41,8 +50,6 @@ const init = async () => {
 }
 
 init()
-
-const router = useRouter()
 </script>
 
 <template>
