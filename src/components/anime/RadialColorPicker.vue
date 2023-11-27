@@ -170,13 +170,14 @@ watch(
 )
 
 const ratio = computed({
-  set: () => scopeData.value.ratio || 0,
-  get: () => {
+  get: () => scopeData.value.ratio || 0,
+  set: () => {
     const angleValue = angle.value > 180 ? 180 - (angle.value - 180) : angle.value
     const { min, max } = scopeData.value
     const minValue = min || props.range[0]
     const maxValue = max || props.range[1]
     const res = ((Number(maxValue) - Number(minValue)) / 180) * angleValue + Number(minValue)
+    console.log('ratio', res)
     return res.toFixed()
   },
 })
