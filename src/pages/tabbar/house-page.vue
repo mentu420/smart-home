@@ -344,7 +344,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <template #reference>
                 <div class="flex items-center px-2 py-1 rounded-md bg-white space-x-1">
                   <p class="w-[40px] truncate text-xs shrink-0 text-center">
-                    {{ floorList.find((floorItem) => floorItem.id == currentFloorId)?.label }}
+                    {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
                   </p>
                   <van-icon name="arrow-down" />
                 </div>

@@ -118,7 +118,7 @@ const toggle = () => {
       </div>
       <div v-if="includesUse(props.id, TEMPERATURE)" class="mr-4 flex-shrink-0 text-center">
         <p>
-          <label class="text-lg">{{ config[SETTEMPERATURE] }}</label>
+          <label class="text-lg">{{ config[CURRENTTEMPERATURE] }}</label>
           <label>℃</label>
         </p>
         <p class="text-xs text-gray-400">当前温度</p>
@@ -143,7 +143,7 @@ const toggle = () => {
         />
       </div>
       <div class="mr-4 flex-shrink-0 text-center">
-        <p>{{ config[CURRENTTEMPERATURE] }}℃</p>
+        <p>{{ config[SETTEMPERATURE] }}℃</p>
         <p class="text-xs text-gray-400">目标温度</p>
       </div>
       <div>

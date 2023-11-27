@@ -59,7 +59,6 @@ const config = ref({
   },
 })
 const deviceItem = computed(() => useGetDeviceItem(props.id))
-const temp = ref(config.value[TEMPERATURE])
 const disabled = computed(() => isDisabled(config.value))
 const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
@@ -125,7 +124,7 @@ const toggle = () => {
       </div>
       <div v-if="includesUse(props.id, TEMPERATURE)" class="mr-4 flex-shrink-0 text-center">
         <p>
-          <label class="text-lg">{{ config[TEMPERATURE].useValue }}</label>
+          <label class="text-lg">{{ config[CURRENTTEMPERATURE] }}</label>
           <label>℃</label>
         </p>
         <p class="text-xs text-gray-400">当前温度</p>
@@ -144,19 +143,19 @@ const toggle = () => {
     >
       <div>
         <van-icon
-          :class="{ 'text-gray-300': temp.useValue == min }"
+          :class="{ 'text-gray-300': config[SETTEMPERATURE] == min }"
           name="minus"
           size="20"
           @click="onLower"
         />
       </div>
       <div class="mr-4 flex-shrink-0 text-center">
-        <p>{{ temp.useValue }}℃</p>
+        <p>{{ config[SETTEMPERATURE] }}℃</p>
         <p class="text-xs text-gray-400">目标温度</p>
       </div>
       <div>
         <van-icon
-          :class="{ 'text-gray-300': temp.useValue == max }"
+          :class="{ 'text-gray-300': config[SETTEMPERATURE] == max }"
           name="plus"
           size="20"
           @click="onRise"
