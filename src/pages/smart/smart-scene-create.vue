@@ -284,9 +284,9 @@ const init = () => {
   const { clearSceneCreateItem } = smartStore()
   clearSceneCreateItem()
   if (route.query.id) {
-    const { id, rId, label, actions, ...data } = sceneList.value.find(
-      (item) => item.id == route.query.id
-    )
+    const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
+    console.log(list)
+    const { id, rId, label, actions, ...data } = list.find((item) => item.id == route.query.id)
     const modeActions = actions.map(({ caozuo, ...item }) => {
       return transformKeys(
         { ...caozuo, ...item },

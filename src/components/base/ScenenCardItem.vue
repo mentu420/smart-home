@@ -39,7 +39,7 @@ const sceneItem = computed(() => sceneList.value.find((item) => item.id == props
 
 async function onMoreSelect(action, item) {
   if (action.id == 0) {
-    router.push({ path: '/smart-scene-create', query: { id: item.id } })
+    router.push({ path: '/smart-scene-create', query: { id: item.id, fenlei: 1 } })
   } else if (action.id == 1) {
     try {
       await showConfirmDialog({ title: '提示', message: `是否删除${item.label}场景？` })

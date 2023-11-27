@@ -21,7 +21,7 @@ const addPressEvent = () => {
     <HeaderNavbar title="添加条件" />
     <div class="px-6 py-4">
       <h4>触发事件</h4>
-      <p>满足所触发条件时，场景将会执行</p>
+      <p>满足所触发条件时，自动化将会执行</p>
     </div>
     <ul class="p-4 space-y-4">
       <li

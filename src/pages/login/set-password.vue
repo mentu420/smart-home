@@ -13,6 +13,7 @@ const router = useRouter()
 const route = useRoute()
 const form = ref({})
 const loading = ref(false)
+const showEye = ref([false, false])
 
 const vaildPasswordFormat = [
   { required: true, message: '请填写密码' },
@@ -54,19 +55,23 @@ const onSubmit = async () => {
     <h1 class="my-8">设置新密码</h1>
     <van-form @submit="onSubmit">
       <van-field
-        v-model="form.password"
-        name="password"
-        placeholder="密码"
+        v-for="(pLabel, pKey, pIndex) in { password: '密码', repeatPassword: '确认密码' }"
+        :key="pKey"
+        v-model.trim="form[pKey]"
+        :name="pKey"
+        :placeholder="pLabel"
+        :type="showEye[pIndex] ? 'text' : 'password'"
         maxlength="18"
+        clearable
         :rules="vaildPasswordFormat"
-      />
-      <van-field
-        v-model="form.repeatPassword"
-        name="repeatPassword"
-        placeholder="确认密码"
-        maxlength="18"
-        :rules="vaildPasswordFormat"
-      />
+      >
+        <template #extra>
+          <div @click="showEye[pIndex] = !showEye[pIndex]">
+            <van-icon v-if="showEye[pIndex]" class="!text-[20px] ml-4" name="eye-o" />
+            <van-icon v-else class="!text-[20px] ml-4" name="closed-eye" />
+          </div>
+        </template>
+      </van-field>
       <div class="my-10">
         <van-button
           round

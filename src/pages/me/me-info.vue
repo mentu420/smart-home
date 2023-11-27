@@ -24,7 +24,7 @@ const navList = ref([
 const avatar = ref('')
 
 const onLogout = async () => {
-  if (userInfo.value?.shifouyishezhimim == 0) {
+  if (userInfo.value?.shifouyishezhimim != 0) {
     router.push({ path: '/me-not-password' })
     return
   }

@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
@@ -76,6 +76,8 @@ const init = () => {
 }
 
 onMounted(init)
+
+onActivated(init)
 </script>
 
 <template>
@@ -111,6 +113,12 @@ onMounted(init)
                 <template #item="{ element: smartItem }">
                   <div
                     class="bg-white flex justify-between p-4 w-full rounded-lg items-center mb-4"
+                    @click="
+                      router.push({
+                        path: '/smart-scene-create',
+                        query: { id: smartItem.id, fenlei: 2 },
+                      })
+                    "
                   >
                     <div>{{ smartItem.label }}</div>
                     <van-switch
