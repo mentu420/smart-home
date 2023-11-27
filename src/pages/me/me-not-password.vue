@@ -85,7 +85,7 @@ const onSubmit = async () => {
         </template>
       </van-field>
       <van-field
-        v-model="form.code"
+        v-model.trim="form.code"
         name="code"
         placeholder="验证码"
         maxlength="6"
@@ -101,7 +101,7 @@ const onSubmit = async () => {
           block
           type="primary"
           native-type="submit"
-          :disabled="form.password != '' && form.repeatPassword != '' && form.code != ''"
+          :disabled="form.password == '' && form.repeatPassword == '' && form.code == ''"
           :loading="loading"
         >
           提交
