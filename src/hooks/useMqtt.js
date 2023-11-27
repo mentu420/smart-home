@@ -9,7 +9,7 @@ import userStore from '@/store/userStore'
 export default function useMqtt() {
   const heartTimer = ref(null) //记录心跳定时器
   const heartDuration = ref(10 * 1000) // 心跳时长
-  const showLog = ref(true)
+  const showLog = ref(false)
   const PluginOptions = {
     autoConnect: false, //插件初始化时是否自动连接到代理。
     showNotifications: false, //是否显示错误和成功通知。
@@ -42,8 +42,9 @@ export default function useMqtt() {
       if (getMqttStatus() !== 'connected') return
       const { useGetToken } = userStore()
       const { acessToken, yonghubianhao } = useGetToken()
-      if (showLog.value)
+      if (showLog.value) {
         console.log('%cMQTT发送心跳', 'color: orange; font-weight: bold;', getMqttStatus())
+      }
       $mqtt.publish(
         `App/HeartBeat/${yonghubianhao}`,
         JSON.stringify({
@@ -63,10 +64,9 @@ export default function useMqtt() {
   }
 
   // 发起链接、心跳
-  function mqttSubscribe(bool) {
+  function mqttSubscribe() {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
-    showLog.value = bool
     $mqtt.connect({
       onConnect: (res) => {
         if (showLog.value) console.log(res)
