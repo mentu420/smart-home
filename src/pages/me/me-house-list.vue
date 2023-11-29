@@ -18,6 +18,10 @@ const familyLength = computed(
   () => (id) => familyList.value.filter((familyItem) => familyItem.fangwubianhao == id).length
 )
 
+const onSelect = ({ id }) => {
+  houseStore().setCurrentHouse(id)
+}
+
 async function onDelect({ id, label }) {
   try {
     if (currentHouse.value.id == id) {
@@ -45,6 +49,15 @@ async function onDelect({ id, label }) {
           :key="houseItem.id"
           class="rounded-lg overflow-hidden"
         >
+          <template #left>
+            <van-button
+              class="!h-full"
+              square
+              type="primary"
+              text="切换"
+              @click="onSelect(houseItem)"
+            />
+          </template>
           <van-cell
             :label="`${familyLength(houseItem.id)}名成员`"
             center

@@ -20,7 +20,7 @@ const { createSmartItem } = storeToRefs(smartStore())
 const deviceListKey = computed(() => `${route.query.key}DeviceList`)
 
 const toggle = (id) => {
-  checkboxRefs.value[id].toggle()
+  checkboxRefs.value[id]?.toggle()
 }
 
 const onAllChecked = () => {
@@ -132,7 +132,7 @@ init()
                   ></van-checkbox>
                 </template>
                 <div class="flex justify-end items-center pr-4 text-gray-300">
-                  <IconFont icon="more-round" @click="goDeviceConfig(deviceItem)" />
+                  <IconFont icon="more-round" @click.stop="goDeviceConfig(deviceItem)" />
                 </div>
               </van-cell>
             </van-cell-group>

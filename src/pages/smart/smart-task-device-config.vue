@@ -17,7 +17,7 @@ defineOptions({ name: 'SmartTaskDeviceConfig' })
 
 const { useGetDeviceItem, includesUse } = deviceStore()
 const { getModeColumns, onConfigFormat } = useTrigger()
-const { sceneCreateItem } = storeToRefs(smartStore())
+const { createSmartItem } = storeToRefs(smartStore())
 
 const route = useRoute()
 const router = useRouter()
@@ -51,40 +51,55 @@ function onSwitchChange(value) {
     ...{ useStatus: value, useValue: value == 'on' ? '1' : '0' },
   }
 }
-
+// 1：存储新的设备。2：变更旧的设备模块
 const onSave = () => {
+  const deviceList = createSmartItem.value[deviceListKey.value] || []
   const { modeList, id } = deviceItem.value
-  const deviceList = sceneCreateItem.value[deviceListKey.value] || []
-  //设备控制数据
-  const newModeList = modeList.map((modeItem) => {
-    if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[modeItem.use] }
-    const currentModeItem = deviceList.length
-      ? deviceList.find((item) => item.id == id).modeList.find((item) => item.use == modeItem.use)
-      : modeItem
-    return currentModeItem
-  })
+  let newDeviceList = []
+  if (deviceList.some((item) => item.id == id)) {
+    newDeviceList = deviceList.map((item) => {
+      if (item.id == id) {
+        return { ...item, modeList }
+      }
+      return item
+    })
+  } else {
+    // 新的设备
+    newDeviceList = [...deviceList, deviceItem.value]
+  }
+  console.log('new', newDeviceList)
+  // console.log('deviceList', deviceList)
+  // //设备控制数据
+  // const newModeList = modeList.map((modeItem) => {
+  //   if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[modeItem.use] }
+  //   const currentModeItem = deviceList.some((item) => item.id == id)
+  //     ? deviceList.find((item) => item.id == id)?.modeList.find((item) => item.use == modeItem.use)
+  //     : modeItem
+  //   return currentModeItem
+  // })
 
-  const newDeviceList = deviceList.length
-    ? deviceList.map((item) => {
-        if (item.id == route.query.id) return { ...item, modeList: newModeList }
-        return item
-      })
-    : [{ ...deviceItem, modeList: newModeList }]
-  sceneCreateItem.value = { ...sceneCreateItem.value, [deviceListKey.value]: newDeviceList }
-  router.go(-4)
+  // const newDeviceList = deviceList.length
+  //   ? deviceList.map((item) => {
+  //       if (item.id == route.query.id) return { ...item, modeList: newModeList }
+  //       return item
+  //     })
+  //   : [{ ...deviceItem, modeList: newModeList }]
+  // createSmartItem.value = { ...createSmartItem.value, [deviceListKey.value]: newDeviceList }
+  // router.go(-4)
 }
 
 const openModePicker = (modeItem) => {
-  const deviceList = sceneCreateItem.value[deviceListKey.value] || []
-  modePickerRef.value.open(modeItem, deviceItem.value, deviceList)
+  console.log(createSmartItem.value)
+  const deviceList = createSmartItem.value[deviceListKey.value] || []
+  modePickerRef.value.open(modeItem, deviceItem.value, deviceList, deviceListKey)
 }
 
 const onDeviceModeChange = (newDeviceList) => {
-  sceneCreateItem.value = {
-    ...sceneCreateItem.value,
+  createSmartItem.value = {
+    ...createSmartItem.value,
     [deviceListKey.value]: newDeviceList,
   }
-  console.log('sceneCreateItem', sceneCreateItem.value)
+  console.log('createSmartItem', createSmartItem.value)
 }
 </script>
 
