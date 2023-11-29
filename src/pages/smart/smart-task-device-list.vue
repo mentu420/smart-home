@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import deviceStore from '@/store/deviceStore'
@@ -11,16 +11,16 @@ defineOptions({ name: 'SmartTaskDeviceList' })
 
 const route = useRoute()
 const router = useRouter()
-const deviceChecked = ref([])
-const deviceList = ref([])
-const checkboxRefs = ref([])
+const checkedDevice = ref([])
+const checkboxRefs = ref({})
 const checkedAll = ref(false)
 const checkboxGroup = ref(null)
 const floorTree = ref([])
-const { sceneCreateItem } = storeToRefs(smartStore())
+const { createSmartItem } = storeToRefs(smartStore())
+const deviceListKey = computed(() => `${route.query.key}DeviceList`)
 
-const toggle = (index) => {
-  checkboxRefs.value[index].toggle()
+const toggle = (id) => {
+  checkboxRefs.value[id].toggle()
 }
 
 const onAllChecked = () => {
@@ -44,30 +44,29 @@ const onCheckChange = (values) => {
 const goDeviceConfig = (item) => {
   router.push({
     path: '/smart-task-device-config',
-    query: { id: item.id, classify: item.classify },
+    query: { id: item.id, ...route.query },
   })
 }
 
 const onSave = async () => {
   const { useGetDeviceListSync, setModeColumns } = deviceStore()
+
   const deviceList = await useGetDeviceListSync()
-  console.log('deviceChecked', deviceChecked.value, deviceList)
+
   const checkList = deviceList
-    .filter((deviceItem) => deviceChecked.value.includes(deviceItem.id))
+    .filter((deviceItem) => checkedDevice.value.includes(deviceItem.id))
     .map((checkItem) => ({ ...checkItem, modeList: setModeColumns(checkItem.columns) }))
 
+  const smartDeviceList = createSmartItem.value[deviceListKey] || []
+
   const newDeviceList =
-    sceneCreateItem.value?.deviceList?.length > 0
-      ? [
-          ...sceneCreateItem.value.deviceList.filter(
-            (item) => !deviceChecked.value.includes(item.id)
-          ),
-          ...checkList,
-        ]
+    smartDeviceList.length > 0
+      ? [...smartDeviceList.filter((item) => !checkedDevice.value.includes(item.id)), ...checkList]
       : checkList
-  sceneCreateItem.value = {
-    ...sceneCreateItem.value,
-    deviceList: newDeviceList,
+
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    [deviceListKey.value]: newDeviceList,
   }
   router.go(-3)
 }
@@ -108,7 +107,7 @@ init()
       </van-button>
     </div>
     <section class="px-4">
-      <van-checkbox-group ref="checkboxGroup" v-model="deviceChecked" @change="onCheckChange">
+      <van-checkbox-group ref="checkboxGroup" v-model="checkedDevice" @change="onCheckChange">
         <div v-for="floorItem in floorTree" :key="floorItem.id">
           <h3 class="p-4">{{ floorItem.label }}</h3>
           <div class="rounded-lg overflow-hidden">
@@ -119,13 +118,14 @@ init()
                 :title="deviceItem.label"
                 :label="roomItem.label"
                 center
+                @click="toggle(deviceItem.id)"
               >
                 <template #icon>
                   <IconFont class="text-primary mr-2" :icon="deviceItem.icon" />
                 </template>
                 <template #right-icon>
                   <van-checkbox
-                    :ref="(el) => (checkboxRefs[deviceIndex] = el)"
+                    :ref="(el) => (checkboxRefs[deviceItem.id] = el)"
                     v-model="deviceItem.checked"
                     :name="deviceItem.id"
                     @click.stop
@@ -142,7 +142,7 @@ init()
     </section>
     <div class="h-24"></div>
     <footer class="fixed bottom-0 left-0 w-screen bg-white px-6 py-4">
-      <van-button round type="primary" block :disabled="deviceChecked.length == 0" @click="onSave">
+      <van-button round type="primary" block :disabled="checkedDevice.length == 0" @click="onSave">
         下一步
       </van-button>
     </footer>

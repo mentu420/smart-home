@@ -10,7 +10,7 @@ import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartCondtionTime' })
 
-const { sceneCreateItem } = storeToRefs(smartStore())
+const { createSmartItem } = storeToRefs(smartStore())
 
 const router = useRouter()
 const columsType = ref(['hour', 'minute'])
@@ -30,20 +30,23 @@ const delTimeItem = (i) => {
 }
 
 const onSave = () => {
-  const { updateSceneCreateItem } = smartStore()
+  const { events = [] } = createSmartItem.value
 
-  const events = [
-    ...sceneCreateItem.value.events,
-    ...conditionTimeList.value.map((timeItem) => ({
-      leixing: 1,
-      tiaojian: {
-        shijian: timeItem,
-        chongfuleixing: weekChecked.value,
-      },
-    })),
-  ]
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    events: [
+      ...events,
+      ...conditionTimeList.value.map((timeItem) => ({
+        leixing: 1,
+        tiaojian: {
+          shijian: timeItem,
+          chongfuleixing: '3',
+          chongfuzhi: weekChecked.value,
+        },
+      })),
+    ],
+  }
 
-  updateSceneCreateItem({ events })
   router.go(-2)
 }
 </script>

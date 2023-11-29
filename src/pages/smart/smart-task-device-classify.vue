@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { CLASSIFY_EXECL } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
@@ -9,29 +9,39 @@ import houseStore from '@/store/houseStore'
 
 defineOptions({ name: 'SmartTaskDeviceClassify' })
 
-const { deviceList } = storeToRefs(deviceStore())
-
+const route = useRoute()
 const router = useRouter()
 
 const loading = ref(false)
 const filterRef = ref(null)
 const floorTree = ref([]) // 楼层数据
-const searchClassify = ref('') //设备大类
-const searchRid = ref('') //房间id
 const classifyChecked = ref([]) // 大类classify
-const roomChecked = ref([]) // 房间
+const checkedRoom = ref([]) // 房间
+const { deviceList } = storeToRefs(deviceStore())
+
+const isAll = (fId) => {
+  const allIds = floorTree.value
+    .find((item) => item.id == fId)
+    .roomList.map((roomItem) => roomItem.id)
+  return allIds.every((id) => checkedRoom.value.includes(id))
+}
 
 const searchList = computed(() => {
   const { getDeviceIcon } = deviceStore()
   return CLASSIFY_EXECL.map((item) => {
     return {
       ...item,
-      count: deviceList.value?.filter((deviceItem) => deviceItem.classify == item.classify).length,
+      count: deviceList.value?.filter((deviceItem) => {
+        return checkedRoom.value.length > 0
+          ? checkedRoom.value.includes(deviceItem.rId) && deviceItem.classify == item.classify
+          : deviceItem.classify == item.classify
+      }).length,
       icon: getDeviceIcon(item.classify),
     }
   }).filter((item) => {
-    if (classifyChecked.value.length == 0) return true
-    return classifyChecked.value.includes(item.classify)
+    return classifyChecked.value.length > 0
+      ? classifyChecked.value.includes(item.classify) && item.count > 0
+      : item.count > 0
   })
 })
 
@@ -50,19 +60,23 @@ const onSelectClassify = () => {
       : CLASSIFY_EXECL.map((item) => item.classify)
 }
 
-const selectRoomItem = (rId, floorItem) => {
-  if (floorItem.checked.includes(rId)) {
-    floorItem.checked = floorItem.checked.filter((id) => id != rId)
+const selectRoomItem = (rId) => {
+  if (checkedRoom.value.includes(rId)) {
+    checkedRoom.value = checkedRoom.value.filter((id) => id != rId)
   } else {
-    floorItem.checked = [...floorItem.checked, rId]
+    checkedRoom.value = [...checkedRoom.value, rId]
   }
 }
 
-const onFloorSelectRoom = (floorItem) => {
-  floorItem.checked =
-    floorItem.checked.length > 0 && floorItem.roomList.length == floorItem.checked.length
-      ? []
-      : floorItem.roomList.map((item) => item.id)
+const onFloorSelectRoom = (fId) => {
+  const allIds = floorTree.value
+    .find((item) => item.id == fId)
+    .roomList.map((roomItem) => roomItem.id)
+  if (isAll(fId)) {
+    checkedRoom.value = checkedRoom.value.filter((id) => !allIds.includes(id))
+  } else {
+    checkedRoom.value = [...new Set([...checkedRoom.value, ...allIds])]
+  }
 }
 
 const onRefresh = async () => {
@@ -80,24 +94,18 @@ const onRefresh = async () => {
   }
 }
 
+const onRest = () => {
+  classifyChecked.value = []
+  checkedRoom.value = []
+}
+
 const init = () => {
   const { useGetFloorTree } = houseStore()
-  const { getDeviceIcon } = deviceStore()
   const floorList = useGetFloorTree()
-  floorTree.value = floorList
-    .filter((item) => item.roomList.length > 0)
-    .map((item) => ({ ...item, checked: [] }))
+  floorTree.value = floorList.filter((item) => item.roomList.length > 0)
 }
 
 init()
-
-const onConfirm = () => {
-  filterRef.value.toggle()
-}
-
-const onRest = () => {
-  classifyChecked.value = []
-}
 </script>
 
 <template>
@@ -136,7 +144,7 @@ const onRest = () => {
                   </van-button>
                 </div>
               </li>
-              <!-- <li class="mb-6">
+              <li class="mb-6">
                 <div v-for="floorItem in floorTree" :key="floorItem.id">
                   <h4 class="mb-4">{{ floorItem.label }}</h4>
                   <div>
@@ -144,17 +152,11 @@ const onRest = () => {
                       class="!mb-4 !mr-4"
                       round
                       size="small"
-                      :type="
-                        floorItem.checked.length == floorItem.roomList.length
-                          ? 'primary'
-                          : 'default'
-                      "
-                      @click="onFloorSelectRoom(floorItem)"
+                      :type="isAll(floorItem.id) ? 'primary' : 'default'"
+                      @click="onFloorSelectRoom(floorItem.id)"
                     >
                       <p class="px-4">
-                        {{
-                          floorItem.checked.length == floorItem.roomList.length ? '取消' : '全部'
-                        }}
+                        {{ isAll(floorItem.id) ? '取消' : '全部' }}
                       </p>
                     </van-button>
                     <van-button
@@ -163,19 +165,19 @@ const onRest = () => {
                       class="!mb-2 !mr-2"
                       round
                       size="small"
-                      :type="floorItem.checked.includes(roomItem.id) ? 'primary' : 'default'"
-                      @click="selectRoomItem(roomItem.id, floorItem)"
+                      :type="checkedRoom.includes(roomItem.id) ? 'primary' : 'default'"
+                      @click="selectRoomItem(roomItem.id)"
                     >
                       <p class="px-4">{{ roomItem.label }}</p>
                     </van-button>
                   </div>
                 </div>
-              </li> -->
+              </li>
             </ul>
             <div class="h-[80px]"></div>
             <div class="fixed bottom-0 left-0 flex w-screen space-x-4 p-4">
               <van-button block round type="default" @click="onRest">重置</van-button>
-              <van-button block round type="primary" @click="onConfirm">确认</van-button>
+              <van-button block round type="primary" @click="filterRef.toggle()">确认</van-button>
             </div>
           </van-dropdown-item>
         </van-dropdown-menu>
@@ -192,7 +194,7 @@ const onRest = () => {
           @click="
             router.push({
               path: '/smart-task-device-list',
-              query: { classify: searchItem.classify },
+              query: { classify: searchItem.classify, ...route.query },
             })
           "
         >

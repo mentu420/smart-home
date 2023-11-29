@@ -9,11 +9,11 @@ defineOptions({ name: 'SmartSceneGallery' })
 
 const checkboxRefs = ref([])
 
-const { sceneGallery, sceneCreateItem } = storeToRefs(smartStore())
+const { sceneGallery, createSmartItem } = storeToRefs(smartStore())
 
 const route = useRoute()
 const router = useRouter()
-const checked = ref(sceneCreateItem.value.img)
+const checked = ref(createSmartItem.value.img)
 
 const onComfirm = () => {
   const { updateSceneCreateItem } = smartStore()

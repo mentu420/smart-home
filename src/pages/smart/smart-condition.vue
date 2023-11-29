@@ -1,17 +1,24 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartCondtion' })
 
 const router = useRouter()
-const { sceneCreateItem } = storeToRefs(smartStore())
+const route = useRoute()
+
+const { createSmartItem } = storeToRefs(smartStore())
 
 const addPressEvent = () => {
-  sceneCreateItem.value = { ...sceneCreateItem.value, press: 1 }
+  const { events = [] } = createSmartItem.value
+  if (events.find((item) => item.leixing == 0)) return
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    events: [...events, { isor: 0, leixing: 0, tiaojian: {}, fujiatiaojian: [] }],
+  }
   router.back()
 }
 </script>
@@ -26,8 +33,10 @@ const addPressEvent = () => {
     <ul class="p-4 space-y-4">
       <li
         v-clickable-active
-        :disabled="sceneCreateItem?.press"
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
+        :class="{
+          'opacity-50': createSmartItem?.events?.filter((item) => item.leixing == 0).length > 0,
+        }"
         @click="addPressEvent"
       >
         <div class="h-10 w-10 rounded-full bg-orange-400 p-2">
@@ -41,11 +50,7 @@ const addPressEvent = () => {
       <li
         v-clickable-active
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50"
-        @click="
-          router.push({
-            path: '/smart-condtion-time',
-          })
-        "
+        @click="router.push({ path: '/smart-condtion-time', query: route.query })"
       >
         <div class="h-10 w-10 rounded-full bg-yellow-400 p-2">
           <IconFont class="text-white text-xs" icon="calendar" />

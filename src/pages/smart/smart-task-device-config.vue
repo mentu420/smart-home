@@ -27,6 +27,7 @@ const deviceItem = computed(() => useGetDeviceItem(route.query.id))
 const deviceColumns = ref([])
 const { SWITCH } = USE_KEY
 const config = ref({ [SWITCH]: { useStatus: 'on', useValue: '1' } })
+const deviceListKey = computed(() => `${route.query.key}DeviceList`)
 
 watch(
   () => deviceItem.value,
@@ -53,7 +54,7 @@ function onSwitchChange(value) {
 
 const onSave = () => {
   const { modeList, id } = deviceItem.value
-  const { deviceList = [] } = sceneCreateItem.value
+  const deviceList = sceneCreateItem.value[deviceListKey.value] || []
   //设备控制数据
   const newModeList = modeList.map((modeItem) => {
     if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[modeItem.use] }
@@ -69,19 +70,19 @@ const onSave = () => {
         return item
       })
     : [{ ...deviceItem, modeList: newModeList }]
-  sceneCreateItem.value = { ...sceneCreateItem.value, deviceList: newDeviceList }
+  sceneCreateItem.value = { ...sceneCreateItem.value, [deviceListKey.value]: newDeviceList }
   router.go(-4)
 }
 
 const openModePicker = (modeItem) => {
-  const { deviceList = [] } = sceneCreateItem.value
+  const deviceList = sceneCreateItem.value[deviceListKey.value] || []
   modePickerRef.value.open(modeItem, deviceItem.value, deviceList)
 }
 
 const onDeviceModeChange = (newDeviceList) => {
   sceneCreateItem.value = {
     ...sceneCreateItem.value,
-    deviceList: newDeviceList,
+    [deviceListKey.value]: newDeviceList,
   }
   console.log('sceneCreateItem', sceneCreateItem.value)
 }

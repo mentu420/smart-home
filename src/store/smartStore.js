@@ -25,7 +25,7 @@ export default defineStore(storeName, () => {
     6: '周六',
   })
   // 创建场景数据
-  const sceneCreateItem = ref({
+  const createSmartItem = ref({
     events: [],
   })
 
@@ -122,10 +122,10 @@ export default defineStore(storeName, () => {
   ])
   // 更新创建场景数据
   const updateSceneCreateItem = (palyload) => {
-    sceneCreateItem.value = { ...sceneCreateItem.value, ...palyload }
+    createSmartItem.value = { ...createSmartItem.value, ...palyload }
   }
   // 清空场景数据
-  const clearSceneCreateItem = () => (sceneCreateItem.value = { events: [] })
+  const clearSceneCreateItem = () => (createSmartItem.value = { events: [] })
 
   const transformList = (data) =>
     data
@@ -165,12 +165,12 @@ export default defineStore(storeName, () => {
   )
 
   const reset = () => {
-    sceneCreateItem.value = {}
+    createSmartItem.value = {}
     sceneList.value = []
   }
 
   return {
-    sceneCreateItem,
+    createSmartItem,
     sceneList,
     smartList,
     sceneGallery,

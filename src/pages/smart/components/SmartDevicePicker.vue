@@ -17,7 +17,7 @@ const sliderPickerRef = ref(null)
 const colorPickerRef = ref(null)
 const pickerSearchRef = ref(null)
 
-function open(modeItem, deviceItem, deviceList) {
+function open(modeItem, deviceItem, deviceList, deviceListKey) {
   const [min, max] = getModeRange(modeItem.useColumns, modeItem.use)
   const { BRIGHTNESS, COLOURTEMPERATURE, TEMPERATURE, PERCENT, ANGLE, VOLUME, PROCESS } = USE_KEY
   switch (modeItem.use) {
@@ -35,6 +35,7 @@ function open(modeItem, deviceItem, deviceList) {
         min,
         max,
         deviceList,
+        deviceListKey,
       })
       break
     case COLOURTEMPERATURE:
@@ -45,6 +46,7 @@ function open(modeItem, deviceItem, deviceList) {
         min,
         max,
         deviceList,
+        deviceListKey,
       })
       break
     default:
@@ -53,12 +55,13 @@ function open(modeItem, deviceItem, deviceList) {
         id: deviceItem.id,
         columns: modeItem.useColumns,
         deviceList,
+        deviceListKey,
       })
       break
   }
 }
 
-function onModeChange({ selectedOptions }, { modeItem, id, deviceList }) {
+function onModeChange({ selectedOptions }, { modeItem, id, deviceList, deviceListKey }) {
   const { useValue, useEn } = selectedOptions[0]
 
   const currentDeviceList = deviceList.length ? deviceList : deviceStore().deviceList
@@ -77,22 +80,16 @@ function onModeChange({ selectedOptions }, { modeItem, id, deviceList }) {
       })
     : [{ ...currentDeviceItem, modeList: newModeList }]
 
-  emits('change', newDeviceList)
+  emits('change', { [deviceListKey]: newDeviceList })
 }
 
 // 进度条
-function onColorPickerChange({ ratio }, { modeItem, id, deviceList }) {
-  onModeChange(
-    { selectedOptions: [{ useValue: ratio, useEn: modeItem.use }] },
-    { modeItem, id, deviceList }
-  )
+function onColorPickerChange({ ratio }, scopeData) {
+  onModeChange({ selectedOptions: [{ useValue: ratio, useEn: scopeData.modeItem.use }] }, scopeData)
 }
 
-function onSliderPickerChange(useValue, { modeItem, id, deviceList }) {
-  onModeChange(
-    { selectedOptions: [{ useValue, useEn: modeItem.use }] },
-    { modeItem, id, deviceList }
-  )
+function onSliderPickerChange(useValue, scopeData) {
+  onModeChange({ selectedOptions: [{ useValue, useEn: scopeData.modeItem.use }] }, scopeData)
 }
 
 defineExpose({ open })

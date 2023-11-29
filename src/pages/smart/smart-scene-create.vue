@@ -32,7 +32,7 @@ const route = useRoute()
 
 const showGallery = ref(false)
 const showExecutionTime = ref(false)
-const { sceneCreateItem, sceneGallery, sceneList, smartList } = storeToRefs(smartStore())
+const { createSmartItem, sceneGallery, sceneList, smartList } = storeToRefs(smartStore())
 const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(deviceStore())
 const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
@@ -46,32 +46,45 @@ const modePickerRef = ref(null)
 const roomPickerRef = ref(null)
 const pageName = computed(() => (route.query.fenlei == 2 ? '自动化' : '场景'))
 
+// 自动化点击事件
+const pressEvent = computed(() => {
+  const { events = [] } = createSmartItem.value
+  return events.find((item) => item.leixing == 0)
+})
+
+// 自动化时间重复事件
+const timeEvents = computed(() => {
+  const { events = [] } = createSmartItem.value
+  return events.filter((item) => item.leixing == 1)
+})
+
 const { getRepeatTimeText } = smartStore()
 
 function openRoomPicker() {
   roomPickerRef.value?.open({ columns: roomList.value })
 }
 function onSelectRoomItem({ selectedValues }) {
-  sceneCreateItem.value = { ...sceneCreateItem.value, fangjianbianhao: selectedValues[0] }
+  createSmartItem.value = { ...createSmartItem.value, fangjianbianhao: selectedValues[0] }
 }
 
 // 打开执行时间
 const openExecutionTime = (eventItem, eventIndex) => {
   const { tiaojian } = eventItem
   eventActive.value = eventIndex
-  weekChecked.value = tiaojian.chongfuleixing
+  weekChecked.value = tiaojian.chongfuzhi
   showExecutionTime.value = true
   executionTime.value = tiaojian.shijian.split(':')
 }
 // 确认修改执行时间
 const onExecutionTimeConfirm = ({ selectedValues }) => {
   const { updateSceneCreateItem } = smartStore()
-  const events = sceneCreateItem.value.events.map((eventItem, eventIndex) => {
+  const events = createSmartItem.value.events.map((eventItem, eventIndex) => {
     if (eventIndex == eventActive.value)
       return {
         ...eventItem,
         tiaojian: {
-          chongfuleixing: weekChecked.value,
+          chongfuzhi: weekChecked.value,
+          chongfuleixing: '3',
           shijian: selectedValues.join(':'),
         },
       }
@@ -81,15 +94,17 @@ const onExecutionTimeConfirm = ({ selectedValues }) => {
   showExecutionTime.value = false
 }
 //删除时间事件
-const delTimeItem = (eventIndex) => {
-  const { updateSceneCreateItem } = smartStore()
-  const events = sceneCreateItem.value.events.filter((item, index) => index != eventIndex)
-  updateSceneCreateItem({ events })
+const delTimeEventItem = (eventItem, eventIndex) => {
+  const { events } = createSmartItem.value
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    events: events.filter((item) => item != eventItem),
+  }
 }
 //删除点击事件
-const delEventItem = () => {
-  const { press, ...data } = sceneCreateItem.value
-  sceneCreateItem.value = data
+const delPressEventItem = () => {
+  const { events, ...data } = createSmartItem.value
+  createSmartItem.value = { ...data, events: events.filter((item) => item.leixing != 0) }
 }
 
 async function onDeviceMoreSelect(action, deviceItem, modeItem) {
@@ -100,8 +115,8 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
   } else if (action.id == 2) {
     try {
       await showConfirmDialog({ title: '提示', message: `是否删除${modeItem.label}模块` })
-      const { deviceList } = sceneCreateItem.value
-      const newDeviceList = deviceList.map((item) => {
+      const { actionsDeviceList } = createSmartItem.value
+      const newDeviceList = actionsDeviceList.map((item) => {
         if (item.id == deviceItem.id) {
           return {
             ...item,
@@ -110,29 +125,29 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
         }
         return item
       })
-      sceneCreateItem.value = { ...sceneCreateItem.value, deviceList: newDeviceList }
+      createSmartItem.value = { ...createSmartItem.value, actionsDeviceList: newDeviceList }
     } catch (error) {
       //
     }
   }
 }
 
-function openDeviceModeItem(modeItem, deviceItem) {
-  const { deviceList } = sceneCreateItem.value
-  modePickerRef.value.open(modeItem, deviceItem, deviceList)
+function openActionModeItem(modeItem, deviceItem, key) {
+  const deviceListKey = `${key}DeviceList`
+  const deviceList = createSmartItem.value[deviceListKey] || []
+  modePickerRef.value.open(modeItem, deviceItem, deviceList, deviceListKey)
 }
 
-const onDeviceModeChange = (newDeviceList) => {
-  sceneCreateItem.value = {
-    ...sceneCreateItem.value,
-    deviceList: newDeviceList,
+const onDeviceModeChange = (payload) => {
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    ...payload,
   }
 }
 
 function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
-  console.log(selectedValues, deviceItem, modeItem)
-  const { deviceList } = sceneCreateItem.value
-  const newDeviceList = deviceList.map((item) => {
+  const { actionsDeviceList } = createSmartItem.value
+  const newDeviceList = actionsDeviceList.map((item) => {
     if (item.id == deviceItem.id) {
       return {
         ...item,
@@ -150,9 +165,9 @@ function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
     return item
   })
   console.log('newDeviceList', newDeviceList)
-  sceneCreateItem.value = {
-    ...sceneCreateItem.value,
-    deviceList: newDeviceList,
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    actionsDeviceList: newDeviceList,
   }
 }
 
@@ -175,12 +190,12 @@ const getSceneActions = ({ modeList, id }) => {
 const onSave = async () => {
   try {
     await formRef.value?.validate()
-    const { deviceList = [], ...residue } = sceneCreateItem.value
-    if (deviceList.length == 0) {
+    const { actionsDeviceList = [], ...residue } = createSmartItem.value
+    if (actionsDeviceList.length == 0) {
       showToast('请添加任务')
       return
     }
-    const actions = deviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
+    const actions = actionsDeviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
     const op = route.query.id ? 3 : 2
     const data = {
       ...residue,
@@ -212,7 +227,7 @@ async function onDelect() {
   try {
     await showConfirmDialog({
       title: '提示',
-      message: `是否删除${sceneCreateItem.value.mingcheng}${pageName.value}？`,
+      message: `是否删除${createSmartItem.value.mingcheng}${pageName.value}？`,
     })
     if (route.query.fenlei == 2) {
       await setSmartList({ params: { op: 4, zhinenghuabianhao: route.query.id } })
@@ -232,6 +247,7 @@ const init = () => {
   const { clearSceneCreateItem } = smartStore()
   clearSceneCreateItem()
   if (route.query.id) {
+    //編輯
     const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
     console.log(list)
     const { id, rId, label, actions, ...data } = list.find((item) => item.id == route.query.id)
@@ -249,7 +265,7 @@ const init = () => {
       )
     })
 
-    const sceneDeviceList = deviceList.value
+    const actionsDeviceList = deviceList.value
       .filter((item) => modeActions.some((action) => action.id == item.id))
       .map((deviceItem) => {
         return {
@@ -262,9 +278,14 @@ const init = () => {
         }
       })
 
-    sceneCreateItem.value = { ...sceneCreateItem.value, ...data, deviceList: sceneDeviceList }
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      ...data,
+      actionsDeviceList,
+    }
   } else if (route.query.fenlei == 1) {
-    sceneCreateItem.value = { ...sceneCreateItem.value, img: sceneGallery.value[0].src }
+    //新增
+    createSmartItem.value = { ...createSmartItem.value, img: sceneGallery.value[0].src }
   }
 }
 
@@ -278,7 +299,7 @@ watch(
 )
 
 const goConditionConfig = () => {
-  router.push({ path: '/smart-condition' })
+  router.push({ path: '/smart-condition', query: route.query })
 }
 
 const openGallery = () => {
@@ -289,6 +310,7 @@ const openGallery = () => {
 function goEventConfig() {
   router.push({
     path: '/smart-task-list',
+    query: { key: 'actions', ...route.query }, //key为createSmartItem 中存储的字段
   })
 }
 </script>
@@ -303,7 +325,7 @@ function goEventConfig() {
     <van-form ref="formRef" class="m-4">
       <van-cell-group class="overflow-hidden rounded-lg">
         <van-field
-          v-model="sceneCreateItem.mingcheng"
+          v-model="createSmartItem.mingcheng"
           center
           clearable
           name="mingcheng"
@@ -316,7 +338,7 @@ function goEventConfig() {
         </van-field>
         <template v-if="route.query.fenlei == 1">
           <van-cell center is-link title="所属房间" @click="openRoomPicker">
-            {{ roomList.find((roomItem) => roomItem.id == sceneCreateItem.fangjianbianhao)?.label }}
+            {{ roomList.find((roomItem) => roomItem.id == createSmartItem.fangjianbianhao)?.label }}
           </van-cell>
           <van-cell center is-link title="场景图片">
             <van-image
@@ -324,7 +346,7 @@ function goEventConfig() {
               height="4rem"
               fit="cover"
               radius="10"
-              :src="sceneCreateItem.img"
+              :src="createSmartItem.img"
               @click="showGallery = true"
             />
           </van-cell>
@@ -333,10 +355,10 @@ function goEventConfig() {
         <WeekRepeat v-model="weekChecked" /> -->
       </van-cell-group>
     </van-form>
-    <!--事件-->
+    <!--自动化条件-->
     <section v-if="route.query.fenlei == 2" class="p-4">
       <div
-        v-if="sceneCreateItem?.events.length == 0 && !sceneCreateItem.press"
+        v-if="createSmartItem?.events?.length == 0"
         v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goConditionConfig"
@@ -352,19 +374,20 @@ function goEventConfig() {
       </ol>
       <!--条件列表-->
       <ul>
+        <!--点击事件-->
         <li
-          v-if="sceneCreateItem?.press"
+          v-if="pressEvent"
           class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
         >
           <p>
             <label class="mr-2">当</label>
-            <label>点击此场景卡片</label>
+            <label>点击此{{ pageName }}卡片</label>
           </p>
           <p>
             <van-popover
               :actions="[{ text: '删除' }]"
               placement="bottom-end"
-              @select="delEventItem"
+              @select="delPressEventItem"
             >
               <template #reference>
                 <IconFont class="text-xs" icon="trash" />
@@ -372,21 +395,22 @@ function goEventConfig() {
             </van-popover>
           </p>
         </li>
-        <template v-if="sceneCreateItem?.events.length > 0">
+        <!--重复时间-->
+        <template v-if="timeEvents.length">
           <li
-            v-for="(eventItem, eventIndex) in sceneCreateItem?.events"
+            v-for="(eventItem, eventIndex) in timeEvents"
             :key="eventIndex"
             class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
           >
             <p>
               <label class="mr-2">
-                {{ sceneCreateItem?.press ? '或' : '当' }}
+                {{ !pressEvent && eventIndex == 0 ? '当' : '或' }}
               </label>
               <label
                 class="space-x-2 rounded-full bg-gray-100 px-4 py-1"
                 @click="openExecutionTime(eventItem, eventIndex)"
               >
-                <label>{{ getRepeatTimeText(eventItem.tiaojian.chongfuleixing) }}</label>
+                <label>{{ getRepeatTimeText(eventItem.tiaojian.chongfuzhi) }}</label>
                 <label>{{ eventItem.tiaojian.shijian }}</label>
               </label>
               <label class="m-2">时</label>
@@ -395,7 +419,7 @@ function goEventConfig() {
               <van-popover
                 :actions="[{ text: '删除' }]"
                 placement="bottom-end"
-                @select="delTimeItem(eventIndex)"
+                @select="delTimeEventItem(eventItem, eventIndex)"
               >
                 <template #reference>
                   <IconFont class="text-xs" icon="trash" />
@@ -409,7 +433,7 @@ function goEventConfig() {
     <!--任务-->
     <section class="p-4">
       <div
-        v-if="!sceneCreateItem.deviceList || sceneCreateItem.deviceList?.length == 0"
+        v-if="!createSmartItem.actionsDeviceList || createSmartItem.actionsDeviceList?.length == 0"
         v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goEventConfig"
@@ -418,7 +442,7 @@ function goEventConfig() {
         <label class="ml-4">添加任务</label>
       </div>
       <ol
-        v-if="sceneCreateItem.deviceList?.length > 0"
+        v-if="createSmartItem.actionsDeviceList?.length > 0"
         class="flex items-center justify-between p-2"
       >
         <li>执行任务</li>
@@ -429,7 +453,7 @@ function goEventConfig() {
       <!--任务列表-->
       <ul>
         <li
-          v-for="deviceItem in sceneCreateItem.deviceList"
+          v-for="deviceItem in createSmartItem.actionsDeviceList"
           :key="deviceItem.id"
           class="mb-4 bg-white rounded-lg"
         >
@@ -458,7 +482,7 @@ function goEventConfig() {
                 <label
                   v-clickable-active
                   class="px-4 py-1 bg-gray-100 rounded-full"
-                  @click="openDeviceModeItem(modeItem, deviceItem)"
+                  @click="openActionModeItem(modeItem, deviceItem, 'actions')"
                 >
                   {{
                     modeItem.valueIsNum
@@ -516,20 +540,6 @@ function goEventConfig() {
     />
 
     <SmartDevicePicker ref="modePickerRef" @change="onDeviceModeChange" />
-
-    <!-- <pickerSearch
-      ref="pickerSearchRef"
-      :columns-field-names="{ text: 'useCn', value: 'useEn' }"
-      @select="onSelectMode"
-    />
-
-    <ColorPicker ref="colorPickerRef" @confirm="onColorPickerChange">
-      <template #default="{ ratio }">
-        <label>{{ ratio }}K</label>
-      </template>
-    </ColorPicker>
-
-    <SliderPicker ref="sliderPickerRef" @confirm="onSliderPickerChange" /> -->
 
     <!--场景图库-->
     <van-action-sheet v-model:show="showGallery" cancel-text="取消" close-on-click-action>
