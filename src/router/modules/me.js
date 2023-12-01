@@ -1,7 +1,13 @@
 export default [
   {
+    path: '/me-setting',
+    name: 'MeSetting',
+    component: () => import('@/pages/me/me-setting.vue'),
+    meta: { title: '设置' },
+  },
+  {
     path: '/me-agreement',
-    name: 'Agreement',
+    name: 'MeAgreement',
     component: () => import('@/pages/me/me-agreement.vue'),
     meta: { title: '软件许可与服务协议' },
   },

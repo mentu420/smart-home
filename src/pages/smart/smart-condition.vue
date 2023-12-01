@@ -63,6 +63,12 @@ const addPressEvent = () => {
       <li
         v-clickable-active
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
+        @click="
+          router.push({
+            path: '/smart-task-list',
+            query: { smartKey: 'eventDeviceList', ...route.query }, //key为createSmartItem 中存储的字段
+          })
+        "
       >
         <div class="h-10 w-10 rounded-full bg-green-400 p-2">
           <IconFont class="text-white text-xs" icon="game" />

@@ -69,7 +69,7 @@ const onSave = () => {
     ),
   }
 
-  router.go(-4)
+  router.go(route.query.fenlei == 1 ? -4 : -5)
 }
 
 const openModePicker = (modeItem) => {

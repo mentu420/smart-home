@@ -11,9 +11,7 @@ const router = useRouter()
 
 const navList = ref([
   { path: '/me-house-list', text: '家庭管理', icon: 'wap-home-o' },
-  { path: '/me-conceal', text: '隐私政策', icon: 'miniprogram-o' },
-  { path: '/me-agreement', text: '软件许可及服务协议', icon: 'certificate' },
-  { path: '/me-about', text: '关于', icon: 'warning-o' },
+  { path: '/me-setting', text: '设置', icon: 'setting-o' },
 ])
 
 const { userInfo = {} } = storeToRefs(userStore())
@@ -35,11 +33,11 @@ onActivated(init)
       <h4 class="text-md ml-4">{{ userInfo?.xingming }}</h4>
     </div>
 
-    <ul class="m-3 overflow-hidden rounded-lg">
+    <ul class="p-3">
       <li
         v-for="(navItem, nvaIndex) in navList"
         :key="nvaIndex"
-        class="van-hairline--bottom flex items-center justify-between bg-white px-4 py-6 active:opacity-30"
+        class="flex items-center justify-between bg-white px-4 py-6 active:opacity-30 mb-4 overflow-hidden rounded-lg"
         @click="router.push({ path: navItem.path })"
       >
         <div class="flex items-center">

@@ -67,7 +67,7 @@ const onSave = async () => {
     ...createSmartItem.value,
     [route.query.smartKey]: newDeviceList,
   }
-  router.go(-3)
+  router.go(route.query.fenlei == 1 ? -3 : -4)
 }
 
 const init = () => {
