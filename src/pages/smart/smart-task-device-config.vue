@@ -1,46 +1,44 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import ColorPicker from '@/components/anime/RadialColorPicker.vue'
-import PickerSearch from '@/components/common/PickerSearch.vue'
-import { useTrigger } from '@/components/trigger/useTrigger'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import smartStore from '@/store/smartStore'
-import { stringToArray } from '@/utils/common'
+import { mergeObjectIntoArray } from '@/utils/common'
 
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
 
 defineOptions({ name: 'SmartTaskDeviceConfig' })
 
 const { useGetDeviceItem, includesUse } = deviceStore()
-const { getModeColumns, onConfigFormat } = useTrigger()
 const { createSmartItem } = storeToRefs(smartStore())
 
 const route = useRoute()
 const router = useRouter()
 
 const modePickerRef = ref(null)
-const deviceItem = computed(() => useGetDeviceItem(route.query.id))
-const deviceColumns = ref([])
 const { SWITCH } = USE_KEY
 const config = ref({ [SWITCH]: { useStatus: 'on', useValue: '1' } })
-const deviceListKey = computed(() => `${route.query.key}DeviceList`)
+const taskColumns = ref([])
+
+const getSmartDevice = () => {
+  const { smartKey, id } = route.query
+  createSmartItem.value[smartKey]?.find((item) => item.id == id)
+}
+//当前设备
+const deviceItem = computed(() => getSmartDevice() || useGetDeviceItem(route.query.id))
 
 watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
     const { modeList = [] } = val
-    deviceColumns.value = modeList?.filter((item) => item.use != SWITCH)
-    config.value = {
-      [SWITCH]: {
-        useStatus: 'on',
-        useValue: '1',
-      },
-    }
+    taskColumns.value = JSON.parse(JSON.stringify(modeList.filter((item) => item.use != SWITCH)))
+    const { useStatus, useValue } = modeList.find((item) => item.use == SWITCH)
+    if (!getSmartDevice()) return
+    config.value[SWITCH] = { useStatus, useValue }
   },
   { immediate: true }
 )
@@ -53,53 +51,33 @@ function onSwitchChange(value) {
 }
 // 1：存储新的设备。2：变更旧的设备模块
 const onSave = () => {
-  const deviceList = createSmartItem.value[deviceListKey.value] || []
-  const { modeList, id } = deviceItem.value
-  let newDeviceList = []
-  if (deviceList.some((item) => item.id == id)) {
-    newDeviceList = deviceList.map((item) => {
-      if (item.id == id) {
-        return { ...item, modeList }
-      }
-      return item
-    })
-  } else {
-    // 新的设备
-    newDeviceList = [...deviceList, deviceItem.value]
+  const currentDeviceItem = {
+    ...deviceItem.value,
+    modeList: deviceItem.value.modeList.map((modeItem) => {
+      if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[SWITCH] }
+      return { ...modeItem, ...taskColumns.value.find((item) => item.use == modeItem.use) }
+    }),
   }
-  console.log('new', newDeviceList)
-  // console.log('deviceList', deviceList)
-  // //设备控制数据
-  // const newModeList = modeList.map((modeItem) => {
-  //   if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[modeItem.use] }
-  //   const currentModeItem = deviceList.some((item) => item.id == id)
-  //     ? deviceList.find((item) => item.id == id)?.modeList.find((item) => item.use == modeItem.use)
-  //     : modeItem
-  //   return currentModeItem
-  // })
+  console.log('currentDeviceItem', currentDeviceItem)
 
-  // const newDeviceList = deviceList.length
-  //   ? deviceList.map((item) => {
-  //       if (item.id == route.query.id) return { ...item, modeList: newModeList }
-  //       return item
-  //     })
-  //   : [{ ...deviceItem, modeList: newModeList }]
-  // createSmartItem.value = { ...createSmartItem.value, [deviceListKey.value]: newDeviceList }
-  // router.go(-4)
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    [route.query.smartKey]: mergeObjectIntoArray(
+      currentDeviceItem,
+      createSmartItem.value[route.query.smartKey] || [],
+      'id'
+    ),
+  }
+
+  router.go(-4)
 }
 
 const openModePicker = (modeItem) => {
-  console.log(createSmartItem.value)
-  const deviceList = createSmartItem.value[deviceListKey.value] || []
-  modePickerRef.value.open(modeItem, deviceItem.value, deviceList, deviceListKey)
+  modePickerRef.value.open({ modeItem, id: deviceItem.value.id })
 }
 
-const onDeviceModeChange = (newDeviceList) => {
-  createSmartItem.value = {
-    ...createSmartItem.value,
-    [deviceListKey.value]: newDeviceList,
-  }
-  console.log('createSmartItem', createSmartItem.value)
+const onDeviceModeChange = (payload) => {
+  taskColumns.value = mergeObjectIntoArray(payload, taskColumns.value, 'use')
 }
 </script>
 
@@ -121,11 +99,17 @@ const onDeviceModeChange = (newDeviceList) => {
         <!--设备属性-->
         <div class="pl-2">
           <van-cell
-            v-for="(columnItem, columnIndex) in deviceColumns"
+            v-for="(columnItem, columnIndex) in taskColumns"
             :key="columnIndex"
             clickable
-            :title="columnItem.label"
             is-link
+            center
+            :title="columnItem.label"
+            :value="
+              columnItem.valueIsNum
+                ? columnItem.useValue
+                : deviceItem.modeNames[`${columnItem.use}-${columnItem.useStatus}`]
+            "
             @click="openModePicker(columnItem)"
           ></van-cell>
         </div>
@@ -140,11 +124,17 @@ const onDeviceModeChange = (newDeviceList) => {
 
     <div v-else class="p-4 rounded-lg">
       <van-cell
-        v-for="(columnItem, columnIndex) in deviceColumns"
+        v-for="(columnItem, columnIndex) in taskColumns"
         :key="columnIndex"
         clickable
-        :title="columnItem.label"
         is-link
+        center
+        :title="columnItem.label"
+        :value="
+          columnItem.valueIsNum
+            ? columnItem.useValue
+            : deviceItem.modeNames[`${columnItem.use}-${columnItem.useStatus}`]
+        "
         @click="openModePicker(columnItem)"
       ></van-cell>
     </div>

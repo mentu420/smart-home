@@ -16,8 +16,16 @@ const { getModeRange } = useTrigger()
 const sliderPickerRef = ref(null)
 const colorPickerRef = ref(null)
 const pickerSearchRef = ref(null)
+const scopeData = ref({})
 
-function open(modeItem, deviceItem, deviceList, deviceListKey) {
+/**
+ * 传入模块数据，传出新的模块数据
+ * modeItem 模块数据
+ * **/
+
+function open(data) {
+  scopeData.value = data
+  const { modeItem, id } = data
   const [min, max] = getModeRange(modeItem.useColumns, modeItem.use)
   const { BRIGHTNESS, COLOURTEMPERATURE, TEMPERATURE, PERCENT, ANGLE, VOLUME, PROCESS } = USE_KEY
   switch (modeItem.use) {
@@ -29,63 +37,48 @@ function open(modeItem, deviceItem, deviceList, deviceListKey) {
     case PROCESS:
       sliderPickerRef.value.open({
         modeItem,
-        id: deviceItem.id,
-        title: `${deviceItem.label}-${modeItem.label}`,
+        id,
+        title: `${modeItem.label}`,
         modelValue: modeItem.useValue,
         min,
         max,
-        deviceList,
-        deviceListKey,
       })
       break
     case COLOURTEMPERATURE:
       colorPickerRef.value?.open({
         modeItem,
-        id: deviceItem.id,
+        id,
         ratio: modeItem.useValue,
         min,
         max,
-        deviceList,
-        deviceListKey,
+        angle: modeItem.angle,
       })
       break
     default:
       pickerSearchRef.value.open({
         modeItem,
-        id: deviceItem.id,
+        id,
         columns: modeItem.useColumns,
-        deviceList,
-        deviceListKey,
       })
       break
   }
 }
 
-function onModeChange({ selectedOptions }, { modeItem, id, deviceList, deviceListKey }) {
-  const { useValue, useEn } = selectedOptions[0]
+function onModeChange({ selectedOptions }, { modeItem }) {
+  const { useValue, useEn, angle } = selectedOptions[0]
 
-  const currentDeviceList = deviceList.length ? deviceList : deviceStore().deviceList
+  //newModeItem 新的模块数据
+  const newModeItem = { ...modeItem, useValue, useStatus: useEn, angle }
 
-  const currentDeviceItem = currentDeviceList.find((item) => item.id == id)
-
-  const newModeList = currentDeviceItem.modeList.map((item) => {
-    if (item.use == modeItem.use) return { ...item, useValue, useStatus: useEn }
-    return item
-  })
-
-  const newDeviceList = deviceList.length
-    ? deviceList.map((item) => {
-        if (item.id == id) return { ...item, modeList: newModeList }
-        return item
-      })
-    : [{ ...currentDeviceItem, modeList: newModeList }]
-
-  emits('change', { [deviceListKey]: newDeviceList })
+  emits('change', newModeItem, scopeData.value)
 }
 
 // 进度条
-function onColorPickerChange({ ratio }, scopeData) {
-  onModeChange({ selectedOptions: [{ useValue: ratio, useEn: scopeData.modeItem.use }] }, scopeData)
+function onColorPickerChange({ ratio, angle }, scopeData) {
+  onModeChange(
+    { selectedOptions: [{ useValue: ratio, useEn: scopeData.modeItem.use, angle }] },
+    scopeData
+  )
 }
 
 function onSliderPickerChange(useValue, scopeData) {

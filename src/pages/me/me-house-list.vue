@@ -5,7 +5,10 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setHouseItem, getHouseList } from '@/apis/houseApi'
+import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
+import smartStore from '@/store/smartStore'
+import userStore from '@/store/userStore'
 
 defineOptions({ name: 'MeHouse' })
 
@@ -18,22 +21,57 @@ const familyLength = computed(
   () => (id) => familyList.value.filter((familyItem) => familyItem.fangwubianhao == id).length
 )
 
-const onSelect = ({ id }) => {
-  houseStore().setCurrentHouse(id)
+const onSelect = async ({ id }) => {
+  try {
+    loading.value = true
+    const { useGetToken, useSetToken } = userStore()
+    await getHouseList({ op: 5, fangwubianhao: id })
+    const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
+      houseStore()
+    const { useGetDeviceListSync } = deviceStore()
+    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
+    await Promise.all([
+      useGetHouseListSync(true),
+      useGetRoomListSync(true),
+      useGetFloorListSync(true),
+      useGetDeviceListSync(true),
+      useGetSceneListSync(true),
+      useGetSmartListSync(true),
+      useGetFamilyListSync(true),
+    ])
+    houseStore().setCurrentHouse(id)
+    useSetToken({ ...useGetToken(), fangwubianhao: id })
+  } finally {
+    loading.value = false
+  }
 }
 
 async function onDelect({ id, label }) {
   try {
+    loading.value = true
     if (currentHouse.value.id == id) {
       showDialog({ title: '提示', message: '请切换当前房屋后再删除！' })
       return
     }
-    loading.value = true
     await showConfirmDialog({ title: '提示', message: `是否删除${label}房屋` })
     await getHouseList({ op: 4, fangwubianhao: id })
     houseList.value = houseList.value.filter((item) => item.id != id)
   } finally {
     loading.value = false
+  }
+}
+
+const onSwipeClick = async ({ position }, houseItem) => {
+  switch (position) {
+    case 'left':
+      await onSelect(houseItem)
+      return true
+    case 'cell':
+    case 'outside':
+      return true
+    case 'right':
+      await onDelect(houseItem)
+      return true
   }
 }
 </script>
@@ -48,15 +86,10 @@ async function onDelect({ id, label }) {
           v-for="houseItem in houseList"
           :key="houseItem.id"
           class="rounded-lg overflow-hidden"
+          :before-close="(e) => onSwipeClick(e, houseItem)"
         >
           <template #left>
-            <van-button
-              class="!h-full"
-              square
-              type="primary"
-              text="切换"
-              @click="onSelect(houseItem)"
-            />
+            <van-button class="!h-full" square type="primary" text="切换" :loading="loading" />
           </template>
           <van-cell
             :label="`${familyLength(houseItem.id)}名成员`"
@@ -77,6 +110,7 @@ async function onDelect({ id, label }) {
               square
               type="danger"
               text="删除"
+              :loading="loading"
               @click="onDelect(houseItem)"
             />
           </template>

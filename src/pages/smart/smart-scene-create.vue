@@ -19,7 +19,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
-import { transformKeys, stringToArray } from '@/utils/common'
+import { transformKeys, stringToArray, mergeObjectIntoArray } from '@/utils/common'
 
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
 
@@ -115,8 +115,8 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
   } else if (action.id == 2) {
     try {
       await showConfirmDialog({ title: '提示', message: `是否删除${modeItem.label}模块` })
-      const { actionsDeviceList } = createSmartItem.value
-      const newDeviceList = actionsDeviceList.map((item) => {
+      const { actionDeviceList } = createSmartItem.value
+      const newDeviceList = actionDeviceList.map((item) => {
         if (item.id == deviceItem.id) {
           return {
             ...item,
@@ -125,29 +125,38 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
         }
         return item
       })
-      createSmartItem.value = { ...createSmartItem.value, actionsDeviceList: newDeviceList }
+      createSmartItem.value = { ...createSmartItem.value, actionDeviceList: newDeviceList }
     } catch (error) {
       //
     }
   }
 }
 
-function openActionModeItem(modeItem, deviceItem, key) {
-  const deviceListKey = `${key}DeviceList`
-  const deviceList = createSmartItem.value[deviceListKey] || []
-  modePickerRef.value.open(modeItem, deviceItem, deviceList, deviceListKey)
+function openActionModeItem(modeItem, deviceItem, smartKey) {
+  modePickerRef.value.open({ modeItem, id: deviceItem.id, smartKey })
 }
 
-const onDeviceModeChange = (payload) => {
+const onDeviceModeChange = (payload, { smartKey, id }) => {
+  console.log(createSmartItem.value[smartKey])
   createSmartItem.value = {
     ...createSmartItem.value,
-    ...payload,
+    [smartKey]: createSmartItem.value[smartKey].map((deviceItem) => {
+      if (deviceItem.id == id) {
+        console.log(deviceItem)
+        return {
+          ...deviceItem,
+          modeList: mergeObjectIntoArray(payload, deviceItem.modeList, 'use'),
+        }
+      }
+
+      return deviceItem
+    }),
   }
 }
 
 function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
-  const { actionsDeviceList } = createSmartItem.value
-  const newDeviceList = actionsDeviceList.map((item) => {
+  const { actionDeviceList } = createSmartItem.value
+  const newDeviceList = actionDeviceList.map((item) => {
     if (item.id == deviceItem.id) {
       return {
         ...item,
@@ -167,7 +176,7 @@ function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
   console.log('newDeviceList', newDeviceList)
   createSmartItem.value = {
     ...createSmartItem.value,
-    actionsDeviceList: newDeviceList,
+    actionDeviceList: newDeviceList,
   }
 }
 
@@ -190,12 +199,12 @@ const getSceneActions = ({ modeList, id }) => {
 const onSave = async () => {
   try {
     await formRef.value?.validate()
-    const { actionsDeviceList = [], ...residue } = createSmartItem.value
-    if (actionsDeviceList.length == 0) {
+    const { actionDeviceList = [], ...residue } = createSmartItem.value
+    if (actionDeviceList.length == 0) {
       showToast('请添加任务')
       return
     }
-    const actions = actionsDeviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
+    const actions = actionDeviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
     const op = route.query.id ? 3 : 2
     const data = {
       ...residue,
@@ -265,7 +274,7 @@ const init = () => {
       )
     })
 
-    const actionsDeviceList = deviceList.value
+    const actionDeviceList = deviceList.value
       .filter((item) => modeActions.some((action) => action.id == item.id))
       .map((deviceItem) => {
         return {
@@ -281,12 +290,17 @@ const init = () => {
     createSmartItem.value = {
       ...createSmartItem.value,
       ...data,
-      actionsDeviceList,
+      actionDeviceList,
     }
   } else if (route.query.fenlei == 1) {
     //新增
     createSmartItem.value = { ...createSmartItem.value, img: sceneGallery.value[0].src }
   }
+  /**
+   * fenlei 1：场景 2：自动化
+   * 1：自动化比场景多一个eventDeviceList，自动化有两个智能设备actionDeviceList
+   * **/
+  createSmartItem.value = { ...createSmartItem.value, fenlei: route.query.fenlei }
 }
 
 onMounted(init)
@@ -310,7 +324,7 @@ const openGallery = () => {
 function goEventConfig() {
   router.push({
     path: '/smart-task-list',
-    query: { key: 'actions', ...route.query }, //key为createSmartItem 中存储的字段
+    query: { smartKey: 'actionDeviceList', ...route.query }, //key为createSmartItem 中存储的字段
   })
 }
 </script>
@@ -433,7 +447,7 @@ function goEventConfig() {
     <!--任务-->
     <section class="p-4">
       <div
-        v-if="!createSmartItem.actionsDeviceList || createSmartItem.actionsDeviceList?.length == 0"
+        v-if="!createSmartItem.actionDeviceList || createSmartItem.actionDeviceList?.length == 0"
         v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goEventConfig"
@@ -442,7 +456,7 @@ function goEventConfig() {
         <label class="ml-4">添加任务</label>
       </div>
       <ol
-        v-if="createSmartItem.actionsDeviceList?.length > 0"
+        v-if="createSmartItem.actionDeviceList?.length > 0"
         class="flex items-center justify-between p-2"
       >
         <li>执行任务</li>
@@ -453,7 +467,7 @@ function goEventConfig() {
       <!--任务列表-->
       <ul>
         <li
-          v-for="deviceItem in createSmartItem.actionsDeviceList"
+          v-for="deviceItem in createSmartItem.actionDeviceList"
           :key="deviceItem.id"
           class="mb-4 bg-white rounded-lg"
         >
@@ -482,13 +496,9 @@ function goEventConfig() {
                 <label
                   v-clickable-active
                   class="px-4 py-1 bg-gray-100 rounded-full"
-                  @click="openActionModeItem(modeItem, deviceItem, 'actions')"
+                  @click="openActionModeItem(modeItem, deviceItem, 'actionDeviceList')"
                 >
-                  {{
-                    modeItem.valueIsNum
-                      ? deviceItem.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
-                      : modeItem.label
-                  }}
+                  {{ modeItem.label }}
                   -
                   {{
                     modeItem.valueIsNum

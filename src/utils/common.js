@@ -456,3 +456,23 @@ export function transformKeys(data, objKeys, filter = false, reverse = false) {
 
   return transformedObj
 }
+
+/**
+ * 根据key判断A是否存在O相同元素合并对象都数组
+ * @params O object 对象 A array 数组 key string 判断相同的条件
+ * **/
+export function mergeObjectIntoArray(O, A, key) {
+  // 查询数组对象 A 中是否存在对象 O
+  const foundObject = A.find((obj) => obj[key] === O[key])
+
+  if (foundObject) {
+    // 如果找到了匹配的对象，合并对象 O 到找到的对象中
+    Object.assign(foundObject, O)
+  } else {
+    // 如果没有找到匹配的对象，将对象 O 存储到数组对象 A 中
+    A.push(O)
+  }
+
+  // 返回合并后的数组对象 A
+  return A
+}

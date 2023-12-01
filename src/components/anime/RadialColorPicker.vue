@@ -102,6 +102,7 @@ const isPressed = ref(false)
 const isRippling = ref(false)
 const isDragging = ref(false)
 const scopeData = ref(null)
+const ratio = ref(0)
 
 const drawGradientCircle = (gradientType, colors, angle) => {
   const canvas = document.createElement('canvas')
@@ -169,18 +170,18 @@ watch(
   }
 )
 
-const ratio = computed({
-  get: () => scopeData.value.ratio || 0,
-  set: () => {
-    const angleValue = angle.value > 180 ? 180 - (angle.value - 180) : angle.value
+watch(
+  () => angle.value,
+  (val) => {
     const { min, max } = scopeData.value
     const minValue = min || props.range[0]
     const maxValue = max || props.range[1]
-    const res = ((Number(maxValue) - Number(minValue)) / 180) * angleValue + Number(minValue)
-    console.log('ratio', res)
-    return res.toFixed()
-  },
-})
+    const angleValue = val > 180 ? 360 - val : val
+    const ratioValue = angleValue / 180
+    const value = (Number(maxValue) - Number(minValue)) * ratioValue + Number(minValue)
+    ratio.value = value.toFixed()
+  }
+)
 
 // ignore testing code that will be removed by dead code elimination for production
 // istanbul ignore next
@@ -289,10 +290,25 @@ const hidePalette = () => {
   }
 }
 
+const getAngle = (min, max, value) => {
+  const ratio = (Number(value) - Number(min)) / (Number(max) - Number(min))
+  console.log('getAngle', ratio)
+  const angleValue = ratio * 180
+  console.log('angleValue', angleValue)
+  const angle = angleValue > 180 ? 360 - angleValue : angleValue
+  return angle.toFixed()
+}
+
 function open(data) {
   scopeData.value = data
-  ratio.value = data.ratio
-  console.log('scopeData', scopeData.value, ratio.value)
+  const { min, max } = scopeData.value
+  const minValue = min || props.range[0]
+  const maxValue = max || props.range[1]
+  if (data.ratio) {
+    ratio.value = data.ratio
+    angle.value = data.angle || getAngle(minValue, maxValue, data.ratio)
+  }
+
   show.value = true
 }
 

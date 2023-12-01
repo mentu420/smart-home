@@ -17,7 +17,6 @@ const checkedAll = ref(false)
 const checkboxGroup = ref(null)
 const floorTree = ref([])
 const { createSmartItem } = storeToRefs(smartStore())
-const deviceListKey = computed(() => `${route.query.key}DeviceList`)
 
 const toggle = (id) => {
   checkboxRefs.value[id]?.toggle()
@@ -57,7 +56,7 @@ const onSave = async () => {
     .filter((deviceItem) => checkedDevice.value.includes(deviceItem.id))
     .map((checkItem) => ({ ...checkItem, modeList: setModeColumns(checkItem.columns) }))
 
-  const smartDeviceList = createSmartItem.value[deviceListKey] || []
+  const smartDeviceList = createSmartItem.value[route.query.smartKey] || []
 
   const newDeviceList =
     smartDeviceList.length > 0
@@ -66,7 +65,7 @@ const onSave = async () => {
 
   createSmartItem.value = {
     ...createSmartItem.value,
-    [deviceListKey.value]: newDeviceList,
+    [route.query.smartKey]: newDeviceList,
   }
   router.go(-3)
 }
