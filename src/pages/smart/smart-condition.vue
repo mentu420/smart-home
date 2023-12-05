@@ -17,7 +17,9 @@ const addPressEvent = () => {
   if (events.find((item) => item.leixing == 0)) return
   createSmartItem.value = {
     ...createSmartItem.value,
-    events: [...events, { isor: 0, leixing: 0, tiaojian: {}, fujiatiaojian: [] }],
+    events: [...events, { isor: 0, leixing: 0, tiaojian: {}, fujiatiaojian: [] }].sort(
+      (a, b) => a.leixing - b.leixing
+    ),
   }
   router.back()
 }
@@ -32,6 +34,7 @@ const addPressEvent = () => {
     </div>
     <ul class="p-4 space-y-4">
       <li
+        v-if="!route.query.eventIndex"
         v-clickable-active
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
         :class="{
@@ -66,7 +69,7 @@ const addPressEvent = () => {
         @click="
           router.push({
             path: '/smart-task-list',
-            query: { smartKey: 'eventDeviceList', ...route.query }, //key为createSmartItem 中存储的字段
+            query: route.query, //key为createSmartItem 中存储的字段
           })
         "
       >

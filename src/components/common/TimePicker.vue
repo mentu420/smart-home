@@ -17,7 +17,7 @@ const scopeData = ref(null) // 打开picker时传的数据
 const showPicker = ref(false)
 
 const currentTime = computed({
-  get: () => props.modelValue,
+  get: () => scopeData.value?.modelValue || props.modelValue,
   set: (val) => {
     if (attrs['onUpdate:modelValue']) emits('update:modelValue', val)
   },
@@ -26,6 +26,7 @@ const currentTime = computed({
 function open(data) {
   showPicker.value = true
   scopeData.value = data
+  console.log(data)
 }
 
 function close() {

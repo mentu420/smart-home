@@ -93,12 +93,21 @@ const onExecutionTimeConfirm = ({ selectedValues }) => {
   updateSceneCreateItem({ events })
   showExecutionTime.value = false
 }
-//删除时间事件
-const delTimeEventItem = (eventItem, eventIndex) => {
+
+const selectEventMoreItem = (action, eventItem, eventIndex) => {
   const { events } = createSmartItem.value
-  createSmartItem.value = {
-    ...createSmartItem.value,
-    events: events.filter((item) => item != eventItem),
+  switch (action.id) {
+    case 0:
+      goConditionConfig({ eventIndex })
+      break
+    case 1:
+      break
+    case 2:
+      createSmartItem.value = {
+        ...createSmartItem.value,
+        events: events.filter((item) => item != eventItem),
+      }
+      break
   }
 }
 //删除点击事件
@@ -115,8 +124,8 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
   } else if (action.id == 2) {
     try {
       await showConfirmDialog({ title: '提示', message: `是否删除${modeItem.label}模块` })
-      const { actionDeviceList } = createSmartItem.value
-      const newDeviceList = actionDeviceList.map((item) => {
+      const { actions } = createSmartItem.value
+      const newDeviceList = actions.map((item) => {
         if (item.id == deviceItem.id) {
           return {
             ...item,
@@ -125,7 +134,7 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
         }
         return item
       })
-      createSmartItem.value = { ...createSmartItem.value, actionDeviceList: newDeviceList }
+      createSmartItem.value = { ...createSmartItem.value, actions: newDeviceList }
     } catch (error) {
       //
     }
@@ -155,8 +164,8 @@ const onDeviceModeChange = (payload, { smartKey, id }) => {
 }
 
 function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
-  const { actionDeviceList } = createSmartItem.value
-  const newDeviceList = actionDeviceList.map((item) => {
+  const { actions } = createSmartItem.value
+  const newDeviceList = actions.map((item) => {
     if (item.id == deviceItem.id) {
       return {
         ...item,
@@ -176,7 +185,7 @@ function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
   console.log('newDeviceList', newDeviceList)
   createSmartItem.value = {
     ...createSmartItem.value,
-    actionDeviceList: newDeviceList,
+    actions: newDeviceList,
   }
 }
 
@@ -199,19 +208,19 @@ const getSceneActions = ({ modeList, id }) => {
 const onSave = async () => {
   try {
     await formRef.value?.validate()
-    const { actionDeviceList = [], ...residue } = createSmartItem.value
-    if (actionDeviceList.length == 0) {
+    const { actions = [], ...residue } = createSmartItem.value
+    if (actions.length == 0) {
       showToast('请添加任务')
       return
     }
-    const actions = actionDeviceList.map((deviceItem) => getSceneActions(deviceItem)).flat()
+    const newActions = actions.map((deviceItem) => getSceneActions(deviceItem)).flat()
     const op = route.query.id ? 3 : 2
     const data = {
       ...residue,
       fenlei: route.query.fenlei,
       leixing: 1,
       isor: 0,
-      actions,
+      actions: newActions,
     }
     const config = {
       params: { op },
@@ -274,7 +283,7 @@ const init = () => {
       )
     })
 
-    const actionDeviceList = deviceList.value
+    const newActions = deviceList.value
       .filter((item) => modeActions.some((action) => action.id == item.id))
       .map((deviceItem) => {
         return {
@@ -290,7 +299,7 @@ const init = () => {
     createSmartItem.value = {
       ...createSmartItem.value,
       ...data,
-      actionDeviceList,
+      actions: newActions,
     }
   } else if (route.query.fenlei == 1) {
     //新增
@@ -298,7 +307,7 @@ const init = () => {
   }
   /**
    * fenlei 1：场景 2：自动化
-   * 1：自动化比场景多一个eventDeviceList，自动化有两个智能设备actionDeviceList
+   * 1：自动化比场景多一个events，自动化有两个智能设备actions
    * **/
   createSmartItem.value = { ...createSmartItem.value, fenlei: route.query.fenlei }
 }
@@ -312,8 +321,11 @@ watch(
   }
 )
 
-const goConditionConfig = () => {
-  router.push({ path: '/smart-condition', query: route.query })
+const goConditionConfig = (params = {}) => {
+  router.push({
+    path: '/smart-condition',
+    query: { ...route.query, ...params, smartType: 'events' },
+  })
 }
 
 const openGallery = () => {
@@ -324,7 +336,7 @@ const openGallery = () => {
 function goEventConfig() {
   router.push({
     path: '/smart-task-list',
-    query: { smartKey: 'actionDeviceList', ...route.query }, //key为createSmartItem 中存储的字段
+    query: { smartKey: 'actions', ...route.query }, //key为createSmartItem 中存储的字段
   })
 }
 </script>
@@ -375,79 +387,101 @@ function goEventConfig() {
         v-if="createSmartItem?.events?.length == 0"
         v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
-        @click="goConditionConfig"
+        @click="goConditionConfig()"
       >
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加条件</label>
       </div>
       <ol v-else class="flex items-center justify-between p-2">
         <li>触发事件</li>
-        <li @click="goConditionConfig">
+        <li @click="goConditionConfig()">
           <van-icon size="24" name="add" color="#e39334" />
         </li>
       </ol>
       <!--条件列表-->
-      <ul>
-        <!--点击事件-->
+      <ul v-if="createSmartItem?.events?.length">
         <li
-          v-if="pressEvent"
-          class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
+          v-for="(eventItem, eventIndex) in createSmartItem?.events"
+          :key="eventIndex"
+          class="van-haptics-feedback mb-3 flex min-h-16 items-center justify-between rounded-lg bg-white p-4"
         >
-          <p>
-            <label class="mr-2">当</label>
-            <label>点击此{{ pageName }}卡片</label>
-          </p>
-          <p>
-            <van-popover
-              :actions="[{ text: '删除' }]"
-              placement="bottom-end"
-              @select="delPressEventItem"
-            >
-              <template #reference>
-                <IconFont class="text-xs" icon="trash" />
-              </template>
-            </van-popover>
-          </p>
-        </li>
-        <!--重复时间-->
-        <template v-if="timeEvents.length">
-          <li
-            v-for="(eventItem, eventIndex) in timeEvents"
-            :key="eventIndex"
-            class="van-haptics-feedback mb-2 flex h-16 items-center justify-between rounded-lg bg-white p-4"
-          >
-            <p>
-              <label class="mr-2">
-                {{ !pressEvent && eventIndex == 0 ? '当' : '或' }}
-              </label>
+          <div class="break-all">
+            <label class="mr-3">{{ eventIndex == 0 ? '当' : '或' }}</label>
+            <template v-if="eventItem.leixing == 0">点击此{{ pageName }}卡片</template>
+            <template v-else>
               <label
-                class="space-x-2 rounded-full bg-gray-100 px-4 py-1"
+                v-if="eventItem.leixing == 1"
+                class="mr-3 mb-3 rounded-full bg-gray-100 px-4 py-1"
                 @click="openExecutionTime(eventItem, eventIndex)"
               >
                 <label>{{ getRepeatTimeText(eventItem.tiaojian.chongfuzhi) }}</label>
                 <label>{{ eventItem.tiaojian.shijian }}</label>
               </label>
-              <label class="m-2">时</label>
-            </p>
-            <p>
-              <van-popover
-                :actions="[{ text: '删除' }]"
-                placement="bottom-end"
-                @select="delTimeEventItem(eventItem, eventIndex)"
-              >
-                <template #reference>
-                  <IconFont class="text-xs" icon="trash" />
-                </template>
-              </van-popover>
-            </p>
-          </li>
-        </template>
+              <template v-else>
+                <label v-for="modeItem in eventItem.tiaojian.modeList" :key="modeItem.id">
+                  <label class="mr-3 mb-3 rounded-full bg-gray-100 px-4 py-1">
+                    {{ eventItem.tiaojian.label }}
+                  </label>
+
+                  <lable class="mr-3 mb-3 rounded-full bg-gray-100 px-4 py-1">
+                    {{ modeItem.label }}-{{
+                      modeItem.valueIsNum
+                        ? modeItem.useValue
+                        : eventItem.tiaojian.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
+                    }}
+                  </lable>
+                  <label>且</label>
+                </label>
+              </template>
+
+              <template v-if="eventItem.fujiatiaojian">
+                <label
+                  v-for="(extendItem, extendIndex) in eventItem.fujiatiaojian"
+                  :key="extendIndex"
+                  class="mb-3"
+                >
+                  <label class="mx-3">且</label>
+                  <label class="space-x-2 rounded-full bg-gray-100 px-4 py-1">
+                    <template v-if="extendItem.leixing == 1">
+                      <label>{{ getRepeatTimeText(extendItem.tiaojian.chongfuzhi) }}</label>
+                      <label>{{ extendItem.tiaojian.shijian }}</label>
+                    </template>
+                    <template v-else>
+                      <label>
+                        {{ extendItem.tiaojian.label }}
+                      </label>
+                    </template>
+                  </label>
+                </label>
+              </template>
+            </template>
+          </div>
+          <div class="shrink-0 ml-2">
+            <van-popover
+              :actions="
+                eventItem.leixing == 0
+                  ? [{ text: '删除', id: 2 }]
+                  : [
+                      { text: '附加生效条件', id: 0 },
+                      { text: '清除生效条件', id: 1 },
+                      { text: '删除', id: 2 },
+                    ]
+              "
+              placement="bottom-end"
+              @select="(action) => selectEventMoreItem(action, eventItem, eventIndex)"
+            >
+              <template #reference>
+                <IconFont class="text-xs text-gray-300" icon="more-round" />
+              </template>
+            </van-popover>
+          </div>
+        </li>
       </ul>
     </section>
     <!--任务-->
     <section class="p-4">
       <div
-        v-if="!createSmartItem.actionDeviceList || createSmartItem.actionDeviceList?.length == 0"
+        v-if="!createSmartItem.actions || createSmartItem.actions?.length == 0"
         v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goEventConfig"
@@ -455,10 +489,7 @@ function goEventConfig() {
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加任务</label>
       </div>
-      <ol
-        v-if="createSmartItem.actionDeviceList?.length > 0"
-        class="flex items-center justify-between p-2"
-      >
+      <ol v-if="createSmartItem.actions?.length > 0" class="flex items-center justify-between p-2">
         <li>执行任务</li>
         <li @click="goEventConfig">
           <van-icon size="24" name="add" color="#e39334" />
@@ -467,7 +498,7 @@ function goEventConfig() {
       <!--任务列表-->
       <ul>
         <li
-          v-for="deviceItem in createSmartItem.actionDeviceList"
+          v-for="deviceItem in createSmartItem.actions"
           :key="deviceItem.id"
           class="mb-4 bg-white rounded-lg"
         >
@@ -496,7 +527,7 @@ function goEventConfig() {
                 <label
                   v-clickable-active
                   class="px-4 py-1 bg-gray-100 rounded-full"
-                  @click="openActionModeItem(modeItem, deviceItem, 'actionDeviceList')"
+                  @click="openActionModeItem(modeItem, deviceItem, 'actions')"
                 >
                   {{ modeItem.label }}
                   -

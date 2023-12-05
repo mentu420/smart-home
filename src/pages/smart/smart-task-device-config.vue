@@ -69,7 +69,7 @@ const onSave = () => {
     ),
   }
 
-  router.go(route.query.fenlei == 1 ? -4 : -5)
+  router.go((route.query.smartKey == 'actions') == 1 ? -4 : -5)
 }
 
 const openModePicker = (modeItem) => {

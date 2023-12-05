@@ -56,18 +56,43 @@ const onSave = async () => {
     .filter((deviceItem) => checkedDevice.value.includes(deviceItem.id))
     .map((checkItem) => ({ ...checkItem, modeList: setModeColumns(checkItem.columns) }))
 
-  const smartDeviceList = createSmartItem.value[route.query.smartKey] || []
+  const { smartKey, fenlei, eventIndex } = route.query
+  if (smartKey == 'actions') {
+    const smartDeviceList = createSmartItem.value[smartKey] || []
 
-  const newDeviceList =
-    smartDeviceList.length > 0
-      ? [...smartDeviceList.filter((item) => !checkedDevice.value.includes(item.id)), ...checkList]
-      : checkList
+    const newDeviceList =
+      smartDeviceList.length > 0
+        ? [
+            ...smartDeviceList.filter((item) => !checkedDevice.value.includes(item.id)),
+            ...checkList,
+          ]
+        : checkList
 
-  createSmartItem.value = {
-    ...createSmartItem.value,
-    [route.query.smartKey]: newDeviceList,
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      [smartKey]: newDeviceList,
+    }
+  } else {
+    const { events } = createSmartItem.value
+    const arr = checkList.map((checkItem) => ({ leixing: 2, tiaojian: checkItem }))
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      events: eventIndex
+        ? events.map((item, i) => {
+            if (i == eventIndex) {
+              const { fujiatiaojian = [] } = item
+              return {
+                ...item,
+                fujiatiaojian: [...fujiatiaojian, ...arr],
+              }
+            }
+            return item
+          })
+        : arr,
+    }
   }
-  router.go(route.query.fenlei == 1 ? -3 : -4)
+
+  router.go(smartKey == 'actions' ? -3 : -4)
 }
 
 const init = () => {

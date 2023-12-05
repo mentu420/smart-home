@@ -2,7 +2,7 @@
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import TimePicker from '@/components/common/TimePicker.vue'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
@@ -13,6 +13,7 @@ defineOptions({ name: 'SmartCondtionTime' })
 const { createSmartItem } = storeToRefs(smartStore())
 
 const router = useRouter()
+const route = useRoute()
 const columsType = ref(['hour', 'minute'])
 const currentTime = ref(dayjs().format('HH:ss').split(':'))
 const conditionTimeList = ref([])
@@ -20,8 +21,16 @@ const timePickerRef = ref(null)
 
 const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
 
-const onTimeConfirm = ({ selectedValues }) => {
-  conditionTimeList.value.push(selectedValues.join(':'))
+const onTimeConfirm = ({ selectedValues }, scopeData) => {
+  if (!scopeData) {
+    conditionTimeList.value.push(selectedValues)
+  } else {
+    conditionTimeList.value = conditionTimeList.value.map((item, i) => {
+      if (i == scopeData.index) return selectedValues
+      return item
+    })
+  }
+
   timePickerRef.value.close()
 }
 
@@ -32,19 +41,35 @@ const delTimeItem = (i) => {
 const onSave = () => {
   const { events = [] } = createSmartItem.value
 
-  createSmartItem.value = {
-    ...createSmartItem.value,
-    events: [
-      ...events,
-      ...conditionTimeList.value.map((timeItem) => ({
-        leixing: 1,
-        tiaojian: {
-          shijian: timeItem,
-          chongfuleixing: '3',
-          chongfuzhi: weekChecked.value,
-        },
-      })),
-    ],
+  //时间列表
+  const timeList = conditionTimeList.value.map((timeItem) => ({
+    leixing: 1,
+    tiaojian: {
+      shijian: timeItem.join(':'),
+      chongfuleixing: '3',
+      chongfuzhi: weekChecked.value,
+    },
+  }))
+  const { eventIndex } = route.query
+  if (eventIndex) {
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      events: events.map((item, i) => {
+        const { fujiatiaojian = [] } = item
+        if (eventIndex == i) {
+          return {
+            ...item,
+            fujiatiaojian: [...fujiatiaojian, ...timeList],
+          }
+        }
+        return item
+      }),
+    }
+  } else {
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      events: [...events, ...timeList],
+    }
   }
 
   router.go(-2)
@@ -61,7 +86,12 @@ const onSave = () => {
         :key="timeIndex"
         class="overflow-hidden rounded-lg"
       >
-        <van-cell :border="false" :title="`时间${timeIndex + 1}`" :value="timeItem" />
+        <van-cell
+          :border="false"
+          :title="`时间${timeIndex + 1}`"
+          :value="timeItem.join(':')"
+          @click="timePickerRef.open({ index: timeIndex, modelValue: timeItem })"
+        />
         <template #right>
           <van-button square type="danger" text="删除" @click="delTimeItem(timeIndex)" />
         </template>
@@ -84,7 +114,7 @@ const onSave = () => {
       v-model="currentTime"
       title="添加时间"
       :columns-type="columsType"
-      @confirm="onTimeConfirm"
+      @select="onTimeConfirm"
     />
   </div>
 </template>
