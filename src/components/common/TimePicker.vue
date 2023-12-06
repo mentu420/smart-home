@@ -26,7 +26,6 @@ const currentTime = computed({
 function open(data) {
   showPicker.value = true
   scopeData.value = data
-  console.log(data)
 }
 
 function close() {

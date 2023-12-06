@@ -24,8 +24,8 @@ const config = ref({ [SWITCH]: { useStatus: 'on', useValue: '1' } })
 const taskColumns = ref([])
 
 const getSmartDevice = () => {
-  const { smartKey, id } = route.query
-  createSmartItem.value[smartKey]?.find((item) => item.id == id)
+  const { smartType, id } = route.query
+  createSmartItem.value[smartType]?.find((item) => item.id == id)
 }
 //当前设备
 const deviceItem = computed(() => getSmartDevice() || useGetDeviceItem(route.query.id))
@@ -59,17 +59,37 @@ const onSave = () => {
     }),
   }
   console.log('currentDeviceItem', currentDeviceItem)
-
-  createSmartItem.value = {
-    ...createSmartItem.value,
-    [route.query.smartKey]: mergeObjectIntoArray(
-      currentDeviceItem,
-      createSmartItem.value[route.query.smartKey] || [],
-      'id'
-    ),
+  const { smartType, eventIndex } = route.query
+  if (smartType == 'actions') {
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      [smartType]: mergeObjectIntoArray(
+        currentDeviceItem,
+        createSmartItem.value[smartType] || [],
+        'id'
+      ),
+    }
+  } else {
+    const obj = { leixing: 2, tiaojian: currentDeviceItem }
+    const events = createSmartItem.value[smartType] || []
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      [smartType]: eventIndex
+        ? events.map((item, i) => {
+            if (i == eventIndex) {
+              const { fujiatiaojian = [] } = item
+              return {
+                ...item,
+                fujiatiaojian: [...fujiatiaojian, obj],
+              }
+            }
+            return item
+          })
+        : [obj],
+    }
   }
 
-  router.go((route.query.smartKey == 'actions') == 1 ? -4 : -5)
+  router.go((smartType == 'actions') == 1 ? -4 : -5)
 }
 
 const openModePicker = (modeItem) => {

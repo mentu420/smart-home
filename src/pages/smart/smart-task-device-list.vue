@@ -56,9 +56,9 @@ const onSave = async () => {
     .filter((deviceItem) => checkedDevice.value.includes(deviceItem.id))
     .map((checkItem) => ({ ...checkItem, modeList: setModeColumns(checkItem.columns) }))
 
-  const { smartKey, fenlei, eventIndex } = route.query
-  if (smartKey == 'actions') {
-    const smartDeviceList = createSmartItem.value[smartKey] || []
+  const { smartType, fenlei, eventIndex } = route.query
+  if (smartType == 'actions') {
+    const smartDeviceList = createSmartItem.value[smartType] || []
 
     const newDeviceList =
       smartDeviceList.length > 0
@@ -70,14 +70,14 @@ const onSave = async () => {
 
     createSmartItem.value = {
       ...createSmartItem.value,
-      [smartKey]: newDeviceList,
+      [smartType]: newDeviceList,
     }
   } else {
-    const { events } = createSmartItem.value
     const arr = checkList.map((checkItem) => ({ leixing: 2, tiaojian: checkItem }))
+    const events = createSmartItem.value[smartType] || []
     createSmartItem.value = {
       ...createSmartItem.value,
-      events: eventIndex
+      [smartType]: eventIndex
         ? events.map((item, i) => {
             if (i == eventIndex) {
               const { fujiatiaojian = [] } = item
@@ -92,7 +92,7 @@ const onSave = async () => {
     }
   }
 
-  router.go(smartKey == 'actions' ? -3 : -4)
+  router.go(smartType == 'actions' ? -3 : -4)
 }
 
 const init = () => {

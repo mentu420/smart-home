@@ -4,16 +4,11 @@ import { showConfirmDialog, showToast } from 'vant'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { getRoomList } from '@/apis/houseApi'
 import { setSceneList, setSmartList } from '@/apis/smartApi.js'
-import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import pickerSearch from '@/components/common/PickerSearch.vue'
-import SliderPicker from '@/components/common/SliderPicker.vue'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import TimePicker from '@/components/common/TimePicker.vue'
 import WeekRepeat from '@/components/common/WeekRepeat.vue'
-import { useTrigger } from '@/components/trigger/useTrigger'
-import { USE_KEY } from '@/enums/deviceEnums'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
@@ -21,7 +16,9 @@ import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import { transformKeys, stringToArray, mergeObjectIntoArray } from '@/utils/common'
 
+import SmartCondtionList from './components/SmartCondtionList.vue'
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
+import SmartRepeatTime from './components/SmartRepeatTime.vue'
 
 defineOptions({ name: 'SmartSceneCreate' })
 
@@ -32,6 +29,7 @@ const route = useRoute()
 
 const showGallery = ref(false)
 const showExecutionTime = ref(false)
+
 const { createSmartItem, sceneGallery, sceneList, smartList } = storeToRefs(smartStore())
 const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(deviceStore())
@@ -44,6 +42,7 @@ const operationDealy = ref(['00', '00']) // 每个设备的延时
 const formRef = ref(null)
 const modePickerRef = ref(null)
 const roomPickerRef = ref(null)
+const repeatTimeRef = ref(null)
 const pageName = computed(() => (route.query.fenlei == 2 ? '自动化' : '场景'))
 
 // 自动化点击事件
@@ -67,31 +66,41 @@ function onSelectRoomItem({ selectedValues }) {
   createSmartItem.value = { ...createSmartItem.value, fangjianbianhao: selectedValues[0] }
 }
 
-// 打开执行时间
-const openExecutionTime = (eventItem, eventIndex) => {
-  const { tiaojian } = eventItem
-  eventActive.value = eventIndex
-  weekChecked.value = tiaojian.chongfuzhi
-  showExecutionTime.value = true
-  executionTime.value = tiaojian.shijian.split(':')
+/**
+ * 修改自动化events中leixing=1的tiaojian或fujiantioajian的重复时间
+ * **/
+const openExecutionTime = (item, i, type) => {
+  repeatTimeRef.value?.open({
+    week: item.tiaojian.chongfuzhi,
+    time: item.tiaojian.shijian.split(':'),
+    eventIndex: i,
+    type: type,
+  })
 }
 // 确认修改执行时间
-const onExecutionTimeConfirm = ({ selectedValues }) => {
-  const { updateSceneCreateItem } = smartStore()
-  const events = createSmartItem.value.events.map((eventItem, eventIndex) => {
-    if (eventIndex == eventActive.value)
+const onExecutionTimeConfirm = ({ time, week }, { eventIndex, type }) => {
+  const { events } = createSmartItem.value
+  const tiaojian = { chongfuzhi: week, chongfuleixing: '3', shijian: time }
+  const newEvents = events.map((item, i) => {
+    if (type) {
       return {
-        ...eventItem,
-        tiaojian: {
-          chongfuzhi: weekChecked.value,
-          chongfuleixing: '3',
-          shijian: selectedValues.join(':'),
-        },
+        ...item,
+        [type]: item[type].map((option, index) => {
+          if (index == eventIndex) return { ...option, tiaojian }
+          return option
+        }),
       }
-    return eventItem
+    } else if (i == eventIndex) {
+      return { ...item, tiaojian }
+    }
+    return item
   })
-  updateSceneCreateItem({ events })
-  showExecutionTime.value = false
+  createSmartItem.value = { ...createSmartItem.value, events: newEvents }
+}
+
+//打开事件设备模块
+const openEventDeviceMode = (modeItem, eventItem, eventIndex) => {
+  console.log('openEventDeviceMode', modeItem, eventItem, eventIndex)
 }
 
 const selectEventMoreItem = (action, eventItem, eventIndex) => {
@@ -141,15 +150,15 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
   }
 }
 
-function openActionModeItem(modeItem, deviceItem, smartKey) {
-  modePickerRef.value.open({ modeItem, id: deviceItem.id, smartKey })
+function openActionModeItem(modeItem, deviceItem, smartType) {
+  modePickerRef.value.open({ modeItem, id: deviceItem.id, smartType })
 }
 
-const onDeviceModeChange = (payload, { smartKey, id }) => {
-  console.log(createSmartItem.value[smartKey])
+const onDeviceModeChange = (payload, { smartType, id }) => {
+  console.log(createSmartItem.value[smartType])
   createSmartItem.value = {
     ...createSmartItem.value,
-    [smartKey]: createSmartItem.value[smartKey].map((deviceItem) => {
+    [smartType]: createSmartItem.value[smartType].map((deviceItem) => {
       if (deviceItem.id == id) {
         console.log(deviceItem)
         return {
@@ -263,7 +272,7 @@ async function onDelect() {
 
 const init = () => {
   const { clearSceneCreateItem } = smartStore()
-  clearSceneCreateItem()
+  // clearSceneCreateItem()
   if (route.query.id) {
     //編輯
     const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
@@ -336,7 +345,7 @@ const openGallery = () => {
 function goEventConfig() {
   router.push({
     path: '/smart-task-list',
-    query: { smartKey: 'actions', ...route.query }, //key为createSmartItem 中存储的字段
+    query: { smartType: 'actions', ...route.query }, //key为createSmartItem 中存储的字段
   })
 }
 </script>
@@ -385,7 +394,6 @@ function goEventConfig() {
     <section v-if="route.query.fenlei == 2" class="p-4">
       <div
         v-if="createSmartItem?.events?.length == 0"
-        v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goConditionConfig()"
       >
@@ -403,56 +411,29 @@ function goEventConfig() {
         <li
           v-for="(eventItem, eventIndex) in createSmartItem?.events"
           :key="eventIndex"
-          class="van-haptics-feedback mb-3 flex min-h-16 items-center justify-between rounded-lg bg-white p-4"
+          class="mb-3 flex min-h-16 items-center justify-between rounded-lg bg-white p-4"
         >
-          <div class="break-all">
-            <label class="mr-3">{{ eventIndex == 0 ? '当' : '或' }}</label>
-            <template v-if="eventItem.leixing == 0">点击此{{ pageName }}卡片</template>
+          <div class="break-words">
+            <span class="mr-3">{{ eventIndex == 0 ? '当' : '或' }}</span>
+            <span v-if="eventItem.leixing == 0">点击此{{ pageName }}卡片</span>
             <template v-else>
-              <label
-                v-if="eventItem.leixing == 1"
-                class="mr-3 mb-3 rounded-full bg-gray-100 px-4 py-1"
-                @click="openExecutionTime(eventItem, eventIndex)"
-              >
-                <label>{{ getRepeatTimeText(eventItem.tiaojian.chongfuzhi) }}</label>
-                <label>{{ eventItem.tiaojian.shijian }}</label>
-              </label>
-              <template v-else>
-                <label v-for="modeItem in eventItem.tiaojian.modeList" :key="modeItem.id">
-                  <label class="mr-3 mb-3 rounded-full bg-gray-100 px-4 py-1">
-                    {{ eventItem.tiaojian.label }}
-                  </label>
-
-                  <lable class="mr-3 mb-3 rounded-full bg-gray-100 px-4 py-1">
-                    {{ modeItem.label }}-{{
-                      modeItem.valueIsNum
-                        ? modeItem.useValue
-                        : eventItem.tiaojian.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
-                    }}
-                  </lable>
-                  <label>且</label>
-                </label>
-              </template>
-
+              <SmartCondtionList
+                :item="eventItem"
+                @open-time="openExecutionTime(eventItem, eventIndex)"
+                @open-mode="(modeItem) => openEventDeviceMode(modeItem, eventItem, eventIndex)"
+              />
               <template v-if="eventItem.fujiatiaojian">
-                <label
+                <span class="mx-2">且</span>
+                <template
                   v-for="(extendItem, extendIndex) in eventItem.fujiatiaojian"
                   :key="extendIndex"
-                  class="mb-3"
                 >
-                  <label class="mx-3">且</label>
-                  <label class="space-x-2 rounded-full bg-gray-100 px-4 py-1">
-                    <template v-if="extendItem.leixing == 1">
-                      <label>{{ getRepeatTimeText(extendItem.tiaojian.chongfuzhi) }}</label>
-                      <label>{{ extendItem.tiaojian.shijian }}</label>
-                    </template>
-                    <template v-else>
-                      <label>
-                        {{ extendItem.tiaojian.label }}
-                      </label>
-                    </template>
-                  </label>
-                </label>
+                  <span v-if="extendIndex != 0" class="mx-2">且</span>
+                  <SmartCondtionList
+                    :item="extendItem"
+                    @open-time="openExecutionTime(extendItem, extendIndex, 'fujiatiaojian')"
+                  />
+                </template>
               </template>
             </template>
           </div>
@@ -482,7 +463,6 @@ function goEventConfig() {
     <section class="p-4">
       <div
         v-if="!createSmartItem.actions || createSmartItem.actions?.length == 0"
-        v-clickable-active
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goEventConfig"
       >
@@ -601,7 +581,8 @@ function goEventConfig() {
       </ul>
     </van-action-sheet>
     <!--场景执行时间-->
-    <van-popup v-model:show="showExecutionTime" round safe-area-inset-bottom position="bottom">
+    <SmartRepeatTime ref="repeatTimeRef" @change="onExecutionTimeConfirm" />
+    <!-- <van-popup v-model:show="showExecutionTime" round safe-area-inset-bottom position="bottom">
       <div class="py-4">
         <van-time-picker
           v-model="executionTime"
@@ -610,6 +591,6 @@ function goEventConfig() {
         />
         <WeekRepeat v-model="weekChecked" />
       </div>
-    </van-popup>
+    </van-popup> -->
   </div>
 </template>
