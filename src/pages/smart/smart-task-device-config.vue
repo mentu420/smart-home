@@ -49,6 +49,12 @@ function onSwitchChange(value) {
     ...{ useStatus: value, useValue: value == 'on' ? '1' : '0' },
   }
 }
+
+//合并事件列表
+const mergeEventsArray = (origin, newArr) => {
+  const ids = [...new Set([...origin, ...newArr].map((item) => item.tiaojian.id))]
+  return ids.map((id) => [...newArr, ...origin].find((item) => item.tiaojian.id == id))
+}
 // 1：存储新的设备。2：变更旧的设备模块
 const onSave = () => {
   const currentDeviceItem = {
@@ -59,7 +65,7 @@ const onSave = () => {
     }),
   }
   console.log('currentDeviceItem', currentDeviceItem)
-  const { smartType, eventIndex } = route.query
+  const { smartType, eventIndex, extend } = route.query
   if (smartType == 'actions') {
     createSmartItem.value = {
       ...createSmartItem.value,
@@ -70,22 +76,24 @@ const onSave = () => {
       ),
     }
   } else {
-    const obj = { leixing: 2, tiaojian: currentDeviceItem }
-    const events = createSmartItem.value[smartType] || []
+    const newEvent = { leixing: 2, tiaojian: currentDeviceItem }
+    const orginEvents = createSmartItem.value[smartType] || []
+    let mergeEvents = []
+    if (extend) {
+      const fujiatiaojian = orginEvents.find((item, i) => i == eventIndex)[extend] || []
+      mergeEvents = mergeEventsArray(fujiatiaojian, [newEvent])
+    } else {
+      mergeEvents = mergeEventsArray(orginEvents, [newEvent])
+    }
+
     createSmartItem.value = {
       ...createSmartItem.value,
-      [smartType]: eventIndex
-        ? events.map((item, i) => {
-            if (i == eventIndex) {
-              const { fujiatiaojian = [] } = item
-              return {
-                ...item,
-                fujiatiaojian: [...fujiatiaojian, obj],
-              }
-            }
+      [smartType]: !extend
+        ? mergeEvents
+        : orginEvents.map((item, i) => {
+            if (i == eventIndex) return { ...item, fujiatiaojian: mergeEvents }
             return item
-          })
-        : [obj],
+          }),
     }
   }
 

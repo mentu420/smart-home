@@ -99,15 +99,22 @@ const onExecutionTimeConfirm = ({ time, week }, { eventIndex, type }) => {
 }
 
 //打开事件设备模块
-const openEventDeviceMode = (modeItem, eventItem, eventIndex) => {
-  console.log('openEventDeviceMode', modeItem, eventItem, eventIndex)
+const openEventDeviceMode = (modeItem, eventItem, eventIndex, type) => {
+  console.log('openEventDeviceMode', modeItem, eventItem, eventIndex, type)
+  modePickerRef.value.open({
+    modeItem,
+    id: eventItem.tiaojian.id,
+    smartType: 'events',
+    type,
+    eventIndex,
+  })
 }
 
 const selectEventMoreItem = (action, eventItem, eventIndex) => {
   const { events } = createSmartItem.value
   switch (action.id) {
     case 0:
-      goConditionConfig({ eventIndex })
+      goConditionConfig({ eventIndex, extend: 'fujiatiaojian' })
       break
     case 1:
       break
@@ -118,11 +125,6 @@ const selectEventMoreItem = (action, eventItem, eventIndex) => {
       }
       break
   }
-}
-//删除点击事件
-const delPressEventItem = () => {
-  const { events, ...data } = createSmartItem.value
-  createSmartItem.value = { ...data, events: events.filter((item) => item.leixing != 0) }
 }
 
 async function onDeviceMoreSelect(action, deviceItem, modeItem) {
@@ -153,22 +155,26 @@ async function onDeviceMoreSelect(action, deviceItem, modeItem) {
 function openActionModeItem(modeItem, deviceItem, smartType) {
   modePickerRef.value.open({ modeItem, id: deviceItem.id, smartType })
 }
-
-const onDeviceModeChange = (payload, { smartType, id }) => {
-  console.log(createSmartItem.value[smartType])
-  createSmartItem.value = {
-    ...createSmartItem.value,
-    [smartType]: createSmartItem.value[smartType].map((deviceItem) => {
-      if (deviceItem.id == id) {
-        console.log(deviceItem)
-        return {
-          ...deviceItem,
-          modeList: mergeObjectIntoArray(payload, deviceItem.modeList, 'use'),
+// 设备模块变更
+const onDeviceModeChange = (payload, { smartType, id, type, eventIndex }) => {
+  if (smartType == 'actions') {
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      [smartType]: createSmartItem.value[smartType].map((deviceItem) => {
+        if (deviceItem.id == id) {
+          console.log(deviceItem)
+          return {
+            ...deviceItem,
+            modeList: mergeObjectIntoArray(payload, deviceItem.modeList, 'use'),
+          }
         }
-      }
 
-      return deviceItem
-    }),
+        return deviceItem
+      }),
+    }
+  } else {
+    //自动化变更设备模块
+    console.log(payload, smartType, id, type, eventIndex)
   }
 }
 
@@ -432,6 +438,10 @@ function goEventConfig() {
                   <SmartCondtionList
                     :item="extendItem"
                     @open-time="openExecutionTime(extendItem, extendIndex, 'fujiatiaojian')"
+                    @open-mode="
+                      (modeItem) =>
+                        openEventDeviceMode(modeItem, extendItem, extendIndex, 'fujiatiaojian')
+                    "
                   />
                 </template>
               </template>
@@ -580,17 +590,7 @@ function goEventConfig() {
         </li>
       </ul>
     </van-action-sheet>
-    <!--场景执行时间-->
+    <!--自动化事件中的重复时间-->
     <SmartRepeatTime ref="repeatTimeRef" @change="onExecutionTimeConfirm" />
-    <!-- <van-popup v-model:show="showExecutionTime" round safe-area-inset-bottom position="bottom">
-      <div class="py-4">
-        <van-time-picker
-          v-model="executionTime"
-          title="指定时间"
-          @confirm="onExecutionTimeConfirm"
-        />
-        <WeekRepeat v-model="weekChecked" />
-      </div>
-    </van-popup> -->
   </div>
 </template>

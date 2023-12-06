@@ -47,6 +47,12 @@ const goDeviceConfig = (item) => {
   })
 }
 
+//合并事件列表
+const mergeEventsArray = (origin, newArr) => {
+  const ids = [...new Set([...origin, ...newArr].map((item) => item.tiaojian.id))]
+  return ids.map((id) => [...origin, ...newArr].find((item) => item.tiaojian.id == id))
+}
+
 const onSave = async () => {
   const { useGetDeviceListSync, setModeColumns } = deviceStore()
 
@@ -56,7 +62,7 @@ const onSave = async () => {
     .filter((deviceItem) => checkedDevice.value.includes(deviceItem.id))
     .map((checkItem) => ({ ...checkItem, modeList: setModeColumns(checkItem.columns) }))
 
-  const { smartType, fenlei, eventIndex } = route.query
+  const { smartType, fenlei, eventIndex, extend } = route.query
   if (smartType == 'actions') {
     const smartDeviceList = createSmartItem.value[smartType] || []
 
@@ -73,22 +79,37 @@ const onSave = async () => {
       [smartType]: newDeviceList,
     }
   } else {
-    const arr = checkList.map((checkItem) => ({ leixing: 2, tiaojian: checkItem }))
-    const events = createSmartItem.value[smartType] || []
+    const newEvents = checkList.map((checkItem) => ({ leixing: 2, tiaojian: checkItem }))
+    const orginEvents = createSmartItem.value[smartType] || []
+    let mergeEvents = []
+    if (extend) {
+      //附加条件
+      const fujiatiaojian = orginEvents.find((item, i) => i == eventIndex)[extend] || []
+      mergeEvents = mergeEventsArray(fujiatiaojian, newEvents)
+      // fujiatiaojian.length == 0
+      //   ? newEvents
+      //   : fujiatiaojian.map((item) => {
+      //       const newItem = newEvents.find((option) => option.tiaojian.id == item.id)
+      //       return newItem || item
+      //     })
+    } else {
+      mergeEvents = mergeEventsArray(orginEvents, newEvents)
+      // orginEvents.length == 0
+      //   ? newEvents
+      //   : orginEvents.map((item) => {
+      //       const newItem = newEvents.find((option) => option.tiaojian.id == item.id)
+      //       return newItem || item
+      //     })
+    }
+
     createSmartItem.value = {
       ...createSmartItem.value,
-      [smartType]: eventIndex
-        ? events.map((item, i) => {
-            if (i == eventIndex) {
-              const { fujiatiaojian = [] } = item
-              return {
-                ...item,
-                fujiatiaojian: [...fujiatiaojian, ...arr],
-              }
-            }
+      [smartType]: !extend
+        ? mergeEvents
+        : orginEvents.map((item, i) => {
+            if (i == eventIndex) return { ...item, fujiatiaojian: mergeEvents }
             return item
-          })
-        : arr,
+          }),
     }
   }
 
@@ -97,6 +118,22 @@ const onSave = async () => {
 
 const init = () => {
   const { useGetFloorTree } = houseStore()
+  const { fenlei, smartType, extend, eventIndex } = route.query
+  const smartTypeData = createSmartItem.value[smartType] || []
+  console.log('smartTypeData', smartTypeData)
+  if (fenlei == 1) {
+    checkedDevice.value = smartTypeData.map((item) => item.id)
+  } else {
+    if (extend) {
+      //附加条件
+      checkedDevice.value =
+        smartTypeData.find((item, i) => i == eventIndex)[extend]?.map((item) => item.tiaojian.id) ||
+        []
+    } else {
+      checkedDevice.value = smartTypeData.map((item) => item.tiaojian.id)
+    }
+  }
+
   floorTree.value = useGetFloorTree()
     .filter((floorItem) => {
       return floorItem.roomList.some((roomItem) => {
