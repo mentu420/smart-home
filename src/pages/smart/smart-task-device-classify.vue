@@ -89,6 +89,7 @@ const onRefresh = async () => {
       useGetFloorListSync(true),
       useGetDeviceListSync(true),
     ])
+    init()
   } finally {
     loading.value = false
   }

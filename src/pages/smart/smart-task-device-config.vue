@@ -57,8 +57,10 @@ const mergeEventsArray = (origin, newArr) => {
 }
 // 1：存储新的设备。2：变更旧的设备模块
 const onSave = () => {
+  //ziyuanleixing 资源类型 1，设备；2，场景
   const currentDeviceItem = {
     ...deviceItem.value,
+    ziyuanleixing: 1,
     modeList: deviceItem.value.modeList.map((modeItem) => {
       if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[SWITCH] }
       return { ...modeItem, ...taskColumns.value.find((item) => item.use == modeItem.use) }

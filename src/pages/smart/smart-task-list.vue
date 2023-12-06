@@ -1,11 +1,16 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 defineOptions({ name: 'SmartTaskList' })
 
 const route = useRoute()
 const router = useRouter()
+
+const disabledScene = computed(() => {
+  const { smartType, fenlei } = route.query
+  return smartType == 'actions' && fenlei == 1
+})
 </script>
 
 <template>
@@ -33,7 +38,16 @@ const router = useRouter()
       <li
         v-clickable-active
         class="flex items-center rounded-lg bg-white p-3"
-        :class="{ 'opacity-50': route.query.fenlei == 1 }"
+        :class="{ 'opacity-50': disabledScene }"
+        @click="
+          () => {
+            if (disabledScene) return
+            router.push({
+              path: '/smart-task-scene-list',
+              query: route.query,
+            })
+          }
+        "
       >
         <div class="h-10 w-10 rounded-full bg-blue-400 p-2">
           <IconFont class="text-white text-xs" icon="reservation" />

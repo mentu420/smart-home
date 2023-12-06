@@ -22,20 +22,21 @@ import SmartRepeatTime from './components/SmartRepeatTime.vue'
 
 defineOptions({ name: 'SmartSceneCreate' })
 
-const { mqttDevicePublish } = useMqtt()
+const { mqttDevicePublish, mqttScenePublish } = useMqtt()
 
 const router = useRouter()
 const route = useRoute()
 
 const showGallery = ref(false)
-const showExecutionTime = ref(false)
+const taskActions = [
+  { id: 0, text: '试一试' },
+  { id: 1, text: '延时执行' },
+  { id: 2, text: '删除' },
+]
 
 const { createSmartItem, sceneGallery, sceneList, smartList } = storeToRefs(smartStore())
 const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(deviceStore())
-const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
-const executionTime = ref(['12', '00'])
-const eventActive = ref(0) //记录将要改变的事件
 const fileList = ref([])
 const operationRef = ref(null)
 const operationDealy = ref(['00', '00']) // 每个设备的延时
@@ -127,27 +128,54 @@ const selectEventMoreItem = (action, eventItem, eventIndex) => {
   }
 }
 
-async function onDeviceMoreSelect(action, deviceItem, modeItem) {
+const onDelectDeviceMode = (deviceItem, modeItem) => {
+  const { actions } = createSmartItem.value
+  const newDeviceList = actions.map((item) => {
+    if (item.id == deviceItem.id) {
+      return {
+        ...item,
+        modeList: item.modeList.filter((option) => option.use != modeItem.use),
+      }
+    }
+    return item
+  })
+  createSmartItem.value = { ...createSmartItem.value, actions: newDeviceList }
+}
+
+const onDelectSceneItem = async (sceneItem) => {
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    actions: createSmartItem.value.actions.filter(
+      (item) => item.ziyuanleixing == 2 && item.id != sceneItem.id
+    ),
+  }
+}
+
+async function onActionSelect(action, actionItem, modeItem) {
+  console.log('onActionSelect', action, modeItem)
   if (action.id == 0) {
-    mqttDevicePublish({ id: deviceItem.id, ...modeItem })
+    if (modeItem) {
+      mqttDevicePublish({ id: actionItem.id, ...modeItem })
+    } else {
+      mqttScenePublish({ id: actionItem.id })
+    }
   } else if (action.id == 1) {
-    operationRef.value?.open({ deviceItem, modeItem })
+    // operationRef.value?.open({ actionItem, modeItem })
   } else if (action.id == 2) {
     try {
-      await showConfirmDialog({ title: '提示', message: `是否删除${modeItem.label}模块` })
-      const { actions } = createSmartItem.value
-      const newDeviceList = actions.map((item) => {
-        if (item.id == deviceItem.id) {
-          return {
-            ...item,
-            modeList: item.modeList.filter((option) => option.use != modeItem.use),
-          }
-        }
-        return item
+      await showConfirmDialog({
+        title: '提示',
+        message: `是否删除 ${modeItem ? modeItem.label : actionItem.label} ${
+          modeItem ? '模块' : '场景'
+        }`,
       })
-      createSmartItem.value = { ...createSmartItem.value, actions: newDeviceList }
+      if (modeItem) {
+        onDelectDeviceMode(actionItem, modeItem)
+      } else {
+        onDelectSceneItem(actionItem)
+      }
     } catch (error) {
-      //
+      console.log(error)
     }
   }
 }
@@ -278,7 +306,7 @@ async function onDelect() {
 
 const init = () => {
   const { clearSceneCreateItem } = smartStore()
-  // clearSceneCreateItem()
+  clearSceneCreateItem()
   if (route.query.id) {
     //編輯
     const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
@@ -488,54 +516,65 @@ function goEventConfig() {
       <!--任务列表-->
       <ul>
         <li
-          v-for="deviceItem in createSmartItem.actions"
-          :key="deviceItem.id"
-          class="mb-4 bg-white rounded-lg"
+          v-for="actionItem in createSmartItem.actions"
+          :key="actionItem.id"
+          class="mb-4 bg-white rounded-lg overflow-hidden"
         >
-          <template v-for="modeItem in deviceItem.modeList" :key="modeItem.use">
-            <dl class="p-4 van-hairline--bottom flex-wrap space-y-2">
-              <dt class="flex justify-between items-center">
-                <p class="space-x-2">
-                  <label>控制</label>
-                  <label>{{ deviceItem.label }}</label>
-                </p>
-                <van-popover
-                  :actions="[
-                    { id: 0, text: '试一试' },
-                    { id: 1, text: '延时执行' },
-                    { id: 2, text: '删除' },
-                  ]"
-                  placement="left"
-                  @select="(action) => onDeviceMoreSelect(action, deviceItem, modeItem)"
-                >
-                  <template #reference>
-                    <IconFont v-clickable-active class="text-gray-300" icon="more-round" />
-                  </template>
-                </van-popover>
-              </dt>
-              <dd class="space-x-2">
-                <label
-                  v-clickable-active
-                  class="px-4 py-1 bg-gray-100 rounded-full"
-                  @click="openActionModeItem(modeItem, deviceItem, 'actions')"
-                >
-                  {{ modeItem.label }}
-                  -
-                  {{
-                    modeItem.valueIsNum
-                      ? modeItem.useValue
-                      : deviceItem.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
-                  }}
-                </label>
-                <label
-                  v-if="modeItem.dealy"
-                  class="px-4 py-1 bg-gray-100 rounded-full"
-                  @click="operationRef.open({ deviceItem, modeItem })"
-                >
-                  延时 - {{ `${Math.floor(modeItem.dealy / 60)}分${modeItem.dealy % 60}秒` }}
-                </label>
-              </dd>
-            </dl>
+          <template v-if="actionItem.ziyuanleixing == 1">
+            <template v-for="modeItem in actionItem.modeList" :key="modeItem.use">
+              <dl class="p-4 van-hairline--bottom flex-wrap space-y-2">
+                <dt class="flex justify-between items-center">
+                  <p class="space-x-2">
+                    <label>控制</label>
+                    <label>{{ actionItem.label }}</label>
+                  </p>
+                  <van-popover
+                    :actions="taskActions"
+                    placement="left"
+                    @select="(action) => onActionSelect(action, actionItem, modeItem)"
+                  >
+                    <template #reference>
+                      <IconFont v-clickable-active class="text-gray-300" icon="more-round" />
+                    </template>
+                  </van-popover>
+                </dt>
+                <dd class="space-x-2">
+                  <label
+                    v-clickable-active
+                    class="px-4 py-1 bg-gray-100 rounded-full"
+                    @click="openActionModeItem(modeItem, actionItem, 'actions')"
+                  >
+                    {{ modeItem.label }}
+                    -
+                    {{
+                      modeItem.valueIsNum
+                        ? modeItem.useValue
+                        : actionItem.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
+                    }}
+                  </label>
+                  <label
+                    v-if="modeItem.dealy"
+                    class="px-4 py-1 bg-gray-100 rounded-full"
+                    @click="operationRef.open({ actionItem, modeItem })"
+                  >
+                    延时 - {{ `${Math.floor(modeItem.dealy / 60)}分${modeItem.dealy % 60}秒` }}
+                  </label>
+                </dd>
+              </dl>
+            </template>
+          </template>
+          <template v-else>
+            <van-cell :title="`场景 - ${actionItem.label}`">
+              <van-popover
+                :actions="taskActions"
+                placement="left"
+                @select="(action) => onActionSelect(action, actionItem)"
+              >
+                <template #reference>
+                  <IconFont v-clickable-active class="text-gray-300" icon="more-round" />
+                </template>
+              </van-popover>
+            </van-cell>
           </template>
         </li>
       </ul>

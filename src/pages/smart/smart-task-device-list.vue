@@ -58,9 +58,14 @@ const onSave = async () => {
 
   const deviceList = await useGetDeviceListSync()
 
+  //ziyuanleixing 资源类型 1，设备；2，场景
   const checkList = deviceList
     .filter((deviceItem) => checkedDevice.value.includes(deviceItem.id))
-    .map((checkItem) => ({ ...checkItem, modeList: setModeColumns(checkItem.columns) }))
+    .map((checkItem) => ({
+      ...checkItem,
+      ziyuanleixing: 1,
+      modeList: setModeColumns(checkItem.columns),
+    }))
 
   const { smartType, fenlei, eventIndex, extend } = route.query
   if (smartType == 'actions') {
@@ -86,20 +91,8 @@ const onSave = async () => {
       //附加条件
       const fujiatiaojian = orginEvents.find((item, i) => i == eventIndex)[extend] || []
       mergeEvents = mergeEventsArray(fujiatiaojian, newEvents)
-      // fujiatiaojian.length == 0
-      //   ? newEvents
-      //   : fujiatiaojian.map((item) => {
-      //       const newItem = newEvents.find((option) => option.tiaojian.id == item.id)
-      //       return newItem || item
-      //     })
     } else {
       mergeEvents = mergeEventsArray(orginEvents, newEvents)
-      // orginEvents.length == 0
-      //   ? newEvents
-      //   : orginEvents.map((item) => {
-      //       const newItem = newEvents.find((option) => option.tiaojian.id == item.id)
-      //       return newItem || item
-      //     })
     }
 
     createSmartItem.value = {
@@ -121,8 +114,9 @@ const init = () => {
   const { fenlei, smartType, extend, eventIndex } = route.query
   const smartTypeData = createSmartItem.value[smartType] || []
   console.log('smartTypeData', smartTypeData)
-  if (fenlei == 1) {
-    checkedDevice.value = smartTypeData.map((item) => item.id)
+  if (smartType == 'actions') {
+    // action 根据ziyuanbianhao区分设备、场景
+    checkedDevice.value = smartTypeData.map((item) => item.id && item.ziyuanleixing == 1)
   } else {
     if (extend) {
       //附加条件
