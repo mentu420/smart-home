@@ -14,7 +14,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
-import { transformKeys, stringToArray, mergeObjectIntoArray } from '@/utils/common'
+import { transformKeys, stringToArray, mergeObjectIntoArray, objDelByValues } from '@/utils/common'
 
 import SmartCondtionList from './components/SmartCondtionList.vue'
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
@@ -118,6 +118,16 @@ const selectEventMoreItem = (action, eventItem, eventIndex) => {
       goConditionConfig({ eventIndex, extend: 'fujiatiaojian' })
       break
     case 1:
+      createSmartItem.value = {
+        ...createSmartItem.value,
+        events: events.map((item, i) => {
+          if (i == eventIndex) {
+            const { fujiatiaojian, ...data } = item
+            return data
+          }
+          return item
+        }),
+      }
       break
     case 2:
       createSmartItem.value = {
@@ -128,31 +138,34 @@ const selectEventMoreItem = (action, eventItem, eventIndex) => {
   }
 }
 
+// 删除任务的设备的模块
 const onDelectDeviceMode = (deviceItem, modeItem) => {
   const { actions } = createSmartItem.value
-  const newDeviceList = actions.map((item) => {
-    if (item.id == deviceItem.id) {
-      return {
-        ...item,
-        modeList: item.modeList.filter((option) => option.use != modeItem.use),
+  const newDeviceList = actions
+    .map((item) => {
+      if (item.id == deviceItem.id) {
+        return {
+          ...item,
+          modeList: item.modeList.filter((option) => option.use != modeItem.use),
+        }
       }
-    }
-    return item
-  })
+      return item
+    })
+    .filter((item) => {
+      if (item.ziyuanleixing == 1) return item.modeList.length > 0
+      return item
+    })
   createSmartItem.value = { ...createSmartItem.value, actions: newDeviceList }
 }
-
+// 删除任务中场景项
 const onDelectSceneItem = async (sceneItem) => {
   createSmartItem.value = {
     ...createSmartItem.value,
-    actions: createSmartItem.value.actions.filter(
-      (item) => item.ziyuanleixing == 2 && item.id != sceneItem.id
-    ),
+    actions: createSmartItem.value.actions.filter((item) => item.id != sceneItem.id),
   }
 }
-
+// 任务设备或场景的操作项
 async function onActionSelect(action, actionItem, modeItem) {
-  console.log('onActionSelect', action, modeItem)
   if (action.id == 0) {
     if (modeItem) {
       mqttDevicePublish({ id: actionItem.id, ...modeItem })
@@ -160,7 +173,7 @@ async function onActionSelect(action, actionItem, modeItem) {
       mqttScenePublish({ id: actionItem.id })
     }
   } else if (action.id == 1) {
-    // operationRef.value?.open({ actionItem, modeItem })
+    operationRef.value?.open({ actionItem, modeItem })
   } else if (action.id == 2) {
     try {
       await showConfirmDialog({
@@ -202,85 +215,155 @@ const onDeviceModeChange = (payload, { smartType, id, type, eventIndex }) => {
     }
   } else {
     //自动化变更设备模块
-    console.log(payload, smartType, id, type, eventIndex)
+    createSmartItem.value = {
+      ...createSmartItem.value,
+      [smartType]: createSmartItem.value[smartType].map((item) => {
+        if (item.tiaojian?.id == id) {
+          return {
+            ...item,
+            tiaojian: {
+              ...item.tiaojian,
+              modeList: item.tiaojian.modeList.map((modeItem) => {
+                if (modeItem.use == payload.use) return payload
+                return modeItem
+              }),
+            },
+          }
+        }
+        return item
+      }),
+    }
   }
 }
 
-function selectOperationDealy({ selectedValues }, { deviceItem, modeItem }) {
+function selectOperationDealy({ selectedValues }, { actionItem, modeItem }) {
+  console.log('actionItem', actionItem)
   const { actions } = createSmartItem.value
-  const newDeviceList = actions.map((item) => {
-    if (item.id == deviceItem.id) {
-      return {
-        ...item,
-        modeList: deviceItem.modeList.map((option) => {
-          if (option.use == modeItem.use) {
-            return {
-              ...option,
-              dealy: selectedValues[0] * 60 + Number(selectedValues[1]),
+  const dealy = selectedValues[0] * 60 + Number(selectedValues[1])
+  const newActions = actions.map((item) => {
+    if (item.id == actionItem.id) {
+      if (modeItem) {
+        return {
+          ...item,
+          modeList: actionItem.modeList.map((option) => {
+            if (option.use == modeItem.use) {
+              return { ...option, dealy }
             }
-          }
-          return option
-        }),
+            return option
+          }),
+        }
+      } else {
+        return { ...item, dealy }
       }
     }
     return item
   })
-  console.log('newDeviceList', newDeviceList)
-  createSmartItem.value = {
-    ...createSmartItem.value,
-    actions: newDeviceList,
-  }
+
+  createSmartItem.value = { ...createSmartItem.value, actions: newActions }
 }
 
-const getSceneActions = ({ modeList, id }) => {
-  const actions = modeList.map((modeItem) => {
-    return {
-      ziyuanleixing: 1,
-      ziyuanbianhao: id,
-      yanshi: modeItem.dealy,
-      caozuo: {
-        shuxing: modeItem.use,
-        shuxingzhuangtai: modeItem.useStatus,
-        shuxingzhi: modeItem.useValue,
-      },
-    }
-  })
+// 保存是转换actions
+const transformSaveActions = (actions) => {
   return actions
+    .map(({ ziyuanleixing, dealy = '0', modeList, id }) => {
+      if (ziyuanleixing == 1) {
+        return modeList.map((modeItem) => {
+          return {
+            ziyuanleixing: ziyuanleixing,
+            ziyuanbianhao: id,
+            yanshi: modeItem?.dealy || '0',
+            caozuo: {
+              shuxing: modeItem.use,
+              shuxingzhuangtai: modeItem.useStatus,
+              shuxingzhi: modeItem.useValue,
+            },
+          }
+        })
+      } else {
+        return {
+          ziyuanleixing: ziyuanleixing,
+          ziyuanbianhao: id,
+          yanshi: dealy,
+          caozuo: {},
+        }
+      }
+    })
+    .flat()
 }
 
+//保存时转换events
+const transformSaveEvents = (events = []) => {
+  const getDeviceCondtion = ({ tiaojian, isor, leixing }) =>
+    tiaojian.modeList.map((modeItem) => {
+      return {
+        isor,
+        leixing,
+        tiaojian: {
+          bianhao: tiaojian.id,
+          bijiaoleixing: -1,
+          shuxing: modeItem.use,
+          shuxingzhuangtai: modeItem.useStatus,
+          shuxingzhi: modeItem.useValue,
+        },
+      }
+    })
+
+  return events.map(({ leixing, fujiatiaojian, tiaojian }) => {
+    const isor = fujiatiaojian ? 1 : 0
+    const list = transformSaveEvents(fujiatiaojian).flat()
+    console.log('fujiatiaojian', list)
+    return leixing == 1
+      ? { isor, leixing, tiaojian, fujiatiaojian: transformSaveEvents(fujiatiaojian) }
+      : {
+          ...getDeviceCondtion({
+            tiaojian,
+            isor,
+            leixing,
+          }),
+          fujiatiaojian: transformSaveEvents(fujiatiaojian),
+        }
+  })
+}
+
+// 新增或者保存
 const onSave = async () => {
   try {
     await formRef.value?.validate()
-    const { actions = [], ...residue } = createSmartItem.value
-    if (actions.length == 0) {
-      showToast('请添加任务')
-      return
-    }
-    const newActions = actions.map((deviceItem) => getSceneActions(deviceItem)).flat()
-    const op = route.query.id ? 3 : 2
-    const data = {
-      ...residue,
-      fenlei: route.query.fenlei,
-      leixing: 1,
-      isor: 0,
-      actions: newActions,
-    }
-    const config = {
-      params: { op },
-      data: op == 3 ? { bianhao: route.query.id, ...data } : data,
-    }
-    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-    if (route.query.fenlei == 2) {
-      await setSmartList(config)
-      await useGetSmartListSync(true)
-    } else {
-      await setSceneList(config)
-      await useGetSceneListSync(true)
-    }
+    const { actions = [], events, ...residue } = createSmartItem.value
 
-    router.back()
+    const eventsResult = transformSaveEvents(events)
+    console.log('eventsResult', eventsResult)
+
+    // if (actions.length == 0) {
+    //   showToast('请添加任务')
+    //   return
+    // }
+    // const actionsResult = transformSaveActions(actions)
+
+    // const op = route.query.id ? 3 : 2
+    // const data = {
+    //   ...residue,
+    //   leixing: 1,
+    //   isor: 0,
+    //   actions: actionsResult,
+    // }
+    // const config = {
+    //   params: { op },
+    //   data: op == 3 ? { bianhao: route.query.id, ...data } : data,
+    // }
+    // console.log('config', config)
+    // const { useGetSceneListSync, useGetSmartListSync } = smartStore()
+    // if (route.query.fenlei == 2) {
+    //   await setSmartList(config)
+    //   await useGetSmartListSync(true)
+    // } else {
+    //   await setSceneList(config)
+    //   await useGetSceneListSync(true)
+    // }
+    // router.back()
   } catch (error) {
-    formRef.value?.scrollToField(error[0].name)
+    console.log(error)
+    // formRef.value?.scrollToField(error[0].name)
   }
 }
 
@@ -306,7 +389,7 @@ async function onDelect() {
 
 const init = () => {
   const { clearSceneCreateItem } = smartStore()
-  clearSceneCreateItem()
+  // clearSceneCreateItem()
   if (route.query.id) {
     //編輯
     const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
@@ -564,16 +647,27 @@ function goEventConfig() {
             </template>
           </template>
           <template v-else>
-            <van-cell :title="`场景 - ${actionItem.label}`">
-              <van-popover
-                :actions="taskActions"
-                placement="left"
-                @select="(action) => onActionSelect(action, actionItem)"
-              >
-                <template #reference>
-                  <IconFont v-clickable-active class="text-gray-300" icon="more-round" />
-                </template>
-              </van-popover>
+            <van-cell center :title="`控制 - ${actionItem.label} 场景`">
+              <template #label>
+                <label
+                  v-if="actionItem.dealy"
+                  class="my-2 px-4 py-1 bg-gray-100 rounded-full text-[14px] text-[#323233]"
+                  @click.stop="operationRef.open({ actionItem })"
+                >
+                  延时 - {{ `${Math.floor(actionItem.dealy / 60)}分${actionItem.dealy % 60}秒` }}
+                </label>
+              </template>
+              <template #right-icon>
+                <van-popover
+                  :actions="taskActions"
+                  placement="left"
+                  @select="(action) => onActionSelect(action, actionItem)"
+                >
+                  <template #reference>
+                    <IconFont v-clickable-active class="text-gray-300" icon="more-round" />
+                  </template>
+                </van-popover>
+              </template>
             </van-cell>
           </template>
         </li>

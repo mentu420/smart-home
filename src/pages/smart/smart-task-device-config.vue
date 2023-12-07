@@ -50,10 +50,12 @@ function onSwitchChange(value) {
   }
 }
 
-//合并事件列表
 const mergeEventsArray = (origin, newArr) => {
-  const ids = [...new Set([...origin, ...newArr].map((item) => item.tiaojian.id))]
-  return ids.map((id) => [...newArr, ...origin].find((item) => item.tiaojian.id == id))
+  const alreadyIds = origin
+    .filter((item) => newArr.some((option) => option.id == item.id))
+    .map((item) => item.id)
+    .filter(Boolean)
+  return [...origin.filter((item) => !alreadyIds.includes(item.id)), ...newArr]
 }
 // 1：存储新的设备。2：变更旧的设备模块
 const onSave = () => {
@@ -87,6 +89,8 @@ const onSave = () => {
     } else {
       mergeEvents = mergeEventsArray(orginEvents, [newEvent])
     }
+
+    console.log('mergeEvents', mergeEvents)
 
     createSmartItem.value = {
       ...createSmartItem.value,

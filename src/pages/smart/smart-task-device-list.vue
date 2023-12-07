@@ -49,8 +49,11 @@ const goDeviceConfig = (item) => {
 
 //合并事件列表
 const mergeEventsArray = (origin, newArr) => {
-  const ids = [...new Set([...origin, ...newArr].map((item) => item.tiaojian.id))]
-  return ids.map((id) => [...origin, ...newArr].find((item) => item.tiaojian.id == id))
+  const alreadyIds = origin
+    .filter((item) => newArr.some((option) => option.id == item.id))
+    .map((item) => item.id)
+    .filter(Boolean)
+  return [...origin, ...newArr.filter((item) => !alreadyIds.includes(item.id))]
 }
 
 const onSave = async () => {
@@ -94,6 +97,8 @@ const onSave = async () => {
     } else {
       mergeEvents = mergeEventsArray(orginEvents, newEvents)
     }
+
+    console.log('mergeEvents', mergeEvents)
 
     createSmartItem.value = {
       ...createSmartItem.value,

@@ -176,7 +176,7 @@ init()
               </div>
             </van-dropdown-item>
           </van-dropdown-menu>
-          <van-button class="!ml-6" size="small" @click="selectAllScene">
+          <van-button class="!ml-6" size="small" round type="primary" @click="selectAllScene">
             {{ allScene ? '取消' : '全选' }}
           </van-button>
         </div>

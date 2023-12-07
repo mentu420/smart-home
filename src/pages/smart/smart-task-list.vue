@@ -9,7 +9,7 @@ const router = useRouter()
 
 const disabledScene = computed(() => {
   const { smartType, fenlei } = route.query
-  return smartType == 'actions' && fenlei == 1
+  return (smartType == 'actions' && fenlei == 1) || smartType == 'events'
 })
 </script>
 
