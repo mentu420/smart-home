@@ -334,33 +334,33 @@ const onSave = async () => {
     const eventsResult = transformSaveEvents(events)
     console.log('eventsResult', eventsResult)
 
-    // if (actions.length == 0) {
-    //   showToast('请添加任务')
-    //   return
-    // }
-    // const actionsResult = transformSaveActions(actions)
+    if (actions.length == 0) {
+      showToast('请添加任务')
+      return
+    }
+    const actionsResult = transformSaveActions(actions)
 
-    // const op = route.query.id ? 3 : 2
-    // const data = {
-    //   ...residue,
-    //   leixing: 1,
-    //   isor: 0,
-    //   actions: actionsResult,
-    // }
-    // const config = {
-    //   params: { op },
-    //   data: op == 3 ? { bianhao: route.query.id, ...data } : data,
-    // }
-    // console.log('config', config)
-    // const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-    // if (route.query.fenlei == 2) {
-    //   await setSmartList(config)
-    //   await useGetSmartListSync(true)
-    // } else {
-    //   await setSceneList(config)
-    //   await useGetSceneListSync(true)
-    // }
-    // router.back()
+    const op = route.query.id ? 3 : 2
+    const data = {
+      ...residue,
+      leixing: 1,
+      isor: 0,
+      actions: actionsResult,
+    }
+    const config = {
+      params: { op },
+      data: op == 3 ? { bianhao: route.query.id, ...data } : data,
+    }
+    console.log('config', config)
+    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
+    if (route.query.fenlei == 2) {
+      await setSmartList(config)
+      await useGetSmartListSync(true)
+    } else {
+      await setSceneList(config)
+      await useGetSceneListSync(true)
+    }
+    router.back()
   } catch (error) {
     console.log(error)
     // formRef.value?.scrollToField(error[0].name)

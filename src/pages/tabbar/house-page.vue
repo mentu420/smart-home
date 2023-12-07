@@ -5,6 +5,7 @@ import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import { getHouseList } from '@/apis/houseApi.js'
+import { setDeviceList, setSceneList } from '@/apis/smartApi'
 import DeviceCardItem from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import useMqtt from '@/hooks/useMqtt'
@@ -24,13 +25,12 @@ const usesmartStore = smartStore()
 const { houseList, floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { sceneList } = storeToRefs(usesmartStore)
-const { getDeviceIcon } = useDeviceStore
 const { mqttDevicePublish } = useMqtt()
 
 const showHomeList = ref(false)
 const loading = ref(false)
 const showFloorConfig = ref(false)
-const tabActive = ref('') //当前房间编号
+const currentRoomId = ref('') //当前房间编号
 const currentFloorId = ref('') //当前楼层id
 const isTabsFixed = ref(false) // tabs 吸顶
 const roomFilterList = ref([]) // 当前楼层房间列表
@@ -40,11 +40,7 @@ const dragOptions = ref({
   ghostClass: 'ghost',
 })
 
-const onConfigSelect = (action) => {
-  console.log(action)
-  tabActive.value = roomList.value.findIndex((value) => value.id == action.id) + 1
-}
-
+// 控制设备
 const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
   if (switchMode) {
@@ -80,10 +76,31 @@ const onReload = async (hId) => {
 }
 
 // 拖拽排序
-const onDragEnd = () => {
+const onDragEnd = async () => {
+  const { deviceList, sceneList } = roomFilterList.value.find(
+    (item) => item.id == currentRoomId.value
+  )
+  console.log(deviceList, sceneList)
+  await setDeviceList({
+    params: { op: 4 },
+    data: deviceList.map((item, i) => ({
+      shebeibianhao: item.id,
+      paixu: i,
+      leixing: item.collect ? 1 : 0,
+    })),
+  })
+  await setSceneList({
+    params: { op: 5 },
+    data: sceneList.map((item, i) => ({
+      changjingbianhao: item.id,
+      paixu: i,
+      leixing: item.collect ? 1 : 0,
+    })),
+  })
   dragOptions.value.disabled = !dragOptions.value.disabled
 }
 
+// 切换房屋
 const onHouseSelect = async (action) => {
   try {
     loading.value = true
@@ -98,13 +115,14 @@ const onHouseSelect = async (action) => {
     loading.value = false
   }
 }
-
+// 切换楼层
 const onFloorSelect = (action) => {
   showFloorConfig.value = false
   currentFloorId.value = action.id
   setCurrentFloorRoomList()
 }
 
+// 设置当前楼层的房间
 function setCurrentFloorRoomList() {
   roomFilterList.value = roomList.value
     .filter((roomItem) => roomItem.fId == currentFloorId.value)
@@ -116,7 +134,7 @@ function setCurrentFloorRoomList() {
       }
     })
 }
-
+// 设备全开全关
 function onAllDeviceToggle(deviceList, status) {
   deviceList.forEach((deviceItem) => {
     onSwitchDeviceItem(deviceItem, status)
@@ -199,7 +217,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
       </template>
       <div class="relative">
         <van-tabs
-          v-model:active="tabActive"
+          v-model:active="currentRoomId"
           background="#f7f7f7"
           shrink
           sticky
@@ -328,19 +346,14 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           <div class="flex h-[44px] w-[70px] flex-auto items-center justify-center space-x-4">
             <van-button
               v-if="!dragOptions.disabled"
+              v-loading-click="() => onDragEnd()"
               round
               size="small"
               type="primary"
-              @click="onDragEnd"
             >
               完成
             </van-button>
-            <van-popover
-              v-else
-              v-model:show="showFloorConfig"
-              placement="bottom-end"
-              @select="onConfigSelect"
-            >
+            <van-popover v-else v-model:show="showFloorConfig" placement="bottom-end">
               <template #reference>
                 <div class="flex items-center px-2 py-1 rounded-md bg-white space-x-1">
                   <p class="w-[40px] truncate text-xs shrink-0 text-center">

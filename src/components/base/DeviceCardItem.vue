@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { setDeviceItem } from '@/apis/smartApi'
+import { setDeviceList } from '@/apis/smartApi'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 
@@ -40,7 +40,7 @@ const getDeviceStatus = computed(() => {
 const onDeviceCollect = async (item) => {
   try {
     const leixing = item.collect ? 2 : 1
-    await setDeviceItem({
+    await setDeviceList({
       params: { op: 4 },
       data: {
         shebeibianhao: item.id,

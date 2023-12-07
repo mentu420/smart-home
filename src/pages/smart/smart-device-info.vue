@@ -4,7 +4,7 @@ import { showToast } from 'vant'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { setDeviceItem } from '@/apis/smartApi'
+import { setDeviceList } from '@/apis/smartApi'
 import PickerSearch from '@/components/common/PickerSearch.vue'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
@@ -42,7 +42,7 @@ const onPickerConfirm = async ({ selectedValues }) => {
     return
   }
   rId.value = selectedValues[1]
-  await setDeviceItem({
+  await setDeviceList({
     params: { op: 3 },
     data: { bianhao: route.query.id, fangjianbianhao: rId.value },
   })
@@ -54,7 +54,7 @@ const onPickerConfirm = async ({ selectedValues }) => {
 const onSubmit = async () => {
   try {
     loading.value = true
-    await setDeviceItem({
+    await setDeviceList({
       params: { op: 3 },
       data: {
         bianhao: route.query.id,
@@ -75,7 +75,7 @@ const onSubmit = async () => {
 const onCollectChange = async (value) => {
   try {
     loading.value = true
-    await setDeviceItem({
+    await setDeviceList({
       params: { op: 4 },
       data: {
         shebeibianhao: route.query.id,

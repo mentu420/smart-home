@@ -4,7 +4,7 @@ import { ref, computed, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
-import { setSmartList } from '@/apis/smartApi'
+import { setSmartList, setSceneList } from '@/apis/smartApi'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
@@ -26,12 +26,30 @@ const dragOptions = ref({
   ghostClass: 'ghost',
 })
 
-function onDrag() {
+const onSceneListSort = (data) => setSceneList({ params: { op: 5 }, data })
+
+async function onDragEnd() {
+  console.log('roomSceneList', roomSceneList.value)
   dragOptions.value.disabled = !dragOptions.value.disabled
   if (!dragOptions.value.disabled) return
-  console.log('globalSceneList', globalSceneList)
-  //TODO:排序
-  console.log('roomSceneList', roomSceneList)
+  await onSceneListSort(
+    globalSceneList.value.map((item, i) => ({
+      changjingbianhao: item.id,
+      leixing: item.collect ? 1 : 0,
+      paixu: i,
+    }))
+  )
+  await Promise.all(
+    roomSceneList.value.map(async (roomItem) => {
+      return await onSceneListSort(
+        roomItem.sceneList.map((item, i) => ({
+          changjingbianhao: item.id,
+          leixing: item.collect ? 1 : 0,
+          paixu: i,
+        }))
+      )
+    })
+  )
 }
 
 const createSmart = () => {
@@ -99,10 +117,13 @@ onActivated(init)
         @change="init"
       >
         <template #nav-right>
-          <div v-if="dragOptions.disabled" class="flex-1 text-right p-3">
-            <div class="rounded-lg">
+          <div class="flex-1 text-right p-3">
+            <div v-if="dragOptions.disabled" class="rounded-lg">
               <van-icon size="20" name="plus" @click="createSmart" />
             </div>
+            <van-button v-else v-loading-click="onDragEnd" round type="primary" size="small">
+              完成
+            </van-button>
           </div>
         </template>
         <van-tab title="自动化" :disabled="!dragOptions.disabled" name="0">
@@ -171,9 +192,15 @@ onActivated(init)
               </draggable>
             </section>
           </div>
-          <div v-if="globalSceneList.length > 0" class="p-6 text-center">
-            <van-button class="!px-6" size="small" type="primary" round @click="onDrag">
-              {{ dragOptions.disabled ? '编辑' : '完成' }}
+          <div v-if="dragOptions.disabled" class="p-6 text-center">
+            <van-button
+              class="!px-6"
+              size="small"
+              type="primary"
+              round
+              @click="dragOptions.disabled = !dragOptions.disabled"
+            >
+              编辑
             </van-button>
           </div>
         </van-tab>
