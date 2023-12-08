@@ -192,7 +192,7 @@ onActivated(init)
               </draggable>
             </section>
           </div>
-          <div v-if="dragOptions.disabled" class="p-6 text-center">
+          <div v-if="dragOptions.disabled && sceneList.length > 1" class="p-6 text-center">
             <van-button
               class="!px-6"
               size="small"
