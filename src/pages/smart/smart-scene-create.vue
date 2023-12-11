@@ -389,7 +389,7 @@ async function onDelect() {
 
 const init = () => {
   const { clearSceneCreateItem } = smartStore()
-  // clearSceneCreateItem()
+  clearSceneCreateItem()
   if (route.query.id) {
     //編輯
     const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
@@ -512,14 +512,14 @@ function goEventConfig() {
       <div
         v-if="createSmartItem?.events?.length == 0"
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
-        @click="goConditionConfig()"
+        @click="goConditionConfig({ max: '1' })"
       >
         <van-icon size="24" name="add" color="#e39334" />
         <label class="ml-4">添加条件</label>
       </div>
       <ol v-else class="flex items-center justify-between p-2">
         <li>触发事件</li>
-        <li @click="goConditionConfig()">
+        <li @click="goConditionConfig({ max: '0' })">
           <van-icon size="24" name="add" color="#e39334" />
         </li>
       </ol>

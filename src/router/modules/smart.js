@@ -65,4 +65,10 @@ export default [
     component: () => import('@/pages/smart/smart-device-info.vue'),
     meta: { title: '设备信息' },
   },
+  {
+    path: '/smart-condtion-device-mode',
+    name: 'SmartCondtionDeviceMode',
+    component: () => import('@/pages/smart/smart-condtion-device-mode.vue'),
+    meta: { title: '自动化条件' },
+  },
 ]

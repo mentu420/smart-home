@@ -18,6 +18,8 @@ const checkboxGroup = ref(null)
 const floorTree = ref([])
 const { createSmartItem } = storeToRefs(smartStore())
 
+const isEvents = computed(() => route.query.smartType == 'events')
+
 const toggle = (id) => {
   checkboxRefs.value[id]?.toggle()
 }
@@ -41,8 +43,10 @@ const onCheckChange = (values) => {
 }
 
 const goDeviceConfig = (item) => {
+  const path = isEvents.value ? '/smart-condtion-device-mode' : '/smart-task-device-config'
+
   router.push({
-    path: '/smart-task-device-config',
+    path,
     query: { id: item.id, ...route.query },
   })
 }
@@ -162,7 +166,14 @@ init()
     <HeaderNavbar title="选择设备" />
     <div class="flex items-center justify-between p-4">
       <p class="text-gray-500">选择希望控制的设备</p>
-      <van-button class="!px-6" size="small" type="primary" round @click="onAllChecked">
+      <van-button
+        v-if="!isEvents"
+        class="!px-6"
+        size="small"
+        type="primary"
+        round
+        @click="onAllChecked"
+      >
         {{ checkedAll ? '反选' : '全选' }}
       </van-button>
     </div>
@@ -185,6 +196,7 @@ init()
                 </template>
                 <template #right-icon>
                   <van-checkbox
+                    v-if="!isEvents"
                     :ref="(el) => (checkboxRefs[deviceItem.id] = el)"
                     v-model="deviceItem.checked"
                     :name="deviceItem.id"
@@ -201,7 +213,7 @@ init()
       </van-checkbox-group>
     </section>
     <div class="h-24"></div>
-    <footer class="fixed bottom-0 left-0 w-screen bg-white px-6 py-4">
+    <footer v-if="!isEvents" class="fixed bottom-0 left-0 w-screen bg-white px-6 py-4">
       <van-button round type="primary" block :disabled="checkedDevice.length == 0" @click="onSave">
         下一步
       </van-button>

@@ -23,6 +23,15 @@ const addPressEvent = () => {
   }
   router.back()
 }
+
+const goDevice = () => {
+  const path =
+    route.query.smartType == 'events' ? '/smart-task-device-classify' : '/smart-task-list'
+  router.push({
+    path,
+    query: route.query, //key为createSmartItem 中存储的字段
+  })
+}
 </script>
 
 <template>
@@ -66,12 +75,7 @@ const addPressEvent = () => {
       <li
         v-clickable-active
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50 disabled:opacity-50"
-        @click="
-          router.push({
-            path: '/smart-task-list',
-            query: route.query, //key为createSmartItem 中存储的字段
-          })
-        "
+        @click="goDevice"
       >
         <div class="h-10 w-10 rounded-full bg-green-400 p-2">
           <IconFont class="text-white text-xs" icon="game" />
