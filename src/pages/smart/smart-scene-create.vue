@@ -115,7 +115,7 @@ const selectEventMoreItem = (action, eventItem, eventIndex) => {
   const { events } = createSmartItem.value
   switch (action.id) {
     case 0:
-      goConditionConfig({ eventIndex, extend: 'fujiatiaojian' })
+      goConditionConfig({ eventIndex, extend: 'fujiatiaojian', leixing: eventItem.leixing })
       break
     case 1:
       createSmartItem.value = {

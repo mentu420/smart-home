@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import smartStore from '@/store/smartStore'
@@ -11,6 +11,8 @@ const router = useRouter()
 const route = useRoute()
 
 const { createSmartItem } = storeToRefs(smartStore())
+
+const isExtendTime = computed(() => route.query.leixing == 1 && route.query.extend)
 
 const addPressEvent = () => {
   const { events = [] } = createSmartItem.value
@@ -62,7 +64,12 @@ const goDevice = () => {
       <li
         v-clickable-active
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50"
-        @click="router.push({ path: '/smart-condtion-time', query: route.query })"
+        :class="{ 'opacity-50': isExtendTime }"
+        @click="
+          () => {
+            if (!isExtendTime) router.push({ path: '/smart-condtion-time', query: route.query })
+          }
+        "
       >
         <div class="h-10 w-10 rounded-full bg-yellow-400 p-2">
           <IconFont class="text-white text-xs" icon="calendar" />
