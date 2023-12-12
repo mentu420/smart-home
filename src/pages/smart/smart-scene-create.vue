@@ -291,37 +291,44 @@ const transformSaveActions = (actions) => {
     .flat()
 }
 
+function getDeviceEvent({ tiaojian, isor, leixing }) {
+  tiaojian.modeList.map((modeItem) => {
+    return {
+      isor,
+      leixing,
+      tiaojian: {
+        bianhao: tiaojian.id,
+        bijiaoleixing: -1,
+        shuxing: modeItem.use,
+        shuxingzhuangtai: modeItem.useStatus,
+        shuxingzhi: modeItem.useValue,
+      },
+    }
+  })
+}
+
 //保存时转换events
 const transformSaveEvents = (events = []) => {
-  const getDeviceCondtion = ({ tiaojian, isor, leixing }) =>
-    tiaojian.modeList.map((modeItem) => {
-      return {
-        isor,
-        leixing,
-        tiaojian: {
-          bianhao: tiaojian.id,
-          bijiaoleixing: -1,
-          shuxing: modeItem.use,
-          shuxingzhuangtai: modeItem.useStatus,
-          shuxingzhi: modeItem.useValue,
-        },
-      }
-    })
-
-  return events.map(({ leixing, fujiatiaojian, tiaojian }) => {
+  return events.map((evenItem) => {
+    const { leixing, fujiatiaojian, tiaojian } = evenItem
     const isor = fujiatiaojian ? 1 : 0
-    const list = transformSaveEvents(fujiatiaojian).flat()
-    console.log('fujiatiaojian', list)
-    return leixing == 1
-      ? { isor, leixing, tiaojian, fujiatiaojian: transformSaveEvents(fujiatiaojian) }
-      : {
-          ...getDeviceCondtion({
-            tiaojian,
-            isor,
-            leixing,
-          }),
-          fujiatiaojian: transformSaveEvents(fujiatiaojian),
-        }
+    if (leixing == 0) {
+      return evenItem
+    } else if (leixing == 1) {
+      const eventTime = { isor, leixing, tiaojian }
+      return isor == 0
+        ? eventTime
+        : { ...eventTime, fujiatiaojian: transformSaveEvents(fujiatiaojian) }
+    } else {
+      const eventDevice = getDeviceEvent({ tiaojian, isor, leixing })
+      console.log('eventDevice', eventDevice)
+      return isor == 0
+        ? eventDevice
+        : {
+            ...eventDevice,
+            fujiatiaojian: transformSaveEvents(fujiatiaojian),
+          }
+    }
   })
 }
 
@@ -331,36 +338,41 @@ const onSave = async () => {
     await formRef.value?.validate()
     const { actions = [], events, ...residue } = createSmartItem.value
 
-    const eventsResult = transformSaveEvents(events)
-    console.log('eventsResult', eventsResult)
-
     if (actions.length == 0) {
       showToast('请添加任务')
       return
     }
     const actionsResult = transformSaveActions(actions)
 
+    const eventsResult = transformSaveEvents(events)
+    console.log('eventsResult', eventsResult)
+
     const op = route.query.id ? 3 : 2
-    const data = {
+    let data = {
       ...residue,
       leixing: 1,
       isor: 0,
       actions: actionsResult,
     }
+    data = route.query.fenlei == 2 ? { ...data, events: eventsResult } : data
     const config = {
       params: { op },
       data: op == 3 ? { bianhao: route.query.id, ...data } : data,
     }
-    console.log('config', config)
-    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-    if (route.query.fenlei == 2) {
-      await setSmartList(config)
-      await useGetSmartListSync(true)
-    } else {
-      await setSceneList(config)
-      await useGetSceneListSync(true)
-    }
-    router.back()
+    console.log('save', config.data)
+
+    // const { useGetSceneListSync, useGetSmartListSync } = smartStore()
+
+    // if (route.query.fenlei == 2) {
+    //   // 自动化
+    //   await setSmartList(config)
+    //   await useGetSmartListSync(true)
+    // } else {
+    //   //场景
+    //   await setSceneList(config)
+    //   await useGetSceneListSync(true)
+    // }
+    // router.back()
   } catch (error) {
     console.log(error)
     // formRef.value?.scrollToField(error[0].name)
@@ -389,7 +401,7 @@ async function onDelect() {
 
 const init = () => {
   const { clearSceneCreateItem } = smartStore()
-  clearSceneCreateItem()
+  // clearSceneCreateItem()
   if (route.query.id) {
     //編輯
     const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
