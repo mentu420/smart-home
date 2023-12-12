@@ -21,16 +21,10 @@ const router = useRouter()
 const modePickerRef = ref(null)
 const checkboxRefs = ref([])
 const checkedModes = ref([])
-const { SWITCH } = USE_KEY
-const config = ref({ [SWITCH]: { useStatus: 'on', useValue: '1' } })
 const taskColumns = ref([])
 
-const getSmartDevice = () => {
-  const { smartType, id } = route.query
-  createSmartItem.value[smartType]?.find((item) => item.id == id)
-}
 //当前设备
-const deviceItem = computed(() => getSmartDevice() || useGetDeviceItem(route.query.id))
+const deviceItem = computed(() => useGetDeviceItem(route.query.id))
 
 watch(
   () => deviceItem.value,
@@ -38,19 +32,9 @@ watch(
     if (!val) return
     const { modeList = [] } = val
     taskColumns.value = JSON.parse(JSON.stringify(modeList))
-    const { useStatus, useValue } = modeList.find((item) => item.use == SWITCH)
-    if (!getSmartDevice()) return
-    config.value[SWITCH] = { useStatus, useValue }
   },
   { immediate: true }
 )
-
-function onSwitchChange(value) {
-  config.value[SWITCH] = {
-    ...config.value[SWITCH],
-    ...{ useStatus: value, useValue: value == 'on' ? '1' : '0' },
-  }
-}
 
 const mergeEventsArray = (origin, newArr) => {
   const alreadyIds = origin
@@ -65,14 +49,9 @@ const onSave = () => {
   const currentDeviceItem = {
     ...deviceItem.value,
     ziyuanleixing: 1,
-    modeList: deviceItem.value.modeList
-      .filter((item) => checkedModes.value.includes(item.use))
-      .map((modeItem) => {
-        if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[SWITCH] }
-        return { ...modeItem, ...taskColumns.value.find((item) => item.use == modeItem.use) }
-      }),
+    modeList: taskColumns.value.filter((modeItem) => checkedModes.value.includes(modeItem.use)),
   }
-  console.log('currentDeviceItem', currentDeviceItem)
+
   const { smartType, eventIndex, extend } = route.query
   const newEvent = { leixing: 2, tiaojian: currentDeviceItem }
   const orginEvents = createSmartItem.value[smartType] || []
@@ -93,7 +72,7 @@ const onSave = () => {
           return item
         }),
   }
-  // router.go(-4)
+  router.go(-4)
 }
 
 const openModePicker = (modeItem) => {
@@ -102,19 +81,14 @@ const openModePicker = (modeItem) => {
 
 const onDeviceModeChange = (payload) => {
   taskColumns.value = mergeObjectIntoArray(payload, taskColumns.value, 'use')
+  checkedModes.value = [payload.use]
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar :title="deviceItem?.label" />
-    <van-checkbox-group
-      v-if="route.query.classify != '105'"
-      v-model="checkedModes"
-      class="mt-4"
-      :max="Number(route.query?.max || 0)"
-      @change="onSwitchChange"
-    >
+    <van-checkbox-group v-model="checkedModes" class="mt-4" :max="1">
       <van-cell-group inset>
         <template v-for="(columnItem, columnIndex) in taskColumns" :key="columnIndex">
           <van-cell
