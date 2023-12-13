@@ -444,7 +444,7 @@ export function transformKeys(data, objKeys, filter = false, reverse = false) {
 
   for (let key in data) {
     if (hasOwnProperty(data, key)) {
-      if (typeof data[key] === 'object') {
+      if (typeof data[key] === 'object' && data[key] !== null) {
         transformedObj[key] = transformKeys(data[key], objKeys)
       } else if (hasOwnProperty(objKeys, key)) {
         transformedObj[objKeys[key]] = data[key]

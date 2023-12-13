@@ -291,37 +291,34 @@ const transformSaveActions = (actions) => {
     .flat()
 }
 
-function getDeviceEvent({ tiaojian, isor, leixing }) {
-  tiaojian.modeList.map((modeItem) => {
-    return {
-      isor,
-      leixing,
-      tiaojian: {
-        bianhao: tiaojian.id,
-        bijiaoleixing: -1,
-        shuxing: modeItem.use,
-        shuxingzhuangtai: modeItem.useStatus,
-        shuxingzhi: modeItem.useValue,
-      },
-    }
-  })
+const getDeviceEvent = ({ tiaojian, isor, leixing }) => {
+  return tiaojian.modeList.map((modeItem) => ({
+    isor,
+    leixing,
+    tiaojian: {
+      bianhao: tiaojian.id,
+      bijiaoleixing: -1,
+      shuxing: modeItem.use,
+      shuxingzhuangtai: modeItem.useStatus,
+      shuxingzhi: modeItem.useValue,
+    },
+  }))
 }
 
 //保存时转换events
 const transformSaveEvents = (events = []) => {
-  return events.map((evenItem) => {
-    const { leixing, fujiatiaojian, tiaojian } = evenItem
+  return events.map((eventItem) => {
+    const { leixing, fujiatiaojian, tiaojian } = eventItem
     const isor = fujiatiaojian ? 1 : 0
     if (leixing == 0) {
-      return evenItem
+      return eventItem
     } else if (leixing == 1) {
       const eventTime = { isor, leixing, tiaojian }
       return isor == 0
         ? eventTime
         : { ...eventTime, fujiatiaojian: transformSaveEvents(fujiatiaojian) }
     } else {
-      const eventDevice = getDeviceEvent({ tiaojian, isor, leixing })
-      console.log('eventDevice', eventDevice)
+      const eventDevice = Object.assign({}, ...getDeviceEvent({ tiaojian, isor, leixing }))
       return isor == 0
         ? eventDevice
         : {
@@ -361,21 +358,21 @@ const onSave = async () => {
     }
     console.log('save', config.data)
 
-    // const { useGetSceneListSync, useGetSmartListSync } = smartStore()
+    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
 
-    // if (route.query.fenlei == 2) {
-    //   // 自动化
-    //   await setSmartList(config)
-    //   await useGetSmartListSync(true)
-    // } else {
-    //   //场景
-    //   await setSceneList(config)
-    //   await useGetSceneListSync(true)
-    // }
-    // router.back()
+    if (route.query.fenlei == 2) {
+      // 自动化
+      await setSmartList(config)
+      await useGetSmartListSync(true)
+    } else {
+      //场景
+      await setSceneList(config)
+      await useGetSceneListSync(true)
+    }
+    router.back()
   } catch (error) {
     console.log(error)
-    // formRef.value?.scrollToField(error[0].name)
+    formRef.value?.scrollToField(error[0].name)
   }
 }
 
@@ -399,49 +396,113 @@ async function onDelect() {
   }
 }
 
-const init = () => {
-  const { clearSceneCreateItem } = smartStore()
-  // clearSceneCreateItem()
-  if (route.query.id) {
-    //編輯
-    const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
-    console.log(list)
-    const { id, rId, label, actions, ...data } = list.find((item) => item.id == route.query.id)
-    const modeActions = actions.map(({ caozuo, ...item }) => {
-      return transformKeys(
-        { ...caozuo, ...item },
-        {
-          ziyuanbianhao: 'id',
-          yanshi: 'dealy',
-          shuxing: 'use',
-          shuxingzhuangtai: 'useStatus',
-          shuxingzhi: 'useValue',
-        },
-        true
-      )
-    })
-
-    const newActions = deviceList.value
-      .filter((item) => modeActions.some((action) => action.id == item.id))
-      .map((deviceItem) => {
+/**
+ * 任务转化
+ * 1：场景转化 ziyuanleixing 1
+ * 2：设备转化 ziyuanleixing 2
+ * **/
+const getTaskConverActions = (actions) => {
+  const modeActions = actions.map(({ caozuo, ...item }) => {
+    return transformKeys(
+      { ...caozuo, ...item },
+      {
+        ziyuanbianhao: 'id',
+        yanshi: 'dealy',
+        shuxing: 'use',
+        shuxingzhuangtai: 'useStatus',
+        shuxingzhi: 'useValue',
+        ziyuanleixing: 'ziyuanleixing',
+      }
+    )
+  })
+  return modeActions
+    .map((actionItem) => {
+      if (actionItem.ziyuanleixing == 1) {
+        return deviceList.value
+          .filter((item) => modeActions.some((action) => action.id == item.id))
+          .map((deviceItem) => {
+            return {
+              ...deviceItem,
+              ziyuanleixing: actionItem.ziyuanleixing,
+              modeList: deviceItem.modeList.map((modeItem) => {
+                const { id, ...newModeItem } =
+                  modeActions.find((action) => action.use == modeItem.use) || {}
+                return { ...modeItem, ...newModeItem }
+              }),
+            }
+          })
+      } else {
         return {
-          ...deviceItem,
-          modeList: deviceItem.modeList.map((modeItem) => {
-            const { id, ...newModeItem } =
-              modeActions.find((action) => action.use == modeItem.use) || {}
-            return { ...modeItem, ...newModeItem }
-          }),
+          ...sceneList.value.find((sceneItem) => sceneItem.id == actionItem.id),
+          ziyuanleixing: actionItem.ziyuanleixing,
         }
-      })
+      }
+    })
+    .flat()
+}
+
+const transformInitEvents = (events) => {
+  return events.map((eventItem) => {
+    const { leixing, fujiatiaojian, tiaojian } = eventItem
+    const isor = fujiatiaojian ? 1 : 0
+    if (leixing == 0) {
+      return eventItem
+    } else if (leixing == 1) {
+      //时间
+      return isor == 0 ? eventItem : { ...eventItem, fujiatiaojian: [] }
+    } else {
+      //设备
+    }
+  })
+}
+
+const getSmartItem = computed(() => {
+  const list = route.query.fenlei == 2 ? smartList.value : sceneList.value
+  return list?.find((item) => item?.id == route.query.id) || {}
+})
+
+// 自动化初始化
+const autoInit = () => {
+  if (!route.query.id) return
+  const { id, rId, label, actions = [], events = [], ...data } = getSmartItem.value
+  const newActions = getTaskConverActions(actions)
+  console.log('newActions', newActions)
+  // const newEvents =
+  console.log('events')
+  console.log(transformInitEvents(events))
+  createSmartItem.value = {
+    ...createSmartItem.value,
+    ...data,
+    actions: newActions,
+  }
+}
+
+// 场景初始化
+const sceneInit = () => {
+  if (route.query.id) {
+    const { id, rId, label, actions = [], events = [], ...data } = getSmartItem.value
+    console.log(actions)
+    const newActions = getTaskConverActions(actions)
+    console.log('newActions', newActions)
 
     createSmartItem.value = {
       ...createSmartItem.value,
       ...data,
       actions: newActions,
     }
-  } else if (route.query.fenlei == 1) {
-    //新增
+  } else {
     createSmartItem.value = { ...createSmartItem.value, img: sceneGallery.value[0].src }
+  }
+}
+
+// 初始化场景或自动化
+const init = () => {
+  const { clearSceneCreateItem } = smartStore()
+  clearSceneCreateItem()
+  if (route.query.fenlei == 1) {
+    sceneInit()
+  } else {
+    autoInit()
   }
   /**
    * fenlei 1：场景 2：自动化
@@ -612,7 +673,7 @@ function goEventConfig() {
       <ul>
         <li
           v-for="actionItem in createSmartItem.actions"
-          :key="actionItem.id"
+          :key="actionItem.use"
           class="mb-4 bg-white rounded-lg overflow-hidden"
         >
           <template v-if="actionItem.ziyuanleixing == 1">
