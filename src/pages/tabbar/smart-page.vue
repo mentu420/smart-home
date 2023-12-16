@@ -13,7 +13,7 @@ defineOptions({ name: 'SmartPage' })
 
 const router = useRouter()
 const loading = ref(false)
-const tabActive = ref('0')
+const tabActive = ref(2)
 const { sceneList, smartList } = storeToRefs(smartStore())
 const { roomList, floorList } = storeToRefs(houseStore())
 
@@ -26,34 +26,53 @@ const dragOptions = ref({
   ghostClass: 'ghost',
 })
 
+const showDrag = computed(() => {
+  return (
+    (tabActive.value == 2 ? smartList.value?.length : sceneList.value?.length) &&
+    dragOptions.value.disabled
+  )
+})
+
 const onSceneListSort = (data) => setSceneList({ params: { op: 5 }, data })
 
 async function onDragEnd() {
   console.log('roomSceneList', roomSceneList.value)
   dragOptions.value.disabled = !dragOptions.value.disabled
   if (!dragOptions.value.disabled) return
-  await onSceneListSort(
-    globalSceneList.value.map((item, i) => ({
-      changjingbianhao: item.id,
-      leixing: item.collect ? 1 : 0,
-      paixu: i,
-    }))
-  )
-  await Promise.all(
-    roomSceneList.value.map(async (roomItem) => {
-      return await onSceneListSort(
-        roomItem.sceneList.map((item, i) => ({
-          changjingbianhao: item.id,
-          leixing: item.collect ? 1 : 0,
-          paixu: i,
-        }))
-      )
+  if (tabActive.value == 2) {
+    //setSmartList
+    await setSmartList({
+      params: { op: 5 },
+      data: smartList.value.map((item, i) => ({
+        changjingbianhao: item.id,
+        leixing: item.collect ? 1 : 0,
+        paixu: i,
+      })),
     })
-  )
+  } else {
+    await onSceneListSort(
+      globalSceneList.value.map((item, i) => ({
+        changjingbianhao: item.id,
+        leixing: item.collect ? 1 : 0,
+        paixu: i,
+      }))
+    )
+    await Promise.all(
+      roomSceneList.value.map(async (roomItem) => {
+        return await onSceneListSort(
+          roomItem.sceneList.map((item, i) => ({
+            changjingbianhao: item.id,
+            leixing: item.collect ? 1 : 0,
+            paixu: i,
+          }))
+        )
+      })
+    )
+  }
 }
 
 const createSmart = () => {
-  const fenlei = tabActive.value == '0' ? 2 : 1
+  const fenlei = tabActive.value
   router.push({ path: '/smart-scene-create', query: { fenlei } })
 }
 
@@ -126,7 +145,7 @@ onActivated(init)
             </van-button>
           </div>
         </template>
-        <van-tab title="自动化" :disabled="!dragOptions.disabled" name="0">
+        <van-tab title="自动化" :disabled="!dragOptions.disabled" :name="2">
           <div v-if="smartList.length > 0" class="p-4">
             <section class="mb-6">
               <h4 class="mb-2 text-gray-600">全局</h4>
@@ -142,7 +161,9 @@ onActivated(init)
                     "
                   >
                     <div>{{ smartItem.label }}</div>
+                    <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
                     <van-switch
+                      v-else
                       v-model="smartItem.checked"
                       @change="(value) => onSmartChange(value, smartItem)"
                     />
@@ -192,19 +213,19 @@ onActivated(init)
               </draggable>
             </section>
           </div>
-          <div v-if="dragOptions.disabled && sceneList.length > 1" class="p-6 text-center">
-            <van-button
-              class="!px-6"
-              size="small"
-              type="primary"
-              round
-              @click="dragOptions.disabled = !dragOptions.disabled"
-            >
-              编辑
-            </van-button>
-          </div>
         </van-tab>
       </van-tabs>
+      <div v-if="showDrag" class="p-6 text-center">
+        <van-button
+          class="!px-6"
+          size="small"
+          type="primary"
+          round
+          @click="dragOptions.disabled = !dragOptions.disabled"
+        >
+          编辑
+        </van-button>
+      </div>
     </van-pull-refresh>
   </div>
 </template>
