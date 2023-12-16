@@ -165,6 +165,7 @@ onActivated(init)
                     <van-switch
                       v-else
                       v-model="smartItem.checked"
+                      @click.stop
                       @change="(value) => onSmartChange(value, smartItem)"
                     />
                   </div>
