@@ -47,7 +47,7 @@ const goDeviceConfig = (item) => {
 
   router.push({
     path,
-    query: { id: item.id, ...route.query },
+    query: { ...route.query, id: item.id },
   })
 }
 

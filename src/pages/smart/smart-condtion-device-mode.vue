@@ -30,6 +30,7 @@ watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
+    console.log(val)
     const { modeList = [] } = val
     taskColumns.value = JSON.parse(JSON.stringify(modeList))
   },

@@ -161,7 +161,6 @@ onMounted(init)
 watch(
   () => route.path,
   (to, from) => {
-    console.log(to, from)
     if (to == '/tabbar/tabbar-house' && ['/account-login', '/phone-login'].includes(from)) {
       init()
     }

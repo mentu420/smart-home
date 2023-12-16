@@ -449,9 +449,33 @@ const transformInitEvents = (events) => {
       return eventItem
     } else if (leixing == 1) {
       //时间
-      return isor == 0 ? eventItem : { ...eventItem, fujiatiaojian: [] }
+      return isor == 0
+        ? eventItem
+        : { ...eventItem, fujiatiaojian: transformInitEvents(fujiatiaojian) }
     } else {
       //设备
+      const { bianhao, shuxing, shuxingzhi, shuxingzhuangtai } = tiaojian
+      const deviceItem = deviceList.value.find((item) => item.id == bianhao)
+      if (deviceItem) {
+        const newEventItem = {
+          leixing,
+          tiaojian: {
+            ziyuanbianhao: 1,
+            ...deviceItem,
+            modeList: deviceItem.modeList
+              .filter((modeItem) => modeItem.use == shuxing)
+              .map((modeItem) => ({
+                ...modeItem,
+                useValue: shuxingzhi,
+                useStatus: shuxingzhuangtai,
+              })),
+          },
+        }
+        return isor == 0
+          ? newEventItem
+          : { ...newEventItem, fujiatiaojian: transformInitEvents(fujiatiaojian) }
+      }
+      return null
     }
   })
 }
@@ -474,6 +498,7 @@ const autoInit = () => {
     ...createSmartItem.value,
     ...data,
     actions: newActions,
+    events: transformInitEvents(events),
   }
 }
 
