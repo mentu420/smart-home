@@ -1,5 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
+import { showConfirmDialog, showDialog } from 'vant'
 import { computed, ref } from 'vue'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -14,16 +15,23 @@ defineOptions({ name: 'MeHouse' })
 const route = useRoute()
 const router = useRouter()
 const showQrCode = ref(false)
-const { familyList, houseList } = storeToRefs(houseStore())
+const { familyList, houseList, currentHouse } = storeToRefs(houseStore())
 const { userInfo } = storeToRefs(userStore())
 const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
-const houseItem = computed(() =>
-  houseList.value.find((houseItem) => houseItem.id == route.query.id)
+const houseItem = computed(
+  () => houseList.value.find((houseItem) => houseItem.id == route.query.id) || {}
 )
 const houseFamilyList = computed(() =>
   familyList.value.filter((familyItem) => familyItem.fangwubianhao == houseItem.value.id)
 )
+
+const showDelect = computed(() => {
+  return (
+    currentHouse.value.id == houseItem.value.id &&
+    houseFamilyList.value.find((item) => item.fangzhu == 1)?.shouji == userInfo.value.shouji
+  )
+})
 
 const hasEdit = computed(() => {
   const result = familyList.value.find(
@@ -58,14 +66,13 @@ const onHouseChange = async () => {
 const onDelHouse = async () => {
   try {
     loading.value = true
+    await showConfirmDialog({ title: '提示', message: '是否删除当前房屋' })
     await getHouseList({ op: 4, fangwubianhao: houseItem.value.id })
-    const { useGetHouseListSync, setCurrentHouse } = houseStore()
-    const houseList = await useGetHouseListSync(true)
-    if (houseList.length > 0) {
-      setCurrentHouse(houseList[0].id)
-      return
-    }
+    const { useGetHouseListSync } = houseStore()
+    await useGetHouseListSync(true)
     router.back()
+  } catch (err) {
+    //
   } finally {
     loading.value = false
   }
@@ -167,7 +174,7 @@ const onDelHouse = async () => {
       </dl>
     </section>
 
-    <div class="m-6">
+    <div v-if="showDelect" class="m-6">
       <van-button :loading="loading" round block type="primary" @click="onDelHouse">
         删除家庭
       </van-button>
