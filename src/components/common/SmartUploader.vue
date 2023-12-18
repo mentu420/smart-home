@@ -122,8 +122,9 @@ const fileList = computed({
       })
     }
     const originType = getOriginType(props.modelValue)
+    console.log('originType', originType)
     // 处理文件格式
-    if (originType === '[object String]' && props.stringSeparator) {
+    if (['[object String]', '[object Array]'].includes(originType) && props.stringSeparator) {
       list = list.map((item) => item.url).join(props.stringSeparator)
     }
     emits('update:modelValue', list)

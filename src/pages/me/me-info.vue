@@ -21,7 +21,7 @@ const navList = ref([
   { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
   { id: 3, text: '版本', value: '', path: '/meVersion' },
 ])
-const avatar = ref('')
+const avatar = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 
 const onLogout = async () => {
   if (userInfo.value?.shifouyishezhimim == 0) {
