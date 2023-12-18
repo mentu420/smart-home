@@ -815,7 +815,8 @@ function goEventConfig() {
             @success="showGallery = false"
           >
             <template #default="slotProps">
-              <p class="w-screen">选择相机{{ slotProps.loading }}</p>
+              <van-loading v-if="slotProps.loading" />
+              <p v-else class="w-screen">选择相机</p>
             </template>
           </SmartUploader>
         </li>

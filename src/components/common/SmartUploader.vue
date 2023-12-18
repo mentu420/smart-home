@@ -117,9 +117,9 @@ const fileList = computed({
     let list = val
     if (val.length > 0 && attrs.accept) {
       const fileTypeList = getAcceptFileTypes(attrs.accept)
-      list = val.filter((fileItem) =>
-        acceptFileValidate(fileItem?.file?.name || fileItem.url, fileTypeList)
-      )
+      list = val.filter((fileItem) => {
+        return acceptFileValidate(fileItem?.file?.name || fileItem?.url, fileTypeList)
+      })
     }
     const originType = getOriginType(props.modelValue)
     // 处理文件格式
@@ -165,7 +165,7 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
     const fileTypeList = getAcceptFileTypes(accept)
     console.log('fileTypeList')
     const isAccordAccept = fileMap.every((fileItem) =>
-      acceptFileValidate(fileItem?.file?.name || fileItem.url, fileTypeList)
+      acceptFileValidate(fileItem?.file?.name || fileItem?.url, fileTypeList)
     )
     if (!isAccordAccept) {
       const errMessage = '文件格式有误!'
@@ -186,7 +186,6 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
   fileMap.forEach((file) => setLoading(file))
   return await Promise.all(
     fileMap.map(async (fileItem) => {
-      console.log(fileItem)
       const { url } = await uploadFile({
         params: { op: 1 },
         data: { file: fileItem.file },
@@ -212,6 +211,7 @@ const onAfterRead = async (files) => {
     }
     emits('success', files)
   } catch (error) {
+    console.log(error)
     fileList.value = fileList.value.map((fileItem) => setError(fileItem))
     if (error == 'cancel') showToast('取消了上传')
     emits('error', error)
