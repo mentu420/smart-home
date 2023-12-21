@@ -167,6 +167,7 @@ const onDelHouse = async () => {
               :value="
                 familyItem.fangzhu == 1 ? '家庭所有者' : ['普通成员', '管理员'][familyItem.juese]
               "
+              :label="`fangwubianhao：${familyItem.fangwubianhao}`"
               @click="router.push({ path: '/me-house-member-item', query: { id: familyItem.id } })"
             />
           </van-cell-group>

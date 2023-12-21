@@ -91,7 +91,7 @@ const selectAllScene = () => {
 }
 
 const onSave = () => {
-  //ziyuanleixing 资源类型 1，设备；2，场景
+  // //ziyuanleixing 资源类型 1，设备；2，场景
   const { smartType, fenlei } = route.query
   const list = createSmartItem.value[smartType]?.filter((item) => item.ziyuanleixing == 2) || []
   const deviceActions =
@@ -112,7 +112,6 @@ const init = () => {
   const { useGetFloorTree } = houseStore()
   const floorList = useGetFloorTree()
   floorTree.value = floorList.filter((item) => item.roomList.length > 0)
-  const { extend, smartType, eventIndex } = route.query
 }
 
 init()

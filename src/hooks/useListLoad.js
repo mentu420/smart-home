@@ -13,7 +13,7 @@ export const useListLoad = (props) => {
     autoRequest = true,
     pageIndexKey = 'page',
     pageSizeKey = 'limit',
-    dataKey = 'page',
+    dataKey = 'data',
     success,
   } = props.options || {}
 
@@ -53,7 +53,7 @@ export const useListLoad = (props) => {
     } else {
       const totalPage = result.totalPage || result[dataKey].totalPage
       finished.value = totalPage <= pagingParams.value[pageIndexKey]
-      list.value.push(...result[dataKey].list)
+      list.value.push(...result[dataKey])
     }
   }
 

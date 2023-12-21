@@ -1,10 +1,11 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { showConfirmDialog, showDialog } from 'vant'
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setHouseItem, getHouseList } from '@/apis/houseApi'
+import ListLoad from '@/components/layout/ListLoad.vue'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
@@ -14,18 +15,13 @@ defineOptions({ name: 'MeHouse' })
 
 const router = useRouter()
 const { familyList, houseList, currentHouse } = storeToRefs(houseStore())
-const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
-
 const familyLength = computed(
   () => (id) => familyList.value.filter((familyItem) => familyItem.fangwubianhao == id).length
 )
 
-const onSelect = async ({ id }) => {
+const onRefresh = async () => {
   try {
-    loading.value = true
-    const { useGetToken, useSetToken } = userStore()
-    await getHouseList({ op: 5, fangwubianhao: id })
     const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
       houseStore()
     const { useGetDeviceListSync } = deviceStore()
@@ -39,6 +35,17 @@ const onSelect = async ({ id }) => {
       useGetSmartListSync(true),
       useGetFamilyListSync(true),
     ])
+  } finally {
+    loading.value = false
+  }
+}
+
+const onSelect = async ({ id }) => {
+  try {
+    loading.value = true
+    const { useGetToken, useSetToken } = userStore()
+    await getHouseList({ op: 5, fangwubianhao: id })
+    await onRefresh()
     houseStore().setCurrentHouse(id)
     useSetToken({ ...useGetToken(), fangwubianhao: id })
   } finally {
@@ -79,55 +86,56 @@ const onSwipeClick = async ({ position }, houseItem) => {
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="家庭管理" />
-
-    <section class="p-4">
-      <div class="space-y-4">
-        <van-swipe-cell
-          v-for="houseItem in houseList"
-          :key="houseItem.id"
-          class="rounded-lg overflow-hidden"
-          :before-close="(e) => onSwipeClick(e, houseItem)"
-        >
-          <template #left>
-            <van-button class="!h-full" square type="primary" text="切换" :loading="loading" />
-          </template>
-          <van-cell
-            :label="`${familyLength(houseItem.id)}名成员`"
-            center
-            is-link
-            @click="router.push({ path: '/me-house-item', query: { id: houseItem.id } })"
+    <van-pull-refresh v-model="loading" class="min-h-[80vh]" @refresh="onRefresh">
+      <section class="p-4">
+        <div class="space-y-4">
+          <van-swipe-cell
+            v-for="houseItem in houseList"
+            :key="houseItem.id"
+            class="rounded-lg overflow-hidden"
+            :before-close="(e) => onSwipeClick(e, houseItem)"
           >
-            <template #title>
-              <p :class="{ 'text-primary': currentHouse.id == houseItem.id }">
-                <van-icon v-if="currentHouse.id == houseItem.id" class="mr-2" name="wap-home" />
-                <label>{{ houseItem.label }}</label>
-              </p>
+            <template #left>
+              <van-button class="!h-full" square type="primary" text="切换" :loading="loading" />
             </template>
-          </van-cell>
-          <template #right>
-            <van-button
-              class="!h-full"
-              square
-              type="danger"
-              text="删除"
-              :loading="loading"
-              @click="onDelect(houseItem)"
-            />
-          </template>
-        </van-swipe-cell>
-      </div>
-    </section>
+            <van-cell
+              :label="`${familyLength(houseItem.id)}名成员`"
+              center
+              is-link
+              @click="router.push({ path: '/me-house-item', query: { id: houseItem.id } })"
+            >
+              <template #title>
+                <p :class="{ 'text-primary': currentHouse.id == houseItem.id }">
+                  <van-icon v-if="currentHouse.id == houseItem.id" class="mr-2" name="wap-home" />
+                  <label>{{ houseItem.label }}</label>
+                </p>
+              </template>
+            </van-cell>
+            <template #right>
+              <van-button
+                class="!h-full"
+                square
+                type="danger"
+                text="删除"
+                :loading="loading"
+                @click="onDelect(houseItem)"
+              />
+            </template>
+          </van-swipe-cell>
+        </div>
+      </section>
 
-    <div class="p-4">
-      <van-button
-        type="primary"
-        block
-        round
-        :loading="loading"
-        @click="router.push({ path: '/me-house-create' })"
-      >
-        创建新家庭
-      </van-button>
-    </div>
+      <div class="p-4">
+        <van-button
+          type="primary"
+          block
+          round
+          :loading="loading"
+          @click="router.push({ path: '/me-house-create' })"
+        >
+          创建新家庭
+        </van-button>
+      </div>
+    </van-pull-refresh>
   </div>
 </template>

@@ -6,11 +6,6 @@ defineOptions({ name: 'SmartTaskList' })
 
 const route = useRoute()
 const router = useRouter()
-
-const disabledScene = computed(() => {
-  const { smartType, fenlei } = route.query
-  return (smartType == 'actions' && fenlei == 1) || smartType == 'events'
-})
 </script>
 
 <template>
@@ -38,10 +33,8 @@ const disabledScene = computed(() => {
       <li
         v-clickable-active
         class="flex items-center rounded-lg bg-white p-3"
-        :class="{ 'opacity-50': disabledScene }"
         @click="
           () => {
-            if (disabledScene) return
             router.push({
               path: '/smart-task-scene-list',
               query: route.query,

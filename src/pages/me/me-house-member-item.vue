@@ -36,6 +36,7 @@ const onDelFamily = async () => {
       message: '是否删除该成员',
     })
     await getFamily({ op: 4, yonghubianhao: familyItem.value.id })
+    familyList.value = familyList.value.filter((item) => item.id != familyItem.value.id)
     router.back()
   } catch (error) {
     //

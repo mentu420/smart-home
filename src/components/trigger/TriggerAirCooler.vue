@@ -80,7 +80,7 @@ const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 const setTemp = () => {
   nextTick(() => {
     config.value[TEMPERATURE] = {
-      ...config.value[TEMPERATURE],
+      useStatus: SETTEMPERATURE,
       useValue: config.value[SETTEMPERATURE],
     }
     triggerControl(TEMPERATURE, deviceItem.value, config.value)
