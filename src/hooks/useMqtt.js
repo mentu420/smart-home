@@ -9,7 +9,7 @@ import userStore from '@/store/userStore'
 export default function useMqtt() {
   const heartTimer = ref(null) //记录心跳定时器
   const heartDuration = ref(10 * 1000) // 心跳时长
-  const showLog = ref(false)
+  const showLog = ref(true)
   const PluginOptions = {
     autoConnect: false, //插件初始化时是否自动连接到代理。
     showNotifications: false, //是否显示错误和成功通知。

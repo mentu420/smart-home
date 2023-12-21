@@ -41,6 +41,14 @@ const onDelFamily = async () => {
     //
   }
 }
+
+const editFamilyItem = (key) => {
+  if (key != 'xingming') return
+  router.push({
+    path: '/me-house-member-remark',
+    query: { value: familyItem.value[key], id: familyItem.value.id },
+  })
+}
 </script>
 
 <template>
@@ -52,11 +60,13 @@ const onDelFamily = async () => {
           v-for="(familyLabel, familyKey) in {
             label: '成员昵称',
             shouji: '成员账号',
-            remark: '备注名',
+            xingming: '备注名',
           }"
           :key="familyKey"
           :title="familyLabel"
           :value="familyItem[familyKey]"
+          :is-link="familyKey === 'xingming'"
+          @click="editFamilyItem(familyKey)"
         />
       </div>
 
@@ -66,7 +76,7 @@ const onDelFamily = async () => {
         </van-cell>
       </div>
 
-      <div class="rounded-lg overflow-hidden">
+      <div v-if="familyItem.juese != 0" class="rounded-lg overflow-hidden">
         <van-cell
           v-for="(familyLabel, familyIndex) in ['房间权限', '设备权限', '场景权限']"
           :key="familyIndex"

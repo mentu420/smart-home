@@ -16,7 +16,7 @@ const router = useRouter()
 const { userInfo } = storeToRefs(userStore())
 const clickCount = ref(0)
 const navList = ref([
-  { id: 0, text: '昵称', value: '李先生', path: '/meNickname' },
+  { id: 0, text: '昵称', value: '李先生', path: '/me-nickname' },
   { id: 1, text: '手机号', value: '1888888888', path: '/me-phone-change' },
   { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
   { id: 3, text: '版本', value: '', path: '/meVersion' },
@@ -43,7 +43,7 @@ const init = async () => {
   const userInfo = await useUserInfoSync()
   console.log(userInfo)
   navList.value = navList.value.map((item) => {
-    if (item.path === '/meNickname') return { ...item, value: userInfo.xingming }
+    if (item.path === '/me-nickname') return { ...item, value: userInfo.xingming }
     if (item.path === '/me-phone-change') return { ...item, value: userInfo.shouji }
     return item
   })

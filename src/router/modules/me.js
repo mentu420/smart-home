@@ -60,6 +60,12 @@ export default [
     meta: { title: '成员信息' },
   },
   {
+    path: '/me-house-member-remark',
+    name: 'MeHouseMemberRemark',
+    component: () => import('@/pages/me/me-house-member-remark.vue'),
+    meta: { title: '成员备注名' },
+  },
+  {
     path: '/me-house-powers',
     name: 'MeHousePowers',
     component: () => import('@/pages/me/me-house-powers.vue'),
@@ -84,7 +90,7 @@ export default [
     meta: { title: '个人信息' },
   },
   {
-    path: '/meNickname',
+    path: '/me-nickname',
     name: 'MeNickname',
     component: () => import('@/pages/me/me-nickname.vue'),
     meta: { title: '昵称' },
