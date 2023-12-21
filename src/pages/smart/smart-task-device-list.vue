@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
+import { stringToArray } from '@/utils/common'
 
 defineOptions({ name: 'SmartTaskDeviceList' })
 
@@ -140,7 +141,10 @@ const init = () => {
   floorTree.value = useGetFloorTree()
     .filter((floorItem) => {
       return floorItem.roomList.some((roomItem) => {
-        return roomItem.deviceList.length > 0
+        const roomIds = stringToArray(route.query.rooms)
+        return roomIds == ''
+          ? roomItem.deviceList.length > 0
+          : roomIds.includes(roomItem.id) && roomItem.deviceList.length
       })
     })
     .map((floorItem) => {

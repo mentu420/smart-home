@@ -100,6 +100,13 @@ const onRest = () => {
   checkedRoom.value = []
 }
 
+const goTaskDeviceList = (item) => {
+  router.push({
+    path: '/smart-task-device-list',
+    query: { classify: item.classify, rooms: checkedRoom.value.join(','), ...route.query },
+  })
+}
+
 const init = () => {
   const { useGetFloorTree } = houseStore()
   const floorList = useGetFloorTree()
@@ -192,12 +199,7 @@ init()
           :value="searchItem.count"
           is-link
           class="rounded-lg overflow-hidden"
-          @click="
-            router.push({
-              path: '/smart-task-device-list',
-              query: { classify: searchItem.classify, ...route.query },
-            })
-          "
+          @click="goTaskDeviceList(searchItem)"
         >
           <template #icon>
             <IconFont class="text-primary mr-2" :icon="searchItem.icon" />
