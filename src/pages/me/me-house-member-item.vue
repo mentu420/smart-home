@@ -32,7 +32,12 @@ const onSetFamliy = async () => {
   })
   return setFamily({
     params: { op: 3 },
-    data: { shouji: familyItem.value.shouji, bianhao: route.query.id, juese: 1 }, //juese 1，是有房主权限，0是没有房主权限
+    data: {
+      shouji: familyItem.value.shouji,
+      bianhao: route.query.id,
+      juese: 1,
+      fangwubianhao: route.query.hId,
+    }, //juese 1，是有房主权限，0是没有房主权限
   })
 }
 
@@ -108,9 +113,13 @@ const editFamilyPower = (power) => {
         />
       </div>
     </div>
-    <div v-if="rolePower != 2" class="p-8 space-y-6">
-      <van-button v-loading-click="onSetFamliy" round block type="primary"> 设为管理员 </van-button>
-      <van-button v-loading-click="onDelFamily" round block type="danger"> 删除成员 </van-button>
+    <div class="p-8 space-y-6">
+      <van-button v-if="rolePower == 2" v-loading-click="onSetFamliy" round block type="primary">
+        设为管理员
+      </van-button>
+      <van-button v-if="rolePower != 2" v-loading-click="onDelFamily" round block type="danger">
+        删除成员
+      </van-button>
     </div>
   </div>
 </template>

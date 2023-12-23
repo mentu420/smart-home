@@ -48,8 +48,6 @@ const onSubmit = async () => {
         xingming: remark.value,
       },
     })
-    // const { useGetFamilyListSync } = houseStore()
-    // await useGetFamilyListSync(true)
     familyList.value = familyList.value.map((item) => {
       if (item.id == bianhao) return { ...familyItem.value, xingming: remark.value }
       return item

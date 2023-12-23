@@ -19,10 +19,9 @@ const { roomList, familyList, powerList } = storeToRefs(houseStore())
 const loading = ref(false)
 const checkboxRefs = ref([])
 const checked = ref([])
+const powerKeys = ['fangjianquanxian', 'shebeiquanxian', 'changjingquanxian']
 
-const powerKey = computed(
-  () => ['fangjianquanxian', 'shebeiquanxian', 'changjingquanxian'][route.query.power]
-)
+const powerKey = computed(() => powerKeys[route.query.power])
 
 const list = computed(() =>
   [roomList.value, deviceList.value, sceneList.value][route.query.power].map((item) => ({
@@ -34,18 +33,20 @@ const list = computed(() =>
 const onEditPower = async () => {
   try {
     loading.value = true
-    await setFamily({
-      params: { op: 3 },
-      data: {
-        shouji: route.query.shouji,
-        bianhao: route.query.id,
-        [powerKey.value]: checked.value,
-      },
-    })
+    const data = {
+      ...Object.assign({}, ...powerKeys.map((key, i) => ({ [key]: powerList.value[i] }))),
+      shouji: route.query.shouji,
+      bianhao: route.query.id,
+      [powerKey.value]: checked.value,
+      fangwubianhao: route.query.hId,
+    }
+    console.log(data)
+    await setFamily({ params: { op: 3 }, data })
     familyList.value = familyList.value.map((item) => {
       if (item.id == route.query.id) return { ...item, [powerKey.value]: checked.value }
       return item
     })
+    router.back()
   } finally {
     loading.value = false
   }
@@ -63,8 +64,8 @@ async function onSubmit() {
       if (route.query.power == i) return checked.value
       return item
     })
+    router.back()
   }
-  router.back()
 }
 
 function init() {

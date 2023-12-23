@@ -567,7 +567,7 @@ function goEventConfig() {
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar :title="`创建${pageName}`">
+    <HeaderNavbar :title="`${route.query.id ? '编辑' : '创建'}${pageName}`">
       <template #right>
         <van-button type="primary" size="small" @click="onSave">保存</van-button>
       </template>

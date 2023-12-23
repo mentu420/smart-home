@@ -84,7 +84,7 @@ const editHouseAddress = () => {
 
 const editHouseManage = () => {
   if (disabled.value) return
-  router.push({ path: '/me-room-manage' })
+  // router.push({ path: '/me-room-manage', query: route.query })
 }
 
 const addHouseItem = () => {
