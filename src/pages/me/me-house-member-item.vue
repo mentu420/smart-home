@@ -9,13 +9,15 @@ import houseStore from '@/store/houseStore'
 
 defineOptions({ name: 'MeHouseMemberItem' })
 
-const useHouseStore = houseStore()
+const { getRolePower } = houseStore()
 
-const { familyList } = storeToRefs(useHouseStore)
+const { familyList, houseRoles } = storeToRefs(houseStore())
 
 const route = useRoute()
 const router = useRouter()
 const familyItem = computed(() => familyList.value?.find((item) => item.id == route.query.id) || {})
+// 当前用户房屋的权限
+const rolePower = computed(() => getRolePower(route.query.hId))
 
 const onSetFamliy = async () => {
   await showConfirmDialog({
@@ -35,7 +37,11 @@ const onDelFamily = async () => {
       title: '提示',
       message: '是否删除该成员',
     })
-    await getFamily({ op: 4, yonghubianhao: familyItem.value.id })
+    await getFamily({
+      op: 4,
+      yonghubianhao: familyItem.value.id,
+      fangwubianhao: familyItem.value.fangwubianhao,
+    })
     familyList.value = familyList.value.filter((item) => item.id != familyItem.value.id)
     router.back()
   } catch (error) {
@@ -44,10 +50,18 @@ const onDelFamily = async () => {
 }
 
 const editFamilyItem = (key) => {
-  if (key != 'xingming') return
+  if (key != 'xingming' || rolePower.value == 2) return
   router.push({
     path: '/me-house-member-remark',
     query: { value: familyItem.value[key], id: familyItem.value.id },
+  })
+}
+
+const editFamilyPower = (power) => {
+  if (rolePower.value == 2) return
+  router.push({
+    path: '/me-house-powers',
+    query: { power, ...route.query, shouji: familyItem.value.shouji },
   })
 }
 </script>
@@ -73,44 +87,23 @@ const editFamilyItem = (key) => {
 
       <div class="rounded-lg overflow-hidden">
         <van-cell title="成员权限">
-          <p>{{ familyItem?.juese == 1 ? '管理员' : '普通成员' }}</p>
+          <p>{{ houseRoles[rolePower] }}</p>
         </van-cell>
       </div>
 
-      <div v-if="familyItem.juese != 0" class="rounded-lg overflow-hidden">
+      <div v-if="rolePower != 2" class="rounded-lg overflow-hidden">
         <van-cell
           v-for="(familyLabel, familyIndex) in ['房间权限', '设备权限', '场景权限']"
           :key="familyIndex"
           :title="familyLabel"
           is-link
-          @click="
-            router.push({
-              path: '/me-house-powers',
-              query: { power: familyIndex, ...route.query, shouji: familyItem.shouji },
-            })
-          "
+          @click="editFamilyPower(familyIndex)"
         />
       </div>
     </div>
-    <div class="p-8 space-y-6">
-      <van-button
-        v-if="familyItem.juese == 0"
-        v-loading-click="onSetFamliy"
-        round
-        block
-        type="primary"
-      >
-        设为管理员
-      </van-button>
-      <van-button
-        v-if="familyItem.juese != 1"
-        v-loading-click="onDelFamily"
-        round
-        block
-        type="danger"
-      >
-        删除成员
-      </van-button>
+    <div v-if="rolePower != 2" class="p-8 space-y-6">
+      <van-button v-loading-click="onSetFamliy" round block type="primary"> 设为管理员 </van-button>
+      <van-button v-loading-click="onDelFamily" round block type="danger"> 删除成员 </van-button>
     </div>
   </div>
 </template>

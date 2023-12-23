@@ -1,19 +1,24 @@
 <script setup>
 import { ref } from 'vue'
 
+import { removeStorage } from '@/utils/storage'
+
 defineOptions({ name: 'MeDevelopment' })
 
 const form = ref({
-  checked: false,
+  checked: true,
   developmentUrl: '',
 })
 
 const onDevelopmentChange = (value) => {
   if (value) return
-  location.reload()
+  removeStorage('DEVELOPMENT')
 }
 
-const onSubmit = async () => {}
+const onSubmit = async () => {
+  console.log(123)
+  location.reload()
+}
 </script>
 
 <template>
@@ -30,7 +35,11 @@ const onSubmit = async () => {}
         v-model="form.developmentUrl"
         label="开发环境地址"
         placeholder="请输入开发环境地址"
+        :rules="[{ required: form.checked, message: '必填' }]"
       />
+      <div class="p-4">
+        <van-button type="primary" round block native-type="submit">确定</van-button>
+      </div>
     </van-form>
   </div>
 </template>

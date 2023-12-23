@@ -17,9 +17,11 @@ export default defineStore(storeName, () => {
   const familyList = ref([]) //当前房屋的所有成员
   const currentHouse = ref({}) //当前房屋
   const powerList = ref([], [], []) //编辑家人时的权限列表里 [id]
+  const houseRoles = ref(['家庭所有者', '管理员', '普通成员'])
 
   const { deviceList } = storeToRefs(deviceStore())
   const { sceneList } = storeToRefs(smartStore())
+  const { userInfo } = storeToRefs(userStore())
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
@@ -131,6 +133,18 @@ export default defineStore(storeName, () => {
     })
   }
 
+  //获取当前用户在当前房屋的权限0 所有者，1 管理员 2普通成员
+  const getRolePower = (hId) => {
+    //fangzhu=1 所有者 juese = 0 普通成员 1管理员
+    const { fangzhu = 0, juese = 1 } =
+      familyList.value.find(
+        (familyItem) =>
+          familyItem.fangwubianhao == hId && familyItem.shouji == userInfo.value.shouji
+      ) || {}
+    console.log(fangzhu, juese)
+    return fangzhu == 1 ? 0 : juese == 1 ? 1 : 2
+  }
+
   const reset = () => {
     houseList.value = []
     roomList.value = []
@@ -146,6 +160,7 @@ export default defineStore(storeName, () => {
     familyList,
     currentHouse,
     powerList,
+    houseRoles,
     useGetFloorTree,
     editHouseList,
     setCurrentHouse,
@@ -155,6 +170,7 @@ export default defineStore(storeName, () => {
     useGetFloorListSync,
     useGetFamilyListSync,
     setHouseList,
+    getRolePower,
     reset,
   }
 })

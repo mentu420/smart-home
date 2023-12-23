@@ -15,31 +15,22 @@ defineOptions({ name: 'MeHouse' })
 const route = useRoute()
 const router = useRouter()
 const showQrCode = ref(false)
-const { familyList, houseList, currentHouse } = storeToRefs(houseStore())
-const { userInfo } = storeToRefs(userStore())
+const { familyList, houseList, houseRoles } = storeToRefs(houseStore())
 const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
 const houseItem = computed(
   () => houseList.value.find((houseItem) => houseItem.id == route.query.id) || {}
 )
 const houseFamilyList = computed(() =>
-  familyList.value.filter((familyItem) => familyItem.fangwubianhao == houseItem.value.id)
+  familyList.value
+    .filter((familyItem) => familyItem.fangwubianhao == houseItem.value.id)
+    .sort((a, b) => {
+      return b.fangzhu - a.fangzhu || b.juese - a.juese
+    })
 )
-
-const showDelect = computed(() => {
-  return (
-    currentHouse.value.id == houseItem.value.id &&
-    houseFamilyList.value.find((item) => item.fangzhu == 1)?.shouji == userInfo.value.shouji
-  )
-})
-
-const hasEdit = computed(() => {
-  const result = familyList.value.find(
-    (familyItem) =>
-      familyItem.fangwubianhao == route.query.id && familyItem.shouji == userInfo.value?.shouji
-  )
-  return result?.fangzhu == 1 || result?.juese == 1
-})
+const { getRolePower } = houseStore()
+// 当前用户是否当前房屋的所有者或者管理员
+const disabled = computed(() => getRolePower(route.query.id) == 2)
 
 //变更图片
 const onHouseChange = async () => {
@@ -77,13 +68,36 @@ const onDelHouse = async () => {
     loading.value = false
   }
 }
+
+const editHouseName = () => {
+  if (disabled.value) return
+  router.push({
+    path: '/me-house-name',
+    query: { houseName: houseItem.value.fangwumingcheng, id: houseItem.value.bianhao },
+  })
+}
+
+const editHouseAddress = () => {
+  if (disabled.value) return
+  router.push({ path: '/me-house-map' })
+}
+
+const editHouseManage = () => {
+  if (disabled.value) return
+  router.push({ path: '/me-room-manage' })
+}
+
+const addHouseItem = () => {
+  if (disabled.value) return
+  router.push({ path: '/me-house-create' })
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="家庭管理">
       <template #right>
-        <van-icon size="20" name="plus" @click="router.push({ path: '/me-house-create' })" />
+        <van-icon v-if="!disabled" size="20" name="plus" @click="addHouseItem" />
       </template>
     </HeaderNavbar>
     <van-cell-group>
@@ -93,12 +107,7 @@ const onDelHouse = async () => {
         title="家庭名称"
         :value="houseItem?.fangwumingcheng"
         is-link
-        @click="
-          router.push({
-            path: '/me-house-name',
-            query: { houseName: houseItem?.fangwumingcheng, id: houseItem.bianhao },
-          })
-        "
+        @click="editHouseName"
       />
       <van-cell
         center
@@ -106,7 +115,7 @@ const onDelHouse = async () => {
         title="家庭位置"
         :value="houseItem?.dizhi"
         is-link
-        @click="router.push({ path: '/me-house-map' })"
+        @click="editHouseAddress"
       />
       <van-cell center clickable title="家庭图片" is-link>
         <SmartUploader
@@ -115,6 +124,8 @@ const onDelHouse = async () => {
           accept="image/*"
           string-separator=","
           :max-count="1"
+          :disabled="disabled"
+          :deletable="!disabled"
           @success="onHouseChange"
         />
       </van-cell>
@@ -123,20 +134,7 @@ const onDelHouse = async () => {
       </van-cell>
       <div class="h-4 bg-page-gray"></div>
       <van-cell center clickable title="我的权限" value="管理员" is-link />
-      <!-- <van-cell
-        center
-        clickable
-        title="成员与权限"
-        is-link
-        @click="router.push({ path: '/me-house-invite' })"
-      /> -->
-      <van-cell
-        center
-        clickable
-        title="房间管理"
-        is-link
-        @click="router.push({ path: '/me-room-manage' })"
-      />
+      <van-cell center clickable title="房间管理" is-link @click="editHouseManage" />
     </van-cell-group>
 
     <section class="p-4">
@@ -147,7 +145,7 @@ const onDelHouse = async () => {
             <label class="text-xs text-gray-300">({{ houseFamilyList.length }})</label>
           </p>
           <p
-            v-if="hasEdit"
+            v-if="!disabled"
             class="space-x-2 text-primary"
             @click="router.push({ path: '/me-house-invite', query: route.query })"
           >
@@ -167,15 +165,19 @@ const onDelHouse = async () => {
               :value="
                 familyItem.fangzhu == 1 ? '家庭所有者' : ['普通成员', '管理员'][familyItem.juese]
               "
-              :label="`fangwubianhao：${familyItem.fangwubianhao}`"
-              @click="router.push({ path: '/me-house-member-item', query: { id: familyItem.id } })"
+              @click="
+                router.push({
+                  path: '/me-house-member-item',
+                  query: { id: familyItem.id, hId: familyItem.fangwubianhao },
+                })
+              "
             />
           </van-cell-group>
         </dd>
       </dl>
     </section>
 
-    <div v-if="showDelect" class="m-6">
+    <div v-if="!disabled" class="m-6">
       <van-button :loading="loading" round block type="primary" @click="onDelHouse">
         删除家庭
       </van-button>

@@ -2,25 +2,26 @@
 import { storeToRefs } from 'pinia'
 import { showConfirmDialog } from 'vant'
 import Vconsole from 'vconsole'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setUserConfig } from '@/apis/commonApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
+import { setStorage, getStorage } from '@/utils/storage'
 
 defineOptions({ name: 'MeInfo' })
 
 const router = useRouter()
 const { userInfo } = storeToRefs(userStore())
 const clickCount = ref(0)
-const navList = ref([
-  { id: 0, text: '昵称', value: '李先生', path: '/me-nickname' },
-  { id: 1, text: '手机号', value: '1888888888', path: '/me-phone-change' },
-  { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
-  { id: 3, text: '版本', value: '', path: '/meVersion' },
-])
+// const navList = ref([
+//   { id: 0, text: '昵称', value: '李先生', path: '/me-nickname' },
+//   { id: 1, text: '手机号', value: '1888888888', path: '/me-phone-change' },
+//   { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
+//   { id: 3, text: '版本', value: '', path: '/meVersion' },
+// ])
 const avatar = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 
 const onLogout = async () => {
@@ -38,35 +39,40 @@ const onEditAvatar = async (file) => {
   //
 }
 
-const init = async () => {
-  const { useUserInfoSync } = userStore()
-  const userInfo = await useUserInfoSync()
-  console.log(userInfo)
-  navList.value = navList.value.map((item) => {
-    if (item.path === '/me-nickname') return { ...item, value: userInfo.xingming }
-    if (item.path === '/me-phone-change') return { ...item, value: userInfo.shouji }
-    return item
-  })
-  avatar.value = userInfo.touxiang
-}
+const isDev = ref(false)
 
-init()
+const navList = computed(() => {
+  const list = [
+    { id: 0, text: '昵称', value: userInfo.value.xingming, path: '/me-nickname' },
+    { id: 1, text: '手机号', value: userInfo.value.shouji, path: '/me-phone-change' },
+    { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
+    { id: 3, text: '版本', value: '', path: '/meVersion' },
+  ]
+  return isDev.value
+    ? [...list, { id: 4, text: '开发者模式', value: '', path: '/me-development' }]
+    : list
+})
 
 const onNavItemClick = (navItem) => {
   if (navItem.id == 3) {
     clickCount.value++
+    console.log('clickCount', clickCount.value)
     if (clickCount.value == 5) {
       new Vconsole()
-      navList.value = [
-        ...navList.value,
-        { id: 4, text: '开发者模式', value: '', path: '/me-development' },
-      ]
+      setStorage('DEVELOPMENT')
+      isDev.value = true
+      clickCount.value = 0
     }
-
     return
   }
   router.push({ path: navItem.path, query: { value: navItem.value } })
 }
+
+const init = () => {
+  isDev.value = getStorage('DEVELOPMENT') ?? false
+}
+
+init()
 </script>
 
 <template>

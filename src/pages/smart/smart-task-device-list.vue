@@ -121,9 +121,8 @@ const onSave = async () => {
 
 const init = () => {
   const { useGetFloorTree } = houseStore()
-  const { fenlei, smartType, extend, eventIndex } = route.query
+  const { smartType, extend, eventIndex } = route.query
   const smartTypeData = createSmartItem.value[smartType] || []
-  console.log('smartTypeData', smartTypeData)
   if (smartType == 'actions') {
     // action 根据ziyuanbianhao区分设备、场景
     checkedDevice.value = smartTypeData.map((item) => item.id && item.ziyuanleixing == 1)
@@ -193,7 +192,8 @@ init()
               :title="deviceItem.label"
               :label="roomItem.label"
               center
-              @click="toggle(deviceItem.id)"
+              clickable
+              @click="goDeviceConfig(deviceItem)"
             >
               <template #icon>
                 <IconFont class="text-primary mr-2" :icon="deviceItem.icon" />
@@ -208,7 +208,7 @@ init()
                   ></van-checkbox>
                 </template> -->
               <div class="flex justify-end items-center pr-4 text-gray-300">
-                <IconFont icon="more-round" @click.stop="goDeviceConfig(deviceItem)" />
+                <IconFont icon="more-round" />
               </div>
             </van-cell>
           </van-cell-group>

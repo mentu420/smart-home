@@ -51,7 +51,7 @@ export default [
     path: '/me-house-invite',
     name: 'MeHouseInvite',
     component: () => import('@/pages/me/me-house-invite.vue'),
-    meta: { title: '成员列表' },
+    meta: { title: '成员列表', keepAlive: true },
   },
   {
     path: '/me-house-member-item',

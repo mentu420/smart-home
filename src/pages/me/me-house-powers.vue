@@ -59,7 +59,7 @@ async function onSubmit() {
   if (route.query.id) {
     onEditPower()
   } else {
-    powerList.value.map((item, i) => {
+    powerList.value = powerList.value.map((item, i) => {
       if (route.query.power == i) return checked.value
       return item
     })
@@ -73,8 +73,9 @@ function init() {
     const familyItem = familyList.value?.find((item) => item.id == route.query.id)
     checked.value = familyItem[powerKey.value]
   } else {
-    checked.value = list.value.map((item) => item.id)
+    checked.value = powerList.value[route.query.power]
   }
+  console.log('checked', checked.value)
 }
 
 init()

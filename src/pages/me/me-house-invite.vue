@@ -14,9 +14,9 @@ const route = useRoute()
 
 const { deviceList } = storeToRefs(deviceStore())
 const { sceneList } = storeToRefs(smartStore())
-const { roomList, familyList, powerList } = storeToRefs(houseStore())
+const { roomList, powerList } = storeToRefs(houseStore())
 
-defineOptions({ name: 'MeHouseMemberList' })
+defineOptions({ name: 'MeHouseInvite' })
 
 const form = ref({ juese: '0' })
 const loading = ref(false)
@@ -110,7 +110,9 @@ init()
         />
       </div>
       <div class="mt-8">
-        <van-button round block type="primary" native-type="submit"> 提交 </van-button>
+        <van-button round block type="primary" native-type="submit" :loading="loading">
+          提交
+        </van-button>
       </div>
     </van-form>
   </div>
