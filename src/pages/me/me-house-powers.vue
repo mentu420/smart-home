@@ -75,7 +75,6 @@ function init() {
   } else {
     checked.value = powerList.value[route.query.power]
   }
-  console.log('checked', checked.value)
 }
 
 init()

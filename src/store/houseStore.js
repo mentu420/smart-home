@@ -141,9 +141,14 @@ export default defineStore(storeName, () => {
         (familyItem) =>
           familyItem.fangwubianhao == hId && familyItem.shouji == userInfo.value.shouji
       ) || {}
-    console.log(fangzhu, juese)
     return fangzhu == 1 ? 0 : juese == 1 ? 1 : 2
   }
+
+  const getRolePowerName = computed(
+    () =>
+      ({ fangzhu, juese }) =>
+        fangzhu == 1 ? '家庭所有者' : ['普通成员', '管理员'][juese]
+  )
 
   const reset = () => {
     houseList.value = []
@@ -161,6 +166,7 @@ export default defineStore(storeName, () => {
     currentHouse,
     powerList,
     houseRoles,
+    getRolePowerName,
     useGetFloorTree,
     editHouseList,
     setCurrentHouse,

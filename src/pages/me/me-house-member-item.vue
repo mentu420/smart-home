@@ -11,11 +11,16 @@ defineOptions({ name: 'MeHouseMemberItem' })
 
 const { getRolePower } = houseStore()
 
-const { familyList, houseRoles } = storeToRefs(houseStore())
+const { familyList, getRolePowerName } = storeToRefs(houseStore())
 
 const route = useRoute()
 const router = useRouter()
-const familyItem = computed(() => familyList.value?.find((item) => item.id == route.query.id) || {})
+const familyItem = computed(
+  () =>
+    familyList.value?.find(
+      (item) => item.id == route.query.id && item.fangwubianhao == route.query.hId
+    ) || {}
+)
 // 当前用户房屋的权限
 const rolePower = computed(() => getRolePower(route.query.hId))
 
@@ -87,7 +92,9 @@ const editFamilyPower = (power) => {
 
       <div class="rounded-lg overflow-hidden">
         <van-cell title="成员权限">
-          <p>{{ houseRoles[rolePower] }}</p>
+          <p>
+            {{ getRolePowerName(familyItem) }}
+          </p>
         </van-cell>
       </div>
 

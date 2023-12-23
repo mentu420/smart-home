@@ -15,7 +15,7 @@ defineOptions({ name: 'MeHouse' })
 const route = useRoute()
 const router = useRouter()
 const showQrCode = ref(false)
-const { familyList, houseList, houseRoles } = storeToRefs(houseStore())
+const { familyList, houseList, getRolePowerName } = storeToRefs(houseStore())
 const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
 const houseItem = computed(
@@ -162,9 +162,7 @@ const addHouseItem = () => {
               clickable
               is-link
               :title="familyItem.label"
-              :value="
-                familyItem.fangzhu == 1 ? '家庭所有者' : ['普通成员', '管理员'][familyItem.juese]
-              "
+              :value="getRolePowerName(familyItem)"
               @click="
                 router.push({
                   path: '/me-house-member-item',
