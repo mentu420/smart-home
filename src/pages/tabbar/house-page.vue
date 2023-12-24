@@ -34,8 +34,18 @@ const currentRoomId = ref('') //当前房间编号
 const currentFloorId = ref('') //当前楼层id
 const isTabsFixed = ref(false) // tabs 吸顶
 const roomFilterList = ref([]) // 当前楼层房间列表
-const collectSceneList = ref([])
-const collectDeviceList = ref([])
+const collectList = ref([
+  {
+    text: '常用场景',
+    list: [],
+    group: 'collect-scene',
+  },
+  {
+    text: '常用设备',
+    list: [],
+    group: 'collect-device',
+  },
+])
 const dragOptions = ref({
   animation: 200,
   disabled: true, //是否可以拖拽排序
@@ -43,25 +53,25 @@ const dragOptions = ref({
 })
 
 watch(
-  () => sceneList.value,
-  (val) => {
-    collectSceneList.value = val?.filter((sceneItem) => sceneItem.collect)
-  }
-)
-watch(
-  () => deviceList.value,
-  (val) => {
-    collectDeviceList.value = val?.filter((deviceItem) => deviceItem.collect)
+  () => [sceneList.value, deviceList.value],
+  ([sceneValue, deviceValue]) => {
+    collectList.value = collectList.value.map((collectItem) => {
+      const list = collectItem.group == 'collect-scene' ? sceneValue : deviceValue
+      return {
+        ...collectItem,
+        list: list?.filter((item) => item.collect),
+      }
+    })
   }
 )
 
 // 是否展示拖拽按钮
 const showDragBtn = computed(() => {
   if (currentRoomId.value == "''") {
-    return collectSceneList.value.length > 0 || collectDeviceList.value.length > 0
+    return collectList.value.some((item) => item.list.length > 1)
   } else {
     const roomItem = roomFilterList.value.find((roomItem) => roomItem.id == currentRoomId.value)
-    return roomItem?.sceneList.length > 0 || roomItem?.deviceList.length > 0
+    return roomItem?.sceneList.length > 1 || roomItem?.deviceList.length > 1
   }
 })
 
@@ -104,14 +114,17 @@ const onReload = async (hId) => {
 const onDragEnd = async () => {
   if (currentRoomId.value == "''") {
     //
-    const data = [...collectSceneList.value, ...collectDeviceList.value].map((item, i) => {
-      return {
-        bianhao: item.id,
-        paixu: i,
-        paixuleixing: item.classify ? 1 : 2,
-        leixing: 1,
-      }
-    })
+    const data = collectList.value
+      .map((item) => item.list)
+      .flat()
+      .map((item, i) => {
+        return {
+          bianhao: item.id,
+          paixu: i,
+          paixuleixing: item.classify ? 1 : 2,
+          leixing: 1,
+        }
+      })
     await setCollectSort({ params: { op: 13 }, data })
   } else {
     const { deviceList, sceneList } = roomFilterList.value.find(
@@ -216,33 +229,37 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
     >
       <template v-if="dragOptions.disabled">
         <!--当前房屋-->
-        <div class="flex justify-between p-4">
-          <van-popover v-model:show="showHomeList" :actions="houseList" placement="bottom-start">
-            <van-cell-group>
-              <van-cell
-                v-for="houseItem in houseList"
-                :key="houseItem.id"
-                @click="onHouseSelect(houseItem)"
-              >
-                <template #title>
-                  <div class="flex justify-center items-center">
-                    <van-icon v-if="currentHouse?.id == houseItem.id" name="location" />
-                    <label>{{ houseItem.label }}</label>
-                  </div>
-                </template>
-              </van-cell>
-            </van-cell-group>
-            <template #reference>
-              <div class="flex items-center space-x-4">
-                <h3>{{ currentHouse?.label }}</h3>
-                <van-icon name="arrow-down" />
-              </div>
-            </template>
-          </van-popover>
-          <div class="space-x-4">
-            <van-icon size="20" name="bell" />
-            <van-icon size="20" name="plus" @click="goAddDevice" />
+        <div class="flex justify-between">
+          <div class="p-4">
+            <van-popover v-model:show="showHomeList" :actions="houseList" placement="bottom-start">
+              <van-cell-group>
+                <van-cell
+                  v-for="houseItem in houseList"
+                  :key="houseItem.id"
+                  @click="onHouseSelect(houseItem)"
+                >
+                  <template #title>
+                    <div class="flex justify-center items-center">
+                      <van-icon v-if="currentHouse?.id == houseItem.id" name="location" />
+                      <label>{{ houseItem.label }}</label>
+                    </div>
+                  </template>
+                </van-cell>
+              </van-cell-group>
+              <template #reference>
+                <div class="flex items-center space-x-4">
+                  <h3>{{ currentHouse?.label }}</h3>
+                  <van-icon name="arrow-down" />
+                </div>
+              </template>
+            </van-popover>
           </div>
+          <van-sticky>
+            <div class="space-x-4 p-4">
+              <van-icon size="20" name="bell" />
+              <van-icon size="20" name="plus" @click="goAddDevice" />
+            </div>
+          </van-sticky>
         </div>
         <!--天气-->
         <div v-if="currentHouse?.huanjingzhuangtai" class="min-h-10 flex items-end p-4">
@@ -266,30 +283,32 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           </template>
           <van-tab title="全屋" :disabled="!dragOptions.disabled" name="''">
             <section class="p-4">
-              <h4 class="mb-2 text-gray-600">常用场景</h4>
-              <draggable
-                v-model="collectSceneList"
-                item-key="id"
-                group="scene"
-                v-bind="dragOptions"
-                class="grid grid-cols-2 gap-4"
-              >
-                <template #item="{ element: sceneItem }">
-                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
-                </template>
-              </draggable>
-              <h4 class="mb-2 text-gray-600 mt-6">常用设备</h4>
-              <draggable
-                v-model="collectDeviceList"
-                item-key="id"
-                group="scene"
-                v-bind="dragOptions"
-                class="grid grid-cols-2 gap-4"
-              >
-                <template #item="{ element: deviceItem }">
-                  <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
-                </template>
-              </draggable>
+              <template v-for="collectItem in collectList" :key="collectItem.text">
+                <h4 class="mb-2 text-gray-600">{{ collectItem.text }}</h4>
+                <draggable
+                  v-model="collectItem.list"
+                  item-key="id"
+                  :group="collectItem.group"
+                  v-bind="dragOptions"
+                  class="grid grid-cols-2 gap-4"
+                >
+                  <template #item="{ element }">
+                    <ScenenCardItem
+                      v-if="collectItem.group == 'collect-scene'"
+                      :id="element.id"
+                      :is-drag="!dragOptions.disabled"
+                    />
+                    <DeviceCardItem v-else :id="element.id" :is-drag="!dragOptions.disabled" />
+                  </template>
+                </draggable>
+                <van-empty
+                  v-if="collectItem.list.length == 0"
+                  image-size="4rem"
+                  image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
+                  description="暂无收藏的场景"
+                />
+                <div class="h-6"></div>
+              </template>
             </section>
           </van-tab>
           <!--当前楼层所有房间-->
