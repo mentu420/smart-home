@@ -71,7 +71,7 @@ const onEditFloor = (item) => {
 const onDelFloor = (floorItem) => {
   onAwaitLoad(async () => {
     await showConfirmDialog({ title: '提示', message: `是否删除${floorItem.label}楼层` })
-    await getFloorList({ op: 4, quyubianhao: floorItem.id })
+    await getFloorList({ op: 4, quyubianhao: floorItem.id, fangwubianhao: route.query.id })
     await useGetFloorListSync(true)
     init()
     showAddFloor.value = false
@@ -87,7 +87,7 @@ const onUpdateFloor = () => {
       data: objDelByValues([undefined, null], {
         bianhao: id,
         mingcheng: label,
-        fangwubianhao: currentHouse.value?.id,
+        fangwubianhao: route.query.id,
         paixu: floorList.value.length,
       }),
     }
@@ -114,7 +114,7 @@ const openAddRoom = (floorItem) => {
 const onDelectRoom = async (roomItem) => {
   onAwaitLoad(async () => {
     await showConfirmDialog({ title: '提示', message: `是否删除 ${roomItem.label} 房间` })
-    await getRoomList({ op: 4, fangjianbianhao: roomItem.id })
+    await getRoomList({ op: 4, fangjianbianhao: roomItem.id, fangwubianhao: route.query.id })
     await useGetRoomListSync(true)
     init()
   })
@@ -139,7 +139,7 @@ const onAddRoomItem = () => {
     await Promise.all(
       roomForm.value.checked.map(async (checkedItem) => {
         const data = {
-          fangwubianhao: currentHouse.value?.id,
+          fangwubianhao: route.query.id,
           quyubianhao: roomForm.value.fId,
           mingcheng: checkedItem,
         }
@@ -162,10 +162,12 @@ const onSubmitRoomCustom = () => {
     const data = {
       bianhao: id,
       mingcheng: label,
+      quyubianhao: fId,
+      fangwubianhao: route.query.id,
     }
     await setRoomList({
       params: { op },
-      data: op == 2 ? { ...data, quyubianhao: fId, fangwubianhao: currentHouse.value?.id } : data,
+      data,
     })
     await useGetRoomListSync(true)
     init()
@@ -182,7 +184,13 @@ const onEdit = async () => {
       useSetRoomItem({ ...roomItem, sort: roomIndex })
       setRoomList({
         params: { op: 3 },
-        data: { bianhao: roomItem.id, mingcheng: roomItem.label, paixu: roomIndex },
+        data: {
+          bianhao: roomItem.id,
+          mingcheng: roomItem.label,
+          paixu: roomIndex,
+          quyubianhao: floorItem.id,
+          fangwubianhao: route.query.id,
+        },
       })
     })
     const sort = index
@@ -191,7 +199,7 @@ const onEdit = async () => {
       data: {
         bianhao: floorItem.id,
         mingcheng: floorItem.label,
-        fangwubianhao: currentHouse.value?.id,
+        fangwubianhao: route.query.id,
         paixu: sort,
       },
     }

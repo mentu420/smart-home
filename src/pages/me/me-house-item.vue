@@ -15,6 +15,7 @@ defineOptions({ name: 'MeHouse' })
 const route = useRoute()
 const router = useRouter()
 const showQrCode = ref(false)
+const { userInfo } = storeToRefs(userStore())
 const { familyList, houseList, getRolePowerName } = storeToRefs(houseStore())
 const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 const loading = ref(false)
@@ -84,7 +85,7 @@ const editHouseAddress = () => {
 
 const editHouseManage = () => {
   if (disabled.value) return
-  // router.push({ path: '/me-room-manage', query: route.query })
+  router.push({ path: '/me-room-manage', query: route.query })
 }
 
 const addHouseItem = () => {
@@ -133,7 +134,15 @@ const addHouseItem = () => {
         <IconFont icon="system-QRcode" />
       </van-cell>
       <div class="h-4 bg-page-gray"></div>
-      <van-cell center clickable title="我的权限" value="管理员" is-link />
+      <van-cell
+        center
+        clickable
+        title="我的权限"
+        :value="
+          getRolePowerName(houseFamilyList.find((item) => item.shouji == userInfo.shouji) || {})
+        "
+        is-link
+      />
       <van-cell center clickable title="房间管理" is-link @click="editHouseManage" />
     </van-cell-group>
 

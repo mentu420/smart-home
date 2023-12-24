@@ -16,6 +16,7 @@ defineOptions({ name: 'MeHouse' })
 const router = useRouter()
 const { familyList, houseList, currentHouse } = storeToRefs(houseStore())
 const loading = ref(false)
+const swipeRef = ref({})
 const familyLength = computed(
   () => (id) => familyList.value.filter((familyItem) => familyItem.fangwubianhao == id).length
 )
@@ -81,6 +82,11 @@ const onSwipeClick = async ({ position }, houseItem) => {
       return true
   }
 }
+
+const goHouseItem = async (houseItem) => {
+  await onSelect(houseItem)
+  router.push({ path: '/me-house-item', query: { id: houseItem.id } })
+}
 </script>
 
 <template>
@@ -92,6 +98,7 @@ const onSwipeClick = async ({ position }, houseItem) => {
           <van-swipe-cell
             v-for="houseItem in houseList"
             :key="houseItem.id"
+            :ref="(el) => (swipeRef[houseItem.id] = el)"
             class="rounded-lg overflow-hidden"
             :before-close="(e) => onSwipeClick(e, houseItem)"
           >
@@ -102,7 +109,7 @@ const onSwipeClick = async ({ position }, houseItem) => {
               :label="`${familyLength(houseItem.id)}名成员`"
               center
               is-link
-              @click="router.push({ path: '/me-house-item', query: { id: houseItem.id } })"
+              @click="goHouseItem(houseItem)"
             >
               <template #title>
                 <p :class="{ 'text-primary': currentHouse.id == houseItem.id }">

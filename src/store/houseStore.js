@@ -146,7 +146,7 @@ export default defineStore(storeName, () => {
 
   const getRolePowerName = computed(
     () =>
-      ({ fangzhu, juese }) =>
+      ({ fangzhu = 0, juese = 1 }) =>
         fangzhu == 1 ? '家庭所有者' : ['普通成员', '管理员'][juese]
   )
 
