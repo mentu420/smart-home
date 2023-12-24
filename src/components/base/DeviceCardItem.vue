@@ -80,27 +80,25 @@ const openDevice = () => {
 <template>
   <div v-clickable-active class="rounded-lg bg-white p-3 space-y-2 relative" @click="openDevice">
     <div class="flex justify-between">
-      <slot name="icon">
-        <IconFont
-          :class="getDeviceStatus == 1 ? 'text-primary' : 'text-gray-400'"
-          :icon="getDeviceIcon(deviceItem?.classify)"
-          @click.stop="onIconClcik"
-        />
-      </slot>
-      <slot name="right-icon">
-        <van-icon v-if="isDrag" class="!text-[20px]" name="wap-nav" />
-        <van-icon
-          v-else
-          class="!text-[20px]"
-          :name="deviceItem?.collect ? 'like' : 'like-o'"
-          :color="deviceItem?.collect ? '#e39334' : '#999'"
-          @click.stop="onDeviceCollect(deviceItem)"
-        />
-      </slot>
+      <IconFont
+        v-if="!isDrag"
+        :class="getDeviceStatus == 1 ? 'text-primary' : 'text-gray-400'"
+        :icon="getDeviceIcon(deviceItem?.classify)"
+        @click.stop="onIconClcik"
+      />
+      <p v-if="isDrag">{{ deviceItem?.label }}</p>
+      <van-icon v-if="isDrag" class="!text-[20px]" name="wap-nav" />
+      <van-icon
+        v-else
+        class="!text-[20px]"
+        :name="deviceItem?.collect ? 'like' : 'like-o'"
+        :color="deviceItem?.collect ? '#e39334' : '#999'"
+        @click.stop="onDeviceCollect(deviceItem)"
+      />
     </div>
-    <slot>
+    <template v-if="!isDrag">
       <div>{{ deviceItem?.label }}</div>
-    </slot>
-    <div class="text-sm text-gray-400">{{ ['关', '开', '离线'][getDeviceStatus] }}</div>
+      <div class="text-sm text-gray-400">{{ ['关', '开', '离线'][getDeviceStatus] }}</div>
+    </template>
   </div>
 </template>

@@ -82,19 +82,17 @@ const onDragEnd = async () => {
   )
   console.log(deviceList, sceneList)
   await setDeviceList({
-    params: { op: 4 },
+    params: { op: 7 },
     data: deviceList.map((item, i) => ({
       shebeibianhao: item.id,
       paixu: i,
-      leixing: item.collect ? 1 : 0,
     })),
   })
   await setSceneList({
-    params: { op: 5 },
+    params: { op: 7 },
     data: sceneList.map((item, i) => ({
       changjingbianhao: item.id,
       paixu: i,
-      leixing: item.collect ? 1 : 0,
     })),
   })
   dragOptions.value.disabled = !dragOptions.value.disabled
@@ -284,7 +282,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     }}个灯亮
                   </label>
                 </div>
-                <div class="mb-4 grid grid-cols-2 gap-4">
+                <div v-if="dragOptions.disabled" class="mb-4 grid grid-cols-2 gap-4">
                   <div
                     v-for="(switchItem, switchIndex) in [
                       { text: '全开', status: 'on' },

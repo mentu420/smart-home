@@ -33,7 +33,7 @@ const showDrag = computed(() => {
   )
 })
 
-const onSceneListSort = (data) => setSceneList({ params: { op: 5 }, data })
+const onSceneListSort = (data) => setSceneList({ params: { op: 7 }, data })
 
 async function onDragEnd() {
   console.log('roomSceneList', roomSceneList.value)
@@ -42,10 +42,9 @@ async function onDragEnd() {
   if (tabActive.value == 2) {
     //setSmartList
     await setSmartList({
-      params: { op: 5 },
+      params: { op: 7 },
       data: smartList.value.map((item, i) => ({
         changjingbianhao: item.id,
-        leixing: item.collect ? 1 : 0,
         paixu: i,
       })),
     })
@@ -53,7 +52,6 @@ async function onDragEnd() {
     await onSceneListSort(
       globalSceneList.value.map((item, i) => ({
         changjingbianhao: item.id,
-        leixing: item.collect ? 1 : 0,
         paixu: i,
       }))
     )
@@ -62,7 +60,6 @@ async function onDragEnd() {
         return await onSceneListSort(
           roomItem.sceneList.map((item, i) => ({
             changjingbianhao: item.id,
-            leixing: item.collect ? 1 : 0,
             paixu: i,
           }))
         )
