@@ -30,3 +30,9 @@ export const setFamily = (config) =>
   request({ url: '/V1/ChengYuan.aspx', method: 'POST', ...config })
 
 export const getFamily = (params) => request({ url: '/V1/ChengYuan.aspx', params })
+
+/**
+ * 首页排序
+ * **/
+export const setCollectSort = (config) =>
+  request({ url: '/V1/YongHu.aspx', method: 'POST', ...config })

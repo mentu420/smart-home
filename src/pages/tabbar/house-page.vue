@@ -4,7 +4,7 @@ import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
-import { getHouseList } from '@/apis/houseApi.js'
+import { getHouseList, setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
 import DeviceCardItem from '@/components/base/DeviceCardItem.vue'
 import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
@@ -34,10 +34,35 @@ const currentRoomId = ref('') //当前房间编号
 const currentFloorId = ref('') //当前楼层id
 const isTabsFixed = ref(false) // tabs 吸顶
 const roomFilterList = ref([]) // 当前楼层房间列表
+const collectSceneList = ref([])
+const collectDeviceList = ref([])
 const dragOptions = ref({
   animation: 200,
   disabled: true, //是否可以拖拽排序
   ghostClass: 'ghost',
+})
+
+watch(
+  () => sceneList.value,
+  (val) => {
+    collectSceneList.value = val?.filter((sceneItem) => sceneItem.collect)
+  }
+)
+watch(
+  () => deviceList.value,
+  (val) => {
+    collectDeviceList.value = val?.filter((deviceItem) => deviceItem.collect)
+  }
+)
+
+// 是否展示拖拽按钮
+const showDragBtn = computed(() => {
+  if (currentRoomId.value == "''") {
+    return collectSceneList.value.length > 0 || collectDeviceList.value.length > 0
+  } else {
+    const roomItem = roomFilterList.value.find((roomItem) => roomItem.id == currentRoomId.value)
+    return roomItem?.sceneList.length > 0 || roomItem?.deviceList.length > 0
+  }
 })
 
 // 控制设备
@@ -77,24 +102,37 @@ const onReload = async (hId) => {
 
 // 拖拽排序
 const onDragEnd = async () => {
-  const { deviceList, sceneList } = roomFilterList.value.find(
-    (item) => item.id == currentRoomId.value
-  )
-  console.log(deviceList, sceneList)
-  await setDeviceList({
-    params: { op: 7 },
-    data: deviceList.map((item, i) => ({
-      shebeibianhao: item.id,
-      paixu: i,
-    })),
-  })
-  await setSceneList({
-    params: { op: 7 },
-    data: sceneList.map((item, i) => ({
-      changjingbianhao: item.id,
-      paixu: i,
-    })),
-  })
+  if (currentRoomId.value == "''") {
+    //
+    const data = [...collectSceneList.value, ...collectDeviceList.value].map((item, i) => {
+      return {
+        bianhao: item.id,
+        paixu: i,
+        paixuleixing: item.classify ? 1 : 2,
+        leixing: 1,
+      }
+    })
+    await setCollectSort({ params: { op: 13 }, data })
+  } else {
+    const { deviceList, sceneList } = roomFilterList.value.find(
+      (item) => item.id == currentRoomId.value
+    )
+    console.log(deviceList, sceneList)
+    await setDeviceList({
+      params: { op: 7 },
+      data: deviceList.map((item, i) => ({
+        shebeibianhao: item.id,
+        paixu: i,
+      })),
+    })
+    await setSceneList({
+      params: { op: 7 },
+      data: sceneList.map((item, i) => ({
+        changjingbianhao: item.id,
+        paixu: i,
+      })),
+    })
+  }
   dragOptions.value.disabled = !dragOptions.value.disabled
 }
 
@@ -229,23 +267,29 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           <van-tab title="全屋" :disabled="!dragOptions.disabled" name="''">
             <section class="p-4">
               <h4 class="mb-2 text-gray-600">常用场景</h4>
-              <div class="grid grid-cols-2 gap-4 mb-6">
-                <div
-                  v-for="sceneItem in sceneList?.filter((sceneItem) => sceneItem.collect)"
-                  :key="sceneItem.id"
-                >
-                  <ScenenCardItem :id="sceneItem.id" />
-                </div>
-              </div>
-              <h4 class="mb-2 text-gray-600">常用设备</h4>
-              <div class="grid grid-cols-2 gap-4 mb-6">
-                <div
-                  v-for="deviceItem in deviceList?.filter((deviceItem) => deviceItem.collect)"
-                  :key="deviceItem.id"
-                >
+              <draggable
+                v-model="collectSceneList"
+                item-key="id"
+                group="scene"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 gap-4"
+              >
+                <template #item="{ element: sceneItem }">
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
+                </template>
+              </draggable>
+              <h4 class="mb-2 text-gray-600 mt-6">常用设备</h4>
+              <draggable
+                v-model="collectDeviceList"
+                item-key="id"
+                group="scene"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 gap-4"
+              >
+                <template #item="{ element: deviceItem }">
                   <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
-                </div>
-              </div>
+                </template>
+              </draggable>
             </section>
           </van-tab>
           <!--当前楼层所有房间-->
@@ -324,20 +368,19 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 </template>
               </draggable>
             </section>
-            <div v-if="roomItem.deviceList.length > 0" class="p-6 text-center">
-              <van-button
-                v-if="dragOptions.disabled"
-                class="!px-6"
-                size="small"
-                type="primary"
-                round
-                @click="dragOptions.disabled = !dragOptions.disabled"
-              >
-                {{ dragOptions.disabled ? '编辑' : '完成' }}
-              </van-button>
-            </div>
           </van-tab>
         </van-tabs>
+        <div v-if="showDragBtn" class="p-6 text-center">
+          <van-button
+            class="!px-6"
+            size="small"
+            type="primary"
+            round
+            @click="dragOptions.disabled = !dragOptions.disabled"
+          >
+            {{ dragOptions.disabled ? '编辑' : '取消' }}
+          </van-button>
+        </div>
         <!--切换楼层-->
         <div class="right-0 top-0 bg-page-gray z-[100]" :class="isTabsFixed ? 'fixed' : 'absolute'">
           <div class="flex h-[44px] w-[70px] flex-auto items-center justify-center space-x-4">

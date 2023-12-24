@@ -27,10 +27,7 @@ const dragOptions = ref({
 })
 
 const showDrag = computed(() => {
-  return (
-    (tabActive.value == 2 ? smartList.value?.length : sceneList.value?.length) &&
-    dragOptions.value.disabled
-  )
+  return tabActive.value == 2 ? smartList.value?.length > 0 : sceneList.value?.length > 0
 })
 
 const onSceneListSort = (data) => setSceneList({ params: { op: 7 }, data })
@@ -221,7 +218,7 @@ onActivated(init)
           round
           @click="dragOptions.disabled = !dragOptions.disabled"
         >
-          编辑
+          {{ dragOptions.disabled ? '编辑' : '取消' }}
         </van-button>
       </div>
     </van-pull-refresh>
