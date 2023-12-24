@@ -138,26 +138,26 @@ const init = () => {
   }
 
   floorTree.value = useGetFloorTree()
-    .filter((floorItem) => {
-      return floorItem.roomList.some((roomItem) => {
-        const roomIds = stringToArray(route.query.rooms)
-        return roomIds == ''
-          ? roomItem.deviceList.length > 0
-          : roomIds.includes(roomItem.id) && roomItem.deviceList.length
-      })
-    })
     .map((floorItem) => {
+      const roomIds = stringToArray(route.query.rooms)
       return {
         ...floorItem,
-        roomList: floorItem.roomList.map((roomItem) => {
-          return {
-            ...roomItem,
-            deviceList: roomItem.deviceList.filter((deviceItem) => {
-              return deviceItem.classify == route.query.classify
-            }),
-          }
-        }),
+        roomList: floorItem.roomList
+          .filter((roomItem) => roomIds.includes(roomItem.id))
+          .map((roomItem) => {
+            return {
+              ...roomItem,
+              deviceList: roomItem.deviceList.filter((deviceItem) => {
+                return deviceItem.classify == route.query.classify
+              }),
+            }
+          }),
       }
+    })
+    .filter((floorItem) => {
+      return floorItem.roomList.some((roomItem) => {
+        return roomItem.deviceList.length > 0
+      })
     })
 }
 
