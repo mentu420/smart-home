@@ -143,7 +143,7 @@ const init = () => {
       return {
         ...floorItem,
         roomList: floorItem.roomList
-          .filter((roomItem) => roomIds.includes(roomItem.id))
+          .filter((roomItem) => (roomIds.length > 0 ? roomIds.includes(roomItem.id) : true))
           .map((roomItem) => {
             return {
               ...roomItem,

@@ -20,24 +20,32 @@ const router = useRouter()
 
 const modePickerRef = ref(null)
 const { SWITCH } = USE_KEY
-const config = ref({ [SWITCH]: { useStatus: 'on', useValue: '1' } })
+const config = ref({ [SWITCH]: { useStatus: '', useValue: '' } })
 const taskColumns = ref([])
 
 const getSmartDevice = () => {
   const { smartType, id } = route.query
-  createSmartItem.value[smartType]?.find((item) => item.id == id)
+  return createSmartItem.value[smartType]?.find((item) => item.id == id)
 }
 //当前设备
-const deviceItem = computed(() => getSmartDevice() || useGetDeviceItem(route.query.id))
+const deviceItem = computed(() => useGetDeviceItem(route.query.id))
 
 watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
     const { modeList = [] } = val
-    taskColumns.value = JSON.parse(JSON.stringify(modeList.filter((item) => item.use != SWITCH)))
-    const { useStatus, useValue } = modeList.find((item) => item.use == SWITCH)
-    if (!getSmartDevice()) return
+    const alreadyDevice = getSmartDevice()
+    const newModeList = modeList.map((modeItem) => {
+      const alreadyModeItem = alreadyDevice?.modeList?.find((item) => item.use == modeItem.use)
+      if (alreadyModeItem) {
+        return { ...modeItem, ...alreadyModeItem }
+      } else {
+        return { ...modeItem, useStatus: '', useValue: '' }
+      }
+    })
+    taskColumns.value = JSON.parse(JSON.stringify(newModeList.filter((item) => item.use != SWITCH)))
+    const { useStatus, useValue } = newModeList.find((item) => item.use == SWITCH)
     config.value[SWITCH] = { useStatus, useValue }
   },
   { immediate: true }
@@ -63,10 +71,12 @@ const onSave = () => {
   const currentDeviceItem = {
     ...deviceItem.value,
     ziyuanleixing: 1,
-    modeList: deviceItem.value.modeList.map((modeItem) => {
-      if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[SWITCH] }
-      return { ...modeItem, ...taskColumns.value.find((item) => item.use == modeItem.use) }
-    }),
+    modeList: deviceItem.value.modeList
+      .map((modeItem) => {
+        if (modeItem.use == SWITCH) return { ...modeItem, ...config.value[SWITCH] }
+        return { ...modeItem, ...taskColumns.value.find((item) => item.use == modeItem.use) }
+      })
+      .filter((item) => item.useStatus != ''),
   }
   console.log('currentDeviceItem', currentDeviceItem)
   const { smartType, eventIndex, extend } = route.query
@@ -177,7 +187,17 @@ const onDeviceModeChange = (payload) => {
 
     <div class="h-24"></div>
     <div class="fixed bottom-0 left-0 right-0 bg-white px-6 py-4">
-      <van-button type="primary" block round @click="onSave"> 下一步 </van-button>
+      <van-button
+        type="primary"
+        block
+        round
+        :disabled="
+          config[SWITCH].useStatus == '' && taskColumns.every((item) => item.useStatus == '')
+        "
+        @click="onSave"
+      >
+        下一步
+      </van-button>
     </div>
   </div>
 </template>
