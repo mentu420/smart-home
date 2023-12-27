@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { computed, onActivated, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onActivated, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import draggable from 'vuedraggable'
 
@@ -59,7 +59,7 @@ watch(
       const list = collectItem.group == 'collect-scene' ? sceneValue : deviceValue
       return {
         ...collectItem,
-        list: list?.filter((item) => item.collect),
+        list: list?.filter((item) => item.collect).sort((a, b) => a.shouyepaixu - b.shouyepaixu),
       }
     })
   }
@@ -111,42 +111,43 @@ const onReload = async (hId) => {
 }
 
 // 拖拽排序
-const onDragEnd = async () => {
-  if (currentRoomId.value == "''") {
-    //
-    const data = collectList.value
-      .map((item) => item.list)
-      .flat()
-      .map((item, i) => {
-        return {
-          bianhao: item.id,
+const onDragEnd = () => {
+  nextTick(async () => {
+    if (currentRoomId.value == "''") {
+      const data = collectList.value
+        .map((item) => item.list)
+        .flat()
+        .map((item, i) => {
+          return {
+            bianhao: item.id,
+            paixu: i,
+            paixuleixing: item.classify ? 1 : 2,
+            leixing: 1,
+          }
+        })
+      await setCollectSort({ params: { op: 13 }, data })
+    } else {
+      const { deviceList, sceneList } = roomFilterList.value.find(
+        (item) => item.id == currentRoomId.value
+      )
+      console.log(deviceList, sceneList)
+      await setDeviceList({
+        params: { op: 7 },
+        data: deviceList.map((item, i) => ({
+          shebeibianhao: item.id,
           paixu: i,
-          paixuleixing: item.classify ? 1 : 2,
-          leixing: 1,
-        }
+        })),
       })
-    await setCollectSort({ params: { op: 13 }, data })
-  } else {
-    const { deviceList, sceneList } = roomFilterList.value.find(
-      (item) => item.id == currentRoomId.value
-    )
-    console.log(deviceList, sceneList)
-    await setDeviceList({
-      params: { op: 7 },
-      data: deviceList.map((item, i) => ({
-        shebeibianhao: item.id,
-        paixu: i,
-      })),
-    })
-    await setSceneList({
-      params: { op: 7 },
-      data: sceneList.map((item, i) => ({
-        changjingbianhao: item.id,
-        paixu: i,
-      })),
-    })
-  }
-  dragOptions.value.disabled = !dragOptions.value.disabled
+      await setSceneList({
+        params: { op: 7 },
+        data: sceneList.map((item, i) => ({
+          changjingbianhao: item.id,
+          paixu: i,
+        })),
+      })
+    }
+    dragOptions.value.disabled = !dragOptions.value.disabled
+  })
 }
 
 // 切换房屋
