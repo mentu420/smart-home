@@ -49,7 +49,7 @@ const onDelFamily = async () => {
     })
     await getFamily({
       op: 4,
-      yonghubianhao: familyItem.value.id,
+      jiarenbianhao: familyItem.value.id,
       fangwubianhao: familyItem.value.fangwubianhao,
     })
     familyList.value = familyList.value.filter((item) => item.id != familyItem.value.id)

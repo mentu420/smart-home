@@ -1,40 +1,42 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { setFamily } from '@/apis/houseApi'
-import deviceStore from '@/store/deviceStore'
+import { setFamily, getRoomList, getFamily } from '@/apis/houseApi'
+import { getDeviceList, getSceneList } from '@/apis/smartApi'
 import houseStore from '@/store/houseStore'
-import smartStore from '@/store/smartStore'
+import { stringToArray } from '@/utils/common'
 
 defineOptions({ name: 'MeHousePowers' })
 
 const route = useRoute()
 const router = useRouter()
 
-const { deviceList } = storeToRefs(deviceStore())
-const { sceneList } = storeToRefs(smartStore())
-const { roomList, familyList, powerList } = storeToRefs(houseStore())
+const powerKeys = ['fangjianquanxian', 'shebeiquanxian', 'changjingquanxian']
+
+const { powerList, familyList } = storeToRefs(houseStore())
 const loading = ref(false)
 const checkboxRefs = ref([])
 const checked = ref([])
-const powerKeys = ['fangjianquanxian', 'shebeiquanxian', 'changjingquanxian']
-
+const list = ref([])
+const familyItem = ref({})
 const powerKey = computed(() => powerKeys[route.query.power])
+const checkedAll = ref(false)
+const checkGroupRef = ref(null)
 
-const list = computed(() =>
-  [roomList.value, deviceList.value, sceneList.value][route.query.power].map((item) => ({
-    ...item,
-    checked: checked.value.includes(item.id),
-  }))
+watch(
+  () => checked.value,
+  (val) => {
+    checkedAll.value = val.length > 0 && val.length == list.value.length
+  }
 )
 
 const onEditPower = async () => {
   try {
     loading.value = true
     const data = {
-      ...Object.assign({}, ...powerKeys.map((key, i) => ({ [key]: powerList.value[i] }))),
+      ...Object.assign({}, ...powerKeys.map((key) => ({ [key]: familyItem.value[key] }))),
       shouji: route.query.shouji,
       bianhao: route.query.id,
       [powerKey.value]: checked.value,
@@ -68,13 +70,29 @@ async function onSubmit() {
   }
 }
 
-function init() {
-  if (route.query.id) {
-    if (familyList.value.length == 0) return []
-    const familyItem = familyList.value?.find((item) => item.id == route.query.id)
-    checked.value = familyItem[powerKey.value]
-  } else {
-    checked.value = powerList.value[route.query.power]
+async function init() {
+  try {
+    loading.value = true
+    const { hId, shouji } = route.query
+
+    if (shouji) {
+      familyItem.value = await getFamily({ op: 5, fangwubianhao: hId }).then(({ data = [] }) =>
+        data.find((item) => item.shouji == shouji)
+      )
+      checked.value = stringToArray(familyItem.value[powerKeys[route.query.power]])
+    }
+
+    const getList = [getRoomList, getDeviceList, getSceneList][route.query.power]
+
+    const { data = [] } = await getList({ op: 6, fangwubianhao: hId })
+
+    list.value = data.map((item) => ({
+      ...item,
+      label: item.mingcheng,
+      id: item.bianhao,
+    }))
+  } finally {
+    loading.value = false
   }
 }
 
@@ -90,16 +108,21 @@ init()
         </van-button>
       </template>
     </HeaderNavbar>
-    <div class="p-4 text-xs">
-      {{
-        [
-          '选择房间，改用户可查看和控制房间内所有设备',
-          '选择设备并保存，该用户可查看和控制此设备',
-          '',
-        ][route.query.power]
-      }}
+    <div class="p-4 text-xs flex justify-between items-center">
+      <p>
+        {{
+          [
+            '选择房间，改用户可查看和控制房间内所有设备',
+            '选择设备并保存，该用户可查看和控制此设备',
+            '选择设备并保存，该用户可查看和控制此场景',
+          ][route.query.power]
+        }}
+      </p>
+      <van-button size="small" round type="primary" @click="checkGroupRef.toggleAll(!checkedAll)">
+        {{ checkedAll ? '取消' : '全选' }}
+      </van-button>
     </div>
-    <van-checkbox-group v-model="checked">
+    <van-checkbox-group ref="checkGroupRef" v-model="checked">
       <van-cell-group inset>
         <van-cell
           v-for="(powerItem, powerIndex) in list"
@@ -118,5 +141,6 @@ init()
         </van-cell>
       </van-cell-group>
     </van-checkbox-group>
+    <div class="h-4"></div>
   </div>
 </template>

@@ -84,7 +84,7 @@ const onSwipeClick = async ({ position }, houseItem) => {
 }
 
 const goHouseItem = async (houseItem) => {
-  await onSelect(houseItem)
+  // await onSelect(houseItem)
   router.push({ path: '/me-house-item', query: { id: houseItem.id } })
 }
 </script>

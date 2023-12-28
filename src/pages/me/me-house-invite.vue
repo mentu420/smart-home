@@ -1,20 +1,16 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { setFamily } from '@/apis/houseApi'
 import { vaildPhone } from '@/hooks/useFormValidator'
-import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
-import smartStore from '@/store/smartStore'
 
 const router = useRouter()
 const route = useRoute()
 
-const { deviceList } = storeToRefs(deviceStore())
-const { sceneList } = storeToRefs(smartStore())
-const { roomList, powerList } = storeToRefs(houseStore())
+const { powerList } = storeToRefs(houseStore())
 
 defineOptions({ name: 'MeHouseInvite' })
 
@@ -43,13 +39,19 @@ async function onSubmit() {
   }
 }
 
-const init = async () => {
-  powerList.value = [roomList.value, deviceList.value, sceneList.value].map((item) =>
-    item.map((option) => option.id)
-  )
+const init = () => {
+  powerList.value = [[], [], []]
+  console.log('init', powerList.value)
 }
 
 init()
+
+watch(
+  () => route.path,
+  (to, from) => {
+    if (to === '/me-house-invite' && from === '/me-house-item') init()
+  }
+)
 </script>
 
 <template>
@@ -106,7 +108,12 @@ init()
           :key="familyIndex"
           :title="familyLabel"
           is-link
-          @click="router.push({ path: '/me-house-powers', query: { power: familyIndex } })"
+          @click="
+            router.push({
+              path: '/me-house-powers',
+              query: { hId: route.query.id, power: familyIndex },
+            })
+          "
         />
       </div>
       <div class="mt-8">
