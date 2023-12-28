@@ -1,6 +1,4 @@
 <script setup>
-import { load } from '@amap/amap-jsapi-loader'
-import Nzh from 'nzh'
 import { storeToRefs } from 'pinia'
 import { showConfirmDialog } from 'vant'
 import { computed, ref } from 'vue'
@@ -9,18 +7,12 @@ import draggable from 'vuedraggable'
 
 import { getRoomList, setRoomList, setFloorList, getFloorList } from '@/apis/houseApi'
 import { validKeyboard } from '@/hooks/useFormValidator'
-import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import { objDelByValues } from '@/utils/common'
 
 defineOptions({ name: 'MeRoomManage' })
 
 const route = useRoute()
-
-const useHouseStore = houseStore()
-const { floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
-const { useGetFloorListSync, useGetRoomListSync, useSetRoomItem } = useHouseStore
-const { deviceList } = storeToRefs(deviceStore())
 
 const defineRoomList = ref([
   { text: '玄关', id: 0 },
@@ -46,6 +38,8 @@ const loading = ref(false)
 const roomForm = ref({ checked: [] }) //记录新增、编辑房间表单
 const floorForm = ref({ op: 2, label: '' }) // 楼层数据表单
 const disabled = ref(true) //禁止编辑
+const floorList = ref([])
+const { currentHouse } = storeToRefs(houseStore())
 
 // 异步函数
 const onAwaitLoad = async (func) => {
@@ -72,8 +66,7 @@ const onDelFloor = (floorItem) => {
   onAwaitLoad(async () => {
     await showConfirmDialog({ title: '提示', message: `是否删除${floorItem.label}楼层` })
     await getFloorList({ op: 4, quyubianhao: floorItem.id, fangwubianhao: route.query.id })
-    await useGetFloorListSync(true)
-    init()
+    await onRefresh()
     showAddFloor.value = false
   })
 }
@@ -93,8 +86,7 @@ const onUpdateFloor = () => {
     }
     console.log(config)
     await setFloorList(config)
-    await useGetFloorListSync(true)
-    init()
+    await onRefresh()
     showAddFloor.value = false
   })
 }
@@ -104,7 +96,6 @@ const openAddRoom = (floorItem) => {
   showRoomChecked.value = true
 
   roomForm.value = {
-    id: currentHouse.value?.id,
     fId: floorItem.id,
     checked: [],
   }
@@ -115,8 +106,7 @@ const onDelectRoom = async (roomItem) => {
   onAwaitLoad(async () => {
     await showConfirmDialog({ title: '提示', message: `是否删除 ${roomItem.label} 房间` })
     await getRoomList({ op: 4, fangjianbianhao: roomItem.id, fangwubianhao: route.query.id })
-    await useGetRoomListSync(true)
-    init()
+    await onRefresh()
   })
 }
 
@@ -128,7 +118,6 @@ const openRoomEdit = (roomItem = {}) => {
     label: roomItem?.label,
     op: roomItem.op,
   }
-  console.log('roomForm', roomForm.value)
   showRoomForm.value = true
 }
 
@@ -147,8 +136,7 @@ const onAddRoomItem = () => {
         return ''
       })
     )
-    await useGetRoomListSync(true)
-    init()
+    await onRefresh()
     showRoomChecked.value = false
   })
 }
@@ -157,7 +145,6 @@ const onAddRoomItem = () => {
 const onSubmitRoomCustom = () => {
   // 根据op 请求
   const { id, fId, label, op } = roomForm.value
-  console.log(op)
   onAwaitLoad(async () => {
     const data = {
       bianhao: id,
@@ -165,12 +152,8 @@ const onSubmitRoomCustom = () => {
       quyubianhao: fId,
       fangwubianhao: route.query.id,
     }
-    await setRoomList({
-      params: { op },
-      data,
-    })
-    await useGetRoomListSync(true)
-    init()
+    await setRoomList({ params: { op }, data })
+    await onRefresh()
     showRoomForm.value = false
     showRoomChecked.value = false
   })
@@ -179,9 +162,9 @@ const onSubmitRoomCustom = () => {
 const onEdit = async () => {
   disabled.value = !disabled.value
   if (!disabled.value) return
-  floorList.value = floorList.value.map((floorItem, index) => {
+  floorList.value.forEach((floorItem, index) => {
+    //更新房间排序
     floorItem.roomList.forEach((roomItem, roomIndex) => {
-      useSetRoomItem({ ...roomItem, sort: roomIndex })
       setRoomList({
         params: { op: 3 },
         data: {
@@ -193,35 +176,53 @@ const onEdit = async () => {
         },
       })
     })
-    const sort = index
     const config = {
       params: { op: 3 },
       data: {
         bianhao: floorItem.id,
         mingcheng: floorItem.label,
         fangwubianhao: route.query.id,
-        paixu: sort,
+        paixu: index,
       },
     }
     setFloorList(config)
-    return { ...floorItem, sort }
   })
 }
 
-const init = () => {
-  floorList.value = floorList.value.map((floorItem) => {
-    const floorRoomList = roomList.value
-      .filter((roomItem) => roomItem.fId == floorItem.id)
-      .map((roomItem) => {
-        const count = deviceList.value.filter((deviceItem) => deviceItem.rId == roomItem.id).length
-        return { ...roomItem, deviceCount: count }
-      })
-
-    return { ...floorItem, roomList: floorRoomList }
-  })
+async function init() {
+  const { data } = await getRoomList({ op: 5, fangwubianhao: route.query.id })
+  floorList.value = data
+    .map((floorItem) => {
+      return {
+        ...floorItem,
+        id: floorItem.bianhao,
+        label: floorItem.mingcheng,
+        sort: floorItem.paixu,
+        roomList: floorItem.fangjians
+          .map((roomItem) => {
+            return {
+              ...roomItem,
+              id: roomItem.bianhao,
+              label: roomItem.mingcheng,
+              sort: roomItem.paixu,
+            }
+          })
+          .sort((a, b) => a.sort - b.sort),
+      }
+    })
+    .sort((a, b) => a.sort - b.sort)
 }
 
 init()
+
+async function onRefresh() {
+  // 编辑的是当前房屋将更新缓存数据
+  if (currentHouse.value.id == route.query.id) {
+    const { useGetRoomListSync, useGetFloorListSync, useSetRoomItem } = houseStore()
+    await Promise.all([useGetFloorListSync(true), useGetRoomListSync(true)])
+  }
+  init()
+}
 </script>
 
 <template>
@@ -294,7 +295,7 @@ init()
                         @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
                       />
                       <van-button
-                        v-if="roomItem.deviceCount == 0"
+                        v-if="roomItem.shebeishu == 0 && roomItem.changjingshu == 0"
                         round
                         size="small"
                         icon="delete-o"
@@ -303,9 +304,10 @@ init()
                         @click="onDelectRoom(roomItem)"
                       />
                     </template>
-                    <div v-else>
-                      <label v-if="roomItem.deviceCount > 0">
-                        {{ roomItem.deviceCount }}个设备
+                    <div v-else class="space-x-2 text-xs">
+                      <label v-if="roomItem.shebeishu > 0"> {{ roomItem.shebeishu }}个设备 </label>
+                      <label v-if="roomItem.changjingshu > 0">
+                        {{ roomItem.changjingshu }}个场景
                       </label>
                     </div>
                   </template>
