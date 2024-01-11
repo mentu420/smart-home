@@ -135,7 +135,8 @@ export default defineStore(storeName, () => {
           id: item.bianhao,
           label: item.mingcheng,
           rId: item.fangjianbianhao,
-          sort: item.paixu || item.shouyepaixu || i,
+          sort: item.paixu ?? i,
+          homeSort: item.shouyepaixu ?? i,
           collect: item.shouye == 1,
         }
       })

@@ -77,12 +77,15 @@ const onUpdateFloor = () => {
     const { op, label, id } = floorForm.value
     const config = {
       params: { op },
-      data: objDelByValues([undefined, null], {
-        bianhao: id,
-        mingcheng: label,
-        fangwubianhao: route.query.id,
-        paixu: floorList.value.length,
-      }),
+      data: objDelByValues(
+        {
+          bianhao: id,
+          mingcheng: label,
+          fangwubianhao: route.query.id,
+          paixu: floorList.value.length,
+        },
+        [undefined, null]
+      ),
     }
     console.log(config)
     await setFloorList(config)

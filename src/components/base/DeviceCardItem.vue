@@ -41,7 +41,7 @@ const onDeviceCollect = async (item) => {
   try {
     const leixing = item.collect ? 2 : 1
     await setDeviceList({
-      params: { op: 4 },
+      params: { op: 5 },
       data: {
         shebeibianhao: item.id,
         leixing,
