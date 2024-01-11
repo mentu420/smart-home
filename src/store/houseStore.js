@@ -135,15 +135,18 @@ export default defineStore(storeName, () => {
 
   //获取当前用户在当前房屋的权限0 所有者，1 管理员 2普通成员
   const getRolePower = (hId) => {
+    if (!hId) return 2
     //fangzhu=1 所有者 juese = 0 普通成员 1管理员
     const { fangzhu = 0, juese = 1 } =
       familyList.value.find(
         (familyItem) =>
-          familyItem.fangwubianhao == hId && familyItem.shouji == userInfo.value.shouji
+          familyItem.fangwubianhao == hId && familyItem.shouji == userInfo.value?.shouji
       ) || {}
     return fangzhu == 1 ? 0 : juese == 1 ? 1 : 2
   }
-
+  //当前房屋权限
+  const currentPower = computed(() => getRolePower(currentHouse.value.id))
+  //获取角色文本
   const getRolePowerName = computed(
     () =>
       ({ fangzhu = 0, juese = 1 }) =>
@@ -167,6 +170,7 @@ export default defineStore(storeName, () => {
     powerList,
     houseRoles,
     getRolePowerName,
+    currentPower,
     useGetFloorTree,
     editHouseList,
     setCurrentHouse,

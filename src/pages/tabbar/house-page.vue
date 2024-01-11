@@ -22,7 +22,7 @@ const route = useRoute()
 const useHouseStore = houseStore()
 const useDeviceStore = deviceStore()
 const usesmartStore = smartStore()
-const { houseList, floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
+const { houseList, floorList, currentHouse, roomList, currentPower } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { sceneList } = storeToRefs(usesmartStore)
 const { mqttDevicePublish } = useMqtt()
@@ -111,43 +111,42 @@ const onReload = async (hId) => {
 }
 
 // 拖拽排序
-const onDragEnd = () => {
-  nextTick(async () => {
-    if (currentRoomId.value == "''") {
-      const data = collectList.value
-        .map((item) => item.list)
-        .flat()
-        .map((item, i) => {
-          return {
-            bianhao: item.id,
-            paixu: i,
-            paixuleixing: item.classify ? 1 : 2,
-            leixing: 1,
-          }
-        })
-      await setCollectSort({ params: { op: 13 }, data })
-    } else {
-      const { deviceList, sceneList } = roomFilterList.value.find(
-        (item) => item.id == currentRoomId.value
-      )
-      console.log(deviceList, sceneList)
-      await setDeviceList({
-        params: { op: 7 },
-        data: deviceList.map((item, i) => ({
-          shebeibianhao: item.id,
+const onDragEnd = async () => {
+  await nextTick()
+  if (currentRoomId.value == "''") {
+    const data = collectList.value
+      .map((item) => item.list)
+      .flat()
+      .map((item, i) => {
+        return {
+          bianhao: item.id,
           paixu: i,
-        })),
+          paixuleixing: item.classify ? 1 : 2,
+          leixing: 1,
+        }
       })
-      await setSceneList({
-        params: { op: 7 },
-        data: sceneList.map((item, i) => ({
-          changjingbianhao: item.id,
-          paixu: i,
-        })),
-      })
-    }
-    dragOptions.value.disabled = !dragOptions.value.disabled
-  })
+    await setCollectSort({ params: { op: 13 }, data })
+  } else {
+    const { deviceList, sceneList } = roomFilterList.value.find(
+      (item) => item.id == currentRoomId.value
+    )
+    console.log(deviceList, sceneList)
+    await setDeviceList({
+      params: { op: 7 },
+      data: deviceList.map((item, i) => ({
+        shebeibianhao: item.id,
+        paixu: i,
+      })),
+    })
+    await setSceneList({
+      params: { op: 7 },
+      data: sceneList.map((item, i) => ({
+        changjingbianhao: item.id,
+        paixu: i,
+      })),
+    })
+  }
+  dragOptions.value.disabled = !dragOptions.value.disabled
 }
 
 // 切换房屋
@@ -193,10 +192,11 @@ function onAllDeviceToggle(deviceList, status) {
 
 const init = async () => {
   try {
-    const { useGetToken } = userStore()
+    const { useGetToken, useUserInfoSync } = userStore()
     const token = useGetToken()
     if (!token) return
     await onReload(token.fangwubianhao)
+    await useUserInfoSync()
     currentFloorId.value = floorList.value[0]?.id
     setCurrentFloorRoomList()
   } catch (err) {

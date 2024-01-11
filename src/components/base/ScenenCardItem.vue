@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 import { setSceneList } from '@/apis/smartApi'
 import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 import useMqtt from '@/hooks/useMqtt'
+import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 
 const { mqttScenePublish } = useMqtt()
@@ -36,6 +37,7 @@ const actions = [
 ]
 const { sceneList } = storeToRefs(smartStore())
 const sceneItem = computed(() => sceneList.value.find((item) => item.id == props.id))
+const { currentPower } = storeToRefs(houseStore())
 
 async function onMoreSelect(action, item) {
   if (action.id == 0) {
@@ -93,7 +95,7 @@ async function onCollect(item) {
         />
       </template>
     </dd>
-    <dd v-if="isMore" class="absolute bottom-1 right-2 z-10">
+    <dd v-if="isMore && currentPower != 2" class="absolute bottom-1 right-2 z-10">
       <van-popover
         :actions="actions"
         placement="left"

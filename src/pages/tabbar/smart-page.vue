@@ -15,7 +15,7 @@ const router = useRouter()
 const loading = ref(false)
 const tabActive = ref(2)
 const { sceneList, smartList } = storeToRefs(smartStore())
-const { roomList, floorList } = storeToRefs(houseStore())
+const { roomList, floorList, currentPower } = storeToRefs(houseStore())
 
 const globalSceneList = ref([])
 const roomSceneList = ref([])
@@ -91,6 +91,13 @@ const onSmartChange = (value, item) => {
   setSmartList({ params: { op: 6 }, data: { bianhao: item.id, shifouqiyong: value ? 1 : 0 } })
 }
 
+const editSmartItem = (smartItem) => {
+  router.push({
+    path: '/smart-scene-create',
+    query: { id: smartItem.id, fenlei: 2 },
+  })
+}
+
 const init = () => {
   globalSceneList.value = sceneList.value?.filter((option) => option.rId == '')
   roomSceneList.value = roomList.value
@@ -139,7 +146,12 @@ onActivated(init)
             </van-button>
           </div>
         </template>
-        <van-tab title="自动化" :disabled="!dragOptions.disabled" :name="2">
+        <van-tab
+          v-if="currentPower != 2"
+          title="自动化"
+          :disabled="!dragOptions.disabled"
+          :name="2"
+        >
           <div v-if="smartList.length > 0" class="p-4">
             <section class="mb-6">
               <h4 class="mb-2 text-gray-600">全局</h4>
@@ -147,12 +159,7 @@ onActivated(init)
                 <template #item="{ element: smartItem }">
                   <div
                     class="bg-white flex justify-between p-4 w-full rounded-lg items-center mb-4"
-                    @click="
-                      router.push({
-                        path: '/smart-scene-create',
-                        query: { id: smartItem.id, fenlei: 2 },
-                      })
-                    "
+                    @click="editSmartItem(smartItem)"
                   >
                     <div>{{ smartItem.label }}</div>
                     <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
