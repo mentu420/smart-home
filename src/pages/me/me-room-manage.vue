@@ -165,21 +165,23 @@ const onSubmitRoomCustom = () => {
 const onEdit = async () => {
   disabled.value = !disabled.value
   if (!disabled.value) return
-  //这里只需要更新排序
-  const floorSortRes = floorList.value.map((item, i) => ({ quyubianhao: item.id, paixu: i }))
+  onAwaitLoad(async () => {
+    //这里只需要更新排序
+    const floorSortRes = floorList.value.map((item, i) => ({ quyubianhao: item.id, paixu: i }))
 
-  const roomSortRes = floorList.value
-    .map((floorItem) =>
-      floorItem.roomList.map((roomItem, i) => ({ fangjianbianhao: roomItem.id, paixu: i }))
-    )
-    .flat()
+    const roomSortRes = floorList.value
+      .map((floorItem) =>
+        floorItem.roomList.map((roomItem, i) => ({ fangjianbianhao: roomItem.id, paixu: i }))
+      )
+      .flat()
 
-  await Promise.all([
-    setFloorList({ params: { op: 7 }, data: floorSortRes }),
-    setRoomList({ params: { op: 7 }, data: roomSortRes }),
-  ])
-  const { useGetRoomListSync, useGetFloorListSync } = houseStore()
-  await Promise.all([useGetFloorListSync(true), useGetRoomListSync(true)])
+    await Promise.all([
+      setFloorList({ params: { op: 7 }, data: floorSortRes }),
+      setRoomList({ params: { op: 7 }, data: roomSortRes }),
+    ])
+    const { useGetRoomListSync, useGetFloorListSync } = houseStore()
+    await Promise.all([useGetFloorListSync(true), useGetRoomListSync(true)])
+  })
 }
 
 async function init() {
@@ -227,7 +229,9 @@ async function onRefresh() {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="房间管理">
       <template #right>
-        <div @click="onEdit">{{ disabled ? '编辑' : '完成' }}</div>
+        <van-button size="small" class="!border-none" :loading="loading" @click="onEdit">
+          {{ disabled ? '编辑' : '完成' }}
+        </van-button>
       </template>
     </HeaderNavbar>
 
