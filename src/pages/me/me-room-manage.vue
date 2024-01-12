@@ -165,55 +165,50 @@ const onSubmitRoomCustom = () => {
 const onEdit = async () => {
   disabled.value = !disabled.value
   if (!disabled.value) return
-  floorList.value.forEach((floorItem, index) => {
-    //更新房间排序
-    floorItem.roomList.forEach((roomItem, roomIndex) => {
-      setRoomList({
-        params: { op: 3 },
-        data: {
-          bianhao: roomItem.id,
-          mingcheng: roomItem.label,
-          paixu: roomIndex,
-          quyubianhao: floorItem.id,
-          fangwubianhao: route.query.id,
-        },
-      })
-    })
-    const config = {
-      params: { op: 3 },
-      data: {
-        bianhao: floorItem.id,
-        mingcheng: floorItem.label,
-        fangwubianhao: route.query.id,
-        paixu: index,
-      },
-    }
-    setFloorList(config)
-  })
+  //这里只需要更新排序
+  const floorSortRes = floorList.value.map((item, i) => ({ quyubianhao: item.id, paixu: i }))
+
+  const roomSortRes = floorList.value
+    .map((floorItem) =>
+      floorItem.roomList.map((roomItem, i) => ({ fangjianbianhao: roomItem.id, paixu: i }))
+    )
+    .flat()
+
+  await Promise.all([
+    setFloorList({ params: { op: 7 }, data: floorSortRes }),
+    setRoomList({ params: { op: 7 }, data: roomSortRes }),
+  ])
+  const { useGetRoomListSync, useGetFloorListSync } = houseStore()
+  await Promise.all([useGetFloorListSync(true), useGetRoomListSync(true)])
 }
 
 async function init() {
-  const { data } = await getRoomList({ op: 5, fangwubianhao: route.query.id })
-  floorList.value = data
-    .map((floorItem) => {
-      return {
-        ...floorItem,
-        id: floorItem.bianhao,
-        label: floorItem.mingcheng,
-        sort: floorItem.paixu,
-        roomList: floorItem.fangjians
-          .map((roomItem) => {
-            return {
-              ...roomItem,
-              id: roomItem.bianhao,
-              label: roomItem.mingcheng,
-              sort: roomItem.paixu,
-            }
-          })
-          .sort((a, b) => a.sort - b.sort),
-      }
-    })
-    .sort((a, b) => a.sort - b.sort)
+  try {
+    loading.value = true
+    const { data } = await getRoomList({ op: 5, fangwubianhao: route.query.id })
+    floorList.value = data
+      .map((floorItem) => {
+        return {
+          ...floorItem,
+          id: floorItem.bianhao,
+          label: floorItem.mingcheng,
+          sort: floorItem.paixu,
+          roomList: floorItem.fangjians
+            .map((roomItem) => {
+              return {
+                ...roomItem,
+                id: roomItem.bianhao,
+                label: roomItem.mingcheng,
+                sort: roomItem.paixu,
+              }
+            })
+            .sort((a, b) => a.sort - b.sort),
+        }
+      })
+      .sort((a, b) => a.sort - b.sort)
+  } finally {
+    loading.value = false
+  }
 }
 
 init()

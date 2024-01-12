@@ -136,12 +136,18 @@ onActivated(init)
         :swipeable="dragOptions.disabled"
         @change="init"
       >
-        <template v-if="currentPower != 2" #nav-right>
+        <template #nav-right>
           <div class="flex-1 text-right p-3">
-            <div v-if="dragOptions.disabled" class="rounded-lg">
+            <div v-if="dragOptions.disabled && currentPower != 2" class="rounded-lg">
               <van-icon size="20" name="plus" @click="createSmart" />
             </div>
-            <van-button v-else v-loading-click="onDragEnd" round type="primary" size="small">
+            <van-button
+              v-if="!dragOptions.disabled"
+              v-loading-click="onDragEnd"
+              round
+              type="primary"
+              size="small"
+            >
               完成
             </van-button>
           </div>

@@ -208,6 +208,11 @@ const init = async () => {
 
 onMounted(init)
 
+onActivated(() => {
+  console.log('floorList', floorList.value)
+  // setCurrentFloorRoomList
+})
+
 watch(
   () => route.path,
   (to, from) => {
