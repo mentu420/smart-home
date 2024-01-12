@@ -136,7 +136,7 @@ onActivated(init)
         :swipeable="dragOptions.disabled"
         @change="init"
       >
-        <template #nav-right>
+        <template v-if="currentPower != 2" #nav-right>
           <div class="flex-1 text-right p-3">
             <div v-if="dragOptions.disabled" class="rounded-lg">
               <van-icon size="20" name="plus" @click="createSmart" />

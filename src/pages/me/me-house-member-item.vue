@@ -11,7 +11,7 @@ defineOptions({ name: 'MeHouseMemberItem' })
 
 const { getRolePower } = houseStore()
 
-const { familyList, getRolePowerName } = storeToRefs(houseStore())
+const { familyList, getRolePowerName, currentPower } = storeToRefs(houseStore())
 
 const route = useRoute()
 const router = useRouter()
@@ -114,10 +114,16 @@ const editFamilyPower = (power) => {
       </div>
     </div>
     <div class="p-8 space-y-6">
-      <van-button v-if="rolePower == 2" v-loading-click="onSetFamliy" round block type="primary">
+      <van-button
+        v-if="rolePower == 2 && currentPower != 2"
+        v-loading-click="onSetFamliy"
+        round
+        block
+        type="primary"
+      >
         设为管理员
       </van-button>
-      <van-button v-if="rolePower != 2" v-loading-click="onDelFamily" round block type="danger">
+      <van-button v-if="currentPower != 2" v-loading-click="onDelFamily" round block type="danger">
         删除成员
       </van-button>
     </div>
