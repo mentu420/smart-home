@@ -34,7 +34,7 @@ const scopeData = ref(null)
 const showPicker = ref(false)
 
 const selectedValues = computed({
-  get: () => props.modelValue,
+  get: () => props.modelValue ?? [],
   set: (val) => emits('update:modelValue', val),
 })
 

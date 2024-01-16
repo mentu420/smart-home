@@ -4,8 +4,8 @@ import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import DateRepeatSheet from '@/components/common/DateRepeatSheet.vue'
 import TimePicker from '@/components/common/TimePicker.vue'
-import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import smartStore from '@/store/smartStore'
 
 defineOptions({ name: 'SmartCondtionTime' })
@@ -19,7 +19,7 @@ const currentTime = ref(dayjs().format('HH:ss').split(':'))
 const conditionTimeList = ref([])
 const timePickerRef = ref(null)
 
-const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
+const checkedRepeat = ref({})
 
 const onTimeConfirm = ({ selectedValues }, scopeData) => {
   if (!scopeData) {
@@ -40,14 +40,14 @@ const delTimeItem = (i) => {
 
 const onSave = () => {
   const { events = [] } = createSmartItem.value
-
+  const { type, chongfuzhi } = checkedRepeat.value
   //时间列表
   const timeList = conditionTimeList.value.map((timeItem) => ({
     leixing: 1,
     tiaojian: {
       shijian: timeItem.join(':'),
-      chongfuleixing: '3',
-      chongfuzhi: weekChecked.value,
+      chongfuleixing: type,
+      chongfuzhi,
     },
   }))
   const { eventIndex } = route.query
@@ -96,7 +96,7 @@ const onSave = () => {
           <van-button square type="danger" text="删除" @click="delTimeItem(timeIndex)" />
         </template>
       </van-swipe-cell>
-      <WeekRepeat v-model="weekChecked" />
+      <DateRepeatSheet v-model="checkedRepeat" />
     </section>
     <div class="p-6">
       <van-button

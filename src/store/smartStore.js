@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import localforage from 'localforage'
 import { defineStore } from 'pinia'
 import { reactive, ref, computed } from 'vue'
@@ -9,10 +10,11 @@ const storeName = 'smartStore'
 export default defineStore(storeName, () => {
   // 重复时间类型
   const repeatActions = ref([
-    { id: 0, name: '每天', value: [0, 1, 2, 3, 4, 5, 6] },
-    { id: 1, name: '工作日', value: [1, 2, 3, 4, 5] },
-    { id: 2, name: '周末', value: [0, 7] },
-    { id: 3, name: '自定义日期', value: [] },
+    { id: 3, name: '每天', value: [], format: 'dd' },
+    { id: 4, name: '每周', value: Array.from({ length: 6 }, (_, index) => index), format: '' },
+    { id: 5, name: '每月', value: [], format: 'MM月' },
+    { id: 6, name: '每年', value: [], format: 'MM月DD日' },
+    { id: 7, name: '自定义日期', value: [], format: 'YYYY年MM月DD日' },
   ])
   // 定义周类型
   const weekData = ref({
@@ -39,13 +41,18 @@ export default defineStore(storeName, () => {
 
   init()
   // 获取重复时间
-  const getRepeatTimeText = computed(() => (weekChecked = []) => {
-    if (weekChecked.length == 0) return ''
-    const repeatItem = repeatActions.value.find((action) => {
-      return action.value.length === weekChecked.length && action.value.join() == weekChecked.join()
-    })
-    if (repeatItem && repeatItem.value.length != 0) return repeatItem.name
-    return '周' + weekChecked.map((item) => weekData.value[item].replace('周', '')).join('、')
+  const getRepeatTimeText = computed(() => ({ type = 3, list = [] }) => {
+    const repeatItem = repeatActions.value.find((item) => item.id == type)
+    console.log('repeatItem', repeatItem)
+    if (type == 3) {
+      return repeatItem?.name
+    } else if (type == 4) {
+      return '周' + list.map((item) => weekData.value[item].replace('周', '')).join('、')
+    } else if (type == 5) {
+      return `${repeatItem?.name} - ${list.join(',')}${list.length ? '日' : ''}`
+    } else {
+      return `${repeatItem?.name} - ${dayjs(list).format(repeatItem.format)}`
+    }
   })
   // 场景默认图库
   const sceneGallery = ref([

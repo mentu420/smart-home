@@ -68,10 +68,10 @@ watch(
 // 是否展示拖拽按钮
 const showDragBtn = computed(() => {
   if (currentRoomId.value == "''") {
-    return collectList.value.some((item) => item.list.length > 1)
+    return collectList.value.some((item) => item.list?.length > 1)
   } else {
-    const roomItem = roomFilterList.value.find((roomItem) => roomItem.id == currentRoomId.value)
-    return roomItem?.sceneList.length > 1 || roomItem?.deviceList.length > 1
+    const roomItem = roomFilterList.value?.find((roomItem) => roomItem.id == currentRoomId.value)
+    return roomItem?.sceneList.length > 1 || roomItem?.deviceList?.length > 1
   }
 })
 

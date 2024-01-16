@@ -5,10 +5,10 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { setSceneList, setSmartList } from '@/apis/smartApi.js'
+import DateRepeatSheet from '@/components/common/DateRepeatSheet.vue'
 import pickerSearch from '@/components/common/PickerSearch.vue'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import TimePicker from '@/components/common/TimePicker.vue'
-import WeekRepeat from '@/components/common/WeekRepeat.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
@@ -602,7 +602,7 @@ function goEventConfig() {
           </van-cell>
         </template>
         <!-- <van-cell center is-link title="有效时间" />
-        <WeekRepeat v-model="weekChecked" /> -->
+        <DateRepeatSheet v-model="weekChecked" /> -->
       </van-cell-group>
     </van-form>
     <!--自动化条件-->

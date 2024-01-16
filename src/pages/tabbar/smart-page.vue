@@ -171,7 +171,9 @@ onActivated(init)
                     <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
                     <van-switch
                       v-else
-                      v-model="smartItem.checked"
+                      v-model="smartItem.shifouqiyong"
+                      :active-value="1"
+                      :inactive-value="0"
                       @click.stop
                       @change="(value) => onSmartChange(value, smartItem)"
                     />

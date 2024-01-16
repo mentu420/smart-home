@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 
-import WeekRepeat from '@/components/common/WeekRepeat.vue'
+import DateRepeatSheet from '@/components/common/DateRepeatSheet.vue'
 
 const emits = defineEmits(['change'])
 
@@ -32,7 +32,7 @@ defineExpose({ open })
   <van-popup v-model:show="show" round safe-area-inset-bottom position="bottom">
     <div class="py-4">
       <van-time-picker v-model="executionTime" title="指定时间" @confirm="onConfirm" />
-      <WeekRepeat v-model="weekChecked" />
+      <DateRepeatSheet v-model="weekChecked" />
     </div>
   </van-popup>
 </template>
