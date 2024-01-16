@@ -593,7 +593,7 @@ function goEventConfig() {
             {{ roomList.find((roomItem) => roomItem.id == createSmartItem.fangjianbianhao)?.label }}
           </van-cell>
           <van-cell center is-link title="场景图片">
-            <van-image
+            <SmartImage
               width="8rem"
               height="4rem"
               fit="cover"

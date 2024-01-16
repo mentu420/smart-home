@@ -17,7 +17,7 @@ const router = useRouter()
 const showQrCode = ref(false)
 const { userInfo } = storeToRefs(userStore())
 const { familyList, houseList, getRolePowerName } = storeToRefs(houseStore())
-const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
+const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/asses/cat.jpeg')
 const loading = ref(false)
 const houseItem = computed(
   () => houseList.value.find((houseItem) => houseItem.id == route.query.id) || {}

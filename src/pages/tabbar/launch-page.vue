@@ -13,7 +13,7 @@ const images = ref([
   <div class="w-screen h-screen overflow-hidden">
     <van-swipe class="w-screen h-screen" :autoplay="3000" indicator-color="white">
       <van-swipe-item v-for="(imageItem, imageIndex) in images" :key="imageIndex">
-        <van-image class="w-screen h-screen" fit="cover" :src="imageItem" />
+        <SmartImage class="w-screen h-screen" fit="cover" :src="imageItem" />
       </van-swipe-item>
     </van-swipe>
   </div>

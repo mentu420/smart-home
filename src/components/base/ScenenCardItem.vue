@@ -71,11 +71,7 @@ async function onCollect(item) {
     class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 relative"
     :class="{ 'h-[30px]': props.isDrag, 'h-[76px]': !props.isDrag }"
   >
-    <van-image class="w-full h-full" fit="cover" :src="sceneItem?.img">
-      <template #error>
-        <van-image class="w-full h-full" fit="cover" :src="image1" />
-      </template>
-    </van-image>
+    <SmartImage class="w-full h-full" fit="cover" :src="sceneItem?.img" />
     <dt
       v-clickable-active
       class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white pr-8"

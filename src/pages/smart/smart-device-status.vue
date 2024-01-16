@@ -54,7 +54,7 @@ init()
       </template>
     </HeaderNavbar>
     <section class="pb-4">
-      <van-image
+      <SmartImage
         width="100vw"
         height="100vw"
         fit="cover"

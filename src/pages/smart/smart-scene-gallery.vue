@@ -33,7 +33,7 @@ const onComfirm = () => {
           class="relative"
           @click="checked = imageItem.src"
         >
-          <van-image class="h-20 w-full" fit="cover" radius="10" :src="imageItem.src" />
+          <SmartImage class="h-20 w-full" fit="cover" radius="10" :src="imageItem.src" />
           <div class="absolute bottom-0 left-2 right-0 top-0 flex items-center">
             <p class="rounded bg-black bg-opacity-50 px-3 py-2 text-white">{{ imageItem.text }}</p>
           </div>

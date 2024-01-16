@@ -12,6 +12,7 @@ import Vue3TouchEvents from 'vue3-touch-events'
 
 //重置样式
 import '@/assets/styles/reset.css'
+import SmartImage from '@/components/base/SmartImage.vue'
 import IconFont from '@/components/iconfont/index'
 import HeaderNavbar from '@/components/layout/HeaderNavbar.vue'
 import ListLoad from '@/components/layout/ListLoad.vue'
@@ -37,6 +38,7 @@ app
   .component(HeaderNavbar.name, HeaderNavbar)
   .component('ListLoad', ListLoad)
   .component('IconFont', IconFont)
+  .component(SmartImage.name, SmartImage)
 
 app
   .use(Router)

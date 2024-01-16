@@ -359,7 +359,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 h-[76px] relative"
                     @click="onAllDeviceToggle(roomItem.deviceList, switchItem.status)"
                   >
-                    <van-image
+                    <SmartImage
                       class="w-full h-full"
                       fit="cover"
                       src="https://derucci-app-obs.iderucci.com/cloud-derucci-system/20230330/c21hcnQtYmctMS4xNjgwMTYzNzE5NzM2.jpg"
