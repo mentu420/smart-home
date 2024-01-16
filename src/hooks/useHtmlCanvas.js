@@ -1,6 +1,6 @@
 import html2canvas from 'html2canvas'
 
-import { uploadFiles } from '@/apis/common/'
+import { uploadFile } from '@/apis/commonApi'
 import { convertFiles } from '@/utils/dealImg'
 
 export const captureImage = (el) => {
@@ -24,9 +24,9 @@ export const getHtmlCanvas = async (el) => {
   const canvas = await captureImage(el)
   const base64 = canvas.toDataURL('image/jpeg', 1)
 
-  const { code, url } = await uploadFiles({
+  const { data = {} } = await uploadFile({
     params: { op: 2 },
     data: { file: convertFiles(base64) },
   })
-  return url
+  return data?.url
 }

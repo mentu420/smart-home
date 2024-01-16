@@ -187,11 +187,12 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
   fileMap.forEach((file) => setLoading(file))
   return await Promise.all(
     fileMap.map(async (fileItem) => {
-      const { url } = await uploadFile({
+      const { data = {} } = await uploadFile({
         params: { op: 1 },
         data: { file: fileItem.file },
         onUploadProgress,
       })
+      const { name: url } = data
       if (url) {
         setFinish(fileItem, url)
       } else {
