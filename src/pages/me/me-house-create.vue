@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { setHouseItem } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
+import { getWebUrlName } from '@/utils/common'
 
 defineOptions({ name: 'MeHouseCreate' })
 
@@ -20,7 +21,7 @@ const onSubmit = async () => {
     data: {
       bianhao: '',
       mingcheng: houseName.value,
-      img: houseImage.value,
+      img: getWebUrlName(houseImage.value),
     },
   })
   await useGetHouseListSync(true)

@@ -476,3 +476,10 @@ export function mergeObjectIntoArray(O, A, key) {
   // 返回合并后的数组对象 A
   return A
 }
+
+export const getWebUrlName = (url = '') => {
+  if (!url || url == 0 || url == '') return url
+  const webUrl = url.includes('?') ? url.split('?')[0] : url
+  const strArr = webUrl.split('/')
+  return strArr[strArr.length - 1]
+}

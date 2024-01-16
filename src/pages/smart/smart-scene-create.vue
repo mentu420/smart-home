@@ -13,7 +13,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
-import { transformKeys, mergeObjectIntoArray } from '@/utils/common'
+import { transformKeys, mergeObjectIntoArray, getWebUrlName } from '@/utils/common'
 
 import SmartCondtionList from './components/SmartCondtionList.vue'
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
@@ -335,7 +335,7 @@ const transformSaveEvents = (events = []) => {
 const onSave = async () => {
   try {
     await formRef.value?.validate()
-    const { actions = [], events, ...residue } = createSmartItem.value
+    const { actions = [], events, img, ...residue } = createSmartItem.value
 
     if (actions.length == 0) {
       showToast('请添加任务')
@@ -352,6 +352,7 @@ const onSave = async () => {
       leixing: 1,
       isor: 0,
       actions: actionsResult,
+      img: getWebUrlName(img),
     }
     data = route.query.fenlei == 2 ? { ...data, events: eventsResult } : data
     const config = {

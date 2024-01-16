@@ -9,6 +9,7 @@ import { setUserConfig } from '@/apis/commonApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
+import { getWebUrlName } from '@/utils/common'
 import { setStorage, getStorage } from '@/utils/storage'
 
 defineOptions({ name: 'MeInfo' })
@@ -34,9 +35,8 @@ const onLogout = async () => {
 }
 
 const onEditAvatar = async (file) => {
-  console.log(file)
-  console.log(avatar.value)
-  //
+  const { url } = file[0]
+  await setUserConfig({ params: { op: 2 }, data: { touxiang: getWebUrlName(url) } })
 }
 
 const isDev = ref(false)

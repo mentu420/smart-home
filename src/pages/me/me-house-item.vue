@@ -9,6 +9,7 @@ import { setHouseItem, getHouseList } from '@/apis/houseApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
 import userStore from '@/store/userStore'
+import { getWebUrlName } from '@/utils/common'
 
 defineOptions({ name: 'MeHouse' })
 
@@ -42,7 +43,7 @@ const onHouseChange = async () => {
       data: {
         bianhao: houseItem.value.id,
         mingcheng: houseItem.value.label,
-        img: houseImage.value,
+        img: getWebUrlName(houseImage.value),
       },
     })
     const { setHouseList } = houseStore()
