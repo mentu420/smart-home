@@ -40,7 +40,7 @@ const delTimeItem = (i) => {
 
 const onSave = () => {
   const { events = [] } = createSmartItem.value
-  const { type, value } = timeRepeat.value
+  const { type = 3, value = [-1] } = timeRepeat.value
   //时间列表
   const timeList = conditionTimeList.value.map((timeItem) => ({
     leixing: 1,

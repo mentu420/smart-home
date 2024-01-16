@@ -31,6 +31,15 @@ const checkedDate = computed({
   set: (val) => emits('update:modelValue', val),
 })
 
+const sheetActions = computed(() =>
+  repeatActions.value.map((item) => {
+    return {
+      ...item,
+      subname: item.id == checkedDate.value.type ? getRepeatTimeText.value(checkedDate.value) : '',
+    }
+  })
+)
+
 const onRepeatSelect = async (detail) => {
   showRepeatAction.value = false
   checkedDate.value = {
@@ -94,6 +103,7 @@ const onRepeatSelect = async (detail) => {
 }
 
 const onWeekChange = (value) => {
+  console.log(value)
   checkedDate.value = {
     ...checkedDate.value,
     value: value,
@@ -135,7 +145,7 @@ const toggle = (index) => {
   />
   <van-action-sheet
     v-model:show="showRepeatAction"
-    :actions="repeatActions"
+    :actions="sheetActions"
     cancel-text="取消"
     close-on-click-action
     teleport="#app"
@@ -157,7 +167,11 @@ const toggle = (index) => {
             @click="toggle(weekIndex)"
           >
             <template #right-icon>
-              <van-checkbox :ref="(el) => (checkboxRefs[weekIndex] = el)" :name="key" @click.stop />
+              <van-checkbox
+                :ref="(el) => (checkboxRefs[weekIndex] = el)"
+                :name="weekIndex"
+                @click.stop
+              />
             </template>
           </van-cell>
         </van-cell-group>
