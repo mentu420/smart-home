@@ -812,7 +812,12 @@ function goEventConfig() {
             v-model="fileList"
             accept="image/*"
             :max-count="1"
-            @success="showGallery = false"
+            @success="
+              (list) => {
+                showGallery = false
+                createSmartItem.img = list[0].url
+              }
+            "
           >
             <template #default="slotProps">
               <van-loading v-if="slotProps.loading" />
