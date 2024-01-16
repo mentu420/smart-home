@@ -1,10 +1,8 @@
 <script setup>
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
-import { numberKeyboardProps } from 'vant'
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 
-import TimePicker from '@/components/common/TimePicker.vue'
 import smartStore from '@/store/smartStore'
 
 import PickerSearch from './PickerSearch.vue'
@@ -33,17 +31,18 @@ const checkedDate = computed({
   set: (val) => emits('update:modelValue', val),
 })
 
-const onRepeatSelect = (detail) => {
-  console.log('detail', detail)
+const onRepeatSelect = async (detail) => {
+  showRepeatAction.value = false
   checkedDate.value = {
     type: detail.id,
     list: [],
   }
+  await nextTick()
   switch (detail.id) {
     case 3:
       checkedDate.value = {
         ...checkedDate.value,
-        chongfuzhi: [-1],
+        value: [-1],
       }
       break
     case 4:
@@ -58,7 +57,8 @@ const onRepeatSelect = (detail) => {
       })
       checkedDate.value = {
         ...checkedDate.value,
-        chongfuzhi: [],
+        list: [1],
+        value: [],
       }
       break
     case 6:
@@ -77,7 +77,7 @@ const onRepeatSelect = (detail) => {
       checkedDate.value = {
         ...checkedDate.value,
         list: [1, 1],
-        chongfuzhi: ['01-01'],
+        value: ['01-01'],
       }
       break
     case 7:
@@ -85,7 +85,7 @@ const onRepeatSelect = (detail) => {
       checkedDate.value = {
         ...checkedDate.value,
         list: dayjs().format('YYYY-MM-DD').split('-'),
-        chongfuzhi: [dayjs().format('YYYY-MM-DD')],
+        value: [dayjs().format('YYYY-MM-DD')],
       }
       break
     default:
@@ -96,7 +96,7 @@ const onRepeatSelect = (detail) => {
 const onWeekChange = (value) => {
   checkedDate.value = {
     ...checkedDate.value,
-    chongfuzhi: value,
+    value: value,
   }
 }
 
@@ -104,7 +104,7 @@ const selectMWithY = ({ selectedValues }) => {
   checkedDate.value = {
     ...checkedDate.value,
     list: selectedValues,
-    chongfuzhi:
+    value:
       checkedDate.value.type == 5
         ? selectedValues
         : [selectedValues.map((num) => (num < 10 ? '0' + num : num)).join('-')],
@@ -115,7 +115,7 @@ const onCalendarConfirm = (value) => {
   checkedDate.value = {
     ...checkedDate.value,
     list: dayjs(value).format('YYYY-MM-DD').split('-'),
-    chongfuzhi: [dayjs(value).format('YYYY-MM-DD')],
+    value: [dayjs(value).format('YYYY-MM-DD')],
   }
   showCalendar.value = false
 }
@@ -128,10 +128,9 @@ const toggle = (index) => {
 <template>
   <van-cell
     center
-    class="rounded-lg"
     title="日期与重复"
     is-link
-    :value="getRepeatTimeText(checkedDate)"
+    :label="getRepeatTimeText(checkedDate)"
     @click="showRepeatAction = true"
   />
   <van-action-sheet
@@ -139,7 +138,7 @@ const toggle = (index) => {
     :actions="repeatActions"
     cancel-text="取消"
     close-on-click-action
-    teleport="body"
+    teleport="#app"
     @select="onRepeatSelect"
   />
   <van-popup v-model:show="showWeek" safe-area-inset-bottom position="bottom" teleport="body">

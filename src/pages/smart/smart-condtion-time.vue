@@ -19,7 +19,7 @@ const currentTime = ref(dayjs().format('HH:ss').split(':'))
 const conditionTimeList = ref([])
 const timePickerRef = ref(null)
 
-const checkedRepeat = ref({})
+const timeRepeat = ref({})
 
 const onTimeConfirm = ({ selectedValues }, scopeData) => {
   if (!scopeData) {
@@ -40,14 +40,14 @@ const delTimeItem = (i) => {
 
 const onSave = () => {
   const { events = [] } = createSmartItem.value
-  const { type, chongfuzhi } = checkedRepeat.value
+  const { type, value } = timeRepeat.value
   //时间列表
   const timeList = conditionTimeList.value.map((timeItem) => ({
     leixing: 1,
     tiaojian: {
       shijian: timeItem.join(':'),
       chongfuleixing: type,
-      chongfuzhi,
+      chongfuzhi: value,
     },
   }))
   const { eventIndex } = route.query
@@ -96,7 +96,7 @@ const onSave = () => {
           <van-button square type="danger" text="删除" @click="delTimeItem(timeIndex)" />
         </template>
       </van-swipe-cell>
-      <DateRepeatSheet v-model="checkedRepeat" />
+      <DateRepeatSheet v-model="timeRepeat" />
     </section>
     <div class="p-6">
       <van-button

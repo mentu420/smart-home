@@ -7,13 +7,13 @@ const emits = defineEmits(['change'])
 
 const show = ref(false)
 const executionTime = ref(['12', '00'])
-const weekChecked = ref([0, 1, 2, 3, 4, 5, 6])
+const timeRepeat = ref({})
 const scopeData = ref({})
 
 const open = (data) => {
   scopeData.value = data
   if (data.time) executionTime.value = data.time
-  if (data.week) weekChecked.value = data.week
+  if (data.timeRepeat) timeRepeat.value = data.timeRepeat
   show.value = true
 }
 
@@ -22,7 +22,7 @@ const close = () => (show.value = false)
 const onConfirm = ({ selectedValues }) => {
   close()
 
-  emits('change', { time: selectedValues.join(':'), week: weekChecked.value }, scopeData.value)
+  emits('change', { time: selectedValues.join(':'), timeRepeat: timeRepeat.value }, scopeData.value)
 }
 
 defineExpose({ open })
@@ -32,7 +32,7 @@ defineExpose({ open })
   <van-popup v-model:show="show" round safe-area-inset-bottom position="bottom">
     <div class="py-4">
       <van-time-picker v-model="executionTime" title="指定时间" @confirm="onConfirm" />
-      <DateRepeatSheet v-model="weekChecked" />
+      <DateRepeatSheet v-model="timeRepeat" />
     </div>
   </van-popup>
 </template>

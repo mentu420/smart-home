@@ -305,7 +305,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   </template>
                 </draggable>
                 <van-empty
-                  v-if="collectItem.list.length == 0"
+                  v-if="collectItem.list?.length == 0"
                   image-size="4rem"
                   image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
                   description="暂无收藏的场景"

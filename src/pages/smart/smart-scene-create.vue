@@ -5,7 +5,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { setSceneList, setSmartList } from '@/apis/smartApi.js'
-import DateRepeatSheet from '@/components/common/DateRepeatSheet.vue'
 import pickerSearch from '@/components/common/PickerSearch.vue'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import TimePicker from '@/components/common/TimePicker.vue'
@@ -58,8 +57,6 @@ const timeEvents = computed(() => {
   return events.filter((item) => item.leixing == 1)
 })
 
-const { getRepeatTimeText } = smartStore()
-
 function openRoomPicker() {
   roomPickerRef.value?.open({ columns: roomList.value })
 }
@@ -71,17 +68,22 @@ function onSelectRoomItem({ selectedValues }) {
  * 修改自动化events中leixing=1的tiaojian或fujiantioajian的重复时间
  * **/
 const openExecutionTime = (item, i, type) => {
+  console.log(item)
   repeatTimeRef.value?.open({
-    week: item.tiaojian.chongfuzhi,
+    timeRepeat: {
+      type: item.tiaojian.chongfuleixing,
+      value: item.tiaojian.chongfuzhi,
+    },
     time: item.tiaojian.shijian.split(':'),
     eventIndex: i,
     type: type,
   })
 }
 // 确认修改执行时间
-const onExecutionTimeConfirm = ({ time, week }, { eventIndex, type }) => {
+const onExecutionTimeConfirm = ({ time, timeRepeat }, { eventIndex, type }) => {
+  console.log('timeRepeat', timeRepeat)
   const { events } = createSmartItem.value
-  const tiaojian = { chongfuzhi: week, chongfuleixing: '3', shijian: time }
+  const tiaojian = { chongfuzhi: timeRepeat.value, chongfuleixing: timeRepeat.type, shijian: time }
   const newEvents = events.map((item, i) => {
     if (type) {
       return {
@@ -601,8 +603,6 @@ function goEventConfig() {
             />
           </van-cell>
         </template>
-        <!-- <van-cell center is-link title="有效时间" />
-        <DateRepeatSheet v-model="weekChecked" /> -->
       </van-cell-group>
     </van-form>
     <!--自动化条件-->

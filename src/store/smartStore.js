@@ -41,17 +41,18 @@ export default defineStore(storeName, () => {
 
   init()
   // 获取重复时间
-  const getRepeatTimeText = computed(() => ({ type = 3, list = [] }) => {
+  const getRepeatTimeText = computed(() => ({ type = 3, value = [] }) => {
     const repeatItem = repeatActions.value.find((item) => item.id == type)
-    console.log('repeatItem', repeatItem)
     if (type == 3) {
       return repeatItem?.name
     } else if (type == 4) {
-      return '周' + list.map((item) => weekData.value[item].replace('周', '')).join('、')
+      return '周' + value.map((item) => weekData.value[item].replace('周', '')).join('、')
     } else if (type == 5) {
-      return `${repeatItem?.name} - ${list.join(',')}${list.length ? '日' : ''}`
+      return `${repeatItem?.name} - ${value.join(',')}${value.length ? '日' : ''}`
     } else {
-      return `${repeatItem?.name} - ${dayjs(list).format(repeatItem.format)}`
+      return `${type == 7 ? '' : repeatItem?.name} ${type == 7 ? '' : '-'}  ${dayjs(
+        value[0]?.split('-')
+      ).format(repeatItem.format)}`
     }
   })
   // 场景默认图库
