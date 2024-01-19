@@ -256,8 +256,11 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
       <template v-if="dragOptions.disabled">
         <!--当前房屋-->
         <van-sticky @change="onTopSticky">
-          <div class="flex justify-between bg-page-gray" :class="{ 'pt-safe': isTopFixed }">
-            <div class="p-4">
+          <div
+            class="flex justify-between bg-page-gray h-[44px] items-center px-4"
+            :class="{ 'pt-safe': isTopFixed }"
+          >
+            <div>
               <van-popover
                 v-model:show="showHomeList"
                 :actions="houseList"
@@ -286,7 +289,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               </van-popover>
             </div>
             <van-sticky>
-              <div class="space-x-4 p-4">
+              <div class="space-x-4">
                 <van-icon size="20" name="bell" />
                 <van-icon size="20" name="plus" @click="goAddDevice" />
               </div>
@@ -304,7 +307,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
         <!--重新定义tabs-->
         <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
           <section :class="{ 'mt-safe': isTabsFixed }">
-            <div class="h-[44px] overflow-hidden relative bg-page-gray">
+            <div class="h-[44px] overflow-hidden relative bg-page-gray text-[16px]">
               <ul
                 ref="scrollContainerRef"
                 class="px-2 flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content"
@@ -313,17 +316,17 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
                   :key="roomIndex"
                   class="relative flex-none leading-[44px] flex px-2 transition-all"
-                  :class="{ 'text-black text-[16px] font-bold': currentRoomId === roomItem.id }"
+                  :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
                   @click="onRoomChange(roomItem, roomIndex)"
                 >
                   {{ roomItem.label }}
                 </li>
-                <li key="1" class="relative flex-none leading-[44px] flex w-[70px]"></li>
+                <li key="1" class="relative flex-none leading-[44px] flex w-[78px]"></li>
               </ul>
               <!--切换楼层-->
               <div class="absolute right-0 z-[1] top-0 rounded-l-lg overflow-hidden">
                 <div
-                  class="flex h-[36px] w-[70px] my-[4px] bg-white flex-auto items-center justify-center space-x-4"
+                  class="flex h-[44px] w-[78px] px-[4px] bg-white flex-auto items-center justify-center space-x-4"
                 >
                   <van-button
                     v-if="!dragOptions.disabled"
