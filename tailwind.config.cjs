@@ -34,6 +34,13 @@ const newUtilities = {
     marginBottom: 'constant(safe-area-inset-bottom)',
     marginBottom: 'env(safe-area-inset-bottom)',
   },
+  '.no-scrollbar': {
+    '-ms-overflow-style': 'none' /* IE and Edge */,
+    'scrollbar-width': 'none' /* Firefox */,
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
 }
 
 // module.exports = {

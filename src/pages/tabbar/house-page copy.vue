@@ -200,19 +200,6 @@ const onTabsScroll = ({ isFixed, scrollTop }) => {
   isTabsFixed.value = isFixed
 }
 
-const scrollContainerRef = ref(null)
-
-const onRoomChange = (roomItem, roomIndex) => {
-  if (!dragOptions.value.disabled) return
-  currentRoomId.value = roomItem.id
-  const item = scrollContainerRef.value.children[roomIndex]
-  const containerWidth = scrollContainerRef.value.offsetWidth
-  const itemWidth = item.offsetWidth
-  const itemLeft = item.offsetLeft
-
-  scrollContainerRef.value.scrollLeft = itemLeft - (containerWidth - itemWidth) / 2
-}
-
 const init = async () => {
   try {
     const { useGetToken, useUserInfoSync } = userStore()
@@ -302,69 +289,65 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 
       <div>
         <!--重新定义tabs-->
-        <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
-          <section :class="{ 'mt-safe': isTabsFixed }">
-            <div class="h-[44px] overflow-hidden relative bg-page-gray">
-              <ul
-                ref="scrollContainerRef"
-                class="px-2 flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content"
+        <div class="h-[44px] overflow-hidden relative">
+          <ul
+            class="px-2 flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content"
+          >
+            <li
+              v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
+              :key="roomIndex"
+              class="relative flex-none leading-[44px] flex"
+              :class="{ 'text-black text-[16px] font-bold': currentRoomId === roomItem.id }"
+              @click="
+                () => {
+                  if (!dragOptions.disabled) return
+                  currentRoomId = roomItem.id
+                }
+              "
+            >
+              <span class="px-2">{{ roomItem.label }}</span>
+            </li>
+            <li class="relative flex-none leading-[44px] flex w-[70px]"></li>
+          </ul>
+          <!--切换楼层-->
+          <div class="absolute right-0 z-[1] top-0 bg-white">
+            <div class="flex h-[44px] w-[70px] flex-auto items-center justify-center space-x-4">
+              <van-button
+                v-if="!dragOptions.disabled"
+                v-loading-click="() => onDragEnd()"
+                round
+                size="small"
+                type="primary"
               >
-                <li
-                  v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
-                  :key="roomIndex"
-                  class="relative flex-none leading-[44px] flex px-2 transition-all"
-                  :class="{ 'text-black text-[16px] font-bold': currentRoomId === roomItem.id }"
-                  @click="onRoomChange(roomItem, roomIndex)"
-                >
-                  {{ roomItem.label }}
-                </li>
-                <li key="1" class="relative flex-none leading-[44px] flex w-[70px]"></li>
-              </ul>
-              <!--切换楼层-->
-              <div class="absolute right-0 z-[1] top-0 rounded-l-lg overflow-hidden">
-                <div
-                  class="flex h-[36px] w-[70px] my-[4px] bg-white flex-auto items-center justify-center space-x-4"
-                >
-                  <van-button
-                    v-if="!dragOptions.disabled"
-                    v-loading-click="() => onDragEnd()"
-                    round
-                    size="small"
-                    type="primary"
+                完成
+              </van-button>
+              <van-popover v-else v-model:show="showFloorConfig" placement="bottom-end">
+                <template #reference>
+                  <div class="flex items-center px-2 py-1 rounded-md bg-white space-x-1">
+                    <p class="w-[40px] truncate text-xs shrink-0 text-center">
+                      {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
+                    </p>
+                    <van-icon name="arrow-down" />
+                  </div>
+                </template>
+                <van-cell-group class="w-[50vw]">
+                  <van-cell
+                    v-for="floorItem in floorList"
+                    :key="floorItem.id"
+                    @click="onFloorSelect(floorItem)"
                   >
-                    完成
-                  </van-button>
-                  <van-popover v-else v-model:show="showFloorConfig" placement="bottom-end">
-                    <template #reference>
-                      <div class="flex items-center px-2 py-1 rounded-md bg-white space-x-1">
-                        <p class="w-[40px] truncate text-xs shrink-0 text-center">
-                          {{
-                            floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label
-                          }}
-                        </p>
-                        <van-icon name="arrow-down" />
+                    <template #title>
+                      <div class="flex justify-center items-center">
+                        <van-icon v-if="currentFloorId == floorItem.id" name="location" />
+                        <label>{{ floorItem.label }}</label>
                       </div>
                     </template>
-                    <van-cell-group class="w-[50vw]">
-                      <van-cell
-                        v-for="floorItem in floorList"
-                        :key="floorItem.id"
-                        @click="onFloorSelect(floorItem)"
-                      >
-                        <template #title>
-                          <div class="flex justify-center items-center">
-                            <van-icon v-if="currentFloorId == floorItem.id" name="location" />
-                            <label>{{ floorItem.label }}</label>
-                          </div>
-                        </template>
-                      </van-cell>
-                    </van-cell-group>
-                  </van-popover>
-                </div>
-              </div>
+                  </van-cell>
+                </van-cell-group>
+              </van-popover>
             </div>
-          </section>
-        </van-sticky>
+          </div>
+        </div>
         <van-tabs
           v-model:active="currentRoomId"
           class="house-tabs"
@@ -373,6 +356,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           line-width="0"
           animated
           :swipeable="dragOptions.disabled"
+          @scroll="onTabsScroll"
         >
           <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
             <section class="p-4">
@@ -501,13 +485,5 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 <style scoped lang="scss">
 .house-tabs:deep(.van-tabs__wrap) {
   display: none !important;
-}
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.3s ease;
-}
-.slide-enter,
-.slide-leave-to {
-  transform: translateX(100%);
 }
 </style>

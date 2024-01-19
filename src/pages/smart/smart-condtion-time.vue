@@ -74,13 +74,18 @@ const onSave = () => {
 
   router.go(-2)
 }
+
+const addTime = () => {
+  if (conditionTimeList.value.length > 0) return
+  timePickerRef.value?.open()
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="时间日期" />
     <section class="space-y-4 p-4">
-      <van-cell class="rounded-lg" title="添加时间" is-link @click="timePickerRef.open()" />
+      <van-cell class="rounded-lg" title="添加时间" is-link @click="addTime" />
       <van-swipe-cell
         v-for="(timeItem, timeIndex) in conditionTimeList"
         :key="timeIndex"
@@ -88,7 +93,7 @@ const onSave = () => {
       >
         <van-cell
           :border="false"
-          :title="`时间${timeIndex + 1}`"
+          title="指定时间"
           :value="timeItem.join(':')"
           @click="timePickerRef.open({ index: timeIndex, modelValue: timeItem })"
         />

@@ -43,7 +43,7 @@ export default {
 </script>
 
 <template>
-  <div class="pb-sfa">
+  <div class="pb-safe pt-safe bg-page-gray">
     <router-view v-slot="{ Component }">
       <transition>
         <keep-alive>

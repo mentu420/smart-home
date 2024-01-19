@@ -45,7 +45,7 @@ const onValidPhone = (value) => vaildPhone(value)
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="p-6 mt-sfa">
     <h1 class="mb-6 mt-10">验证码登录</h1>
     <van-form ref="formRef" @submit="onSubmit">
       <van-cell-group>

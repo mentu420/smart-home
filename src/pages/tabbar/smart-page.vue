@@ -128,6 +128,7 @@ onActivated(init)
     >
       <van-tabs
         v-model:active="tabActive"
+        class="!pt-safe"
         background="#f7f7f7"
         sticky
         shrink
