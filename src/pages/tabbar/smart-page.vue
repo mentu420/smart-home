@@ -16,7 +16,7 @@ const loading = ref(false)
 const tabActive = ref(2)
 const { sceneList, smartList } = storeToRefs(smartStore())
 const { roomList, floorList, currentPower } = storeToRefs(houseStore())
-
+const isTabsFixed = ref(false)
 const globalSceneList = ref([])
 const roomSceneList = ref([])
 
@@ -126,9 +126,40 @@ onActivated(init)
       class="min-h-[60vh]"
       @refresh="onRefresh"
     >
+      <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
+        <section :class="{ 'pt-safe': isTabsFixed }" class="bg-page-gray">
+          <div class="flex justify-between items-center px-4 py-3">
+            <ul class="flex items-center text-[16px] space-x-4">
+              <li
+                v-if="currentPower != 2"
+                :class="{ 'font-bold': tabActive == 2 }"
+                @click="tabActive = '2'"
+              >
+                自动化
+              </li>
+              <li :class="{ 'font-bold': tabActive == 1 }" @click="tabActive = '1'">场景</li>
+            </ul>
+            <div class="flex-1 text-right">
+              <div v-if="dragOptions.disabled && currentPower != 2" class="rounded-lg">
+                <van-icon size="20" name="plus" @click="createSmart" />
+              </div>
+              <van-button
+                v-if="!dragOptions.disabled"
+                v-loading-click="onDragEnd"
+                round
+                type="primary"
+                size="small"
+              >
+                完成
+              </van-button>
+            </div>
+          </div>
+        </section>
+      </van-sticky>
+
       <van-tabs
         v-model:active="tabActive"
-        class="!pt-safe"
+        class="smart-tabs"
         background="#f7f7f7"
         sticky
         shrink
@@ -137,28 +168,7 @@ onActivated(init)
         :swipeable="dragOptions.disabled"
         @change="init"
       >
-        <template #nav-right>
-          <div class="flex-1 text-right p-3">
-            <div v-if="dragOptions.disabled && currentPower != 2" class="rounded-lg">
-              <van-icon size="20" name="plus" @click="createSmart" />
-            </div>
-            <van-button
-              v-if="!dragOptions.disabled"
-              v-loading-click="onDragEnd"
-              round
-              type="primary"
-              size="small"
-            >
-              完成
-            </van-button>
-          </div>
-        </template>
-        <van-tab
-          v-if="currentPower != 2"
-          title="自动化"
-          :disabled="!dragOptions.disabled"
-          :name="2"
-        >
+        <van-tab v-if="currentPower != 2" title="自动化" :disabled="!dragOptions.disabled" name="2">
           <div v-if="smartList.length > 0" class="p-4">
             <section class="mb-6">
               <h4 class="mb-2 text-gray-600">全局</h4>
@@ -240,3 +250,9 @@ onActivated(init)
     </van-pull-refresh>
   </div>
 </template>
+
+<style scoped lang="scss">
+.smart-tabs:deep(.van-tabs__wrap) {
+  display: none !important;
+}
+</style>

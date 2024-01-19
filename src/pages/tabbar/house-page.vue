@@ -256,45 +256,44 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
       <template v-if="dragOptions.disabled">
         <!--当前房屋-->
         <van-sticky @change="onTopSticky">
-          <div
-            class="flex justify-between bg-page-gray h-[44px] items-center px-4"
-            :class="{ 'pt-safe': isTopFixed }"
-          >
-            <div>
-              <van-popover
-                v-model:show="showHomeList"
-                :actions="houseList"
-                placement="bottom-start"
-              >
-                <van-cell-group>
-                  <van-cell
-                    v-for="houseItem in houseList"
-                    :key="houseItem.id"
-                    @click="onHouseSelect(houseItem)"
-                  >
-                    <template #title>
-                      <div class="flex justify-center items-center">
-                        <van-icon v-if="currentHouse?.id == houseItem.id" name="location" />
-                        <label>{{ houseItem.label }}</label>
-                      </div>
-                    </template>
-                  </van-cell>
-                </van-cell-group>
-                <template #reference>
-                  <div class="flex items-center space-x-4">
-                    <h3>{{ currentHouse?.label }}</h3>
-                    <van-icon name="arrow-down" />
-                  </div>
-                </template>
-              </van-popover>
-            </div>
-            <van-sticky>
-              <div class="space-x-4">
-                <van-icon size="20" name="bell" />
-                <van-icon size="20" name="plus" @click="goAddDevice" />
+          <section :class="{ 'pt-safe': isTopFixed }" class="bg-page-gray">
+            <div class="flex justify-between py-3 items-center px-4">
+              <div>
+                <van-popover
+                  v-model:show="showHomeList"
+                  :actions="houseList"
+                  placement="bottom-start"
+                >
+                  <van-cell-group>
+                    <van-cell
+                      v-for="houseItem in houseList"
+                      :key="houseItem.id"
+                      @click="onHouseSelect(houseItem)"
+                    >
+                      <template #title>
+                        <div class="flex justify-center items-center">
+                          <van-icon v-if="currentHouse?.id == houseItem.id" name="location" />
+                          <label>{{ houseItem.label }}</label>
+                        </div>
+                      </template>
+                    </van-cell>
+                  </van-cell-group>
+                  <template #reference>
+                    <div class="flex items-center space-x-4">
+                      <h3>{{ currentHouse?.label }}</h3>
+                      <van-icon name="arrow-down" />
+                    </div>
+                  </template>
+                </van-popover>
               </div>
-            </van-sticky>
-          </div>
+              <van-sticky>
+                <div class="space-x-4">
+                  <van-icon size="20" name="bell" />
+                  <van-icon size="20" name="plus" @click="goAddDevice" />
+                </div>
+              </van-sticky>
+            </div>
+          </section>
         </van-sticky>
         <!--天气-->
         <div v-if="currentHouse?.huanjingzhuangtai" class="min-h-10 flex items-end p-4">
@@ -306,8 +305,8 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
       <div>
         <!--重新定义tabs-->
         <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
-          <section :class="{ 'mt-safe': isTabsFixed }">
-            <div class="h-[44px] overflow-hidden relative bg-page-gray text-[16px]">
+          <section :class="{ 'pt-safe': isTabsFixed }" class="bg-page-gray">
+            <div class="h-[44px] overflow-hidden relative text-[16px]">
               <ul
                 ref="scrollContainerRef"
                 class="px-2 flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content"
