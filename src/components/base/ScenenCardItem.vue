@@ -54,13 +54,13 @@ async function onMoreSelect(action, item) {
 }
 
 async function onCollect(item) {
-  const leixing = item.collect ? 2 : 1
+  const leixing = item.collect ? 0 : 1
   await setSceneList({
     params: { op: 5 },
     data: { changjingbianhao: item.id, leixing, paixu: item.sort },
   })
   sceneList.value = sceneList.value.map((sceneItem) => {
-    if (sceneItem.id == item.id) return { ...item, collect: leixing != 2 }
+    if (sceneItem.id == item.id) return { ...item, collect: leixing != 0 }
     return sceneItem
   })
 }

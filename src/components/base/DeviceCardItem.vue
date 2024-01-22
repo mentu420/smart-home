@@ -39,7 +39,7 @@ const getDeviceStatus = computed(() => {
 })
 const onDeviceCollect = async (item) => {
   try {
-    const leixing = item.collect ? 2 : 1
+    const leixing = item.collect ? 0 : 1
     await setDeviceList({
       params: { op: 5 },
       data: {
