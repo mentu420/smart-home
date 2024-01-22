@@ -4,8 +4,7 @@ import { showConfirmDialog, showDialog } from 'vant'
 import { ref, computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { setHouseItem, getHouseList } from '@/apis/houseApi'
-import ListLoad from '@/components/layout/ListLoad.vue'
+import { getHouseList } from '@/apis/houseApi'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
@@ -114,7 +113,7 @@ const goHouseItem = async (houseItem) => {
               <template #title>
                 <p :class="{ 'text-primary': currentHouse.id == houseItem.id }">
                   <van-icon v-if="currentHouse.id == houseItem.id" class="mr-2" name="wap-home" />
-                  <label>{{ houseItem.label }}</label>
+                  <span>{{ houseItem.label }}</span>
                 </p>
               </template>
             </van-cell>

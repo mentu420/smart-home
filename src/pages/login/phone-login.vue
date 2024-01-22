@@ -55,7 +55,7 @@ const onValidPhone = (value) => vaildPhone(value)
           placeholder="手机号码"
           maxlength="11"
           type="tel"
-          class="!py-5"
+          class="!py-6"
           center
           :rules="[
             { required: true, message: '请填写手机号码' },
@@ -67,7 +67,7 @@ const onValidPhone = (value) => vaildPhone(value)
           name="code"
           placeholder="验证码"
           maxlength="6"
-          class="!py-5"
+          class="!py-6"
           center
           :rules="[{ required: true, message: '请填写验证码' }]"
         >

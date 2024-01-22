@@ -43,7 +43,7 @@ const onSubmit = async () => {
         center
         name="password"
         maxlength="18"
-        class="!py-5"
+        class="!py-6"
         :placeholder="formLabel"
         :type="showPassword ? 'text' : 'password'"
         :rules="[

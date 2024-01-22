@@ -29,7 +29,6 @@ const onLogout = async () => {
 }
 
 const onEditAvatar = async (fileList) => {
-  console.log('fileList', fileList)
   const { url } = fileList[0]
   avatar.value = url
   await setUserConfig({ params: { op: 2 }, data: { touxiang: getWebUrlName(url) } })

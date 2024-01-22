@@ -69,7 +69,7 @@ const goOtherLogin = () => {
           name="username"
           placeholder="用户名"
           maxlength="30"
-          class="!py-5"
+          class="!py-6"
           :formatter="trimFormat"
           :rules="[{ required: true, message: '请填写用户名' }]"
         >
@@ -98,7 +98,7 @@ const goOtherLogin = () => {
           name="password"
           placeholder="密码"
           maxlength="18"
-          class="!py-5"
+          class="!py-6"
           :type="showPassword ? 'text' : 'password'"
           :rules="[{ required: true, message: '请填写密码' }]"
         >

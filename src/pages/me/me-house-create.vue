@@ -11,7 +11,7 @@ defineOptions({ name: 'MeHouseCreate' })
 
 const router = useRouter()
 const houseName = ref(null)
-const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
+const houseImage = ref('')
 const loading = ref(false)
 
 const onSubmit = async () => {
@@ -46,7 +46,13 @@ const onSubmit = async () => {
           :rules="[{ required: true, message: '家庭名称必填项' }]"
         />
         <van-cell center clickable title="家庭图片">
-          <SmartUploader reupload accept="image/*" string-separator="," :max-count="1">
+          <SmartUploader
+            reupload
+            accept="image/*"
+            string-separator=","
+            :max-count="1"
+            @success="(fileList) => (houseImage = fileList[0].url)"
+          >
             <template #default="slotProps">
               <div class="w-[80px] h-[80px] flex justify-center items-center bg-page-gray">
                 <van-loading v-if="slotProps.loading" />

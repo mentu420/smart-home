@@ -18,11 +18,11 @@ const router = useRouter()
 const showQrCode = ref(false)
 const { userInfo } = storeToRefs(userStore())
 const { familyList, houseList, getRolePowerName } = storeToRefs(houseStore())
-const houseImage = ref('https://fastly.jsdelivr.net/npm/@vant/asses/cat.jpeg')
 const loading = ref(false)
 const houseItem = computed(
   () => houseList.value.find((houseItem) => houseItem.id == route.query.id) || {}
 )
+const houseImage = computed(() => houseItem.value?.img)
 const houseFamilyList = computed(() =>
   familyList.value
     .filter((familyItem) => familyItem.fangwubianhao == houseItem.value.id)
@@ -35,21 +35,22 @@ const { getRolePower } = houseStore()
 const disabled = computed(() => getRolePower(route.query.id) == 2)
 
 //变更图片
-const onHouseChange = async () => {
+const onHouseChange = async (fileList) => {
   try {
     loading.value = true
+    const { url } = fileList[0]
     await setHouseItem({
-      params: { op: 2 },
+      params: { op: 3 },
       data: {
         bianhao: houseItem.value.id,
         mingcheng: houseItem.value.label,
-        img: getWebUrlName(houseImage.value),
+        img: getWebUrlName(url),
       },
     })
     const { setHouseList } = houseStore()
     setHouseList({
       ...houseItem.value,
-      img: houseImage.value,
+      img: url,
     })
   } finally {
     loading.value = false
