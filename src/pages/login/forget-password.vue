@@ -48,7 +48,7 @@ watch(
         v-model.trim="form.phone"
         name="phone"
         placeholder="手机号码"
-        class="!py-4"
+        class="!py-5"
         center
         :rules="[
           { required: true, message: '请填写手机号码' },
@@ -60,7 +60,7 @@ watch(
         name="code"
         placeholder="短信验证码"
         maxlength="6"
-        class="!py-4"
+        class="!py-5"
         center
         :rules="[{ required: true, message: '请填写短信验证码' }]"
       >
