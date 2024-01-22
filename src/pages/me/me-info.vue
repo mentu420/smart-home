@@ -79,15 +79,20 @@ init()
     <div class="flex justify-center">
       <div class="px-6 py-10">
         <SmartUploader
-          v-model="avatar"
-          class="avatar-uploader"
           reupload
           accept="image/*"
           string-separator=","
           :max-count="1"
           :deletable="false"
           @success="onEditAvatar"
-        />
+        >
+          <template #default="slotProps">
+            <div class="w-[80px] h-[80px] flex justify-center items-center bg-page-gray">
+              <van-loading v-if="slotProps.loading" />
+              <SmartImage v-else class="w-[80px] h-[80px]" fit="cover" round :src="avatar" />
+            </div>
+          </template>
+        </SmartUploader>
         <p class="text-md text-center">修改头像</p>
       </div>
     </div>
@@ -110,17 +115,3 @@ init()
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-.avatar-uploader:deep {
-  .van-uploader__upload,
-  .van-uploader__preview-image {
-    height: 80px;
-    width: 80px;
-    border-radius: 40px;
-  }
-  .van-uploader__preview {
-    margin: 0;
-  }
-}
-</style>

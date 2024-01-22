@@ -121,15 +121,20 @@ const addHouseItem = () => {
       />
       <van-cell center clickable title="家庭图片" is-link>
         <SmartUploader
-          v-model="houseImage"
-          v-model:loading="loading"
           accept="image/*"
           string-separator=","
           :max-count="1"
           :disabled="disabled"
           :deletable="!disabled"
           @success="onHouseChange"
-        />
+        >
+          <template #default="slotProps">
+            <div class="w-[80px] h-[80px] flex justify-center items-center bg-page-gray">
+              <van-loading v-if="slotProps.loading" />
+              <SmartImage v-else class="w-[80px] h-[80px]" fit="cover" round :src="houseImage" />
+            </div>
+          </template>
+        </SmartUploader>
       </van-cell>
       <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
         <IconFont icon="system-QRcode" />

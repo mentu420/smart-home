@@ -46,14 +46,14 @@ const onSubmit = async () => {
           :rules="[{ required: true, message: '家庭名称必填项' }]"
         />
         <van-cell center clickable title="家庭图片">
-          <SmartUploader
-            v-model="houseImage"
-            v-model:loading="loading"
-            reupload
-            accept="image/*"
-            string-separator=","
-            :max-count="1"
-          />
+          <SmartUploader reupload accept="image/*" string-separator="," :max-count="1">
+            <template #default="slotProps">
+              <div class="w-[80px] h-[80px] flex justify-center items-center bg-page-gray">
+                <van-loading v-if="slotProps.loading" />
+                <SmartImage v-else class="w-[80px] h-[80px]" fit="cover" round :src="houseImage" />
+              </div>
+            </template>
+          </SmartUploader>
         </van-cell>
       </van-cell-group>
       <div class="m-6">
