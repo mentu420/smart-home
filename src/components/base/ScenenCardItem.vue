@@ -92,7 +92,14 @@ async function onCollect(item) {
       </template>
     </dd>
     <dd v-if="isMore && currentPower != 2" class="absolute bottom-1 right-2 z-10">
-      <van-popover
+      <van-icon
+        class="text-white !text-[20px]"
+        name="ellipsis"
+        @click="
+          router.push({ path: '/smart-scene-create', query: { id: sceneItem.id, fenlei: 1 } })
+        "
+      />
+      <!-- <van-popover
         :actions="actions"
         placement="left"
         @select="(action) => onMoreSelect(action, sceneItem)"
@@ -100,7 +107,7 @@ async function onCollect(item) {
         <template #reference>
           <van-icon class="text-white !text-[20px]" name="ellipsis" />
         </template>
-      </van-popover>
+      </van-popover> -->
     </dd>
   </dl>
 </template>
