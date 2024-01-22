@@ -282,8 +282,8 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   </van-cell-group>
                   <template #reference>
                     <div class="flex items-center space-x-2 text-[16px]">
-                      <h3>{{ currentHouse?.label }}</h3>
-                      <van-icon name="arrow-down" />
+                      <h3 class="max-w-[240px] truncate">{{ currentHouse?.label }}</h3>
+                      <van-icon size="20" name="arrow-down" />
                     </div>
                   </template>
                 </van-popover>
