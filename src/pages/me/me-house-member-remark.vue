@@ -65,7 +65,7 @@ const onSubmit = async () => {
     <van-form class="mt-6" @submit="onSubmit">
       <van-cell-group inset>
         <van-field
-          v-model="remark"
+          v-model.trim="remark"
           name="remark"
           placeholder="请填备注名"
           clearable

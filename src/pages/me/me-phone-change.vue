@@ -51,7 +51,7 @@ const onSubmit = async () => {
         ]"
       />
       <van-field
-        v-model="form.code"
+        v-model.trim="form.code"
         name="code"
         placeholder="短信验证码"
         maxlength="6"

@@ -36,7 +36,7 @@ const onSubmit = async () => {
     <van-form class="mt-6" @submit="onSubmit">
       <van-cell-group inset>
         <van-field
-          v-model="houseName"
+          v-model.trim="houseName"
           name="houseName"
           label="家庭名称"
           placeholder="请填写家庭名称"

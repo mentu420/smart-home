@@ -578,7 +578,7 @@ function goEventConfig() {
     <van-form ref="formRef" class="m-4">
       <van-cell-group class="overflow-hidden rounded-lg">
         <van-field
-          v-model="createSmartItem.mingcheng"
+          v-model.trim="createSmartItem.mingcheng"
           center
           clearable
           name="mingcheng"

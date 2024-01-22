@@ -32,7 +32,7 @@ const onSubmit = async () => {
       </van-field>
       <van-field
         v-if="form.checked"
-        v-model="form.developmentUrl"
+        v-model.trim="form.developmentUrl"
         label="开发环境地址"
         placeholder="请输入开发环境地址"
         :rules="[{ required: form.checked, message: '必填' }]"

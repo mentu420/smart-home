@@ -172,6 +172,12 @@ const onFloorSelect = (action) => {
   setCurrentFloorRoomList()
 }
 
+// 跳转房间管理
+const goHouseManage = () => {
+  showFloorConfig.value = false
+  router.push({ path: '/me-room-manage', query: { id: currentHouse.value.id } })
+}
+
 // 设置当前楼层的房间
 function setCurrentFloorRoomList() {
   roomFilterList.value = roomList.value
@@ -279,7 +285,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     </van-cell>
                   </van-cell-group>
                   <template #reference>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-4 text-[16px]">
                       <h3>{{ currentHouse?.label }}</h3>
                       <van-icon name="arrow-down" />
                     </div>
@@ -354,9 +360,18 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                         @click="onFloorSelect(floorItem)"
                       >
                         <template #title>
-                          <div class="flex justify-center items-center">
+                          <div class="flex justify-center items-center space-x-2">
                             <van-icon v-if="currentFloorId == floorItem.id" name="location" />
                             <label>{{ floorItem.label }}</label>
+                          </div>
+                        </template>
+                      </van-cell>
+                      <div class="h-2 bg-page-gray"></div>
+                      <van-cell @click="goHouseManage">
+                        <template #title>
+                          <div class="flex justify-center items-center space-x-2">
+                            <van-icon name="setting" />
+                            <label>房间管理</label>
                           </div>
                         </template>
                       </van-cell>

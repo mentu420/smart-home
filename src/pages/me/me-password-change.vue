@@ -39,10 +39,11 @@ const onSubmit = async () => {
           repeatPassword: '确认密码',
         }"
         :key="formKey"
-        v-model="form[formKey]"
+        v-model.trim="form[formKey]"
         center
         name="password"
         maxlength="18"
+        class="!py-4"
         :placeholder="formLabel"
         :type="showPassword ? 'text' : 'password'"
         :rules="[

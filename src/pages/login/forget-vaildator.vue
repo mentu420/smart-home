@@ -35,7 +35,7 @@ const goOtherLogin = () => {
     </div>
     <van-form @submit="onSubmit">
       <van-field
-        v-model="code"
+        v-model.trim="code"
         name="code"
         placeholder="短信验证码"
         maxlength="6"

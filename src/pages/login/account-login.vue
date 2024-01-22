@@ -64,12 +64,13 @@ const goOtherLogin = () => {
     <van-form class="m-2" @submit="onSubmit">
       <van-cell-group>
         <van-field
-          v-model="form.username"
+          v-model.trim="form.username"
           center
           name="username"
           placeholder="用户名"
-          :formatter="trimFormat"
           maxlength="30"
+          class="!py-4"
+          :formatter="trimFormat"
           :rules="[{ required: true, message: '请填写用户名' }]"
         >
           <template #extra>
@@ -92,12 +93,13 @@ const goOtherLogin = () => {
           </van-cell-group>
         </transition>
         <van-field
-          v-model="form.password"
+          v-model.trim="form.password"
           center
-          :type="showPassword ? 'text' : 'password'"
           name="password"
           placeholder="密码"
           maxlength="18"
+          class="!py-4"
+          :type="showPassword ? 'text' : 'password'"
           :rules="[{ required: true, message: '请填写密码' }]"
         >
           <template #right-icon>

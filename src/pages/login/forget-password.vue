@@ -48,6 +48,8 @@ watch(
         v-model.trim="form.phone"
         name="phone"
         placeholder="手机号码"
+        class="!py-4"
+        center
         :rules="[
           { required: true, message: '请填写手机号码' },
           { validator: (value) => vaildPhone(value), message: '手机号码格式有误' },
@@ -58,6 +60,8 @@ watch(
         name="code"
         placeholder="短信验证码"
         maxlength="6"
+        class="!py-4"
+        center
         :rules="[{ required: true, message: '请填写短信验证码' }]"
       >
         <template #extra>

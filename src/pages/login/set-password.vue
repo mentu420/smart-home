@@ -63,6 +63,8 @@ const onSubmit = async () => {
         :type="showEye[pIndex] ? 'text' : 'password'"
         maxlength="18"
         clearable
+        class="!py-4"
+        center
         :rules="vaildPasswordFormat"
       >
         <template #extra>
