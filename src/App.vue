@@ -70,6 +70,16 @@ onMounted(init)
 }
 #app {
   font-size: 14px;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+#app::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 :root:root {
