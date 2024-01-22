@@ -90,6 +90,17 @@ const onBrightnessChange = () => {
   if (config.value[SWITCH].useStatus == 'off') return
   triggerControl(BRIGHTNESS, deviceItem.value, config.value)
 }
+
+const openColorPicker = () => {
+  if (props.disabled) return
+  console.log(deviceItem.value)
+  const [min, max] = getModeRange(deviceItem.value.columns, COLOURTEMPERATURE)
+  colorPickerRef.value.open({
+    ratio: config.value[COLOURTEMPERATURE].useValue,
+    min,
+    max,
+  })
+}
 </script>
 
 <template>
@@ -136,18 +147,7 @@ const onBrightnessChange = () => {
         :border="false"
         :class="disabledClass(config)"
         :label="`${config[COLOURTEMPERATURE].useValue}K`"
-        @click="
-          () => {
-            if (!disabled) {
-              const [min, max] = getModeRange(modeItem.useColumns, COLOURTEMPERATURE)
-              colorPickerRef.open({
-                ratio: config[COLOURTEMPERATURE].useValue,
-                min,
-                max,
-              })
-            }
-          }
-        "
+        @click="openColorPicker"
       >
         <template #right-icon>
           <span class="h-6 w-6 rounded-full" :style="{ backgroundColor: config.color }"></span>
