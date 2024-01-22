@@ -1,5 +1,5 @@
 import axios, { isCancel } from 'axios' // 此处引入axios官方文件
-import { showNotify, closeNotify } from 'vant'
+import { showToast } from 'vant'
 
 import { useLogout } from '@/hooks/useLogout.js'
 
@@ -32,24 +32,20 @@ const responseHandle = (response) => {
     response.data.code != 0 &&
     response.config.withShowErrorMsg
   ) {
-    showNotify({
-      type: 'danger',
+    showToast({
       message: response.data.des || '网络请求超时，请稍后重试！',
-      teleport: 'body',
-      className: 'request-notify',
-      onClick: () => closeNotify(),
+      position: 'bottom',
+      closeOnClick: true,
     })
   } else if (
     response.status !== 200 &&
     response.config.__retryCount === 2 &&
     response.data.code != 0
   ) {
-    showNotify({
-      type: 'danger',
+    showToast({
       message: response.data.des || '网络请求超时，请稍后重试！',
-      teleport: 'body',
-      className: 'request-notify',
-      onClick: () => closeNotify(),
+      position: 'bottom',
+      closeOnClick: true,
     })
   }
   if (response.status !== 200 || response.data.code != 0) return Promise.reject(response)
@@ -86,10 +82,10 @@ useAxios.interceptors.response.use(
         ERR_BAD_RESPONSE: error.message,
       }
       if (Object.keys(messageReuslt).includes(error.code))
-        showNotify({
-          type: 'danger',
+        showToast({
           message: messageReuslt[error.code],
-          onClick: () => closeNotify(),
+          position: 'bottom',
+          closeOnClick: true,
         })
     }
     // 从pending 列表中移除请求
