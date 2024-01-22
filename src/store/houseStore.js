@@ -22,6 +22,7 @@ export default defineStore(storeName, () => {
   const { deviceList } = storeToRefs(deviceStore())
   const { sceneList } = storeToRefs(smartStore())
   const { userInfo } = storeToRefs(userStore())
+  const { useGetToken } = userStore()
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
@@ -58,7 +59,9 @@ export default defineStore(storeName, () => {
       id: item.bianhao,
     }))
     if (!currentHouse.value || Object.keys(currentHouse.value).length == 0) {
-      currentHouse.value = houseList.value[0]
+      const { fangwubianhao } = useGetToken()
+      currentHouse.value =
+        houseList.value.find((item) => item.id == fangwubianhao) || houseList.value[0]
     }
     return houseList.value
   }

@@ -11,7 +11,7 @@ import useRem from '@/utils/flexible/useRem.js'
 import { initClient } from '@/utils/socket'
 // initClient()
 
-// new VConsole()
+// if (import.meta.env.DEV) new VConsole()
 
 const app = inject('App')
 const route = useRoute()
@@ -84,5 +84,10 @@ onMounted(init)
 
 :root:root {
   --van-primary-color: #e39334;
+}
+
+.request-notify {
+  padding-top: calc(constant(safe-area-inset-top) + 8px);
+  padding-top: calc(env(safe-area-inset-top) + 8px);
 }
 </style>

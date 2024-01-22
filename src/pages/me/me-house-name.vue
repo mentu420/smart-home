@@ -27,12 +27,13 @@ const onSubmit = async () => {
       data: { mingcheng: houseName.value, bianhao: route.query.id },
     })
     const payload = houseList.value.find((item) => item.bianhao == route.query.id)
-    const { setHouseList } = houseStore()
+    const { setHouseList, setCurrentHouse } = houseStore()
     setHouseList({
       ...payload,
       fangwumingcheng: houseName.value,
       label: houseName.value,
     })
+    setCurrentHouse(route.query.id)
     router.back()
   } finally {
     loading.value = false

@@ -35,6 +35,8 @@ const responseHandle = (response) => {
     showNotify({
       type: 'danger',
       message: response.data.des || '网络请求超时，请稍后重试！',
+      teleport: 'body',
+      className: 'request-notify',
       onClick: () => closeNotify(),
     })
   } else if (
@@ -45,6 +47,8 @@ const responseHandle = (response) => {
     showNotify({
       type: 'danger',
       message: response.data.des || '网络请求超时，请稍后重试！',
+      teleport: 'body',
+      className: 'request-notify',
       onClick: () => closeNotify(),
     })
   }

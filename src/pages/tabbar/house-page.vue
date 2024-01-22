@@ -259,7 +259,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
         <!--当前房屋-->
         <van-sticky @change="onTopSticky">
           <section :class="{ 'pt-safe': isTopFixed }" class="bg-page-gray">
-            <div class="flex justify-between py-3 items-center px-4">
+            <div class="flex justify-between py-3 items-center px-4 space-x-4">
               <div>
                 <van-popover
                   v-model:show="showHomeList"
@@ -273,7 +273,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                       @click="onHouseSelect(houseItem)"
                     >
                       <template #title>
-                        <div class="flex justify-center items-center">
+                        <div class="flex justify-center items-center space-x-2">
                           <van-icon v-if="currentHouse?.id == houseItem.id" name="location" />
                           <label>{{ houseItem.label }}</label>
                         </div>
@@ -281,19 +281,17 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     </van-cell>
                   </van-cell-group>
                   <template #reference>
-                    <div class="flex items-center space-x-4 text-[16px]">
+                    <div class="flex items-center space-x-2 text-[16px]">
                       <h3>{{ currentHouse?.label }}</h3>
                       <van-icon name="arrow-down" />
                     </div>
                   </template>
                 </van-popover>
               </div>
-              <van-sticky>
-                <div class="space-x-4">
-                  <van-icon size="20" name="bell" />
-                  <van-icon size="20" name="plus" @click="goAddDevice" />
-                </div>
-              </van-sticky>
+              <div class="space-x-4 shrink-0">
+                <van-icon size="20" name="bell" />
+                <van-icon size="20" name="plus" @click="goAddDevice" />
+              </div>
             </div>
           </section>
         </van-sticky>
@@ -411,7 +409,9 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   v-if="collectItem.list?.length == 0"
                   image-size="4rem"
                   image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
-                  description="暂无收藏的场景"
+                  :description="`暂无收藏的${
+                    collectItem.group == 'collect-scene' ? '场景' : '设备'
+                  }`"
                 />
                 <div class="h-6"></div>
               </template>
