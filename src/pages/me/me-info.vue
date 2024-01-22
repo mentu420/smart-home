@@ -17,12 +17,6 @@ defineOptions({ name: 'MeInfo' })
 const router = useRouter()
 const { userInfo } = storeToRefs(userStore())
 const clickCount = ref(0)
-// const navList = ref([
-//   { id: 0, text: '昵称', value: '李先生', path: '/me-nickname' },
-//   { id: 1, text: '手机号', value: '1888888888', path: '/me-phone-change' },
-//   { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
-//   { id: 3, text: '版本', value: '', path: '/meVersion' },
-// ])
 const avatar = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 
 const onLogout = async () => {
@@ -34,9 +28,12 @@ const onLogout = async () => {
   useLogout('退出成功')
 }
 
-const onEditAvatar = async (file) => {
-  const { url } = file[0]
+const onEditAvatar = async (fileList) => {
+  console.log('fileList', fileList)
+  const { url } = fileList[0]
+  avatar.value = url
   await setUserConfig({ params: { op: 2 }, data: { touxiang: getWebUrlName(url) } })
+  userInfo.value = { ...userInfo.value, touxiang: url }
 }
 
 const isDev = ref(false)
@@ -70,6 +67,7 @@ const onNavItemClick = (navItem) => {
 
 const init = () => {
   isDev.value = getStorage('DEVELOPMENT') ?? false
+  avatar.value = userInfo.value?.touxiang
 }
 
 init()

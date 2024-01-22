@@ -20,11 +20,16 @@ const onLoad = (e) => {
 }
 
 function getPhotolocalDone(ora, localUrl) {
+  console.log('原生读取图片完成', localUrl)
   localImage.value = localUrl
 }
 
 const onError = (e) => {
-  if (acceptFileValidate(attrs.src, imageTypes)) window?.jdwl?.getPhotolocal(attrs.src, 'img1')
+  console.log('图片加载出错', acceptFileValidate(attrs.src, imageTypes))
+  if (acceptFileValidate(attrs.src, imageTypes)) {
+    console.log('原生准备读取本地图片')
+    window?.jdwl?.getPhotolocal(attrs.src, 'img1')
+  }
   emits('error', e)
 }
 </script>

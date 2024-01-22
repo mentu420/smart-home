@@ -11,7 +11,7 @@ import useRem from '@/utils/flexible/useRem.js'
 import { initClient } from '@/utils/socket'
 // initClient()
 
-// if (import.meta.env.DEV) new VConsole()
+if (import.meta.env.DEV) new VConsole()
 
 const app = inject('App')
 const route = useRoute()

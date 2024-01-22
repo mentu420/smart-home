@@ -20,10 +20,6 @@ const props = defineProps({
     type: Object,
     default: () => {},
   },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
   modelValue: {
     type: [Array, String],
     default: () => [],
@@ -52,10 +48,7 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue', 'success', 'error', 'update:loading'])
 
 const uploaderRef = ref(null)
-const uploading = computed({
-  get: () => props.loading || false,
-  set: (val) => emits('update:loading', val),
-})
+const uploading = ref(false)
 
 const setLoading = (file) => {
   file.status = 'uploading'
