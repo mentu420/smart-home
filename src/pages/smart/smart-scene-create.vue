@@ -36,7 +36,6 @@ const taskActions = [
 const { createSmartItem, sceneGallery, sceneList, smartList } = storeToRefs(smartStore())
 const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(deviceStore())
-const fileList = ref([])
 const operationRef = ref(null)
 const operationDealy = ref(['00', '00']) // 每个设备的延时
 const formRef = ref(null)
@@ -810,7 +809,6 @@ function goEventConfig() {
         <li @click="openGallery">默认图库</li>
         <li>
           <SmartUploader
-            v-model="fileList"
             accept="image/*"
             :max-count="1"
             @success="
