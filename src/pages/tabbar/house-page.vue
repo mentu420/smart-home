@@ -202,12 +202,8 @@ const onTopSticky = (isFixed) => {
   isTopFixed.value = isFixed
 }
 
-const onTabsScroll = ({ isFixed, scrollTop }) => {
-  isTabsFixed.value = isFixed
-}
-
+// 自定义 tabs 滚动事件
 const scrollContainerRef = ref(null)
-
 const onRoomChange = (roomItem, roomIndex) => {
   if (!dragOptions.value.disabled) return
   currentRoomId.value = roomItem.id

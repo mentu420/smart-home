@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setDeviceList } from '@/apis/smartApi'
+import { USE_KEY } from '@/enums/deviceEnums'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 
@@ -23,18 +24,17 @@ const props = defineProps({
 const router = useRouter()
 const { deviceList } = storeToRefs(deviceStore())
 const { getDeviceIcon } = deviceStore()
-
+const { SWITCH, PLAY, PLAYCONTROL, ON } = USE_KEY
 const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
 
 const getDeviceStatus = computed(() => {
   if (!deviceItem.value) return 0
   const { modeList = [], classify } = deviceItem.value
   if (['100', '102', '103', '104'].includes(classify)) {
-    return modeList.some((modeItem) => modeItem?.use == 'switch' && modeItem?.useStatus == 'on')
-      ? 1
-      : 0
+    return modeList.some((modeItem) => modeItem?.use == SWITCH && modeItem?.useStatus == ON) ? 1 : 0
   } else {
-    return 0
+    const payModeItem = modeList.find((item) => item.use == PLAYCONTROL) || { useStatus: PLAY }
+    return payModeItem.useStatus == PLAY ? 1 : 0
   }
 })
 const onDeviceCollect = async (item) => {

@@ -33,7 +33,7 @@ const max = ref(100)
 const showVolume = ref(false)
 const modeRef = ref(null)
 const deviceItem = computed(() => useGetDeviceItem(props.id))
-const { MODE, PLAYCONTROL, CUTSONG, VOLUME, PROCESS, LIST, SOURCE, TUNNELS } = USE_KEY
+const { MODE, PLAYCONTROL, CUTSONG, VOLUME, PROCESS, LIST, SOURCE, TUNNELS, PLAY, PAUSE } = USE_KEY
 //温度、风俗、模式
 const config = ref({
   [PLAYCONTROL]: {
@@ -81,16 +81,20 @@ watch(
     if (!val) return
     const { modeList, columns } = val
     const [minValue, maxValue] = getModeRange(columns, VOLUME)
-    min.value = minValue
-    max.value = maxValue
+    min.value = minValue ?? 0
+    max.value = maxValue ?? 100
     config.value = onConfigFormat(config.value, modeList)
+    console.log('config', config.value)
   },
   { immediate: true }
 )
 
 const onStatusChange = () => {
-  const useValue = config.value[PLAYCONTROL].useValue == '0' ? '1' : '0'
-  config.value[PLAYCONTROL] = { useValue, useStatus: useValue == '0' ? 'pause' : 'play' }
+  const useStatus = config.value[PLAYCONTROL].useStatus == PLAY ? PAUSE : PLAY
+  config.value = {
+    ...config.value,
+    [PLAYCONTROL]: { useValue: useStatus == PLAY ? '1' : '0', useStatus },
+  }
   triggerControl(PLAYCONTROL, deviceItem.value, config.value)
 }
 
@@ -116,13 +120,13 @@ const onProcessChange = () => {
 <template>
   <ul class="p-4">
     <li class="mb-4 rounded-lg bg-white p-3">
-      <div v-if="includesUse(props.id, PROCESS)" class="p-4 h-[56px]">
+      <!-- <div v-if="includesUse(props.id, PROCESS)" class="p-4 h-[56px]">
         <van-slider
           v-model="config[PROCESS].useValue"
           active-color="#333"
           @change="onProcessChange"
         />
-      </div>
+      </div> -->
       <div class="flex items-center justify-between">
         <IconFont
           v-clickable-active="{ color: '#e39334' }"
@@ -133,6 +137,7 @@ const onProcessChange = () => {
         <IconFont
           v-clickable-active="{ color: '#e39334' }"
           :icon="config[PLAYCONTROL].useStatus"
+          class="text-base"
           @click="onStatusChange"
         />
         <IconFont
