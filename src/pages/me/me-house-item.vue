@@ -17,7 +17,7 @@ const route = useRoute()
 const router = useRouter()
 const showQrCode = ref(false)
 const { userInfo } = storeToRefs(userStore())
-const { familyList, houseList, getRolePowerName } = storeToRefs(houseStore())
+const { familyList, houseList, getRolePowerName, housePower } = storeToRefs(houseStore())
 const loading = ref(false)
 const houseItem = computed(
   () => houseList.value.find((houseItem) => houseItem.id == route.query.id) || {}
@@ -30,9 +30,8 @@ const houseFamilyList = computed(() =>
       return b.fangzhu - a.fangzhu || b.juese - a.juese
     })
 )
-const { getRolePower } = houseStore()
 // 当前用户是否当前房屋的所有者或者管理员
-const disabled = computed(() => getRolePower(route.query.id) == 2)
+const disabled = computed(() => housePower.value == 2)
 
 //变更图片
 const onHouseChange = async (fileList) => {

@@ -15,7 +15,7 @@ const router = useRouter()
 const loading = ref(false)
 const tabActive = ref(2)
 const { sceneList, smartList } = storeToRefs(smartStore())
-const { roomList, floorList, currentPower } = storeToRefs(houseStore())
+const { roomList, floorList, housePower } = storeToRefs(houseStore())
 const isTabsFixed = ref(false)
 const globalSceneList = ref([])
 const roomSceneList = ref([])
@@ -120,134 +120,127 @@ onActivated(init)
 
 <template>
   <div class="min-h-[90vh] bg-page-gray">
-    <van-pull-refresh
-      v-model="loading"
-      :disabled="!dragOptions.disabled"
-      class="min-h-[60vh]"
-      @refresh="onRefresh"
-    >
-      <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
-        <section :class="{ 'pt-safe': isTabsFixed }" class="bg-page-gray">
-          <div class="flex justify-between items-center px-4 py-3">
-            <ul class="flex items-center text-[16px] space-x-4">
-              <li
-                v-if="currentPower != 2"
-                :class="{ 'font-bold': tabActive == 2 }"
-                @click="tabActive = '2'"
-              >
-                自动化
-              </li>
-              <li :class="{ 'font-bold': tabActive == 1 }" @click="tabActive = '1'">场景</li>
-            </ul>
-            <div class="flex-1 text-right">
-              <div v-if="dragOptions.disabled && currentPower != 2" class="rounded-lg">
-                <van-icon size="20" name="plus" @click="createSmart" />
-              </div>
-              <van-button
-                v-if="!dragOptions.disabled"
-                v-loading-click="onDragEnd"
-                round
-                type="primary"
-                size="small"
-              >
-                完成
-              </van-button>
+    <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
+      <section :class="{ 'pt-safe': isTabsFixed }" class="bg-page-gray">
+        <div class="flex justify-between items-center px-4 py-3">
+          <ul class="flex items-center text-[16px] space-x-4">
+            <li
+              v-if="housePower != 2"
+              :class="{ 'font-bold': tabActive == 2 }"
+              @click="tabActive = '2'"
+            >
+              自动化
+            </li>
+            <li :class="{ 'font-bold': tabActive == 1 }" @click="tabActive = '1'">场景</li>
+          </ul>
+          <div class="flex-1 text-right">
+            <div v-if="dragOptions.disabled && housePower != 2" class="rounded-lg">
+              <van-icon size="20" name="plus" @click="createSmart" />
             </div>
+            <van-button
+              v-if="!dragOptions.disabled"
+              v-loading-click="onDragEnd"
+              round
+              type="primary"
+              size="small"
+            >
+              完成
+            </van-button>
           </div>
-        </section>
-      </van-sticky>
+        </div>
+      </section>
+    </van-sticky>
 
-      <van-tabs
-        v-model:active="tabActive"
-        class="smart-tabs"
-        background="#f7f7f7"
-        sticky
-        shrink
-        line-width="0"
-        animated
-        :swipeable="dragOptions.disabled"
-        @change="init"
+    <van-tabs
+      v-model:active="tabActive"
+      class="smart-tabs"
+      background="#f7f7f7"
+      sticky
+      shrink
+      line-width="0"
+      animated
+      :swipeable="dragOptions.disabled"
+      @change="init"
+    >
+      <van-tab v-if="housePower != 2" title="自动化" :disabled="!dragOptions.disabled" name="2">
+        <div v-if="smartList.length > 0" class="p-4">
+          <section class="mb-6">
+            <h4 class="mb-2 text-gray-600">全局</h4>
+            <draggable v-model="smartList" item-key="id" group="scene" v-bind="dragOptions">
+              <template #item="{ element: smartItem }">
+                <div
+                  class="bg-white flex justify-between p-4 w-full rounded-lg items-center mb-4"
+                  @click="editSmartItem(smartItem)"
+                >
+                  <div>{{ smartItem.label }}</div>
+                  <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
+                  <van-switch
+                    v-else
+                    v-model="smartItem.shifouqiyong"
+                    :active-value="1"
+                    :inactive-value="0"
+                    @click.stop
+                    @change="(value) => onSmartChange(value, smartItem)"
+                  />
+                </div>
+              </template>
+            </draggable>
+          </section>
+        </div>
+        <van-empty v-else image="network" description="暂无自动化" />
+      </van-tab>
+      <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
+        <div class="p-4">
+          <section class="mb-6">
+            <h4 class="mb-2 text-gray-600">全局</h4>
+            <draggable
+              v-model="globalSceneList"
+              item-key="id"
+              group="globalScene"
+              v-bind="dragOptions"
+              class="grid grid-cols-2 gap-4"
+            >
+              <template #item="{ element: sceneItem }">
+                <ScenenCardItem
+                  :id="sceneItem.id"
+                  :is-drag="!dragOptions.disabled"
+                  :is-more="dragOptions.disabled"
+                />
+              </template>
+            </draggable>
+          </section>
+          <section v-for="roomItem in roomSceneList" :key="roomItem.id" class="mb-6">
+            <h4 class="mb-2 text-gray-600">{{ roomItem.floorName }}-{{ roomItem.label }}</h4>
+            <draggable
+              v-model="roomItem.sceneList"
+              item-key="id"
+              :group="`${roomItem.id}-scene`"
+              v-bind="dragOptions"
+              class="grid grid-cols-2 gap-4"
+            >
+              <template #item="{ element: sceneItem }">
+                <ScenenCardItem
+                  :id="sceneItem.id"
+                  :is-drag="!dragOptions.disabled"
+                  :is-more="dragOptions.disabled"
+                />
+              </template>
+            </draggable>
+          </section>
+        </div>
+      </van-tab>
+    </van-tabs>
+    <div v-if="showDrag" class="p-6 text-center">
+      <van-button
+        class="!px-6"
+        size="small"
+        type="primary"
+        round
+        @click="dragOptions.disabled = !dragOptions.disabled"
       >
-        <van-tab v-if="currentPower != 2" title="自动化" :disabled="!dragOptions.disabled" name="2">
-          <div v-if="smartList.length > 0" class="p-4">
-            <section class="mb-6">
-              <h4 class="mb-2 text-gray-600">全局</h4>
-              <draggable v-model="smartList" item-key="id" group="scene" v-bind="dragOptions">
-                <template #item="{ element: smartItem }">
-                  <div
-                    class="bg-white flex justify-between p-4 w-full rounded-lg items-center mb-4"
-                    @click="editSmartItem(smartItem)"
-                  >
-                    <div>{{ smartItem.label }}</div>
-                    <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
-                    <van-switch
-                      v-else
-                      v-model="smartItem.shifouqiyong"
-                      :active-value="1"
-                      :inactive-value="0"
-                      @click.stop
-                      @change="(value) => onSmartChange(value, smartItem)"
-                    />
-                  </div>
-                </template>
-              </draggable>
-            </section>
-          </div>
-          <van-empty v-else image="network" description="暂无自动化" />
-        </van-tab>
-        <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
-          <div class="p-4">
-            <section class="mb-6">
-              <h4 class="mb-2 text-gray-600">全局</h4>
-              <draggable
-                v-model="globalSceneList"
-                item-key="id"
-                group="globalScene"
-                v-bind="dragOptions"
-                class="grid grid-cols-2 gap-4"
-              >
-                <template #item="{ element: sceneItem }">
-                  <ScenenCardItem
-                    :id="sceneItem.id"
-                    :is-drag="!dragOptions.disabled"
-                    :is-more="dragOptions.disabled"
-                  />
-                </template>
-              </draggable>
-            </section>
-            <section v-for="roomItem in roomSceneList" :key="roomItem.id" class="mb-6">
-              <h4 class="mb-2 text-gray-600">{{ roomItem.floorName }}-{{ roomItem.label }}</h4>
-              <draggable
-                v-model="roomItem.sceneList"
-                item-key="id"
-                :group="`${roomItem.id}-scene`"
-                v-bind="dragOptions"
-                class="grid grid-cols-2 gap-4"
-              >
-                <template #item="{ element: sceneItem }">
-                  <ScenenCardItem
-                    :id="sceneItem.id"
-                    :is-drag="!dragOptions.disabled"
-                    :is-more="dragOptions.disabled"
-                  />
-                </template>
-              </draggable>
-            </section>
-          </div>
-        </van-tab>
-      </van-tabs>
-      <div v-if="showDrag" class="p-6 text-center">
-        <van-button
-          class="!px-6"
-          size="small"
-          type="primary"
-          round
-          @click="dragOptions.disabled = !dragOptions.disabled"
-        >
-          {{ dragOptions.disabled ? '编辑' : '取消' }}
-        </van-button>
-      </div>
-    </van-pull-refresh>
+        {{ dragOptions.disabled ? '编辑' : '取消' }}
+      </van-button>
+    </div>
   </div>
 </template>
 

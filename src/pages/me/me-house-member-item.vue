@@ -9,9 +9,9 @@ import houseStore from '@/store/houseStore'
 
 defineOptions({ name: 'MeHouseMemberItem' })
 
-const { getRolePower } = houseStore()
+const { houseRolePower, useGetFamilyListSync } = houseStore()
 
-const { familyList, getRolePowerName, currentPower } = storeToRefs(houseStore())
+const { familyList, getRolePowerName, housePower } = storeToRefs(houseStore())
 
 const route = useRoute()
 const router = useRouter()
@@ -22,7 +22,7 @@ const familyItem = computed(
     ) || {}
 )
 // 当前用户房屋的权限
-const rolePower = computed(() => getRolePower(route.query.hId))
+const rolePower = computed(() => houseRolePower(familyItem.value))
 
 const onSetFamliy = async () => {
   await showConfirmDialog({
@@ -30,15 +30,16 @@ const onSetFamliy = async () => {
     message:
       '管理员可以控制、添加删除家庭内所有的设备和场景，还可以添加、移除家庭成员并设置他们的权限',
   })
-  return setFamily({
+  await setFamily({
     params: { op: 3 },
     data: {
       shouji: familyItem.value.shouji,
       bianhao: route.query.id,
-      juese: 1,
+      juese: 1, //juese=1 是管理员，juese=0是普通成员
       fangwubianhao: route.query.hId,
-    }, //juese 1，是有房主权限，0是没有房主权限
+    },
   })
+  return useGetFamilyListSync(true)
 }
 
 const onDelFamily = async () => {
@@ -115,7 +116,7 @@ const editFamilyPower = (power) => {
     </div>
     <div class="p-8 space-y-6">
       <van-button
-        v-if="rolePower == 2 && currentPower != 2"
+        v-if="rolePower == 2 && housePower != 2"
         v-loading-click="onSetFamliy"
         round
         block
@@ -123,7 +124,13 @@ const editFamilyPower = (power) => {
       >
         设为管理员
       </van-button>
-      <van-button v-if="currentPower != 2" v-loading-click="onDelFamily" round block type="danger">
+      <van-button
+        v-if="housePower == 0 && rolePower != 0"
+        v-loading-click="onDelFamily"
+        round
+        block
+        type="danger"
+      >
         删除成员
       </van-button>
     </div>

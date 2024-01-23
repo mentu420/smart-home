@@ -24,17 +24,14 @@ const route = useRoute()
 const useHouseStore = houseStore()
 const useDeviceStore = deviceStore()
 const usesmartStore = smartStore()
-const { houseList, floorList, currentHouse, roomList, currentPower } = storeToRefs(useHouseStore)
+const { houseList, floorList, currentHouse, roomList, housePower } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { sceneList } = storeToRefs(usesmartStore)
 const { mqttDevicePublish } = useMqtt()
 
-const showHomeList = ref(false)
 const loading = ref(false)
-const showFloorConfig = ref(false)
 const currentRoomId = ref('-1') //当前房间编号
 const currentFloorId = ref('') //当前楼层id
-const isTopFixed = ref(false) // top 吸顶
 const isTabsFixed = ref(false) // tabs 吸顶
 const roomFilterList = ref([]) // 当前楼层房间列表
 const collectList = ref([
@@ -186,11 +183,6 @@ function onAllDeviceToggle(deviceList, status) {
   })
 }
 
-const onTopSticky = (isFixed) => {
-  console.log('onTopSticky', isFixed)
-  isTopFixed.value = isFixed
-}
-
 // 自定义 tabs 滚动事件
 const scrollContainerRef = ref(null)
 const onRoomChange = (roomItem, roomIndex) => {
@@ -240,7 +232,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
   <div class="min-h-screen bg-page-gray">
     <template v-if="dragOptions.disabled">
       <!--当前房屋-->
-      <section class="bg-page-gray pt-safe">
+      <section class="bg-page-gray">
         <div class="flex justify-between py-3 items-center px-4 space-x-4">
           <HousePopover
             :model-value="currentHouse.id"
@@ -270,62 +262,67 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
     </template>
 
     <div>
-      <!--重新定义tabs-->
-      <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
-        <section :class="{ 'pt-safe': isTabsFixed }" class="bg-page-gray">
-          <div class="h-[44px] overflow-hidden relative text-[16px]">
-            <ul
-              ref="scrollContainerRef"
-              class="px-2 flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content"
-            >
-              <li
-                v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
-                :key="roomIndex"
-                class="relative flex-none leading-[44px] flex px-2 transition-all"
-                :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
-                @click="onRoomChange(roomItem, roomIndex)"
+      <van-sticky>
+        <div class="h-[1rem] bg-page-gray"></div>
+        <!--重新定义tabs-->
+        <van-sticky offset-top="1rem" @change="(isFixed) => (isTabsFixed = isFixed)">
+          <section :class="{ 'pt-safe': isTabsFixed }" class="bg-page-gray">
+            <div class="h-[44px] overflow-hidden relative text-[16px]">
+              <ul
+                ref="scrollContainerRef"
+                class="px-2 flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content"
               >
-                {{ roomItem.label }}
-              </li>
-              <li key="1" class="relative flex-none leading-[44px] flex w-[78px]"></li>
-            </ul>
-            <!--切换楼层-->
-            <div class="absolute right-0 z-[1] top-0 rounded-l-lg overflow-hidden">
-              <div
-                class="flex h-[44px] w-[78px] px-[4px] bg-white flex-auto items-center justify-center space-x-4"
-              >
-                <van-button
-                  v-if="!dragOptions.disabled"
-                  v-loading-click="() => onDragEnd()"
-                  round
-                  size="small"
-                  type="primary"
+                <li
+                  v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
+                  :key="roomIndex"
+                  class="relative flex-none leading-[44px] flex px-2 transition-all"
+                  :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
+                  @click="onRoomChange(roomItem, roomIndex)"
                 >
-                  完成
-                </van-button>
-                <HousePopover
-                  v-model="currentFloorId"
-                  :actions="floorList"
-                  :more-action="{
-                    path: `/me-room-manage?id=${currentHouse.id}`,
-                    label: '房间管理',
-                  }"
-                  placement="bottom-end"
-                  @select="setCurrentFloorRoomList"
+                  {{ roomItem.label }}
+                </li>
+                <li key="1" class="relative flex-none leading-[44px] flex w-[78px]"></li>
+              </ul>
+              <!--切换楼层-->
+              <div class="absolute right-0 z-[1] top-0 rounded-l-lg overflow-hidden">
+                <div
+                  class="flex h-[44px] w-[78px] px-[4px] bg-white flex-auto items-center justify-center space-x-4"
                 >
-                  <template #reference>
-                    <div class="flex items-center px-2 py-1 rounded-md bg-white space-x-1">
-                      <p class="w-[40px] truncate text-xs shrink-0 text-center">
-                        {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
-                      </p>
-                      <van-icon name="arrow-down" />
-                    </div>
-                  </template>
-                </HousePopover>
+                  <van-button
+                    v-if="!dragOptions.disabled"
+                    v-loading-click="() => onDragEnd()"
+                    round
+                    size="small"
+                    type="primary"
+                  >
+                    完成
+                  </van-button>
+                  <HousePopover
+                    v-model="currentFloorId"
+                    :actions="floorList"
+                    :more-action="{
+                      path: `/me-room-manage?id=${currentHouse.id}`,
+                      label: '房间管理',
+                    }"
+                    placement="bottom-end"
+                    @select="setCurrentFloorRoomList"
+                  >
+                    <template #reference>
+                      <div class="flex items-center px-2 py-1 rounded-md bg-white space-x-1">
+                        <p class="w-[40px] truncate text-xs shrink-0 text-center">
+                          {{
+                            floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label
+                          }}
+                        </p>
+                        <van-icon name="arrow-down" />
+                      </div>
+                    </template>
+                  </HousePopover>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </van-sticky>
       </van-sticky>
       <van-tabs
         v-model:active="currentRoomId"
