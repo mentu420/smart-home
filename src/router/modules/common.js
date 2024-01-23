@@ -1,11 +1,5 @@
 export default [
   {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/pages/login/login-page.vue'),
-    meta: { title: '登录' },
-  },
-  {
     path: '/account-login',
     name: 'AccountLogin',
     component: () => import('@/pages/login/account-login.vue'),

@@ -11,14 +11,14 @@ import useRem from '@/utils/flexible/useRem.js'
 import { initClient } from '@/utils/socket'
 // initClient()
 
-// if (import.meta.env.DEV) new VConsole()
+if (import.meta.env.DEV) new VConsole()
 
 const app = inject('App')
 const route = useRoute()
 const router = useRouter()
 const includeList = ref(['TabbarPage'])
 const theme = ref('light')
-const transitionName = ref('')
+const transitionName = ref('van-slide-left')
 const themeVars = reactive({})
 
 useRem()
@@ -26,12 +26,8 @@ useRem()
 watch(
   () => route.path,
   (to, from) => {
-    if (['/'].includes(to)) {
-      transitionName.value = ''
-    } else {
-      transitionName.value = router.isBack === true ? 'van-slide-right' : 'van-slide-left'
-      router.isBack = false
-    }
+    transitionName.value = router.isBack === true ? 'van-slide-right' : 'van-slide-left'
+    router.isBack = false
 
     nextTick(init)
     //监听路由变化，把配置路由中keepAlive为true的name添加到include动态数组中
