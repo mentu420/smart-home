@@ -11,14 +11,14 @@ import useRem from '@/utils/flexible/useRem.js'
 import { initClient } from '@/utils/socket'
 // initClient()
 
-// if (import.meta.env.DEV) new VConsole()
+if (import.meta.env.DEV) new VConsole()
 
 const app = inject('App')
 const route = useRoute()
 const router = useRouter()
 const includeList = ref(['TabbarPage'])
 const theme = ref('light')
-
+const transitionName = ref('van-slide-left')
 const themeVars = reactive({})
 
 useRem()
@@ -26,6 +26,9 @@ useRem()
 watch(
   () => route.path,
   (to, from) => {
+    console.log('isBack', router.isBack)
+    transitionName.value = router.isBack ? 'van-slide-right' : 'van-slide-left'
+    router.isBack = false
     nextTick(init)
     //监听路由变化，把配置路由中keepAlive为true的name添加到include动态数组中
     if (includeList.value.includes(route.name)) return
@@ -53,7 +56,7 @@ onMounted(init)
 <template>
   <van-config-provider :theme="theme" :theme-vars="themeVars">
     <router-view v-slot="{ Component }">
-      <transition>
+      <transition :name="transitionName">
         <keep-alive :include="includeList" :max="10">
           <component :is="Component" />
         </keep-alive>

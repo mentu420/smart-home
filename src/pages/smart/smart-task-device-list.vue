@@ -116,7 +116,7 @@ const onSave = async () => {
     }
   }
 
-  router.go(smartType == 'actions' ? -3 : -4)
+  router.goBack(smartType == 'actions' ? -3 : -4)
 }
 
 const init = () => {

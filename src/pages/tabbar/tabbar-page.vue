@@ -9,16 +9,11 @@ defineOptions({ name: 'TabbarPage' })
 
 const route = useRoute()
 const tabIndex = ref(0)
-
 const tabs = ref([
   { text: '家', icon: 'wap-home-o', index: 0, path: '/tabbar/tabbar-house' },
   { text: '智能', icon: 'home-o', index: 1, path: '/tabbar/tabbar-smart' },
   { text: '我的', icon: 'user-circle-o', index: 2, path: '/tabbar/tabbar-me' },
 ])
-
-const onChange = (index) => {
-  console.log('onChange', index)
-}
 
 const init = () => {
   const { useGetToken } = userStore()
@@ -43,7 +38,7 @@ export default {
 </script>
 
 <template>
-  <div class="pb-safe pt-safe bg-page-gray">
+  <div class="pb-safe pt-safe bg-page-gray h-screen">
     <router-view v-slot="{ Component }">
       <transition>
         <keep-alive>
@@ -60,7 +55,6 @@ export default {
       z-index="99"
       :border="false"
       :safe-area-inset-bottom="true"
-      @change="onChange"
     >
       <van-tabbar-item
         v-for="tabItem in tabs"

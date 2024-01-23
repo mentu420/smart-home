@@ -113,7 +113,7 @@ const onSave = () => {
     }
   }
 
-  router.go((smartType == 'actions') == 1 ? -4 : -5)
+  router.goBack((smartType == 'actions') == 1 ? -4 : -5)
 }
 
 const openModePicker = (modeItem) => {

@@ -73,7 +73,7 @@ const onSave = () => {
           return item
         }),
   }
-  router.go(-4)
+  router.goBack(-4)
 }
 
 const openModePicker = (modeItem) => {

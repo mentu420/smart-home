@@ -21,7 +21,7 @@ const onSubmit = async () => {
 }
 
 const goOtherLogin = () => {
-  router.back()
+  router.goBack()
 }
 </script>
 

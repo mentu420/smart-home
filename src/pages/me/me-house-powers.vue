@@ -48,7 +48,7 @@ const onEditPower = async () => {
       if (item.id == route.query.id) return { ...item, [powerKey.value]: checked.value }
       return item
     })
-    router.back()
+    router.goBack()
   } finally {
     loading.value = false
   }
@@ -66,7 +66,7 @@ async function onSubmit() {
       if (route.query.power == i) return checked.value
       return item
     })
-    router.back()
+    router.goBack()
   }
 }
 

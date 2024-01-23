@@ -23,7 +23,7 @@ const addPressEvent = () => {
       (a, b) => a.leixing - b.leixing
     ),
   }
-  router.back()
+  router.goBack()
 }
 
 const goDevice = () => {

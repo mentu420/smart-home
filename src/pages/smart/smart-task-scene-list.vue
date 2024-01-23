@@ -105,7 +105,7 @@ const onSave = () => {
     ...createSmartItem.value,
     [smartType]: [...deviceActions, ...newSceneList],
   }
-  router.go(-2)
+  router.goBack(-2)
 }
 
 const init = () => {

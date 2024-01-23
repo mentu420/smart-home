@@ -34,7 +34,7 @@ const onSubmit = async () => {
       label: houseName.value,
     })
     setCurrentHouse(route.query.id)
-    router.back()
+    router.goBack()
   } finally {
     loading.value = false
   }

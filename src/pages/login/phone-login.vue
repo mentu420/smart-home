@@ -38,7 +38,7 @@ const onSubmit = async (value) => {
 }
 
 const goOtherLogin = () => {
-  router.back()
+  router.goBack()
 }
 
 const onValidPhone = (value) => vaildPhone(value)

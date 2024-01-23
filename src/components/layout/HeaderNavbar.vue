@@ -27,7 +27,7 @@ const _attrs = computed(() => {
 
 const onClickLeft = () => {
   if (typeof attrs['onClickLeft'] === 'function') return
-  router.back()
+  router.goBack()
 }
 </script>
 

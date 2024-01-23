@@ -371,7 +371,7 @@ const onSave = async () => {
       await setSceneList(config)
       await useGetSceneListSync(true)
     }
-    router.back()
+    router.goBack()
   } catch (error) {
     console.log(error)
     formRef.value?.scrollToField(error[0].name)
@@ -392,7 +392,7 @@ async function onDelect() {
       sceneList.value = sceneList.value.filter((sceneItem) => sceneItem.id != route.query.id)
     }
 
-    router.back()
+    router.goBack()
   } catch (error) {
     //取消删除
   }

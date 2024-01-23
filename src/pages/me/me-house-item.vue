@@ -64,7 +64,7 @@ const onDelHouse = async () => {
     await getHouseList({ op: 4, fangwubianhao: houseItem.value.id })
     const { useGetHouseListSync } = houseStore()
     await useGetHouseListSync(true)
-    router.back()
+    router.goBack()
   } catch (err) {
     //
   } finally {

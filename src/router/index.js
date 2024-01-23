@@ -91,10 +91,11 @@ Router.afterEach((to, from) => {
   NProgress.done()
 })
 
-//清空路由历史
-export const resetRouter = () => {
-  const newRouter = createRouter({ history: createWebHashHistory(), routes: [] })
-  Router.matcher = newRouter.matcher // the relevant part
+console.log(Router)
+
+Router.goBack = function (delta = -1) {
+  this.isBack = true //判断是否是返回操作
+  window.history.go(delta)
 }
 
 export default Router

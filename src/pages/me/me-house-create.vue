@@ -26,7 +26,7 @@ const onSubmit = async () => {
   })
   await useGetHouseListSync(true)
   await useGetFamilyListSync(true)
-  router.back()
+  router.goBack()
 }
 </script>
 

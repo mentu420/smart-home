@@ -72,7 +72,7 @@ const onSave = () => {
     }
   }
 
-  router.go(-2)
+  router.goBack(-2)
 }
 
 const addTime = () => {

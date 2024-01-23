@@ -53,7 +53,7 @@ const onDelFamily = async () => {
       fangwubianhao: familyItem.value.fangwubianhao,
     })
     familyList.value = familyList.value.filter((item) => item.id != familyItem.value.id)
-    router.back()
+    router.goBack()
   } catch (error) {
     //
   }

@@ -18,7 +18,7 @@ const checked = ref(createSmartItem.value.img)
 const onComfirm = () => {
   const { updateSceneCreateItem } = smartStore()
   updateSceneCreateItem({ img: checked.value })
-  router.back()
+  router.goBack()
 }
 </script>
 

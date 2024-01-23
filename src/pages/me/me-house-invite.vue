@@ -33,7 +33,7 @@ async function onSubmit() {
     })
     const { useGetFamilyListSync } = houseStore()
     await useGetFamilyListSync(true)
-    router.back()
+    router.goBack()
   } finally {
     loading.value = false
   }

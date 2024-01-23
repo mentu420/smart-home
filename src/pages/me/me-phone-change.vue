@@ -25,7 +25,7 @@ const onSubmit = async () => {
   await setUserConfig({ params: { op: 2 }, data: { shouji: form.value.phone } })
   const { useUserInfoSync } = userStore()
   await useUserInfoSync(true)
-  router.back()
+  router.goBack()
 }
 </script>
 

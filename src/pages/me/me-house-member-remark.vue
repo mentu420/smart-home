@@ -52,7 +52,7 @@ const onSubmit = async () => {
       if (item.id == bianhao) return { ...familyItem.value, xingming: remark.value }
       return item
     })
-    router.back()
+    router.goBack()
   } finally {
     loading.value = false
   }
