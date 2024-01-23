@@ -50,7 +50,7 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="p-6 h-screen">
     <HeaderNavbar />
     <h1 class="my-8">设置新密码</h1>
     <van-form @submit="onSubmit">

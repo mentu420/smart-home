@@ -40,7 +40,7 @@ watch(
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="p-6 h-screen">
     <HeaderNavbar />
     <h1 class="my-8">忘记密码</h1>
     <van-form ref="formRef" @submit="onSubmit">
