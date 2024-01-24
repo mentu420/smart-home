@@ -110,6 +110,11 @@ const onReload = async (hId) => {
   currentFloorId.value = floorList.value[0]?.id
 }
 
+const onDragCancel = () => {
+  dragOptions.value.disabled = !dragOptions.value.disabled
+  setCurrentFloorRoomList()
+}
+
 // 拖拽排序
 const onDragEnd = async () => {
   await nextTick()
@@ -229,98 +234,98 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 
 <template>
   <div class="min-h-screen bg-page-gray p-safe">
-    <van-sticky ref="topRef" z-index="1" @change="(isFixed) => (isTopFixed = isFixed)">
-      <template v-if="dragOptions.disabled">
-        <!--当前房屋-->
-        <section class="bg-page-gray">
-          <div class="flex justify-between py-3 items-center px-4 space-x-4">
-            <HousePopover
-              :model-value="currentHouse?.id"
-              :actions="houseList"
-              :more-action="{ path: '/me-house-list', label: '房屋管理' }"
-              placement="bottom-start"
-              @select="onHouseSelect"
-            >
-              <template #reference>
-                <div class="flex items-center space-x-2 text-[16px]">
-                  <p class="max-w-[240px] truncate font-bold">{{ currentHouse?.label }}</p>
-                  <IconFont class="text-[6px]" icon="triangle-bottom" />
-                </div>
-              </template>
-            </HousePopover>
-            <div class="space-x-4 shrink-0">
-              <van-icon size="20" name="bell" />
-              <van-icon size="20" name="plus" @click="goAddDevice" />
-            </div>
+    <template v-if="dragOptions.disabled">
+      <!--当前房屋-->
+      <section class="bg-page-gray">
+        <div class="flex justify-between py-3 items-center px-4 space-x-4 transition-all">
+          <HousePopover
+            :model-value="currentHouse?.id"
+            :actions="houseList"
+            :more-action="{ path: '/me-house-list', label: '房屋管理' }"
+            placement="bottom-start"
+            @select="onHouseSelect"
+          >
+            <template #reference>
+              <div class="flex items-center space-x-2 text-[16px]">
+                <p class="max-w-[240px] truncate font-bold">{{ currentHouse?.label }}</p>
+                <IconFont class="text-[6px]" icon="triangle-bottom" />
+              </div>
+            </template>
+          </HousePopover>
+          <div class="space-x-4 shrink-0">
+            <van-icon size="20" name="bell" />
+            <van-icon size="20" name="plus" @click="goAddDevice" />
           </div>
-        </section>
-        <!--天气-->
-        <!-- <div
+        </div>
+      </section>
+
+      <!--天气-->
+      <!-- <div
         v-if="currentHouse?.huanjingzhuangtai"
         class="min-h-10 flex leading-[24px] items-end p-4"
       >
         <h2 class="text-[20px]">{{ currentHouse?.huanjingzhuangtai?.WenDu }}</h2>
         <p class="ml-1 mr-4 text-sm">℃</p>
       </div> -->
-      </template>
-      <van-sticky :container="topRef">
-        <section class="bg-page-gray" :class="{ 'pt-safe': !dragOptions.disabled }">
-          <div
-            class="h-[44px] overflow-hidden relative text-[16px] flex justify-between items-center"
+    </template>
+    <van-sticky @change="(isFixed) => (isTopFixed = isFixed)">
+      <section class="bg-page-gray" :class="{ 'pt-safe': !dragOptions.disabled || isTopFixed }">
+        <div
+          class="h-[44px] overflow-hidden relative text-[16px] flex justify-between items-center"
+        >
+          <ul
+            ref="scrollContainerRef"
+            class="flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content pl-2"
           >
-            <ul
-              ref="scrollContainerRef"
-              class="flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content pl-2"
+            <li
+              v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
+              :key="roomIndex"
+              class="relative flex-none leading-[44px] flex px-2 transition-all"
+              :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
+              @click="onRoomChange(roomItem, roomIndex)"
             >
-              <li
-                v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
-                :key="roomIndex"
-                class="relative flex-none leading-[44px] flex px-2 transition-all"
-                :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
-                @click="onRoomChange(roomItem, roomIndex)"
+              {{ roomItem.label }}
+            </li>
+          </ul>
+          <!--切换楼层-->
+          <div class="shrink-0 pl-2 bg-page-gray">
+            <div
+              class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4"
+              :class="{ 'bg-white': dragOptions.disabled }"
+            >
+              <van-button
+                v-if="!dragOptions.disabled"
+                v-loading-click="() => onDragEnd()"
+                round
+                size="small"
+                type="primary"
               >
-                {{ roomItem.label }}
-              </li>
-            </ul>
-            <!--切换楼层-->
-            <div class="shrink-0 pl-2 bg-page-gray">
-              <div
-                class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4 bg-white"
+                完成
+              </van-button>
+              <HousePopover
+                v-else
+                v-model="currentFloorId"
+                :actions="floorList"
+                :more-action="{
+                  path: `/me-room-manage?id=${currentHouse.id}`,
+                  label: '房间管理',
+                }"
+                placement="bottom-end"
+                @select="setCurrentFloorRoomList"
               >
-                <van-button
-                  v-if="!dragOptions.disabled"
-                  v-loading-click="() => onDragEnd()"
-                  round
-                  size="small"
-                  type="primary"
-                >
-                  完成
-                </van-button>
-                <HousePopover
-                  v-else
-                  v-model="currentFloorId"
-                  :actions="floorList"
-                  :more-action="{
-                    path: `/me-room-manage?id=${currentHouse.id}`,
-                    label: '房间管理',
-                  }"
-                  placement="bottom-end"
-                  @select="setCurrentFloorRoomList"
-                >
-                  <template #reference>
-                    <div class="flex items-center bg-white py-1 space-x-1">
-                      <p class="w-[40px] truncate text-xs shrink-0 text-center">
-                        {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
-                      </p>
-                      <IconFont class="text-[6px]" icon="triangle-bottom" />
-                    </div>
-                  </template>
-                </HousePopover>
-              </div>
+                <template #reference>
+                  <div class="flex items-center bg-white py-1 space-x-1">
+                    <p class="w-[40px] truncate text-xs shrink-0 text-center">
+                      {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
+                    </p>
+                    <IconFont class="text-[6px]" icon="triangle-bottom" />
+                  </div>
+                </template>
+              </HousePopover>
             </div>
           </div>
-        </section>
-      </van-sticky>
+        </div>
+      </section>
     </van-sticky>
 
     <div>
@@ -442,13 +447,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
         </van-tab>
       </van-tabs>
       <div v-if="showDragBtn" class="p-6 text-center">
-        <van-button
-          class="!px-6"
-          size="small"
-          type="primary"
-          round
-          @click="dragOptions.disabled = !dragOptions.disabled"
-        >
+        <van-button class="!px-6" size="small" type="primary" round @click="onDragCancel">
           {{ dragOptions.disabled ? '编辑' : '取消' }}
         </van-button>
       </div>

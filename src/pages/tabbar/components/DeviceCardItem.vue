@@ -1,12 +1,13 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setDeviceList } from '@/apis/smartApi'
 import { USE_KEY } from '@/enums/deviceEnums'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
+import { throttle } from '@/utils/common'
 
 const { mqttDevicePublish } = useMqtt()
 
@@ -26,6 +27,7 @@ const { deviceList } = storeToRefs(deviceStore())
 const { getDeviceIcon } = deviceStore()
 const { SWITCH, PLAY, PLAYCONTROL, ON } = USE_KEY
 const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
+const isControl = ref(false)
 
 const getDeviceStatus = computed(() => {
   if (!deviceItem.value) return 0
@@ -55,7 +57,8 @@ const onDeviceCollect = async (item) => {
   }
 }
 
-const onIconClcik = () => {
+const onIconClcik = throttle(async () => {
+  isControl.value = true
   const { modeList, id } = deviceItem.value
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
   if (switchMode) {
@@ -66,7 +69,9 @@ const onIconClcik = () => {
     const useStatus = playMode.useStatus == 'play' ? 'pause' : 'play'
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
   }
-}
+  await nextTick()
+  setTimeout(() => (isControl.value = false), 300)
+}, 500)
 
 const openDevice = () => {
   if (props.isDrag) return
@@ -81,7 +86,7 @@ const openDevice = () => {
 <template>
   <div
     class="rounded-lg bg-white p-3 space-y-2 relative cursor-pointer"
-    :class="{ 'transition-all active:scale-90': !props.isDrag }"
+    :class="{ 'transition-all duration-300 ease-out active:scale-90': !props.isDrag && isControl }"
     @click="openDevice"
   >
     <div class="flex justify-between">
