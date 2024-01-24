@@ -22,12 +22,16 @@ const setStyle = (el, styleObject) => {
 export default {
   beforeMount(el, binding) {
     setActiveStyle(el, binding.value)
-
     el.addEventListener('touchstart', () => setStyle(el, el.activeStyleObject))
-    el.addEventListener('touchend', () => setStyle(el, el.oldStyleObject))
+    el.addEventListener('touchend', () => {
+      if (binding.modifiers.delay) {
+        setTimeout(() => setStyle(el, el.oldStyleObject), 200)
+        return
+      }
+      setStyle(el, el.oldStyleObject)
+    })
   },
   update(el, binding) {
-    console.log('123456', binding.value)
     setActiveStyle(el, binding.value)
   },
   unmounted(el) {

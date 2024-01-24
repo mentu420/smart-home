@@ -78,7 +78,11 @@ const openDevice = () => {
 </script>
 
 <template>
-  <div v-clickable-active class="rounded-lg bg-white p-3 space-y-2 relative" @click="openDevice">
+  <div
+    v-clickable-active.delay="{ transform: 'scale(0.9)' }"
+    class="rounded-lg bg-white p-3 space-y-2 relative transition-all"
+    @click="openDevice"
+  >
     <div class="flex justify-between">
       <IconFont
         v-if="!isDrag"
