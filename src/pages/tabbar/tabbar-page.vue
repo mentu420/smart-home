@@ -38,7 +38,7 @@ export default {
 </script>
 
 <template>
-  <div class="bg-page-gray h-screen p-safe">
+  <div class="bg-page-gray min-h-screen">
     <router-view v-slot="{ Component }">
       <transition>
         <keep-alive>
@@ -50,7 +50,6 @@ export default {
     <van-tabbar
       v-model="tabIndex"
       route
-      active-color="#e39334"
       placeholder
       z-index="99"
       :border="false"

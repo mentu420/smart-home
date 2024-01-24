@@ -106,7 +106,7 @@ module.exports = {
     extend: {
       colors: {
         'page-gray': '#f7f7f7',
-        primary: '#e39334',
+        primary: '#1989fa',
       },
     },
   },

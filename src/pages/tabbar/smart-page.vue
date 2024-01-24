@@ -1,11 +1,11 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, computed, onMounted, onActivated } from 'vue'
+import { computed, onActivated, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
-import { setSmartList, setSceneList } from '@/apis/smartApi'
-import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
+import { setSceneList, setSmartList } from '@/apis/smartApi'
+import ScenenCardItem from '@/pages/tabbar/components/ScenenCardItem.vue'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 
@@ -119,9 +119,9 @@ onActivated(init)
 </script>
 
 <template>
-  <div class="min-h-[90vh] bg-page-gray">
+  <div class="bg-page-gray pb-safe">
     <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
-      <section :class="{ 'pt-safe': isTabsFixed }" class="bg-page-gray">
+      <section class="bg-page-gray pt-safe">
         <div class="flex justify-between items-center px-4 py-3">
           <ul class="flex items-center text-[16px] space-x-4">
             <li

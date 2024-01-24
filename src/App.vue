@@ -88,10 +88,6 @@ onMounted(init)
   display: none; /* Safari and Chrome */
 }
 
-:root:root {
-  --van-primary-color: #e39334;
-}
-
 .request-notify {
   padding-top: calc(constant(safe-area-inset-top) + 8px);
   padding-top: calc(env(safe-area-inset-top) + 8px);

@@ -27,7 +27,7 @@ onActivated(init)
 </script>
 
 <template>
-  <div class="bg-page-gray pt-safe">
+  <div class="bg-page-gray p-safe">
     <div class="flex items-center px-6 py-10" @click="router.push({ path: '/me-info' })">
       <SmartImage width="4rem" height="4rem" fit="cover" round :src="userInfo?.touxiang" />
       <h4 class="text-md ml-4">{{ userInfo?.xingming }}</h4>

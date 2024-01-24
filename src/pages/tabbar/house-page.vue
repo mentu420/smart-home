@@ -1,20 +1,19 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { computed, nextTick, onActivated, onMounted, ref, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
 import { getHouseList, setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
-import DeviceCardItem from '@/components/base/DeviceCardItem.vue'
-import ScenenCardItem from '@/components/base/ScenenCardItem.vue'
 import useMqtt from '@/hooks/useMqtt'
+import DeviceCardItem from '@/pages/tabbar/components/DeviceCardItem.vue'
+import HousePopover from '@/pages/tabbar/components/HousePopover.vue'
+import ScenenCardItem from '@/pages/tabbar/components/ScenenCardItem.vue'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
-
-import HousePopover from './components/HousePopover.vue'
 
 defineOptions({ name: 'HousePage' })
 
@@ -32,7 +31,8 @@ const { mqttDevicePublish } = useMqtt()
 const loading = ref(false)
 const currentRoomId = ref('-1') //当前房间编号
 const currentFloorId = ref('') //当前楼层id
-const isTabsFixed = ref(false) // tabs 吸顶
+const isTopFixed = ref(false) // top 吸顶
+const topRef = ref(null)
 const roomFilterList = ref([]) // 当前楼层房间列表
 const collectList = ref([
   {
@@ -229,48 +229,46 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 </script>
 
 <template>
-  <div class="min-h-screen bg-page-gray view">
-    <template v-if="dragOptions.disabled">
-      <!--当前房屋-->
-      <section class="bg-page-gray pt-safe">
-        <div class="flex justify-between py-3 items-center px-4 space-x-4">
-          <HousePopover
-            :model-value="currentHouse.id"
-            :actions="houseList"
-            :more-action="{ path: '/me-house-list', label: '房屋管理' }"
-            placement="bottom-start"
-            @select="onHouseSelect"
-          >
-            <template #reference>
-              <div class="flex items-center space-x-2 text-[16px]">
-                <p class="max-w-[240px] truncate font-bold">{{ currentHouse?.label }}</p>
-                <van-icon size="20" name="arrow-down" />
-              </div>
-            </template>
-          </HousePopover>
-          <div class="space-x-4 shrink-0">
-            <van-icon size="20" name="bell" />
-            <van-icon size="20" name="plus" @click="goAddDevice" />
+  <div class="min-h-screen bg-page-gray p-safe">
+    <van-sticky ref="topRef" z-index="1" @change="(isFixed) => (isTopFixed = isFixed)">
+      <template v-if="dragOptions.disabled">
+        <!--当前房屋-->
+        <section class="bg-page-gray">
+          <div class="flex justify-between py-3 items-center px-4 space-x-4">
+            <HousePopover
+              :model-value="currentHouse.id"
+              :actions="houseList"
+              :more-action="{ path: '/me-house-list', label: '房屋管理' }"
+              placement="bottom-start"
+              @select="onHouseSelect"
+            >
+              <template #reference>
+                <div class="flex items-center space-x-2 text-[16px]">
+                  <p class="max-w-[240px] truncate font-bold">{{ currentHouse?.label }}</p>
+                  <van-icon size="20" name="arrow-down" />
+                </div>
+              </template>
+            </HousePopover>
+            <div class="space-x-4 shrink-0">
+              <van-icon size="20" name="bell" />
+              <van-icon size="20" name="plus" @click="goAddDevice" />
+            </div>
           </div>
-        </div>
-      </section>
-      <!--天气-->
-      <!-- <div
+        </section>
+        <!--天气-->
+        <!-- <div
         v-if="currentHouse?.huanjingzhuangtai"
         class="min-h-10 flex leading-[24px] items-end p-4"
       >
         <h2 class="text-[20px]">{{ currentHouse?.huanjingzhuangtai?.WenDu }}</h2>
         <p class="ml-1 mr-4 text-sm">℃</p>
       </div> -->
-    </template>
-
-    <div class="reverse-mt-safe">
-      <!-- <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
-        <div class="bg-page-gray pt-safe"></div> -->
-      <!--重新定义tabs-->
-      <van-sticky>
-        <section class="bg-page-gray pt-safe">
-          <div class="h-[44px] overflow-hidden relative text-[16px]">
+      </template>
+      <van-sticky :container="topRef" position="bottom">
+        <section class="bg-page-gray transition-all" :class="{ 'pt-safe': !dragOptions.disabled }">
+          <div
+            class="h-[44px] overflow-hidden relative text-[16px] flex justify-between items-center"
+          >
             <ul
               ref="scrollContainerRef"
               class="px-2 flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content"
@@ -284,12 +282,11 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               >
                 {{ roomItem.label }}
               </li>
-              <li key="1" class="relative flex-none leading-[44px] flex w-[78px]"></li>
             </ul>
             <!--切换楼层-->
-            <div class="absolute right-0 z-[1] top-0 overflow-hidden">
+            <div class="shrink-0 pl-[10px]">
               <div
-                class="flex h-[28px] my-[8px] w-[78px] px-[4px] bg-white flex-auto items-center justify-center space-x-4"
+                class="flex h-[28px] my-[8px] w-[68px] px-[4px] rounded-l-lg overflow-hidden flex-auto items-center justify-center space-x-4"
               >
                 <van-button
                   v-if="!dragOptions.disabled"
@@ -311,7 +308,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   @select="setCurrentFloorRoomList"
                 >
                   <template #reference>
-                    <div class="flex items-center px-2 py-1 rounded-l-md bg-white space-x-1">
+                    <div class="flex items-center bg-white px-2 py-1 space-x-1">
                       <p class="w-[40px] truncate text-xs shrink-0 text-center">
                         {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
                       </p>
@@ -324,6 +321,13 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           </div>
         </section>
       </van-sticky>
+    </van-sticky>
+
+    <div>
+      <!-- <van-sticky @change="(isFixed) => (isTopFixed = isFixed)">
+        <div class="bg-page-gray pt-safe"></div> -->
+      <!--重新定义tabs-->
+
       <!-- </van-sticky> -->
       <van-tabs
         v-model:active="currentRoomId"
@@ -461,10 +465,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 .house-tabs:deep(.van-tabs__wrap) {
   display: none !important;
 }
-// .reverse-mt-safe {
-//   margin-top: -constant(safe-area-inset-top);
-//   margin-top: -env(safe-area-inset-top);
-// }
 
 @supports not (constant(safe-area-inset-top) or env(safe-area-inset-top)) {
   .reverse-mt-safe {
