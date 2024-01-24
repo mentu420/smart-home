@@ -86,7 +86,7 @@ const openDevice = () => {
 <template>
   <div
     class="rounded-lg bg-white p-3 space-y-2 relative cursor-pointer"
-    :class="{ 'transition-all duration-300 ease-out active:scale-90': !props.isDrag && isControl }"
+    :class="{ 'transition-all duration-300 ease-out scale-90': !props.isDrag && isControl }"
     @click="openDevice"
   >
     <div class="flex justify-between">

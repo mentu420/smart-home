@@ -20,11 +20,8 @@ const emits = defineEmits(['update:modelValue'])
 
 const showRepeatAction = ref(false)
 const showWeek = ref(false)
-const showCalendar = ref(false)
-const mounthRef = ref(null)
+const dateRef = ref(null)
 const checkboxRefs = ref([])
-const minDate = new Date()
-const maxDate = new Date(dayjs().add(10, 'y').format('YYYY-MM-DD'))
 // 选中后的重复类型与重复日期 type:string 重复类型，list:array 重复日期
 const checkedDate = computed({
   get: () => props.modelValue,
@@ -46,6 +43,20 @@ const onRepeatSelect = async (detail) => {
     type: detail.id,
     list: [],
   }
+  const nowYear = dayjs().year()
+  const yearList = Array.from({ length: 10 }, (_, index) => ({
+    text: `${nowYear + index}年`,
+    value: nowYear + index,
+  }))
+  const monthList = Array.from({ length: 12 }, (_, index) => ({
+    text: `${index + 1}月`,
+    value: index + 1,
+  }))
+  const dayList = Array.from({ length: 31 }, (_, index) => ({
+    text: `${index + 1}日`,
+    value: index + 1,
+  }))
+
   await nextTick()
   switch (detail.id) {
     case 3:
@@ -58,11 +69,8 @@ const onRepeatSelect = async (detail) => {
       showWeek.value = true
       break
     case 5:
-      mounthRef.value?.open({
-        columns: Array.from({ length: 31 }, (_, index) => ({
-          text: `${index + 1}日`,
-          value: index + 1,
-        })),
+      dateRef.value?.open({
+        columns: dayList,
       })
       checkedDate.value = {
         ...checkedDate.value,
@@ -71,17 +79,8 @@ const onRepeatSelect = async (detail) => {
       }
       break
     case 6:
-      mounthRef.value?.open({
-        columns: [
-          Array.from({ length: 12 }, (_, index) => ({
-            text: `${index + 1}月`,
-            value: index + 1,
-          })),
-          Array.from({ length: 31 }, (_, index) => ({
-            text: `${index + 1}日`,
-            value: index + 1,
-          })),
-        ],
+      dateRef.value?.open({
+        columns: [monthList, dayList],
       })
       checkedDate.value = {
         ...checkedDate.value,
@@ -90,7 +89,10 @@ const onRepeatSelect = async (detail) => {
       }
       break
     case 7:
-      showCalendar.value = true
+      dateRef.value?.open({
+        columns: [yearList, monthList, dayList],
+      })
+
       checkedDate.value = {
         ...checkedDate.value,
         list: dayjs().format('YYYY-MM-DD').split('-'),
@@ -110,7 +112,7 @@ const onWeekChange = (value) => {
   }
 }
 
-const selectMWithY = ({ selectedValues }) => {
+const selectMonthDay = ({ selectedValues }) => {
   checkedDate.value = {
     ...checkedDate.value,
     list: selectedValues,
@@ -119,15 +121,6 @@ const selectMWithY = ({ selectedValues }) => {
         ? selectedValues
         : [selectedValues.map((num) => (num < 10 ? '0' + num : num)).join('-')],
   }
-}
-
-const onCalendarConfirm = (value) => {
-  checkedDate.value = {
-    ...checkedDate.value,
-    list: dayjs(value).format('YYYY-MM-DD').split('-'),
-    value: [dayjs(value).format('YYYY-MM-DD')],
-  }
-  showCalendar.value = false
 }
 
 const toggle = (index) => {
@@ -178,12 +171,5 @@ const toggle = (index) => {
       </van-checkbox-group>
     </div>
   </van-popup>
-  <PickerSearch ref="mounthRef" @confirm="selectMWithY" />
-  <van-calendar
-    v-model:show="showCalendar"
-    :min-date="minDate"
-    :max-date="maxDate"
-    teleport="#app"
-    @confirm="onCalendarConfirm"
-  />
+  <PickerSearch ref="dateRef" @confirm="selectMonthDay" />
 </template>
