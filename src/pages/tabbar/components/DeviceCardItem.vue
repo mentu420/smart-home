@@ -22,17 +22,19 @@ const props = defineProps({
   },
 })
 
-const router = useRouter()
 const { deviceList } = storeToRefs(deviceStore())
 const { getDeviceIcon } = deviceStore()
-const { SWITCH, PLAY, PLAYCONTROL, ON } = USE_KEY
-const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
+
+const router = useRouter()
+
 const isControl = ref(false)
+const { SWITCH, PLAY, PAUSE, PLAYCONTROL, ON } = USE_KEY
+const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
 
 const getDeviceStatus = computed(() => {
   if (!deviceItem.value) return 0
   const { modeList = [], classify } = deviceItem.value
-  if (['100', '102', '103', '104'].includes(classify)) {
+  if (['100', '101', '102', '103', '104'].includes(classify)) {
     return modeList.some((modeItem) => modeItem?.use == SWITCH && modeItem?.useStatus == ON) ? 1 : 0
   } else {
     const payModeItem = modeList.find((item) => item.use == PLAYCONTROL) || { useStatus: PLAY }
@@ -57,22 +59,25 @@ const onDeviceCollect = async (item) => {
   }
 }
 
+// 控制设备
 const onIconClcik = throttle(async () => {
   isControl.value = true
-  const { modeList, id } = deviceItem.value
+  const { modeList = [], id } = deviceItem.value
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
   if (switchMode) {
     const useStatus = switchMode.useStatus == 'on' ? 'off' : 'on'
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
   } else {
-    const playMode = modeList.find((item) => ['playControl'].includes(item.use))
-    const useStatus = playMode.useStatus == 'play' ? 'pause' : 'play'
+    if (modeList.length == 0) return
+    const playMode = modeList.find((item) => [PLAYCONTROL].includes(item.use))
+    const useStatus = playMode.useStatus == PLAY ? PAUSE : PLAY
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
   }
   await nextTick()
   setTimeout(() => (isControl.value = false), 300)
 }, 500)
 
+//打开设备配置
 const openDevice = () => {
   if (props.isDrag) return
   const { id, label, classify } = deviceItem.value

@@ -62,7 +62,7 @@ const onCardClick = (sceneItem) => {
   >
     <SmartImage class="w-full h-full" fit="cover" :src="sceneItem?.img" />
     <div
-      v-if="sceneItem.loading"
+      v-if="sceneItem?.loading"
       class="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-50"
     >
       <van-loading />
