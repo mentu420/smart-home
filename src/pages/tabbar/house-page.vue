@@ -130,7 +130,6 @@ const onDragEnd = async () => {
     const { deviceList, sceneList } = roomFilterList.value.find(
       (item) => item.id == currentRoomId.value
     )
-    console.log(deviceList, sceneList)
     await setDeviceList({
       params: { op: 7 },
       data: deviceList.map((item, i) => ({
@@ -236,7 +235,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
         <section class="bg-page-gray">
           <div class="flex justify-between py-3 items-center px-4 space-x-4">
             <HousePopover
-              :model-value="currentHouse.id"
+              :model-value="currentHouse?.id"
               :actions="houseList"
               :more-action="{ path: '/me-house-list', label: '房屋管理' }"
               placement="bottom-start"
@@ -245,7 +244,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <template #reference>
                 <div class="flex items-center space-x-2 text-[16px]">
                   <p class="max-w-[240px] truncate font-bold">{{ currentHouse?.label }}</p>
-                  <van-icon size="20" name="arrow-down" />
+                  <IconFont class="text-[6px]" icon="triangle-bottom" />
                 </div>
               </template>
             </HousePopover>
@@ -264,14 +263,14 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
         <p class="ml-1 mr-4 text-sm">℃</p>
       </div> -->
       </template>
-      <van-sticky :container="topRef" position="bottom">
-        <section class="bg-page-gray transition-all" :class="{ 'pt-safe': !dragOptions.disabled }">
+      <van-sticky :container="topRef">
+        <section class="bg-page-gray" :class="{ 'pt-safe': !dragOptions.disabled }">
           <div
             class="h-[44px] overflow-hidden relative text-[16px] flex justify-between items-center"
           >
             <ul
               ref="scrollContainerRef"
-              class="px-2 flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content"
+              class="flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content pl-2"
             >
               <li
                 v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
@@ -284,9 +283,9 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               </li>
             </ul>
             <!--切换楼层-->
-            <div class="shrink-0 pl-[10px]">
+            <div class="shrink-0 pl-2 bg-page-gray">
               <div
-                class="flex h-[28px] my-[8px] w-[68px] px-[4px] rounded-l-lg overflow-hidden flex-auto items-center justify-center space-x-4"
+                class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4 bg-white"
               >
                 <van-button
                   v-if="!dragOptions.disabled"
@@ -298,6 +297,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   完成
                 </van-button>
                 <HousePopover
+                  v-else
                   v-model="currentFloorId"
                   :actions="floorList"
                   :more-action="{
@@ -308,11 +308,11 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   @select="setCurrentFloorRoomList"
                 >
                   <template #reference>
-                    <div class="flex items-center bg-white px-2 py-1 space-x-1">
+                    <div class="flex items-center bg-white py-1 space-x-1">
                       <p class="w-[40px] truncate text-xs shrink-0 text-center">
                         {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
                       </p>
-                      <van-icon name="arrow-down" />
+                      <IconFont class="text-[6px]" icon="triangle-bottom" />
                     </div>
                   </template>
                 </HousePopover>
@@ -324,11 +324,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
     </van-sticky>
 
     <div>
-      <!-- <van-sticky @change="(isFixed) => (isTopFixed = isFixed)">
-        <div class="bg-page-gray pt-safe"></div> -->
-      <!--重新定义tabs-->
-
-      <!-- </van-sticky> -->
       <van-tabs
         v-model:active="currentRoomId"
         class="house-tabs"

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { createPahoMqttPlugin, $mqtt } from 'vue-paho-mqtt'
 
 import deviceStore from '@/store/deviceStore'
+import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import { getStorage } from '@/utils/storage'
 
@@ -116,8 +117,15 @@ export default function useMqtt() {
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
     $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
-      if (showLog.value || getStorage('DEVELOPMENT'))
+      data = JSON.parse(data)
+      const [userId, theme, id] = data.msgid.split('/')
+      if (theme === 'Sence') {
+        const { setSceneLoading } = smartStore()
+        // setSceneLoading(id, false)
+      }
+      if (showLog.value || getStorage('DEVELOPMENT')) {
         console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
+      }
     })
   }
   /**
@@ -143,6 +151,11 @@ export default function useMqtt() {
 
   function mqttScenePublish({ id }, mode = 'B') {
     const message = { bianhao: id }
+    const { setSceneLoading } = smartStore()
+    setSceneLoading(id, true)
+    setTimeout(() => {
+      setSceneLoading(id, false)
+    }, 1000)
     useMqttPublish('Sence', message, mode)
   }
 

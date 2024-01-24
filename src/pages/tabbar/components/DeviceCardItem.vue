@@ -69,6 +69,7 @@ const onIconClcik = () => {
 }
 
 const openDevice = () => {
+  if (props.isDrag) return
   const { id, label, classify } = deviceItem.value
   router.push({
     path: '/smart-device-status',
@@ -79,19 +80,19 @@ const openDevice = () => {
 
 <template>
   <div
-    v-clickable-active.delay="{ transform: 'scale(0.9)' }"
-    class="rounded-lg bg-white p-3 space-y-2 relative transition-all"
+    class="rounded-lg bg-white p-3 space-y-2 relative cursor-pointer"
+    :class="{ 'transition-all active:scale-90': !props.isDrag }"
     @click="openDevice"
   >
     <div class="flex justify-between">
       <IconFont
-        v-if="!isDrag"
+        v-if="!props.isDrag"
         :class="getDeviceStatus == 1 ? 'text-primary' : 'text-gray-400'"
         :icon="getDeviceIcon(deviceItem?.classify)"
         @click.stop="onIconClcik"
       />
-      <p v-if="isDrag">{{ deviceItem?.label }}</p>
-      <van-icon v-if="isDrag" class="!text-[20px]" name="wap-nav" />
+      <p v-if="props.isDrag">{{ deviceItem?.label }}</p>
+      <van-icon v-if="props.isDrag" class="!text-[20px]" name="wap-nav" />
       <van-icon
         v-else
         class="!text-[20px]"
@@ -100,7 +101,7 @@ const openDevice = () => {
         @click.stop="onDeviceCollect(deviceItem)"
       />
     </div>
-    <template v-if="!isDrag">
+    <template v-if="!props.isDrag">
       <div>{{ deviceItem?.label }}</div>
       <div class="text-sm text-gray-400">{{ ['关', '开', '离线'][getDeviceStatus] }}</div>
     </template>

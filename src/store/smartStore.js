@@ -146,6 +146,7 @@ export default defineStore(storeName, () => {
           sort: item.paixu ?? i,
           homeSort: item.shouyepaixu ?? i,
           collect: item.shouye == 1,
+          loading: false,
         }
       })
       .sort((a, b) => a.sort - b.sort)
@@ -173,6 +174,15 @@ export default defineStore(storeName, () => {
     () => (rid) => sceneList.value?.filter((item) => item.rid == rid)
   )
 
+  const setSceneLoading = (id, bool) => {
+    sceneList.value = sceneList.value.map((sceneItem) => {
+      if (sceneItem.id == id) {
+        return { ...sceneItem, loading: bool }
+      }
+      return sceneItem
+    })
+  }
+
   const reset = () => {
     createSmartItem.value = {}
     sceneList.value = []
@@ -192,6 +202,7 @@ export default defineStore(storeName, () => {
     useGetSceneListSync,
     useGetSmartListSync,
     updateSceneList,
+    setSceneLoading,
     reset,
   }
 })

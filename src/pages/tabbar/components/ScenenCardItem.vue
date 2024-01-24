@@ -1,11 +1,9 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showConfirmDialog } from 'vant'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { setSceneList } from '@/apis/smartApi'
-import image1 from '@/assets/images/smart/smart-bg-1.jpg'
 import useMqtt from '@/hooks/useMqtt'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
@@ -39,20 +37,6 @@ const { sceneList } = storeToRefs(smartStore())
 const sceneItem = computed(() => sceneList.value.find((item) => item.id == props.id))
 const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 
-async function onMoreSelect(action, item) {
-  if (action.id == 0) {
-    router.push({ path: '/smart-scene-create', query: { id: item.id, fenlei: 1 } })
-  } else if (action.id == 1) {
-    try {
-      await showConfirmDialog({ title: '提示', message: `是否删除${item.label}场景？` })
-      await setSceneList({ params: { op: 4, changjingbianhao: item.id } })
-      sceneList.value = sceneList.value.filter((sceneItem) => sceneItem.id != item.id)
-    } catch (error) {
-      //
-    }
-  }
-}
-
 async function onCollect(item) {
   const leixing = item.collect ? 0 : 1
   await setSceneList({
@@ -64,53 +48,59 @@ async function onCollect(item) {
     return sceneItem
   })
 }
+
+const onCardClick = (sceneItem) => {
+  if (sceneItem.loading) return
+  mqttScenePublish({ id: sceneItem?.id })
+}
 </script>
 
 <template>
-  <dl
+  <div
     class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 relative"
     :class="{ 'h-[30px]': props.isDrag, 'h-[76px]': !props.isDrag }"
   >
     <SmartImage class="w-full h-full" fit="cover" :src="sceneItem?.img" />
-    <dt
-      v-clickable-active
-      class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white pr-8"
-      @click="mqttScenePublish({ id: sceneItem?.id })"
+    <div
+      v-if="sceneItem.loading"
+      class="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-50"
     >
-      <slot>
-        <label>{{ sceneItem?.label }}</label>
-      </slot>
-    </dt>
-    <dd class="absolute top-1 right-2 z-10 text-white text-[20px]">
-      <van-icon v-if="props.isDrag" name="wap-nav" />
-      <template v-else>
-        <van-icon
-          :name="sceneItem?.collect ? 'like' : 'like-o'"
-          :class="sceneItem?.collect ? 'text-[#e39334]' : null"
-          @click.stop="onCollect(sceneItem)"
-        />
-      </template>
-    </dd>
-    <dd
-      v-if="isMore && houseUserPower(currentHouse.id) != 2"
-      class="absolute bottom-1 right-2 z-10"
-    >
-      <van-icon
-        class="text-white !text-[20px]"
-        name="ellipsis"
-        @click="
-          router.push({ path: '/smart-scene-create', query: { id: sceneItem.id, fenlei: 1 } })
-        "
-      />
-      <!-- <van-popover
-        :actions="actions"
-        placement="left"
-        @select="(action) => onMoreSelect(action, sceneItem)"
+      <van-loading />
+    </div>
+    <template v-else>
+      <div
+        class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white pr-8"
+        @click="onCardClick(sceneItem)"
       >
-        <template #reference>
-          <van-icon class="text-white !text-[20px]" name="ellipsis" />
+        <slot>
+          <label>{{ sceneItem?.label }}</label>
+        </slot>
+      </div>
+      <div class="absolute top-1 right-2 z-10 text-white text-[20px]">
+        <van-icon v-if="props.isDrag" name="wap-nav" />
+        <template v-else>
+          <van-icon
+            :name="sceneItem?.collect ? 'like' : 'like-o'"
+            :class="sceneItem?.collect ? 'text-[#e39334]' : null"
+            @click.stop="onCollect(sceneItem)"
+          />
         </template>
-      </van-popover> -->
-    </dd>
-  </dl>
+      </div>
+      <div
+        v-if="isMore && houseUserPower(currentHouse.id) != 2"
+        class="absolute bottom-1 right-2 z-10"
+      >
+        <van-icon
+          class="text-white !text-[20px]"
+          name="ellipsis"
+          @click="
+            () => {
+              if (props.isDrag) return
+              router.push({ path: '/smart-scene-create', query: { id: sceneItem.id, fenlei: 1 } })
+            }
+          "
+        />
+      </div>
+    </template>
+  </div>
 </template>
