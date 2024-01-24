@@ -46,6 +46,7 @@ const config = ref({
 })
 const disabled = computed(() => isDisabled(config.value))
 const deviceItem = computed(() => useGetDeviceItem(props.id))
+const isOff = computed(() => config.value[SWITCH]?.useStatus == 'off')
 
 watch(
   () => deviceItem.value,
@@ -92,8 +93,7 @@ const onBrightnessChange = () => {
 }
 
 const openColorPicker = () => {
-  if (props.disabled) return
-  console.log(deviceItem.value)
+  if (props.disabled || isOff.value) return
   const [min, max] = getModeRange(deviceItem.value.columns, COLOURTEMPERATURE)
   colorPickerRef.value.open({
     ratio: config.value[COLOURTEMPERATURE].useValue,
@@ -109,12 +109,12 @@ const openColorPicker = () => {
       <van-cell
         class="mt-4 rounded-xl"
         center
-        :title="config[SWITCH]?.useStatus != 'off' ? '已开启' : '已关闭'"
+        :title="!isOff ? '已开启' : '已关闭'"
         :border="false"
       >
         <template #right-icon>
           <IconFont
-            :class="config[SWITCH]?.useStatus != 'off' ? 'text-primary' : 'text-gray-400'"
+            :class="!isOff ? 'text-primary' : 'text-gray-400'"
             icon="switch"
             @click="toggle"
           />

@@ -20,7 +20,7 @@ const keys = {
 const props = defineProps({
   gradientColors: {
     type: Array,
-    default: () => ['to top', '#FB8C1A', '#FAF6F7'],
+    default: () => ['to bottom', '#FB8C1A', '#FAF6F7'],
   },
   gradientType: {
     type: String,
