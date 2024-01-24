@@ -27,7 +27,7 @@ onActivated(init)
 </script>
 
 <template>
-  <div class="me-page bg-page-gray">
+  <div class="bg-page-gray pt-safe">
     <div class="flex items-center px-6 py-10" @click="router.push({ path: '/me-info' })">
       <SmartImage width="4rem" height="4rem" fit="cover" round :src="userInfo?.touxiang" />
       <h4 class="text-md ml-4">{{ userInfo?.xingming }}</h4>
@@ -49,13 +49,3 @@ onActivated(init)
     </ul>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.me-page {
-  min-height: calc(100vh - 50px);
-}
-.me-grid-list:deep(.van-grid-item__content) {
-  border-radius: 16px;
-  overflow: hidden;
-}
-</style>

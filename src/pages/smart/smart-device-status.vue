@@ -19,7 +19,7 @@ defineOptions({ name: 'SmartDeviceStatus' })
 const route = useRoute()
 const router = useRouter()
 const { deviceList } = storeToRefs(deviceStore())
-const { housePower } = storeToRefs(houseStore())
+const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 const deviceItem = ref({})
 const triggerComponents = {
   100: TriggerLamp,
@@ -41,7 +41,7 @@ init()
     <HeaderNavbar :title="route.query.name">
       <template #right>
         <IconFont
-          v-if="housePower != 2"
+          v-if="houseUserPower(currentHouse.id) != 2"
           class="text-xs text-gray-400"
           icon="more-round"
           @click="

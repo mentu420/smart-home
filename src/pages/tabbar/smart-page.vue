@@ -15,7 +15,7 @@ const router = useRouter()
 const loading = ref(false)
 const tabActive = ref(2)
 const { sceneList, smartList } = storeToRefs(smartStore())
-const { roomList, floorList, housePower } = storeToRefs(houseStore())
+const { roomList, floorList, houseUserPower, currentHouse } = storeToRefs(houseStore())
 const isTabsFixed = ref(false)
 const globalSceneList = ref([])
 const roomSceneList = ref([])
@@ -125,7 +125,7 @@ onActivated(init)
         <div class="flex justify-between items-center px-4 py-3">
           <ul class="flex items-center text-[16px] space-x-4">
             <li
-              v-if="housePower != 2"
+              v-if="houseUserPower(currentHouse.id) != 2"
               :class="{ 'font-bold': tabActive == 2 }"
               @click="tabActive = '2'"
             >
@@ -134,7 +134,10 @@ onActivated(init)
             <li :class="{ 'font-bold': tabActive == 1 }" @click="tabActive = '1'">场景</li>
           </ul>
           <div class="flex-1 text-right">
-            <div v-if="dragOptions.disabled && housePower != 2" class="rounded-lg">
+            <div
+              v-if="dragOptions.disabled && houseUserPower(currentHouse.id) != 2"
+              class="rounded-lg"
+            >
               <van-icon size="20" name="plus" @click="createSmart" />
             </div>
             <van-button
@@ -162,7 +165,12 @@ onActivated(init)
       :swipeable="dragOptions.disabled"
       @change="init"
     >
-      <van-tab v-if="housePower != 2" title="自动化" :disabled="!dragOptions.disabled" name="2">
+      <van-tab
+        v-if="houseUserPower(currentHouse.id) != 2"
+        title="自动化"
+        :disabled="!dragOptions.disabled"
+        name="2"
+      >
         <div v-if="smartList.length > 0" class="p-4">
           <section class="mb-6">
             <h4 class="mb-2 text-gray-600">全局</h4>

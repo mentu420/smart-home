@@ -37,7 +37,7 @@ const actions = [
 ]
 const { sceneList } = storeToRefs(smartStore())
 const sceneItem = computed(() => sceneList.value.find((item) => item.id == props.id))
-const { housePower } = storeToRefs(houseStore())
+const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 
 async function onMoreSelect(action, item) {
   if (action.id == 0) {
@@ -91,7 +91,10 @@ async function onCollect(item) {
         />
       </template>
     </dd>
-    <dd v-if="isMore && housePower != 2" class="absolute bottom-1 right-2 z-10">
+    <dd
+      v-if="isMore && houseUserPower(currentHouse.id) != 2"
+      class="absolute bottom-1 right-2 z-10"
+    >
       <van-icon
         class="text-white !text-[20px]"
         name="ellipsis"

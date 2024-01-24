@@ -38,7 +38,7 @@ export default {
 </script>
 
 <template>
-  <div class="pb-safe pt-safe bg-page-gray h-screen">
+  <div class="bg-page-gray h-screen p-safe">
     <router-view v-slot="{ Component }">
       <transition>
         <keep-alive>

@@ -11,18 +11,25 @@ defineOptions({ name: 'MeHouseMemberItem' })
 
 const { houseRolePower, useGetFamilyListSync } = houseStore()
 
-const { familyList, getRolePowerName, housePower } = storeToRefs(houseStore())
+const { familyList, getRolePowerName, houseUserPower } = storeToRefs(houseStore())
 
 const route = useRoute()
 const router = useRouter()
+//家庭成员
 const familyItem = computed(
   () =>
     familyList.value?.find(
       (item) => item.id == route.query.id && item.fangwubianhao == route.query.hId
     ) || {}
 )
-// 当前用户房屋的权限
-const rolePower = computed(() => houseRolePower(familyItem.value))
+/**
+ * familyPower、houseUserPower
+ * 两个权限，查询当前家庭成员在当前房屋的信息
+ * 1：当前登录用户在当前房屋的权限
+ * 2：家庭成员在当前房屋的权限
+ * **/
+// 家庭成员权限
+const familyPower = computed(() => houseRolePower(familyItem.value))
 
 const onSetFamliy = async () => {
   await showConfirmDialog({
@@ -61,7 +68,7 @@ const onDelFamily = async () => {
 }
 
 const editFamilyItem = (key) => {
-  if (key != 'xingming' || rolePower.value == 2) return
+  if (key != 'xingming' || familyPower.value == 2) return
   router.push({
     path: '/me-house-member-remark',
     query: { value: familyItem.value[key], id: familyItem.value.id },
@@ -69,7 +76,7 @@ const editFamilyItem = (key) => {
 }
 
 const editFamilyPower = (power) => {
-  if (rolePower.value == 2) return
+  if (familyPower.value == 2) return
   router.push({
     path: '/me-house-powers',
     query: { power, ...route.query, shouji: familyItem.value.shouji },
@@ -103,8 +110,10 @@ const editFamilyPower = (power) => {
           </p>
         </van-cell>
       </div>
-
-      <div v-if="rolePower != 2" class="rounded-lg overflow-hidden">
+      <div
+        v-if="familyPower == 2 && houseUserPower(route.query.hId) != 2"
+        class="rounded-lg overflow-hidden"
+      >
         <van-cell
           v-for="(familyLabel, familyIndex) in ['房间权限', '设备权限', '场景权限']"
           :key="familyIndex"
@@ -116,7 +125,7 @@ const editFamilyPower = (power) => {
     </div>
     <div class="p-8 space-y-6">
       <van-button
-        v-if="rolePower == 2 && housePower != 2"
+        v-if="familyPower == 2 && houseUserPower(route.query.hId) != 2"
         v-loading-click="onSetFamliy"
         round
         block
@@ -125,7 +134,7 @@ const editFamilyPower = (power) => {
         设为管理员
       </van-button>
       <van-button
-        v-if="housePower == 0 && rolePower != 0"
+        v-if="houseUserPower(route.query.hId) == 0 && familyPower != 0"
         v-loading-click="onDelFamily"
         round
         block
