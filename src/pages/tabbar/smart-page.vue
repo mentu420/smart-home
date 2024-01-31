@@ -120,37 +120,36 @@ onActivated(init)
 
 <template>
   <div class="bg-page-gray pb-safe">
-    <van-sticky @change="(isFixed) => (isTabsFixed = isFixed)">
-      <section class="bg-page-gray pt-safe">
-        <div class="flex justify-between items-center px-4 py-3">
-          <ul class="flex items-center text-[16px] space-x-4">
-            <li
-              v-if="houseUserPower(currentHouse.id) != 2"
-              :class="{ 'font-bold': tabActive == 2 }"
-              @click="tabActive = '2'"
-            >
-              自动化
-            </li>
-            <li :class="{ 'font-bold': tabActive == 1 }" @click="tabActive = '1'">场景</li>
-          </ul>
-          <div class="flex-1 text-right">
-            <div
-              v-if="dragOptions.disabled && houseUserPower(currentHouse.id) != 2"
-              class="rounded-lg"
-            >
-              <van-icon size="20" name="plus" @click="createSmart" />
-            </div>
-            <van-button v-if="!dragOptions.disabled" v-loading-click="onDragEnd" round size="small">
-              完成
-            </van-button>
+    <section class="bg-page-gray fixed left-0 right-0 smart-tabs z-10">
+      <div class="flex justify-between items-center px-4 py-3">
+        <ul class="flex items-center text-[16px] space-x-4">
+          <li
+            v-if="houseUserPower(currentHouse.id) != 2"
+            :class="{ 'font-bold': tabActive == 2 }"
+            @click="tabActive = '2'"
+          >
+            自动化
+          </li>
+          <li :class="{ 'font-bold': tabActive == 1 }" @click="tabActive = '1'">场景</li>
+        </ul>
+        <div class="flex-1 text-right">
+          <div
+            v-if="dragOptions.disabled && houseUserPower(currentHouse.id) != 2"
+            class="rounded-lg"
+          >
+            <van-icon size="20" name="plus" @click="createSmart" />
           </div>
+          <van-button v-if="!dragOptions.disabled" v-loading-click="onDragEnd" round size="small">
+            完成
+          </van-button>
         </div>
-      </section>
-    </van-sticky>
+      </div>
+    </section>
+    <div class="h-[45px] pt-safe"></div>
 
     <van-tabs
       v-model:active="tabActive"
-      class="smart-tabs"
+      class="smart-tabs__hide"
       background="#f7f7f7"
       sticky
       shrink
@@ -246,7 +245,11 @@ onActivated(init)
 </template>
 
 <style scoped lang="scss">
-.smart-tabs:deep(.van-tabs__wrap) {
+.smart-tabs {
+  top: constant(safe-area-inset-top);
+  top: env(safe-area-inset-top);
+}
+.smart-tabs__hide:deep(.van-tabs__wrap) {
   display: none !important;
 }
 </style>

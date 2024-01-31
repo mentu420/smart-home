@@ -10,9 +10,27 @@ defineOptions({ name: 'TabbarPage' })
 const route = useRoute()
 const tabIndex = ref(0)
 const tabs = ref([
-  { text: '家', icon: 'wap-home-o', index: 0, path: '/tabbar/tabbar-house' },
-  { text: '智能', icon: 'home-o', index: 1, path: '/tabbar/tabbar-smart' },
-  { text: '我的', icon: 'user-circle-o', index: 2, path: '/tabbar/tabbar-me' },
+  {
+    text: '家',
+    inactiveIcon: 'wap-home-o',
+    activeIcon: 'wap-home',
+    index: 0,
+    path: '/tabbar/tabbar-house',
+  },
+  {
+    text: '智能',
+    inactiveIcon: 'home-o',
+    activeIcon: 'home',
+    index: 1,
+    path: '/tabbar/tabbar-smart',
+  },
+  {
+    text: '我的',
+    inactiveIcon: 'user-circle-o',
+    activeIcon: 'user-circle',
+    index: 2,
+    path: '/tabbar/tabbar-me',
+  },
 ])
 
 const init = () => {
@@ -52,6 +70,8 @@ export default {
       route
       placeholder
       z-index="99"
+      active-color="#000"
+      inactive-color="#999"
       :border="false"
       :safe-area-inset-bottom="true"
     >
@@ -60,7 +80,7 @@ export default {
         :key="tabItem.index"
         :name="tabItem.index"
         :to="tabItem.path"
-        :icon="tabItem.icon"
+        :icon="tabItem.inactiveIcon"
       >
         {{ tabItem.text }}
       </van-tabbar-item>
