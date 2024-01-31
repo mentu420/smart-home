@@ -140,13 +140,7 @@ onActivated(init)
             >
               <van-icon size="20" name="plus" @click="createSmart" />
             </div>
-            <van-button
-              v-if="!dragOptions.disabled"
-              v-loading-click="onDragEnd"
-              round
-              type="primary"
-              size="small"
-            >
+            <van-button v-if="!dragOptions.disabled" v-loading-click="onDragEnd" round size="small">
               完成
             </van-button>
           </div>
@@ -242,7 +236,6 @@ onActivated(init)
       <van-button
         class="!px-6"
         size="small"
-        type="primary"
         round
         @click="dragOptions.disabled = !dragOptions.disabled"
       >

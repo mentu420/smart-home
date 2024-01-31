@@ -147,7 +147,7 @@ const toggle = (index) => {
   <van-popup v-model:show="showWeek" safe-area-inset-bottom position="bottom" teleport="body">
     <div>
       <van-cell title="自定义日期">
-        <van-button type="primary" size="small" round @click="showWeek = false">关闭</van-button>
+        <van-button size="small" round @click="showWeek = false">关闭</van-button>
       </van-cell>
 
       <van-checkbox-group v-model="checkedDate.list" @change="onWeekChange">

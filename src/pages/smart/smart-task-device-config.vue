@@ -188,7 +188,6 @@ const onDeviceModeChange = (payload) => {
     <div class="h-24"></div>
     <div class="fixed bottom-0 left-0 right-0 bg-white px-6 py-4">
       <van-button
-        type="primary"
         block
         round
         :disabled="

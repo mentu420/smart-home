@@ -148,7 +148,6 @@ onUnmounted(() => {})
           round
           size="small"
           icon="aim"
-          type="primary"
           :loading="loading"
           @click="onAgainLoaction"
         ></van-button>
@@ -163,7 +162,7 @@ onUnmounted(() => {})
             <p>{{ formattedAddress }}</p>
           </template>
           <template #extra>
-            <van-button type="primary" size="small" :loading="loading" @click="onMapConfirm">
+            <van-button size="small" :loading="loading" @click="onMapConfirm">
               确认位置
             </van-button>
           </template>

@@ -97,7 +97,7 @@ const openDevice = () => {
     <div class="flex justify-between">
       <IconFont
         v-if="!props.isDrag"
-        :class="getDeviceStatus == 1 ? 'text-primary' : 'text-gray-400'"
+        class="text-gray-400"
         :icon="getDeviceIcon(deviceItem?.classify)"
         @click.stop="onIconClcik"
       />

@@ -103,9 +103,7 @@ init()
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar :title="['房间权限', '设备权限', '场景权限'][route.query.power]">
       <template #right>
-        <van-button type="primary" size="small" :loading="loading" @click="onSubmit">
-          保存
-        </van-button>
+        <van-button size="small" :loading="loading" @click="onSubmit"> 保存 </van-button>
       </template>
     </HeaderNavbar>
     <div class="p-4 text-xs flex justify-between items-center">
@@ -118,7 +116,7 @@ init()
           ][route.query.power]
         }}
       </p>
-      <van-button size="small" round type="primary" @click="checkGroupRef.toggleAll(!checkedAll)">
+      <van-button size="small" round @click="checkGroupRef.toggleAll(!checkedAll)">
         {{ checkedAll ? '取消' : '全选' }}
       </van-button>
     </div>

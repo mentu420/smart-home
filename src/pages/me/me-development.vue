@@ -38,7 +38,7 @@ const onSubmit = async () => {
         :rules="[{ required: form.checked, message: '必填' }]"
       />
       <div class="p-4">
-        <van-button type="primary" round block native-type="submit">确定</van-button>
+        <van-button round block native-type="submit">确定</van-button>
       </div>
     </van-form>
   </div>

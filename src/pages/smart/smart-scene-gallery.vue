@@ -49,7 +49,7 @@ const onComfirm = () => {
     </van-radio-group>
     <div class="h-[80px]"></div>
     <div class="fixed bottom-0 left-0 z-10 w-screen bg-white px-6 py-4">
-      <van-button type="primary" block round @click="onComfirm"> 确定 </van-button>
+      <van-button block round @click="onComfirm"> 确定 </van-button>
     </div>
   </div>
 </template>

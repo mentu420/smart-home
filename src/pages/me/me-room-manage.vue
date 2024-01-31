@@ -256,7 +256,6 @@ async function onRefresh() {
                   round
                   class="!mr-4"
                   size="small"
-                  type="primary"
                   icon="edit"
                   :loading="loading"
                   @click.stop="onEditFloor(floorItem)"
@@ -291,7 +290,6 @@ async function onRefresh() {
                         round
                         class="!mr-4"
                         size="small"
-                        type="primary"
                         icon="edit"
                         :loading="loading"
                         @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
@@ -321,7 +319,6 @@ async function onRefresh() {
               v-if="disabled"
               round
               size="small"
-              type="primary"
               icon="add-o"
               :loading="loading"
               @click.stop="openAddRoom(floorItem)"
@@ -334,7 +331,7 @@ async function onRefresh() {
     </van-collapse>
 
     <div v-if="disabled" class="p-4">
-      <van-button class="!px-4" round block type="primary" :loading="loading" @click="addFloorItem">
+      <van-button class="!px-4" round block :loading="loading" @click="addFloorItem">
         添加楼层
       </van-button>
     </div>
@@ -354,14 +351,7 @@ async function onRefresh() {
             取消
           </van-button>
           <div>新增房间</div>
-          <van-button
-            class="!px-4"
-            round
-            type="primary"
-            size="small"
-            :loading="loading"
-            @click="onAddRoomItem"
-          >
+          <van-button class="!px-4" round size="small" :loading="loading" @click="onAddRoomItem">
             确定
           </van-button>
         </div>
@@ -400,9 +390,7 @@ async function onRefresh() {
           :rules="[{ required: true, message: '房间名称不能为空' }]"
         />
         <div class="pt-8 pb-4">
-          <van-button round block type="primary" native-type="submit" :loading="loading">
-            提交
-          </van-button>
+          <van-button round block native-type="submit" :loading="loading"> 提交 </van-button>
         </div>
       </van-form>
     </van-popup>
@@ -423,9 +411,7 @@ async function onRefresh() {
         />
 
         <div class="pt-8 pb-4">
-          <van-button round block type="primary" native-type="submit" :loading="loading">
-            提交
-          </van-button>
+          <van-button round block native-type="submit" :loading="loading"> 提交 </van-button>
         </div>
       </van-form>
     </van-popup>

@@ -104,13 +104,7 @@ const addTime = () => {
       <DateRepeatSheet v-model="timeRepeat" />
     </section>
     <div class="p-6">
-      <van-button
-        type="primary"
-        block
-        round
-        :disabled="conditionTimeList.length == 0"
-        @click="onSave"
-      >
+      <van-button block round :disabled="conditionTimeList.length == 0" @click="onSave">
         下一步
       </van-button>
     </div>

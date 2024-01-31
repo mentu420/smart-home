@@ -102,7 +102,7 @@ const goHouseItem = async (houseItem) => {
             :before-close="(e) => onSwipeClick(e, houseItem)"
           >
             <template #left>
-              <van-button class="!h-full" square type="primary" text="切换" :loading="loading" />
+              <van-button class="!h-full" square text="切换" :loading="loading" />
             </template>
             <van-cell
               :label="`${familyLength(houseItem.id)}名成员`"
@@ -133,7 +133,6 @@ const goHouseItem = async (houseItem) => {
 
       <div class="p-4">
         <van-button
-          type="primary"
           block
           round
           :loading="loading"

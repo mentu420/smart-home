@@ -191,9 +191,7 @@ const addHouseItem = () => {
     </section>
 
     <div v-if="!disabled" class="m-6">
-      <van-button :loading="loading" round block type="primary" @click="onDelHouse">
-        删除家庭
-      </van-button>
+      <van-button :loading="loading" round block @click="onDelHouse"> 删除家庭 </van-button>
     </div>
 
     <van-popup v-model:show="showQrCode" round teleport="body" position="center">

@@ -121,12 +121,7 @@ init()
   <div class="bg-page-gray">
     <HeaderNavbar title="场景列表">
       <template #right>
-        <van-button
-          size="small"
-          type="primary"
-          :disabled="checkedScene.length == 0"
-          @click="onSave"
-        >
+        <van-button size="small" :disabled="checkedScene.length == 0" @click="onSave">
           保存
         </van-button>
       </template>
@@ -171,11 +166,11 @@ init()
               <div class="h-[80px]"></div>
               <div class="fixed bottom-0 left-0 flex w-screen space-x-4 p-4">
                 <van-button block round type="default" @click="onRest">重置</van-button>
-                <van-button block round type="primary" @click="filterRef.toggle()">确认</van-button>
+                <van-button block round @click="filterRef.toggle()">确认</van-button>
               </div>
             </van-dropdown-item>
           </van-dropdown-menu>
-          <van-button class="!ml-6" size="small" round type="primary" @click="selectAllScene">
+          <van-button class="!ml-6" size="small" round @click="selectAllScene">
             {{ allScene ? '取消' : '全选' }}
           </van-button>
         </div>

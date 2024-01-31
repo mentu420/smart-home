@@ -19,16 +19,27 @@ const router = useRouter()
 const includeList = ref(['TabbarPage'])
 const theme = ref('light')
 const transitionName = ref('van-slide-left')
-const themeVars = reactive({})
+const isNativeBack = ref(false)
+const themeVars = reactive({
+  uploaderDeleteIconSize: '1.2rem',
+  primaryColor: '#07c160',
+})
 
 useRem()
+
+function h5Back() {
+  isNativeBack.value = true
+  transitionName.value = ''
+}
 
 watch(
   () => route.path,
   (to, from) => {
-    transitionName.value = router.isBack === true ? 'van-slide-right' : 'van-slide-left'
-    router.isBack = false
-
+    if (!isNativeBack.value) {
+      transitionName.value = router.isBack === true ? 'van-slide-right' : 'van-slide-left'
+      router.isBack = false
+    }
+    isNativeBack.value = false
     nextTick(init)
     //监听路由变化，把配置路由中keepAlive为true的name添加到include动态数组中
     if (includeList.value.includes(route.name)) return
@@ -54,7 +65,7 @@ onMounted(init)
 </script>
 
 <template>
-  <van-config-provider :theme="theme" :theme-vars="themeVars">
+  <van-config-provider :theme="theme" :theme-vars="themeVars" theme-vars-scope="global">
     <router-view v-slot="{ Component }">
       <transition :name="transitionName">
         <keep-alive :include="includeList" :max="10">

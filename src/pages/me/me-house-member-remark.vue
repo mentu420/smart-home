@@ -74,9 +74,7 @@ const onSubmit = async () => {
         />
       </van-cell-group>
       <div class="m-6">
-        <van-button round block type="primary" native-type="submit" :loading="loading">
-          提交
-        </van-button>
+        <van-button round block native-type="submit" :loading="loading"> 提交 </van-button>
       </div>
     </van-form>
   </div>

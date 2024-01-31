@@ -118,9 +118,7 @@ const onCollectChange = async (value) => {
           :rules="[{ required: true, message: '房间名称不能为空' }]"
         />
         <div class="pt-8 pb-4">
-          <van-button round block type="primary" native-type="submit" :loading="loading">
-            提交
-          </van-button>
+          <van-button round block native-type="submit" :loading="loading"> 提交 </van-button>
         </div>
       </van-form>
     </van-popup>

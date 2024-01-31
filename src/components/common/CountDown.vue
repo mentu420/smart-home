@@ -79,14 +79,7 @@ export default {
 </script>
 
 <template>
-  <van-button
-    size="small"
-    type="primary"
-    native-type="button"
-    :loading="loading"
-    v-bind="$attrs"
-    @click="sendSms"
-  >
+  <van-button size="small" native-type="button" :loading="loading" v-bind="$attrs" @click="sendSms">
     <van-count-down
       v-if="countTime > 0"
       class="count-time"

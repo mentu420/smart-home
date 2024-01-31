@@ -121,7 +121,7 @@ const onDeviceModeChange = (payload) => {
 
     <div class="h-24"></div>
     <div class="fixed bottom-0 left-0 right-0 bg-white px-6 py-4">
-      <van-button :disabled="checkedModes.length == 0" type="primary" block round @click="onSave">
+      <van-button :disabled="checkedModes.length == 0" block round @click="onSave">
         下一步
       </van-button>
     </div>

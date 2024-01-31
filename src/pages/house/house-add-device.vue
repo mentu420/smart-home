@@ -35,7 +35,7 @@ onMounted(() => {
     </div>
     <div class="text-center">{{ textList[action] }}</div>
     <div v-if="action == 1" class="m-10">
-      <van-button round block type="primary" @click="onStart">重新扫描</van-button>
+      <van-button round block @click="onStart">重新扫描</van-button>
     </div>
   </div>
 </template>

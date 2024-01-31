@@ -129,7 +129,6 @@ const editFamilyPower = (power) => {
         v-loading-click="onSetFamliy"
         round
         block
-        type="primary"
       >
         设为管理员
       </van-button>

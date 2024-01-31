@@ -54,14 +54,10 @@ defineExpose({ open, close })
         <slot name="footer">
           <ul class="footer-btn">
             <li>
-              <van-button block round type="primary" plain size="small" @click="onRest">
-                重置
-              </van-button>
+              <van-button block round plain size="small" @click="onRest"> 重置 </van-button>
             </li>
             <li>
-              <van-button block round type="primary" size="small" @click="onConfirm">
-                确定
-              </van-button>
+              <van-button block round size="small" @click="onConfirm"> 确定 </van-button>
             </li>
           </ul>
         </slot>

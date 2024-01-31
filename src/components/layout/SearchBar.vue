@@ -164,9 +164,7 @@ window.addEventListener('popstate', (event) => {
           />
         </form>
         <slot name="search-right">
-          <van-button class="search-btn" round size="small" type="primary" @click="onSubmit">
-            搜索
-          </van-button>
+          <van-button class="search-btn" round size="small" @click="onSubmit"> 搜索 </van-button>
         </slot>
       </div>
       <ul class="history-bar">
