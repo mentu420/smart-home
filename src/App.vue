@@ -32,6 +32,12 @@ function h5Back() {
   transitionName.value = ''
 }
 
+const setNativeMethods = () => {
+  window.h5Back = h5Back
+}
+
+setNativeMethods()
+
 watch(
   () => route.path,
   (to, from) => {

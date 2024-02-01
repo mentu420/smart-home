@@ -16,6 +16,8 @@ function getPhotolocalDone(ora, localUrl) {
   localImage.value = localUrl
 }
 
+window.getPhotolocalDone = getPhotolocalDone
+
 const onLoad = () => {
   window?.jdwl?.getPhotolocal(attrs.src, 'img1')
 }
