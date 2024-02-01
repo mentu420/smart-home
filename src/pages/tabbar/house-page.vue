@@ -201,6 +201,7 @@ const onRoomChange = (roomItem, roomIndex) => {
 
 const init = async () => {
   try {
+    dragOptions.value.disabled = true
     const { useGetToken, useUserInfoSync } = userStore()
     const token = useGetToken()
     if (!token) return
@@ -217,7 +218,10 @@ const init = async () => {
 
 onMounted(init)
 
-onActivated(setCurrentFloorRoomList)
+onActivated(() => {
+  dragOptions.value.disabled = true
+  setCurrentFloorRoomList()
+})
 
 watch(
   () => route.path,
@@ -292,6 +296,8 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               v-if="!dragOptions.disabled"
               v-loading-click="() => onDragEnd()"
               round
+              type="gray"
+              class="!px-3"
               size="small"
             >
               完成
@@ -420,7 +426,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               </div>
             </template>
             <van-empty v-else image="search" description="暂无设备">
-              <van-button class="!px-6" size="small" round @click="goAddDevice">
+              <van-button class="!px-6" size="small" plain round @click="goAddDevice">
                 添加设备
               </van-button>
             </van-empty>
@@ -440,7 +446,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
         </van-tab>
       </van-tabs>
       <div v-if="showDragBtn" class="p-6 text-center">
-        <van-button class="!px-6" size="small" round @click="onDragCancel">
+        <van-button class="!px-6" size="small" plain round @click="onDragCancel">
           {{ dragOptions.disabled ? '编辑' : '取消' }}
         </van-button>
       </div>

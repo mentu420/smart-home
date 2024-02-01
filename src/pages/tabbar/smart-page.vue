@@ -99,6 +99,7 @@ const editSmartItem = (smartItem) => {
 }
 
 const init = () => {
+  dragOptions.value.disabled = true
   globalSceneList.value = sceneList.value?.filter((option) => option.rId == '')
   roomSceneList.value = roomList.value
     .map((roomItem) => {
@@ -139,7 +140,14 @@ onActivated(init)
           >
             <van-icon size="20" name="plus" @click="createSmart" />
           </div>
-          <van-button v-if="!dragOptions.disabled" v-loading-click="onDragEnd" round size="small">
+          <van-button
+            v-if="!dragOptions.disabled"
+            v-loading-click="onDragEnd"
+            round
+            type="gray"
+            class="!px-3"
+            size="small"
+          >
             完成
           </van-button>
         </div>
@@ -238,6 +246,7 @@ onActivated(init)
         class="!px-6"
         size="small"
         round
+        plain
         @click="dragOptions.disabled = !dragOptions.disabled"
       >
         {{ dragOptions.disabled ? '编辑' : '取消' }}
