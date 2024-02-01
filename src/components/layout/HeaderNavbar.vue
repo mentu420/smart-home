@@ -32,27 +32,9 @@ const onClickLeft = () => {
 </script>
 
 <template>
-  <div class="header-navbar">
-    <van-nav-bar v-bind="_attrs" @click-left="onClickLeft">
-      <template v-for="slotName of slotsKeys" #[slotName]>
-        <slot :name="slotName"></slot>
-      </template>
-    </van-nav-bar>
-    <van-sticky offset-top="2.875rem">
-      <slot></slot>
-    </van-sticky>
-  </div>
+  <van-nav-bar v-bind="_attrs" @click-left="onClickLeft">
+    <template v-for="slotName of slotsKeys" #[slotName]>
+      <slot :name="slotName"></slot>
+    </template>
+  </van-nav-bar>
 </template>
-
-<style scoped lang="scss">
-.header-navbar {
-  position: relative;
-  z-index: 1;
-}
-.van-nav-bar__left {
-  display: none;
-}
-.header-right__btn.van-button--info {
-  border: none;
-}
-</style>

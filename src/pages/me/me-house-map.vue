@@ -120,7 +120,8 @@ onUnmounted(() => {})
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="家庭位置">
+    <HeaderNavbar title="家庭位置"> </HeaderNavbar>
+    <van-sticky offset-top="2.875rem">
       <form action="/">
         <van-search
           v-model="search"
@@ -140,7 +141,7 @@ onUnmounted(() => {})
           @click="selectSearchItem(item)"
         />
       </div>
-    </HeaderNavbar>
+    </van-sticky>
     <div class="map-warp">
       <div id="container"></div>
       <div class="map-collimation">

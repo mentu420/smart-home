@@ -263,7 +263,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 
     <div
       v-if="isTopFixed"
-      class="fixed left-0 right-0 w-full house-top__placeholder z-[5] bg-page-gray"
+      class="fixed left-0 right-0 w-full top-0 house-top__placeholder bg-page-gray z-[5]"
     ></div>
 
     <section class="bg-page-gray sticky z-10 house-tabs">
@@ -449,9 +449,9 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 </template>
 
 <style scoped lang="scss">
-. z-[5] {
-  height: calc(constant(safe-area-inset-top) + 44px);
-  height: calc(env(safe-area-inset-top) + 44px);
+.house-top__placeholder {
+  height: constant(safe-area-inset-top);
+  height: env(safe-area-inset-top);
 }
 .house-tabs {
   top: constant(safe-area-inset-top);
