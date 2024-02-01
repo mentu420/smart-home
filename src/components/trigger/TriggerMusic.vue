@@ -188,7 +188,7 @@ const onProcessChange = () => {
       >
         <li
           v-if="modeItem.actions?.length > 0"
-          class="mb-4 flex flex-1 items-center justify-between rounded-lg bg-white"
+          class="flex flex-1 items-center justify-between rounded-lg bg-white"
         >
           <TriggerModePopover
             v-model="config[modeItem.use].useStatus"
