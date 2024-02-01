@@ -145,7 +145,9 @@ onActivated(init)
         </div>
       </div>
     </section>
-    <div class="h-[45px] pt-safe"></div>
+
+    <div class="fixed left-0 right-0 smart-tab__placeholder bg-page-gray z-[5]"></div>
+    <div class="smart-tab__placeholder"></div>
 
     <van-tabs
       v-model:active="tabActive"
@@ -248,6 +250,11 @@ onActivated(init)
 .smart-tabs {
   top: constant(safe-area-inset-top);
   top: env(safe-area-inset-top);
+}
+
+.smart-tab__placeholder {
+  height: calc(constant(safe-area-inset-top) + 45px);
+  height: calc(env(safe-area-inset-top) + 45px);
 }
 .smart-tabs__hide:deep(.van-tabs__wrap) {
   display: none !important;
