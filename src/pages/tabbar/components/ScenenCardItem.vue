@@ -81,7 +81,6 @@ const onCardClick = (sceneItem) => {
         <template v-else>
           <van-icon
             :name="sceneItem?.collect ? 'like' : 'like-o'"
-            :class="sceneItem?.collect ? 'text-[#e39334]' : null"
             @click.stop="onCollect(sceneItem)"
           />
         </template>

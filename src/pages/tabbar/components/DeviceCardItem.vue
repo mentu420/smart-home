@@ -99,7 +99,6 @@ const openDevice = () => {
         v-if="!props.isDrag"
         class="text-gray-400"
         :icon="getDeviceIcon(deviceItem?.classify)"
-        @click.stop="onIconClcik"
       />
       <p v-if="props.isDrag">{{ deviceItem?.label }}</p>
       <van-icon v-if="props.isDrag" class="!text-[20px]" name="wap-nav" />
@@ -107,13 +106,16 @@ const openDevice = () => {
         v-else
         class="!text-[20px]"
         :name="deviceItem?.collect ? 'like' : 'like-o'"
-        :color="deviceItem?.collect ? '#e39334' : '#999'"
+        :color="deviceItem?.collect ? '#666' : '#999'"
         @click.stop="onDeviceCollect(deviceItem)"
       />
     </div>
-    <template v-if="!props.isDrag">
-      <div>{{ deviceItem?.label }}</div>
-      <div class="text-sm text-gray-400">{{ ['关', '开', '离线'][getDeviceStatus] }}</div>
-    </template>
+    <dl v-if="!props.isDrag">
+      <dt>{{ deviceItem?.label }}</dt>
+      <dl class="flex justify-between items-center text-gray-400">
+        <label class="text-sm">{{ ['关', '开', '离线'][getDeviceStatus] }}</label>
+        <IconFont class="text-[10.5px]" icon="switch" @click.stop="onIconClcik" />
+      </dl>
+    </dl>
   </div>
 </template>
