@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 
 import { trimFormat } from '@/hooks/useFormValidator.js'
 import useLogin from '@/hooks/useLogin'
+import { mergeObjectIntoArray } from '@/utils/common'
 import { getStorage, setStorage } from '@/utils/storage.js'
 
 defineOptions({ name: 'AccountLogin' })
@@ -12,7 +13,7 @@ defineOptions({ name: 'AccountLogin' })
 const router = useRouter()
 const form = ref({})
 const checked = ref(true) // 是否记住账号密码
-const show = ref(false) //是否展示记住的账号
+const showPopover = ref(false) //是否展示记住的账号
 const showPassword = ref(false)
 const accountList = ref([])
 const loading = ref(false)
@@ -21,10 +22,8 @@ const onSubmit = async (values) => {
   try {
     loading.value = true
     if (checked.value) {
-      accountList.value = accountList.value.map((accountItem) => {
-        if (accountItem.username == values.username) return values
-        return accountItem
-      })
+      accountList.value = mergeObjectIntoArray(values, accountList.value, 'username')
+      console.log(accountList.value)
       setStorage('account-list', accountList.value)
     }
     await useLogin({ shoujihaoma: values.username, mima: values.password, dengluleixing: 1 })
@@ -38,6 +37,7 @@ const onSubmit = async (values) => {
 }
 
 const selectAccountItem = (item) => {
+  showPopover.value = false
   form.value = item
 }
 const delectAccountItem = (index) => {
@@ -74,24 +74,25 @@ const goOtherLogin = () => {
           :rules="[{ required: true, message: '请填写用户名' }]"
         >
           <template #extra>
-            <span @click="show = !show">
-              <van-icon :name="show ? 'arrow-down' : 'arrow'" />
-            </span>
+            <van-popover v-model:show="showPopover" placement="bottom-end">
+              <template #reference>
+                <van-icon :name="showPopover ? 'arrow-down' : 'arrow'" />
+              </template>
+              <van-cell-group class="w-[80vw]">
+                <van-cell
+                  v-for="(accountItem, accountIndex) in accountList"
+                  :key="accountIndex"
+                  clickable
+                  :title="accountItem.username"
+                  @click="selectAccountItem(accountItem)"
+                >
+                  <van-icon name="clear" @click="delectAccountItem(accountIndex)" />
+                </van-cell>
+              </van-cell-group>
+            </van-popover>
           </template>
         </van-field>
-        <transition name="van-fade">
-          <van-cell-group v-if="show">
-            <van-cell
-              v-for="(accountItem, accountIndex) in accountList"
-              :key="accountIndex"
-              class="account-item"
-              :title="accountItem.username"
-              @click="selectAccountItem(accountItem)"
-            >
-              <van-icon name="clear" @click="delectAccountItem(accountIndex)" />
-            </van-cell>
-          </van-cell-group>
-        </transition>
+        <!-- <transition name="van-fade"> </transition> -->
         <van-field
           v-model.trim="form.password"
           center
@@ -125,9 +126,3 @@ const goOtherLogin = () => {
     </van-form>
   </div>
 </template>
-
-<style scoped lang="scss">
-.account-item {
-  background: #f5f5f5;
-}
-</style>
