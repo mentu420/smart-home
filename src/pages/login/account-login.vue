@@ -118,7 +118,7 @@ const goOtherLogin = () => {
         <van-checkbox v-model="checked">记住密码</van-checkbox>
       </div>
       <div class="my-4">
-        <van-button round block type="primary" :loading="loading" native-type="submit">
+        <van-button round block type="success" :loading="loading" native-type="submit">
           登录
         </van-button>
       </div>

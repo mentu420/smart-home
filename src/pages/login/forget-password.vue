@@ -69,7 +69,7 @@ watch(
         </template>
       </van-field>
       <div class="my-10">
-        <van-button round block type="primary" native-type="submit" :disabled="!form.phone">
+        <van-button round block type="success" native-type="submit" :disabled="!form.phone">
           下一步
         </van-button>
       </div>

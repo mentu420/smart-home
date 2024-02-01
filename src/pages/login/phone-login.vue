@@ -80,7 +80,7 @@ const onValidPhone = (value) => vaildPhone(value)
         <van-checkbox v-model="checked">记住密码</van-checkbox>
       </div>
       <div class="my-4">
-        <van-button round block type="primary" native-type="submit"> 提交 </van-button>
+        <van-button round block type="success" native-type="submit"> 提交 </van-button>
       </div>
       <div class="text-center" @click="goOtherLogin">密码登录</div>
     </van-form>

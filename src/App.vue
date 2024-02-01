@@ -8,8 +8,6 @@ import useMqtt from '@/hooks/useMqtt'
 import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
 import useRem from '@/utils/flexible/useRem.js'
-import { initClient } from '@/utils/socket'
-// initClient()
 
 if (import.meta.env.DEV) new VConsole()
 
@@ -23,6 +21,8 @@ const isNativeBack = ref(false)
 const themeVars = reactive({
   uploaderDeleteIconSize: '1.2rem',
   primaryColor: '#07c160',
+  navBarIconColor: '#333',
+  checkboxCheckedIconColor: '#07c160',
 })
 
 useRem()
@@ -97,10 +97,5 @@ onMounted(init)
 
 #app::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
-}
-
-.request-notify {
-  padding-top: calc(constant(safe-area-inset-top) + 8px);
-  padding-top: calc(env(safe-area-inset-top) + 8px);
 }
 </style>

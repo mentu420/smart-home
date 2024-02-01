@@ -99,7 +99,7 @@ const onSubmit = async () => {
         <van-button
           round
           block
-          type="primary"
+          type="success"
           native-type="submit"
           :disabled="form.password == '' && form.repeatPassword == '' && form.code == ''"
           :loading="loading"

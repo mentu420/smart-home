@@ -37,7 +37,7 @@ const onSubmit = async () => {
       <h2>{{ route.query.value }}</h2>
     </div>
     <div v-if="setp == 0" class="mx-6 mt-20">
-      <van-button round block type="primary" @click="++setp"> 更换手机号 </van-button>
+      <van-button round block type="success" @click="++setp"> 更换手机号 </van-button>
     </div>
     <van-form v-else ref="formRef" class="mx-6" @submit="onSubmit">
       <p class="my-4">绑定新手机号码</p>
@@ -63,7 +63,7 @@ const onSubmit = async () => {
       </van-field>
       <div class="my-10 flex space-x-4">
         <van-button round block native-type="button" @click="--setp"> 取消 </van-button>
-        <van-button round block type="primary" native-type="submit" :disabled="!form.phone">
+        <van-button round block type="success" native-type="submit" :disabled="!form.phone">
           下一步
         </van-button>
       </div>

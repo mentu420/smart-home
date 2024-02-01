@@ -69,7 +69,7 @@ const onSubmit = async () => {
         提示：密码不能含有中文、全角字符、问号和空格。密码最短不能少于6位，密码最长不能超过32字符
       </p>
       <div class="my-10">
-        <van-button round block type="primary" native-type="submit"> 完成 </van-button>
+        <van-button round block type="success" native-type="submit"> 完成 </van-button>
         <div
           class="m-4 text-center text-sm text-gray-500"
           @click="router.push({ path: '/forget-password' })"

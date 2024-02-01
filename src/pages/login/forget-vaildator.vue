@@ -42,7 +42,7 @@ const goOtherLogin = () => {
         :rules="[{ required: true, message: '请填写短信验证码' }]"
       />
       <div class="my-10">
-        <van-button round block type="primary" native-type="submit" :disabled="!code">
+        <van-button round block type="success" native-type="submit" :disabled="!code">
           下一步
         </van-button>
       </div>

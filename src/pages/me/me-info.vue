@@ -110,7 +110,7 @@ init()
       </li>
     </ul>
     <div class="m-6">
-      <van-button v-loading-click="onLogout" round block type="primary"> 退出登录 </van-button>
+      <van-button v-loading-click="onLogout" plain round block> 退出登录 </van-button>
     </div>
   </div>
 </template>
