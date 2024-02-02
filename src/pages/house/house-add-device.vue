@@ -1,13 +1,25 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
 
 import LoopAnime from '@/components/anime/loopAnime.vue'
+import houseStore from '@/store/houseStore'
+
+import { getIPAddress, getNetworkType, startUdpService, stopUdpService } from '@/utils/native/'
+
+import {
+  setRemoteHostMode,
+  setOffLineHost,
+  getOffLineHost,
+  isOnLineMode,
+} from '@/utils/native/config'
 
 defineOptions({ name: 'HouseAddDevice' })
 
 const animeRef = ref(null)
 const textList = ['正在扫描附件的设备...', '未发现附近的设备！']
 const action = ref(0)
+const { currentHouse } = storeToRefs(houseStore())
 
 const onStart = () => {
   action.value = 0
@@ -22,8 +34,37 @@ const onPause = () => {
   }, 10 * 1000)
 }
 
+const onFoundGateway = (item) => {
+  if (isOnLineMode() && item.cmd === 'lan') {
+    const { ip, fangwubianhao } = item.data
+    if (fangwubianhao === currentHouse.value.id && getOffLineHost() !== ip) {
+      console.log('切换到了网关' + ip)
+      setOffLineHost(ip)
+      setRemoteHostMode(false)
+      this.cancelBroadcast()
+    }
+  }
+}
+
+function getUdpData(evt) {
+  console.log('getUdpData', evt)
+  try {
+    console.log('接收到udp 数据：' + evt)
+    const message = JSON.parse(evt)
+    this.onFoundGateway(message)
+    this.$eventHub.$emit('onReceivedUdpData', message)
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const init = () => {}
+
 onMounted(() => {
-  onPause()
+  getIPAddress()
+  startUdpService()
+  //stopUdpService()
+  // onPause()
 })
 </script>
 

@@ -28,8 +28,9 @@ const themeVars = reactive({
 useRem()
 
 function h5Back() {
-  isNativeBack.value = true
-  transitionName.value = ''
+  // isNativeBack.value = true
+  // transitionName.value = ''
+  router.goBack()
 }
 
 const setNativeMethods = () => {

@@ -10,9 +10,9 @@ module.exports = {
     'eslint:recommended', // 使用推荐的eslint
     'plugin:vue/vue3-recommended', // 使用插件支持vue3
     'plugin:vue/vue3-essential',
+    'plugin:import/recommended',
     //1.继承.prettierrc.js文件规则  2.开启rules的 "prettier/prettier": "error"  3.eslint fix的同时执行prettier格式化
     'plugin:prettier/recommended',
-    'plugin:import/recommended',
   ],
   parserOptions: {
     ecmaVersion: 13,
@@ -48,27 +48,6 @@ module.exports = {
     'no-unused-vars': 'off',
     'import/no-unresolved': 'off',
     'import/named': 'off',
-    'import/order': [
-      'error',
-      {
-        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-        pathGroups: [
-          {
-            pattern: '@/static/**',
-            group: 'index',
-          },
-          {
-            pattern: '@/**',
-            group: 'internal',
-          },
-        ],
-        'newlines-between': 'always',
-        alphabetize: {
-          order: 'asc',
-          caseInsensitive: true,
-        },
-        warnOnUnassignedImports: true,
-      },
-    ],
+    'import/order': 0, // 执行模块导入顺序中的约定
   },
 }
