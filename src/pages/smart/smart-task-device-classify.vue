@@ -184,8 +184,8 @@ init()
             </ul>
             <div class="h-[80px]"></div>
             <div class="fixed bottom-0 left-0 flex w-screen space-x-4 p-4">
-              <van-button block round type="default" @click="onRest">重置</van-button>
-              <van-button block round @click="filterRef.toggle()">确认</van-button>
+              <van-button block round type="smart" @click="onRest">重置</van-button>
+              <van-button block round plain @click="filterRef.toggle()">确认</van-button>
             </div>
           </van-dropdown-item>
         </van-dropdown-menu>
@@ -202,7 +202,7 @@ init()
           @click="goTaskDeviceList(searchItem)"
         >
           <template #icon>
-            <IconFont class="text-primary mr-2" :icon="searchItem.icon" />
+            <IconFont class="mr-2" :icon="searchItem.icon" />
           </template>
         </van-cell>
       </div>

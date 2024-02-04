@@ -57,7 +57,7 @@ defineExpose({ open, close })
       <div class="flex-1">
         <van-slider v-model="sliderValue" v-bind="attrs" bar-height="4px" :min="min" :max="max">
           <template #button>
-            <div class="px-4 py-1 rounded-full bg-[#e39334] text-white">{{ sliderValue }}</div>
+            <div class="px-4 py-1 rounded-full bg-gray-500 text-white">{{ sliderValue }}</div>
           </template>
         </van-slider>
       </div>

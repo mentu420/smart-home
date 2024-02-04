@@ -195,7 +195,7 @@ init()
               @click="goDeviceConfig(deviceItem)"
             >
               <template #icon>
-                <IconFont class="text-primary mr-2" :icon="deviceItem.icon" />
+                <IconFont class="mr-2" :icon="deviceItem.icon" />
               </template>
               <!-- <template #right-icon>
                   <van-checkbox

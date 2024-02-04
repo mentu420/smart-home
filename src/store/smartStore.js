@@ -50,9 +50,10 @@ export default defineStore(storeName, () => {
     } else if (type == 5) {
       return `${repeatItem?.name} - ${value.join(',')}${value.length ? '日' : ''}`
     } else {
-      return `${type == 7 ? '' : repeatItem?.name} ${type == 7 ? '' : '-'}  ${dayjs(
-        value[0]?.split('-')
-      ).format(repeatItem.format)}`
+      console.log('getRepeatTimeText', value)
+      return `${type == 7 ? '' : repeatItem?.name} ${type == 7 ? '' : '-'}  ${dayjs(value).format(
+        repeatItem.format
+      )}`
     }
   })
   // 场景默认图库

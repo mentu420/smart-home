@@ -106,7 +106,7 @@ const openDevice = () => {
         v-else
         class="!text-[20px]"
         :name="deviceItem?.collect ? 'like' : 'like-o'"
-        :color="deviceItem?.collect ? '#666' : '#999'"
+        :class="deviceItem?.collect ? 'text-red-400' : 'text-gray-300'"
         @click.stop="onDeviceCollect(deviceItem)"
       />
     </div>

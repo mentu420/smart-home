@@ -612,13 +612,13 @@ function goEventConfig() {
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goConditionConfig()"
       >
-        <van-icon size="24" name="add" color="#e39334" />
+        <van-icon size="24" name="add" />
         <label class="ml-4">添加条件</label>
       </div>
       <ol v-else class="flex items-center justify-between p-2">
         <li>触发事件</li>
         <li @click="goConditionConfig()">
-          <van-icon size="24" name="add" color="#e39334" />
+          <van-icon size="24" name="add" />
         </li>
       </ol>
       <!--条件列表-->
@@ -685,13 +685,13 @@ function goEventConfig() {
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
         @click="goEventConfig"
       >
-        <van-icon size="24" name="add" color="#e39334" />
+        <van-icon size="24" name="add" />
         <label class="ml-4">添加任务</label>
       </div>
       <ol v-if="createSmartItem.actions?.length > 0" class="flex items-center justify-between p-2">
         <li>执行任务</li>
         <li @click="goEventConfig">
-          <van-icon size="24" name="add" color="#e39334" />
+          <van-icon size="24" name="add" />
         </li>
       </ol>
       <!--任务列表-->
