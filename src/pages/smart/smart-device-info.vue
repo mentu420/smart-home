@@ -76,7 +76,7 @@ const onCollectChange = async (value) => {
   try {
     loading.value = true
     await setDeviceList({
-      params: { op: 4 },
+      params: { op: 5 },
       data: {
         shebeibianhao: route.query.id,
         leixing: value ? 1 : 0,
