@@ -37,18 +37,6 @@ const { sceneList } = storeToRefs(smartStore())
 const sceneItem = computed(() => sceneList.value.find((item) => item.id == props.id))
 const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 
-async function onCollect(item) {
-  const leixing = item.collect ? 0 : 1
-  await setSceneList({
-    params: { op: 5 },
-    data: { changjingbianhao: item.id, leixing, paixu: item.sort },
-  })
-  sceneList.value = sceneList.value.map((sceneItem) => {
-    if (sceneItem.id == item.id) return { ...item, collect: leixing != 0 }
-    return sceneItem
-  })
-}
-
 const onCardClick = (sceneItem) => {
   if (sceneItem.loading) return
   mqttScenePublish({ id: sceneItem?.id })
@@ -79,27 +67,19 @@ const onCardClick = (sceneItem) => {
       <div class="absolute top-1 right-2 z-10 text-white text-[20px]">
         <van-icon v-if="props.isDrag" name="wap-nav" />
         <template v-else>
-          <van-icon
-            :name="sceneItem?.collect ? 'like' : 'like-o'"
-            :class="sceneItem?.collect ? 'text-red-400' : 'text-gray-300'"
-            @click.stop="onCollect(sceneItem)"
-          />
+          <div v-if="isMore && houseUserPower(currentHouse.id) != 2">
+            <van-icon
+              class="text-white !text-[20px]"
+              name="ellipsis"
+              @click.stop="
+                router.push({
+                  path: '/smart-scene-create',
+                  query: { id: sceneItem.id, fenlei: 1 },
+                })
+              "
+            />
+          </div>
         </template>
-      </div>
-      <div
-        v-if="isMore && houseUserPower(currentHouse.id) != 2"
-        class="absolute bottom-1 right-2 z-10"
-      >
-        <van-icon
-          class="text-white !text-[20px]"
-          name="ellipsis"
-          @click="
-            () => {
-              if (props.isDrag) return
-              router.push({ path: '/smart-scene-create', query: { id: sceneItem.id, fenlei: 1 } })
-            }
-          "
-        />
       </div>
     </template>
   </div>

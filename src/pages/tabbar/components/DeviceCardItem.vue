@@ -92,7 +92,6 @@ const openDevice = () => {
   <div
     class="rounded-lg bg-white p-3 space-y-2 relative cursor-pointer"
     :class="{ 'transition-all duration-300 ease-out scale-90': !props.isDrag && isControl }"
-    @click="openDevice"
   >
     <div class="flex justify-between">
       <IconFont
@@ -102,19 +101,20 @@ const openDevice = () => {
       />
       <p v-if="props.isDrag">{{ deviceItem?.label }}</p>
       <van-icon v-if="props.isDrag" class="!text-[20px]" name="wap-nav" />
-      <van-icon
+      <van-icon v-else class="!text-[20px]" name="ellipsis" @click.stop="openDevice" />
+      <!-- <van-icon
         v-else
         class="!text-[20px]"
         :name="deviceItem?.collect ? 'like' : 'like-o'"
         :class="deviceItem?.collect ? 'text-red-400' : 'text-gray-300'"
         @click.stop="onDeviceCollect(deviceItem)"
-      />
+      /> -->
     </div>
     <dl v-if="!props.isDrag">
       <dt>{{ deviceItem?.label }}</dt>
       <dl class="flex justify-between items-center text-gray-400">
         <label class="text-sm">{{ ['关', '开', '离线'][getDeviceStatus] }}</label>
-        <IconFont class="text-[10.5px]" icon="switch" @click.stop="onIconClcik" />
+        <IconFont icon="switch" @click.stop="onIconClcik" />
       </dl>
     </dl>
   </div>

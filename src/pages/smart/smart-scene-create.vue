@@ -378,6 +378,19 @@ const onSave = async () => {
   }
 }
 
+//收藏场景
+const onColleceChange = async (value) => {
+  await setSceneList({
+    params: { op: 5 },
+    data: { changjingbianhao: route.query.id, leixing: value ? 1 : 0 },
+  })
+  sceneList.value = sceneList.value.map((sceneItem) => {
+    if (sceneItem.id == route.query.id) return { ...sceneItem, collect: value }
+    return sceneItem
+  })
+}
+
+// 删除场景
 async function onDelect() {
   try {
     await showConfirmDialog({
@@ -589,6 +602,9 @@ function goEventConfig() {
         <template v-if="route.query.fenlei == 1">
           <van-cell center is-link title="所属房间" @click="openRoomPicker">
             {{ roomList.find((roomItem) => roomItem.id == createSmartItem.fangjianbianhao)?.label }}
+          </van-cell>
+          <van-cell v-if="route.query.id" center title="常用场景">
+            <van-switch v-model="createSmartItem.collect" @change="onColleceChange" />
           </van-cell>
           <van-cell center is-link title="场景图片">
             <SmartImage
