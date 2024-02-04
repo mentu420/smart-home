@@ -294,7 +294,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           >
             <van-button
               v-if="!dragOptions.disabled"
-              v-loading-click="() => onDragEnd()"
+              v-loading-click="onDragEnd"
               round
               type="gray"
               class="!px-3"

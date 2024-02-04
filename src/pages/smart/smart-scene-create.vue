@@ -417,30 +417,28 @@ const getTaskConverActions = (actions) => {
       }
     )
   })
-  return modeActions
-    .map((actionItem) => {
-      if (actionItem.ziyuanleixing == 1) {
-        return deviceList.value
-          .filter((item) => modeActions.some((action) => action.id == item.id))
-          .map((deviceItem) => {
-            return {
-              ...deviceItem,
-              ziyuanleixing: actionItem.ziyuanleixing,
-              modeList: deviceItem.modeList.map((modeItem) => {
-                const { id, ...newModeItem } =
-                  modeActions.find((action) => action.use == modeItem.use) || {}
-                return { ...modeItem, ...newModeItem }
-              }),
-            }
-          })
-      } else {
-        return {
-          ...sceneList.value.find((sceneItem) => sceneItem.id == actionItem.id),
-          ziyuanleixing: actionItem.ziyuanleixing,
-        }
+  const ids = [...new Set(modeActions.map((item) => item.id))]
+  console.log('ids', ids)
+  return ids.map((id) => {
+    const actionModeList = modeActions.filter((modeItem) => modeItem.id == id)
+    const ziyuanleixing = actionModeList[0]?.ziyuanleixing
+    if (ziyuanleixing == 1) {
+      const actionDevice = deviceList.value.find((item) => id == item.id)
+      return {
+        ...actionDevice,
+        ziyuanleixing,
+        modeList: actionDevice.modeList.map((modeItem) => {
+          const newModeItem = actionModeList.find((item) => item.use == modeItem.use)
+          return { ...modeItem, ...newModeItem }
+        }),
       }
-    })
-    .flat()
+    } else {
+      return {
+        ...sceneList.value.find((sceneItem) => sceneItem.id == id),
+        ziyuanleixing,
+      }
+    }
+  })
 }
 
 const transformInitEvents = (events) => {
@@ -571,7 +569,7 @@ function goEventConfig() {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar :title="`${route.query.id ? '编辑' : '创建'}${pageName}`">
       <template #right>
-        <van-button size="small" @click="onSave">保存</van-button>
+        <van-button v-loading-click="onSave" size="small">保存</van-button>
       </template>
     </HeaderNavbar>
     <van-form ref="formRef" class="m-4">
@@ -734,7 +732,7 @@ function goEventConfig() {
                     }}
                   </label>
                   <label
-                    v-if="modeItem.dealy"
+                    v-if="modeItem?.dealy > 0"
                     class="px-4 py-1 bg-gray-100 rounded-full"
                     @click="operationRef.open({ actionItem, modeItem })"
                   >
@@ -773,7 +771,7 @@ function goEventConfig() {
     </section>
 
     <div v-if="route.query.id" class="p-6">
-      <van-button block round @click="onDelect"> 删除 </van-button>
+      <van-button v-loading-click="onDelect" block round> 删除 </van-button>
     </div>
 
     <!--设备模块的延时-->
