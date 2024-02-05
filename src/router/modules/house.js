@@ -6,6 +6,12 @@ export default [
     meta: { title: '添加设备' },
   },
   {
+    path: '/house-auto-search',
+    name: 'HouseAutoSearch',
+    component: () => import('@/pages/house/house-auto-search.vue'),
+    meta: { title: '搜索设备' },
+  },
+  {
     path: '/house-noticeList',
     name: 'HouseNoticeList',
     component: () => import('@/pages/house/house-notice-list.vue'),

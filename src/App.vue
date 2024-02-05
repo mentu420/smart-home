@@ -28,8 +28,15 @@ const themeVars = reactive({
 useRem()
 
 function h5Back() {
-  // isNativeBack.value = true
-  // transitionName.value = ''
+  if (
+    [
+      '/tabbar/tabbar-house',
+      '/tabbar/tabbar-smart',
+      '/tabbar/tabbar-me',
+      '/account-login',
+    ].includes(route.path)
+  )
+    return
   router.goBack()
 }
 

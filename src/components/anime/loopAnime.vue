@@ -7,6 +7,7 @@ const roundList = ref([1, 2, 3, 4])
 const timeline = ref(null)
 
 const play = () => {
+  console.log(timeline.value)
   timeline.value.forEach((a) => a?.play())
 }
 const pause = () => {
@@ -14,18 +15,17 @@ const pause = () => {
 }
 
 onMounted(() => {
-  timeline.value = gsap.timeline()
+  // timeline.value = gsap.timeline()
   const duration = 6
-  timeline.value = roundList.value.map((item, i) => {
-    return gsap.fromTo(
-      roundRef.value[i],
-      { scale: 1, duration: duration, repeat: -1, ease: 'ease' },
-      { scale: 5, opacity: 0, duration: duration, repeat: -1, ease: 'ease', delay: i }
-    )
-  })
   timeline.value = [
-    ...timeline.value,
-    gsap.fromTo('.conic-round', { rotate: 0 }, { rotate: 360, duration: 6, repeat: -1 }),
+    ...roundList.value.map((item, i) => {
+      return gsap.fromTo(
+        roundRef.value[i],
+        { scale: 1, duration, repeat: -1, ease: 'ease' },
+        { scale: 5, opacity: 0, duration, repeat: -1, ease: 'ease', delay: i }
+      )
+    }),
+    gsap.fromTo('.conic-round', { rotate: 0 }, { rotate: 360, duration, repeat: -1 }),
   ]
 })
 
