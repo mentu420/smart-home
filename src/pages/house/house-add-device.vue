@@ -24,6 +24,14 @@ import { showConfirmDialog, showDialog } from 'vant'
 
 const AUTO_SEARCH_STATE = { NONE: 1, PENDING: 2, FINISH: 3 }
 const MULTICAST_ADDRESS = '224.0.0.1'
+const NETWORK_TYPE = {
+  WiFi: 'WiFi',
+  '4G': '4G',
+  '3G': '3G',
+  '2G': '2G',
+  NONE: 'No network',
+}
+
 function verifyIpAddress(value) {
   return /^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])$/.test(
     value
@@ -97,7 +105,14 @@ const getBroadcastIPAddress = () => {
   return '127.0.0.1'
 }
 
-const initSearch = (timeout = 4000) => {
+const initSearch = async (timeout = 4000) => {
+  const networkType = getNetworkType()
+  if (networkType !== NETWORK_TYPE.WiFi) {
+    onPause()
+    await showDialog({ title: '提示', message: '请切换至WIFI环境，再重新扫描设备' })
+    return
+  }
+
   --searchCount.value
   if (searchCount.value <= 0) {
     onPause()
