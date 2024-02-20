@@ -190,7 +190,7 @@ const addHouseItem = () => {
       </dl>
     </section>
 
-    <div v-if="!disabled" class="m-6">
+    <div v-if="!disabled" class="p-6 mb-safe">
       <van-button :loading="loading" round block @click="onDelHouse"> 删除家庭 </van-button>
     </div>
 

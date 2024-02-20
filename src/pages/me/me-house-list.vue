@@ -111,9 +111,11 @@ const goHouseItem = async (houseItem) => {
               @click="goHouseItem(houseItem)"
             >
               <template #title>
-                <p :class="{ 'text-primary': currentHouse.id == houseItem.id }">
+                <p>
                   <van-icon v-if="currentHouse.id == houseItem.id" class="mr-2" name="wap-home" />
-                  <span>{{ houseItem.label }}</span>
+                  <span :class="{ 'text-primary': currentHouse.id == houseItem.id }">
+                    {{ houseItem.label }}
+                  </span>
                 </p>
               </template>
             </van-cell>
@@ -131,7 +133,7 @@ const goHouseItem = async (houseItem) => {
         </div>
       </section>
 
-      <div class="p-4">
+      <div class="p-4 mb-safe">
         <van-button
           block
           round
