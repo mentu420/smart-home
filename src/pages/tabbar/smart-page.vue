@@ -154,8 +154,8 @@ onActivated(init)
       </div>
     </section>
 
-    <div class="fixed left-0 right-0 smart-tab__placeholder bg-page-gray z-[5]"></div>
-    <div class="smart-tab__placeholder"></div>
+    <div class="fixed left-0 right-0 top-0 smart-tab__placeholder bg-page-gray z-[5]"></div>
+    <div class="h-[45px]"></div>
 
     <van-tabs
       v-model:active="tabActive"
@@ -221,7 +221,7 @@ onActivated(init)
             </draggable>
           </section>
           <section v-for="roomItem in roomSceneList" :key="roomItem.id" class="mb-6">
-            <h4 class="mb-2 text-gray-600">{{ roomItem.floorName }}-{{ roomItem.label }}</h4>
+            <h4 class="mb-2 text-gray-600">{{ roomItem.floorName }} - {{ roomItem.label }}</h4>
             <draggable
               v-model="roomItem.sceneList"
               item-key="id"

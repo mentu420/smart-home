@@ -6,7 +6,7 @@ defineOptions({ name: 'SmartImage' })
 const attrs = useAttrs()
 const localImage = ref('')
 const _attrs = computed(() => {
-  console.log('_attrs localImage', localImage.value)
+  console.log('_attrs localImage', attrs?.src, localImage.value)
   return {
     ...attrs,
     src: localImage.value == '' ? attrs?.src : localImage.value,
