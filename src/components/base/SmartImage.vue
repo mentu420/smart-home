@@ -4,14 +4,7 @@ import { computed, ref, useAttrs } from 'vue'
 defineOptions({ name: 'SmartImage' })
 
 const attrs = useAttrs()
-const localImage = ref('')
-const _attrs = computed(() => {
-  console.log('_attrs localImage', attrs?.src, localImage.value)
-  return {
-    ...attrs,
-    src: localImage.value == '' ? attrs?.src : localImage.value,
-  }
-})
+const localImage = ref(null)
 
 // 原生调用
 function getPhotolocalDone(ora, localUrl) {
@@ -27,5 +20,5 @@ const onLoad = () => {
 </script>
 
 <template>
-  <van-image v-bind="_attrs" @load="onLoad" />
+  <van-image v-bind="attrs" :src="localImage || attrs?.src" @load="onLoad" />
 </template>
