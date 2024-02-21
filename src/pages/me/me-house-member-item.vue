@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showConfirmDialog } from 'vant'
+import { showConfirmDialog, showToast } from 'vant'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -32,21 +32,29 @@ const familyItem = computed(
 const familyPower = computed(() => houseRolePower(familyItem.value))
 
 const onSetFamliy = async () => {
-  await showConfirmDialog({
-    title: '设为管理员',
-    message:
-      '管理员可以控制、添加删除家庭内所有的设备和场景，还可以添加、移除家庭成员并设置他们的权限',
-  })
-  await setFamily({
-    params: { op: 3 },
-    data: {
-      shouji: familyItem.value.shouji,
-      bianhao: route.query.id,
-      juese: 1, //juese=1 是管理员，juese=0是普通成员
-      fangwubianhao: route.query.hId,
-    },
-  })
-  return useGetFamilyListSync(true)
+  try {
+    await showConfirmDialog({
+      title: '设为管理员',
+      message:
+        '管理员可以控制、添加删除家庭内所有的设备和场景，还可以添加、移除家庭成员并设置他们的权限',
+    })
+    const { fangjianquanxian, shebeiquanxian, changjingquanxian, shouji } = familyItem.value
+    await setFamily({
+      params: { op: 3 },
+      data: {
+        fangjianquanxian,
+        shebeiquanxian,
+        changjingquanxian,
+        shouji,
+        bianhao: route.query.id,
+        juese: 1, //juese=1 是管理员，juese=0是普通成员
+        fangwubianhao: route.query.hId,
+      },
+    })
+    await useGetFamilyListSync(true)
+  } catch (error) {
+    //
+  }
 }
 
 const onDelFamily = async () => {
@@ -76,7 +84,6 @@ const editFamilyItem = (key) => {
 }
 
 const editFamilyPower = (power) => {
-  if (familyPower.value == 2) return
   router.push({
     path: '/me-house-powers',
     query: { power, ...route.query, shouji: familyItem.value.shouji },

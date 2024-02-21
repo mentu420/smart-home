@@ -176,6 +176,7 @@ const addHouseItem = () => {
               center
               clickable
               is-link
+              icon="manager"
               :title="familyItem.label"
               :value="getRolePowerName(familyItem)"
               @click="
@@ -184,7 +185,7 @@ const addHouseItem = () => {
                   query: { id: familyItem.id, hId: familyItem.fangwubianhao },
                 })
               "
-            />
+            ></van-cell>
           </van-cell-group>
         </dd>
       </dl>

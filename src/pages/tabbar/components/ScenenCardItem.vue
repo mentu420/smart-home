@@ -64,20 +64,20 @@ const onCardClick = (sceneItem) => {
           <label>{{ sceneItem?.label }}</label>
         </slot>
       </div>
-      <div class="absolute top-1 right-2 z-10 text-white text-[20px]">
-        <van-icon v-if="props.isDrag" name="wap-nav" />
+      <div class="absolute top-0 right-0 z-10 text-white text-[20px]">
+        <van-icon class="px-2 py-1" v-if="props.isDrag" name="wap-nav" />
         <template v-else>
-          <div v-if="isMore && houseUserPower(currentHouse.id) != 2">
-            <van-icon
-              class="text-white !text-[20px]"
-              name="ellipsis"
-              @click.stop="
-                router.push({
-                  path: '/smart-scene-create',
-                  query: { id: sceneItem.id, fenlei: 1 },
-                })
-              "
-            />
+          <div
+            v-if="isMore && houseUserPower(currentHouse.id) != 2"
+            class="px-2 py-1"
+            @click.stop="
+              router.push({
+                path: '/smart-scene-create',
+                query: { id: sceneItem.id, fenlei: 1 },
+              })
+            "
+          >
+            <van-icon class="text-white !text-[20px]" name="ellipsis" />
           </div>
         </template>
       </div>
