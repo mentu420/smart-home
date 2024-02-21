@@ -65,7 +65,7 @@ const onCardClick = (sceneItem) => {
         </slot>
       </div>
       <div class="absolute top-0 right-0 z-10 text-white text-[20px]">
-        <van-icon class="px-2 py-1" v-if="props.isDrag" name="wap-nav" />
+        <van-icon v-if="props.isDrag" class="px-2 py-1" name="wap-nav" />
         <template v-else>
           <div
             v-if="isMore && houseUserPower(currentHouse.id) != 2"

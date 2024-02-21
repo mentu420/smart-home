@@ -14,6 +14,7 @@ import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
+import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
 
 defineOptions({ name: 'HousePage' })
 
@@ -360,7 +361,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <van-empty
                 v-if="collectItem.list?.length == 0"
                 image-size="4rem"
-                image="https://fastly.jsdelivr.net/npm/@vant/assets/custom-empty-image.png"
+                :image="collectEmptyImage"
                 :description="`暂无收藏的${collectItem.group == 'collect-scene' ? '场景' : '设备'}`"
               />
               <div class="h-6"></div>

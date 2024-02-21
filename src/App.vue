@@ -9,7 +9,7 @@ import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
 import useRem from '@/utils/flexible/useRem.js'
 
-if (import.meta.env.DEV) new VConsole()
+if (import.meta.env.MODE === 'development') new VConsole()
 
 const app = inject('App')
 const route = useRoute()

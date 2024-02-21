@@ -120,8 +120,8 @@ onActivated(init)
 </script>
 
 <template>
-  <div class="bg-page-gray pb-safe">
-    <section class="bg-page-gray sticky left-0 right-0 smart-tabs z-10">
+  <div class="min-h-screen bg-page-gray p-safe">
+    <section class="bg-page-gray fixed left-0 right-0 smart-tabs z-10">
       <div class="flex justify-between items-center px-4 py-3">
         <ul class="flex items-center text-[16px] space-x-4">
           <li
@@ -154,8 +154,8 @@ onActivated(init)
       </div>
     </section>
 
-    <!-- <div class="fixed left-0 right-0 smart-tab__placeholder bg-page-gray z-[5]"></div> -->
-    <!-- <div class="smart-tab__placeholder"></div> -->
+    <div class="fixed left-0 right-0 smart-tab__placeholder bg-page-gray z-[5]"></div>
+    <div class="smart-tab__placeholder"></div>
 
     <van-tabs
       v-model:active="tabActive"
@@ -198,11 +198,11 @@ onActivated(init)
             </draggable>
           </section>
         </div>
-        <van-empty v-else image="network" description="暂无自动化" />
+        <van-empty v-else description="暂无自动化" />
       </van-tab>
       <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
         <div class="p-4">
-          <section class="mb-6">
+          <section v-if="globalSceneList.length > 0" class="mb-6">
             <h4 class="mb-2 text-gray-600">全局</h4>
             <draggable
               v-model="globalSceneList"
@@ -238,6 +238,10 @@ onActivated(init)
               </template>
             </draggable>
           </section>
+          <van-empty
+            v-if="globalSceneList.length == 0 && roomSceneList.length == 0"
+            description="暂无场景"
+          />
         </div>
       </van-tab>
     </van-tabs>
