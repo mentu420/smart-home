@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, useAttrs } from 'vue'
+import { computed, ref, useAttrs, watch } from 'vue'
 
 defineOptions({ name: 'SmartImage' })
 
@@ -17,8 +17,10 @@ window.getPhotolocalDone = getPhotolocalDone
 const onLoad = () => {
   window?.jdwl?.getPhotolocal(attrs.src, 'img1')
 }
+
+const src = computed(() => localImage.value || attrs?.src)
 </script>
 
 <template>
-  <van-image v-bind="attrs" :src="localImage || attrs?.src" @load="onLoad" />
+  <van-image v-bind="attrs" :src="src" @load="onLoad" />
 </template>
