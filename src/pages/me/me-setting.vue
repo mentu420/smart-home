@@ -5,8 +5,8 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const navList = ref([
-  { path: '/me-conceal', text: '隐私政策', icon: 'miniprogram-o' },
-  { path: '/me-agreement', text: '软件许可及服务协议', icon: 'certificate' },
+  { path: '', text: '多语言', icon: 'chat-o' },
+  { path: '/me-about', text: '关于', icon: 'warning-o' },
 ])
 </script>
 
@@ -21,16 +21,12 @@ const navList = ref([
         :icon="navItem.icon"
         is-link
         clickable
-        @click="router.push({ path: navItem.path })"
+        @click="
+          () => {
+            if (navItem.path != '') router.push(navItem.path)
+          }
+        "
       />
     </van-cell-group>
-    <van-cell
-      title="关于"
-      class="rounded-lg overflow-hidden mt-4"
-      icon="warning-o"
-      is-link
-      clickable
-      @click="router.push({ path: '/me-about' })"
-    />
   </div>
 </template>
