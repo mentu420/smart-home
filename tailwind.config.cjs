@@ -107,6 +107,7 @@ module.exports = {
       colors: {
         'page-gray': '#f7f7f7',
         primary: '#07c160',
+        origin: '#ff9d36',
       },
     },
   },

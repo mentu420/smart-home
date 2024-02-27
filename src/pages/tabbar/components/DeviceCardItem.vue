@@ -106,7 +106,7 @@ const openDeviceConfig = () => {
     <div class="flex justify-between">
       <IconFont
         v-if="!props.isDrag"
-        class="text-[#ff9d36]"
+        class="text-origin"
         :icon="getDeviceIcon(deviceItem?.classify)"
       />
       <p v-if="props.isDrag">{{ deviceItem?.label }}</p>
@@ -126,7 +126,7 @@ const openDeviceConfig = () => {
         <label class="text-sm">{{ ['关', '开', '离线'][getDeviceStatus] }}</label>
         <IconFont
           class="text-[20px]"
-          :class="{ 'text-[#ff9d36]': getDeviceStatus == 1 }"
+          :class="{ 'text-origin': getDeviceStatus == 1 }"
           icon="switch"
           @click.stop="onIconClcik"
         />

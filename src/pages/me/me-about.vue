@@ -22,11 +22,11 @@ const router = useRouter()
     </div>
     <footer class="absolute bottom-6 w-full left-0 text-center text-[#6f6f6f] space-y-4">
       <p>
-        <span class="text-[#f1900b]" @click.stop="router.push({ path: '/me-agreement' })">
+        <span class="text-origin" @click.stop="router.push({ path: '/me-agreement' })">
           《软件许可及服务协议》
         </span>
         和
-        <span class="text-[#f1900b]" @click.stop="router.push({ path: '/me-conceal' })">
+        <span class="text-origin" @click.stop="router.push({ path: '/me-conceal' })">
           《隐私政策》
         </span>
       </p>

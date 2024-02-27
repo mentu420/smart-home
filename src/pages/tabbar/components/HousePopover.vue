@@ -56,7 +56,7 @@ defineExpose({ open })
         <template #title>
           <div
             class="flex justify-center items-center space-x-2"
-            :class="{ 'text-[#ff9d36]': actionName == actionItem[props.valueKey] }"
+            :class="{ 'text-origin': actionName == actionItem[props.valueKey] }"
           >
             <van-icon v-if="actionName == actionItem[props.valueKey]" name="location" />
             <label>{{ actionItem[props.labelKey] }}</label>
