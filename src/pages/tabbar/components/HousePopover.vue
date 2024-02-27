@@ -54,13 +54,16 @@ defineExpose({ open })
         @click="onSelect(actionItem)"
       >
         <template #title>
-          <div class="flex justify-center items-center space-x-2">
+          <div
+            class="flex justify-center items-center space-x-2"
+            :class="{ 'text-[#ff9d36]': actionName == actionItem[props.valueKey] }"
+          >
             <van-icon v-if="actionName == actionItem[props.valueKey]" name="location" />
             <label>{{ actionItem[props.labelKey] }}</label>
           </div>
         </template>
       </van-cell>
-      <div class="h-2 bg-page-gray"></div>
+      <div class="h-1 bg-page-gray"></div>
       <van-cell @click="goMore">
         <template #title>
           <div class="flex justify-center items-center space-x-2">

@@ -26,9 +26,9 @@ const router = useRouter()
           《软件许可及服务协议》
         </span>
         和
-        <span class="text-[#f1900b]" @click.stop="router.push({ path: '/me-conceal' })"
-          >《隐私政策》</span
-        >
+        <span class="text-[#f1900b]" @click.stop="router.push({ path: '/me-conceal' })">
+          《隐私政策》
+        </span>
       </p>
       <p class="mb-safe text-xs">Copyright ©2015-2024 ORVIBO Home.All Rights Reserved</p>
     </footer>

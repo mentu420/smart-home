@@ -77,7 +77,7 @@ const onIconClcik = throttle(async () => {
   setTimeout(() => (isControl.value = false), 300)
 }, 500)
 
-//打开设备配置
+//打开设备
 const openDevice = () => {
   if (props.isDrag) return
   const { id, label, classify } = deviceItem.value
@@ -86,22 +86,32 @@ const openDevice = () => {
     query: { id, name: label, classify },
   })
 }
+
+const openDeviceConfig = () => {
+  if (props.isDrag) return
+  const { id, label, classify, rId } = deviceItem.value
+  router.push({
+    path: '/smart-device-info',
+    query: { id, name: label, classify, rId },
+  })
+}
 </script>
 
 <template>
   <div
     class="rounded-lg bg-white p-3 space-y-2 relative cursor-pointer"
     :class="{ 'transition-all duration-300 ease-out scale-90': !props.isDrag && isControl }"
+    @click.stop="openDevice"
   >
     <div class="flex justify-between">
       <IconFont
         v-if="!props.isDrag"
-        class="text-gray-400"
+        class="text-[#ff9d36]"
         :icon="getDeviceIcon(deviceItem?.classify)"
       />
       <p v-if="props.isDrag">{{ deviceItem?.label }}</p>
       <van-icon v-if="props.isDrag" class="!text-[20px]" name="wap-nav" />
-      <van-icon v-else class="!text-[20px]" name="ellipsis" @click.stop="openDevice" />
+      <van-icon v-else class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
       <!-- <van-icon
         v-else
         class="!text-[20px]"
@@ -114,7 +124,7 @@ const openDevice = () => {
       <dt>{{ deviceItem?.label }}</dt>
       <dl class="flex justify-between items-center text-gray-400">
         <label class="text-sm">{{ ['关', '开', '离线'][getDeviceStatus] }}</label>
-        <IconFont icon="switch" @click.stop="onIconClcik" />
+        <IconFont class="text-[20px]" icon="switch" @click.stop="onIconClcik" />
       </dl>
     </dl>
   </div>
