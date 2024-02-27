@@ -61,7 +61,7 @@ const onDeviceCollect = async (item) => {
 
 // 控制设备
 const onIconClcik = throttle(async () => {
-  isControl.value = true
+  // isControl.value = true
   const { modeList = [], id } = deviceItem.value
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
   if (switchMode) {
@@ -73,8 +73,8 @@ const onIconClcik = throttle(async () => {
     const useStatus = playMode.useStatus == PLAY ? PAUSE : PLAY
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
   }
-  await nextTick()
-  setTimeout(() => (isControl.value = false), 300)
+  // await nextTick()
+  // setTimeout(() => (isControl.value = false), 300)
 }, 500)
 
 //打开设备

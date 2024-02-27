@@ -23,5 +23,4 @@ const src = computed(() => localImage.value || attrs?.src)
 
 <template>
   <van-image v-bind="attrs" :src="src" @load="onLoad" />
-  <van-image v-bind="attrs" :src="localImage" />
 </template>
