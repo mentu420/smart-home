@@ -124,7 +124,12 @@ const openDeviceConfig = () => {
       <dt>{{ deviceItem?.label }}</dt>
       <dl class="flex justify-between items-center text-gray-400">
         <label class="text-sm">{{ ['关', '开', '离线'][getDeviceStatus] }}</label>
-        <IconFont class="text-[20px]" icon="switch" @click.stop="onIconClcik" />
+        <IconFont
+          class="text-[20px]"
+          :class="{ 'text-[#ff9d36]': getDeviceStatus == 1 }"
+          icon="switch"
+          @click.stop="onIconClcik"
+        />
       </dl>
     </dl>
   </div>
