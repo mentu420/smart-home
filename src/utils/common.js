@@ -140,7 +140,14 @@ export function throttle(fn, delay) {
 }
 
 // 判断一个字符串是否为JSON字符串
-export const isObjectString = (value) => /^{(.?)+}$/.test(value) || /^\[(.?)+\]$/.test(value)
+export const isObjectString = (value) => {
+  try {
+    JSON.parse(value)
+    return true
+  } catch (e) {
+    return false
+  }
+}
 
 // generateReqKey ：用于根据当前请求的信息，生成请求 Key；
 export function generateReqKey(config) {
@@ -321,7 +328,6 @@ export const toCamelCase = (str) => {
  * @params el 视频元素的父元素，获取父元素的宽度
  * **/
 export const getPlayerRect = (src, el = document.body) => {
-  console.log(src)
   return new Promise((resolve) => {
     let video = document.createElement('video')
     video.preload = 'metadata'

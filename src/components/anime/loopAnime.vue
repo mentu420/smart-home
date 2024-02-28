@@ -7,7 +7,6 @@ const roundList = ref([1, 2, 3, 4])
 const timeline = ref(null)
 
 const play = () => {
-  console.log(timeline.value)
   timeline.value.forEach((a) => a?.play())
 }
 const pause = () => {

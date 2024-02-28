@@ -3,11 +3,11 @@ import { storeToRefs } from 'pinia'
 import { computed, nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { setDeviceList } from '@/apis/smartApi'
 import { USE_KEY } from '@/enums/deviceEnums'
 import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
+import { onDeviceStatusChange, onDeviceStatusRefresh } from '@/components/trigger/useTrigger'
 
 const { mqttDevicePublish } = useMqtt()
 
@@ -27,55 +27,43 @@ const { getDeviceIcon } = deviceStore()
 
 const router = useRouter()
 
-const isControl = ref(false)
+const controlTimeout = 500 // 设备操作间隔
 const { SWITCH, PLAY, PAUSE, PLAYCONTROL, ON } = USE_KEY
 const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
 
+// 获取设备状态
 const getDeviceStatus = computed(() => {
   if (!deviceItem.value) return 0
-  const { modeList = [], classify } = deviceItem.value
+  const { modeStatusList = [], classify } = deviceItem.value
   if (['100', '101', '102', '103', '104'].includes(classify)) {
-    return modeList.some((modeItem) => modeItem?.use == SWITCH && modeItem?.useStatus == ON) ? 1 : 0
+    return modeStatusList.some((modeItem) => modeItem?.use == SWITCH && modeItem?.useStatus == ON)
+      ? 1
+      : 0
   } else {
-    const payModeItem = modeList.find((item) => item.use == PLAYCONTROL) || { useStatus: PLAY }
+    const payModeItem = modeStatusList.find((item) => item.use == PLAYCONTROL) || {
+      useStatus: PLAY,
+    }
     return payModeItem.useStatus == PLAY ? 1 : 0
   }
 })
-const onDeviceCollect = async (item) => {
-  try {
-    const leixing = item.collect ? 0 : 1
-    await setDeviceList({
-      params: { op: 5 },
-      data: {
-        shebeibianhao: item.id,
-        leixing,
-        paixu: item.sort,
-      },
-    })
-    const { useDeviceItemChange } = deviceStore()
-    useDeviceItemChange({ ...item, collect: leixing == 1 })
-  } finally {
-    //
-  }
-}
 
-// 控制设备
-const onIconClcik = throttle(async () => {
-  // isControl.value = true
-  const { modeList = [], id } = deviceItem.value
-  const switchMode = modeList.find((item) => ['switch'].includes(item.use))
+// 设备开关触发
+const onSwitchChanage = throttle(async () => {
+  const { modeStatusList = [], id } = deviceItem.value
+  const switchMode = modeStatusList.find((item) => [SWITCH].includes(item.use))
   if (switchMode) {
     const useStatus = switchMode.useStatus == 'on' ? 'off' : 'on'
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
+    onDeviceStatusChange({ id, use: SWITCH, useStatus, useValue: useStatus == 'on' ? '1' : '0' })
   } else {
-    if (modeList.length == 0) return
-    const playMode = modeList.find((item) => [PLAYCONTROL].includes(item.use))
+    if (modeStatusList.length == 0) return
+    const playMode = modeStatusList.find((item) => [PLAYCONTROL].includes(item.use))
     const useStatus = playMode.useStatus == PLAY ? PAUSE : PLAY
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
+    onDeviceStatusChange({ id, use: PLAYCONTROL, useStatus, useValue: '1' })
   }
-  // await nextTick()
-  // setTimeout(() => (isControl.value = false), 300)
-}, 500)
+  onDeviceStatusRefresh(id)
+}, controlTimeout)
 
 //打开设备
 const openDevice = () => {
@@ -98,39 +86,28 @@ const openDeviceConfig = () => {
 </script>
 
 <template>
-  <div
-    class="rounded-lg bg-white p-3 space-y-2 relative cursor-pointer"
-    :class="{ 'transition-all duration-300 ease-out scale-90': !props.isDrag && isControl }"
-    @click.stop="openDevice"
-  >
-    <div class="flex justify-between">
+  <ul class="rounded-lg bg-white flex justify-between cursor-pointer" @click.stop="openDevice">
+    <li class="space-y-2 p-3">
       <IconFont
         v-if="!props.isDrag"
         class="text-origin"
         :icon="getDeviceIcon(deviceItem?.classify)"
       />
-      <p v-if="props.isDrag">{{ deviceItem?.label }}</p>
-      <van-icon v-if="props.isDrag" class="!text-[20px]" name="wap-nav" />
-      <van-icon v-else class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
-      <!-- <van-icon
-        v-else
-        class="!text-[20px]"
-        :name="deviceItem?.collect ? 'like' : 'like-o'"
-        :class="deviceItem?.collect ? 'text-red-400' : 'text-gray-300'"
-        @click.stop="onDeviceCollect(deviceItem)"
-      /> -->
-    </div>
-    <dl v-if="!props.isDrag">
-      <dt>{{ deviceItem?.label }}</dt>
-      <dl class="flex justify-between items-center text-gray-400">
-        <label class="text-sm">{{ ['关', '开', '离线'][getDeviceStatus] }}</label>
-        <IconFont
-          class="text-[20px]"
-          :class="{ 'text-origin': getDeviceStatus == 1 }"
-          icon="switch"
-          @click.stop="onIconClcik"
-        />
-      </dl>
-    </dl>
-  </div>
+      <p>{{ deviceItem?.label }}</p>
+      <p v-if="!props.isDrag" class="text-xs text-gray-400">
+        {{ ['关', '开', '离线'][getDeviceStatus] }}
+      </p>
+    </li>
+    <li v-if="props.isDrag" class="p-3">
+      <van-icon class="!text-[20px]" name="wap-nav" />
+    </li>
+    <li v-else class="flex flex-col justify-between text-gray-400">
+      <div class="text-right p-3">
+        <van-icon class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
+      </div>
+      <div class="p-3" @click.stop="onSwitchChanage">
+        <IconFont :class="{ 'text-origin': getDeviceStatus == 1 }" icon="switch" />
+      </div>
+    </li>
+  </ul>
 </template>

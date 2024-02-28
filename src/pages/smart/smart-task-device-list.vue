@@ -39,7 +39,6 @@ const onCheckChange = (values) => {
     )
     .flat(2)
     .reduce((a, b) => a + b, 0)
-  console.log(length)
   checkedAll.value = values.length == length
 }
 
@@ -102,8 +101,6 @@ const onSave = async () => {
     } else {
       mergeEvents = mergeEventsArray(orginEvents, newEvents)
     }
-
-    console.log('mergeEvents', mergeEvents)
 
     createSmartItem.value = {
       ...createSmartItem.value,

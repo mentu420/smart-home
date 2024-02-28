@@ -84,7 +84,6 @@ export default {
     startTimeConfirm({ selectedValues }) {
       this.$refs.startTime.close()
       const day = moment(selectedValues.join('-')).format('YYYY-MM-DD')
-      console.log('day', day)
       if (this.endTime != '' && this.endTime < day) {
         this.startTime = this.endTime
         this.endTime = day

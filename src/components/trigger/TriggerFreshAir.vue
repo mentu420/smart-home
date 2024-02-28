@@ -9,12 +9,16 @@ import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 
 import TriggerModePopover from './TriggerModePopover.vue'
-import { useTrigger } from './useTrigger'
+import {
+  triggerControl,
+  disabledClass,
+  isDisabled,
+  getPlacement,
+  getModeActions,
+  onConfigFormat,
+} from './useTrigger'
 
 const { useDeviceItemChange, useGetDeviceItem } = deviceStore()
-
-const { triggerControl, disabledClass, isDisabled, getPlacement, getModeActions, onConfigFormat } =
-  useTrigger()
 
 const { FAN, MODE, SWITCH } = USE_KEY
 
@@ -57,8 +61,8 @@ watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
-    const { modeList } = val
-    config.value = onConfigFormat(config.value, modeList)
+    const { modeStatusList = [] } = val
+    config.value = onConfigFormat(config.value, modeStatusList)
   },
   { immediate: true }
 )
@@ -68,13 +72,13 @@ const speedActions = computed(() => getModeActions(deviceItem.value, FAN))
 const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
 const onModeChange = (use) => {
-  triggerControl(use, deviceItem.value, config.value)
+  triggerControl({ use, device: deviceItem.value, config: config.value })
 }
 
 const toggle = () => {
   const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
-  triggerControl(SWITCH, deviceItem.value, config.value)
+  triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })
 }
 </script>
 

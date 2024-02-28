@@ -292,9 +292,7 @@ const hidePalette = () => {
 
 const getAngle = (min, max, value) => {
   const ratio = (Number(value) - Number(min)) / (Number(max) - Number(min))
-  console.log('getAngle', ratio)
   const angleValue = ratio * 180
-  console.log('angleValue', angleValue)
   const angle = angleValue > 180 ? 360 - angleValue : angleValue
   return angle.toFixed()
 }

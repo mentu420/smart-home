@@ -23,7 +23,6 @@ const onSubmit = async (values) => {
     loading.value = true
     if (checked.value) {
       accountList.value = mergeObjectIntoArray(values, accountList.value, 'username')
-      console.log(accountList.value)
       setStorage('account-list', accountList.value)
     }
     await useLogin({ shoujihaoma: values.username, mima: values.password, dengluleixing: 1 })

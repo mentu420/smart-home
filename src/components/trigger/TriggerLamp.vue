@@ -6,10 +6,15 @@ import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { stringToArray } from '@/utils/common'
 
-import { useTrigger } from './useTrigger'
+import {
+  triggerControl,
+  disabledClass,
+  isDisabled,
+  onConfigFormat,
+  getModeRange,
+} from './useTrigger'
 
-const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
-const { triggerControl, disabledClass, isDisabled, onConfigFormat, getModeRange } = useTrigger()
+const { useGetDeviceItem, includesUse } = deviceStore()
 
 const props = defineProps({
   id: {
@@ -52,8 +57,8 @@ watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
-    const { modeList } = val
-    config.value = onConfigFormat(config.value, modeList)
+    const { modeStatusList = [] } = val
+    config.value = onConfigFormat(config.value, modeStatusList)
   },
   {
     immediate: true,
@@ -71,7 +76,7 @@ const colorTemperatureRange = computed(() => {
 const toggle = () => {
   const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
-  triggerControl(SWITCH, deviceItem.value, config.value)
+  triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })
 }
 // 色温
 const onColorPickerChange = ({ color, ratio }) => {
@@ -84,12 +89,12 @@ const onColorPickerChange = ({ color, ratio }) => {
     color,
   }
   if (config.value[SWITCH].useStatus == 'off') return
-  triggerControl(COLOURTEMPERATURE, deviceItem.value, config.value)
+  triggerControl({ use: COLOURTEMPERATURE, device: deviceItem.value, config: config.value })
 }
 // 亮度
 const onBrightnessChange = () => {
   if (config.value[SWITCH].useStatus == 'off') return
-  triggerControl(BRIGHTNESS, deviceItem.value, config.value)
+  triggerControl({ use: BRIGHTNESS, device: deviceItem.value, config: config.value })
 }
 
 const openColorPicker = () => {
@@ -114,7 +119,7 @@ const openColorPicker = () => {
       >
         <template #right-icon>
           <IconFont
-            :class="!isOff ? 'text-primary' : 'text-gray-400'"
+            :class="!isOff ? 'text-origin' : 'text-gray-400'"
             icon="switch"
             @click="toggle"
           />

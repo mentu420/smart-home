@@ -65,7 +65,6 @@ const onMapSearch = async () => {
     [currentCenter.lng, currentCenter.lat],
     9999,
     function (status, result) {
-      console.log(status, result.poiList)
       if (status === 'complete') {
         searchList.value = result.poiList?.pois
       }
@@ -74,7 +73,6 @@ const onMapSearch = async () => {
 }
 
 const selectSearchItem = (item) => {
-  console.log(item)
   const { location } = item
   const point = [location.lng, location.lat]
   lnglat.value = { lng: location.lng, lat: location.lat }

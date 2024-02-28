@@ -7,12 +7,16 @@ import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
 
 import TriggerModePopover from './TriggerModePopover.vue'
-import { useTrigger } from './useTrigger'
+import {
+  getModeActions,
+  getPlacement,
+  isDisabled,
+  triggerControl,
+  onConfigFormat,
+  getModeRange,
+} from './useTrigger'
 
 const { useGetDeviceItem, includesUse } = deviceStore()
-
-const { getModeActions, getPlacement, isDisabled, triggerControl, onConfigFormat, getModeRange } =
-  useTrigger()
 
 const props = defineProps({
   id: {
@@ -79,12 +83,11 @@ watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
-    const { modeList, columns } = val
+    const { modeStatusList, columns } = val
     const [minValue, maxValue] = getModeRange(columns, VOLUME)
     min.value = minValue ?? 0
     max.value = maxValue ?? 100
-    config.value = onConfigFormat(config.value, modeList)
-    console.log('config', config.value)
+    config.value = onConfigFormat(config.value, modeStatusList)
   },
   { immediate: true }
 )
@@ -95,25 +98,25 @@ const onStatusChange = () => {
     ...config.value,
     [PLAYCONTROL]: { useValue: useStatus == PLAY ? '1' : '0', useStatus },
   }
-  triggerControl(PLAYCONTROL, deviceItem.value, config.value)
+  triggerControl({ use: PLAYCONTROL, device: deviceItem.value, config: config.value })
 }
 
 const onSrotChange = (useStatus) => {
   config.value[CUTSONG] = { useValue: '1', useStatus }
-  triggerControl(CUTSONG, deviceItem.value, config.value)
+  triggerControl({ use: CUTSONG, device: deviceItem.value, config: config.value })
 }
 
 const onVolumeChange = () => {
   config.value[VOLUME] = { useValue: config.value[VOLUME].useValue, useStatus: VOLUME }
-  triggerControl(VOLUME, deviceItem.value, config.value)
+  triggerControl({ use: VOLUME, device: deviceItem.value, config: config.value })
 }
 
 const onModeChange = (use) => {
-  triggerControl(use, deviceItem.value, config.value)
+  triggerControl({ use, device: deviceItem.value, config: config.value })
 }
 
 const onProcessChange = () => {
-  triggerControl(PROCESS, deviceItem.value, config.value)
+  triggerControl({ use: PROCESS, device: deviceItem.value, config: config.value })
 }
 </script>
 

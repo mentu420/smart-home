@@ -67,7 +67,6 @@ function onSelectRoomItem({ selectedValues }) {
  * 修改自动化events中leixing=1的tiaojian或fujiantioajian的重复时间
  * **/
 const openExecutionTime = (item, i, type) => {
-  console.log(item)
   repeatTimeRef.value?.open({
     timeRepeat: {
       type: item.tiaojian.chongfuleixing,
@@ -80,7 +79,6 @@ const openExecutionTime = (item, i, type) => {
 }
 // 确认修改执行时间
 const onExecutionTimeConfirm = ({ time, timeRepeat }, { eventIndex, type }) => {
-  console.log('timeRepeat', timeRepeat)
   const { events } = createSmartItem.value
   const tiaojian = { chongfuzhi: timeRepeat.value, chongfuleixing: timeRepeat.type, shijian: time }
   const newEvents = events.map((item, i) => {
@@ -102,7 +100,6 @@ const onExecutionTimeConfirm = ({ time, timeRepeat }, { eventIndex, type }) => {
 
 //打开事件设备模块
 const openEventDeviceMode = (modeItem, eventItem, eventIndex, type) => {
-  console.log('openEventDeviceMode', modeItem, eventItem, eventIndex, type)
   modePickerRef.value.open({
     modeItem,
     id: eventItem.tiaojian.id,
@@ -189,7 +186,7 @@ async function onActionSelect(action, actionItem, modeItem) {
         onDelectSceneItem(actionItem)
       }
     } catch (error) {
-      console.log(error)
+      console.warn(error)
     }
   }
 }
@@ -204,7 +201,6 @@ const onDeviceModeChange = (payload, { smartType, id, type, eventIndex }) => {
       ...createSmartItem.value,
       [smartType]: createSmartItem.value[smartType].map((deviceItem) => {
         if (deviceItem.id == id) {
-          console.log(deviceItem)
           return {
             ...deviceItem,
             modeList: mergeObjectIntoArray(payload, deviceItem.modeList, 'use'),
@@ -238,7 +234,6 @@ const onDeviceModeChange = (payload, { smartType, id, type, eventIndex }) => {
 }
 
 function selectOperationDealy({ selectedValues }, { actionItem, modeItem }) {
-  console.log('actionItem', actionItem)
   const { actions } = createSmartItem.value
   const dealy = selectedValues[0] * 60 + Number(selectedValues[1])
   const newActions = actions.map((item) => {
@@ -343,7 +338,6 @@ const onSave = async () => {
     const actionsResult = transformSaveActions(actions)
 
     const eventsResult = transformSaveEvents(events)
-    console.log('eventsResult', eventsResult)
 
     const op = route.query.id ? 3 : 2
     let data = {
@@ -358,7 +352,6 @@ const onSave = async () => {
       params: { op },
       data: op == 3 ? { bianhao: route.query.id, ...data } : data,
     }
-    console.log('save', config.data)
 
     const { useGetSceneListSync, useGetSmartListSync } = smartStore()
 
@@ -373,7 +366,7 @@ const onSave = async () => {
     }
     router.goBack()
   } catch (error) {
-    console.log(error)
+    console.warn(error)
     formRef.value?.scrollToField(error[0].name)
   }
 }
@@ -431,7 +424,6 @@ const getTaskConverActions = (actions) => {
     )
   })
   const ids = [...new Set(modeActions.map((item) => item.id))]
-  console.log('ids', ids)
   return ids.map((id) => {
     const actionModeList = modeActions.filter((modeItem) => modeItem.id == id)
     const ziyuanleixing = actionModeList[0]?.ziyuanleixing
@@ -503,10 +495,7 @@ const autoInit = () => {
   if (!route.query.id) return
   const { id, rId, label, actions = [], events = [], ...data } = getSmartItem.value
   const newActions = getTaskConverActions(actions)
-  console.log('newActions', newActions)
-  // const newEvents =
-  console.log('events')
-  console.log(transformInitEvents(events))
+
   createSmartItem.value = {
     ...createSmartItem.value,
     ...data,
@@ -519,9 +508,7 @@ const autoInit = () => {
 const sceneInit = () => {
   if (route.query.id) {
     const { id, rId, label, actions = [], events = [], ...data } = getSmartItem.value
-    console.log(actions)
     const newActions = getTaskConverActions(actions)
-    console.log('newActions', newActions)
 
     createSmartItem.value = {
       ...createSmartItem.value,

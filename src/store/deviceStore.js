@@ -78,6 +78,8 @@ export default defineStore(storeName, () => {
           }))
         )
 
+        const modeList = setModeColumns(columns)
+
         return {
           ...item,
           modeNames,
@@ -89,10 +91,13 @@ export default defineStore(storeName, () => {
           collect: item.shouye == 1, // 首页是否收藏
           category: item.xiaoleixing,
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
-          columns, // 记录暑假原始值
+          columns, // 记录设备原始值
           // 记录当前设备模块控制值
           // mqtt 对应关系 {use:shuxing, useValue:shuxingzhi, useStatus:shuxingzhuangtai}
-          modeList: setModeColumns(columns),
+          modeList,
+          // 记录设备操作状态数据
+          modeStatusList: modeList.map(({ useColumns, ...statusItem }) => statusItem),
+          loading: false, // 是否还在等待检查状态
         }
       })
       .sort((a, b) => a.sort - b.sort)
@@ -131,6 +136,15 @@ export default defineStore(storeName, () => {
     useDeviceItemChange(deviceItem)
   }
 
+  const setDeviceLoading = (id, bool) => {
+    deviceList.value = deviceList.value.map((deviceItem) => {
+      if (deviceItem.id == id) {
+        return { ...deviceItem, loading: bool }
+      }
+      return deviceItem
+    })
+  }
+
   const reset = () => {
     deviceList.value = []
   }
@@ -145,5 +159,6 @@ export default defineStore(storeName, () => {
     useDeviceMqttChange,
     reset,
     setModeColumns,
+    setDeviceLoading,
   }
 })

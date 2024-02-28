@@ -105,7 +105,6 @@ const onRepeatSelect = async (detail) => {
 }
 
 const onWeekChange = (value) => {
-  console.log(value)
   checkedDate.value = {
     ...checkedDate.value,
     value: value,

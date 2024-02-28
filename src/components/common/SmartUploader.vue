@@ -115,7 +115,6 @@ const fileList = computed({
       })
     }
     const originType = getOriginType(props.modelValue)
-    console.log('originType', originType)
     // 处理文件格式
     if (['[object String]', '[object Array]'].includes(originType) && props.stringSeparator) {
       list = list.map((item) => item.url).join(props.stringSeparator)
@@ -157,7 +156,6 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
   //判断文件类型只判断图片与视频
   if (accept) {
     const fileTypeList = getAcceptFileTypes(accept)
-    console.log('fileTypeList')
     const isAccordAccept = fileMap.every((fileItem) =>
       acceptFileValidate(fileItem?.file?.name || fileItem?.url, fileTypeList)
     )
@@ -206,7 +204,7 @@ const onAfterRead = async (files) => {
     }
     emits('success', files)
   } catch (error) {
-    console.log(error)
+    console.warn(error)
     fileList.value = fileList.value.map((fileItem) => setError(fileItem))
     if (error == 'cancel') showToast('取消了上传')
     emits('error', error)

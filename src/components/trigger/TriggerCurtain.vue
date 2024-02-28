@@ -5,11 +5,9 @@ import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
 
-import { useTrigger } from './useTrigger'
+import { getModeColumns, triggerControl, onConfigFormat, getModeRange } from './useTrigger'
 
 const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
-
-const { getModeColumns, triggerControl, onConfigFormat, getModeRange } = useTrigger()
 
 const props = defineProps({
   id: {
@@ -52,30 +50,29 @@ watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
-    const { modeList, columns } = val
+    const { modeStatusList, columns } = val
     const [minValue, maxValue] = getModeRange(columns, PERCENT)
     min.value = minValue
     max.value = maxValue
-    config.value = onConfigFormat(config.value, modeList)
+    config.value = onConfigFormat(config.value, modeStatusList)
   },
   { immediate: true }
 )
 
 const onStopToggle = () => {
-  console.log('config', config.value)
-  triggerControl(STOP, deviceItem.value, config.value)
+  triggerControl({ use: STOP, device: deviceItem.value, config: config.value })
 }
 
 const onSwitch = (useValue) => {
   config.value[SWITCH] = { useStatus: useValue == '0' ? 'off' : 'on', useValue }
-  triggerControl(SWITCH, deviceItem.value, config.value)
+  triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })
 }
 
 const onPercentChange = () => {
-  triggerControl(PERCENT, deviceItem.value, config.value)
+  triggerControl({ use: PERCENT, device: deviceItem.value, config: config.value })
 }
 const onAngleChange = () => {
-  triggerControl(ANGLE, deviceItem.value, config.value)
+  triggerControl({ use: ANGLE, device: deviceItem.value, config: config.value })
 }
 </script>
 

@@ -30,7 +30,6 @@ watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
-    console.log(val)
     const { modeList = [] } = val
     taskColumns.value = JSON.parse(JSON.stringify(modeList))
   },
@@ -63,7 +62,6 @@ const onSave = () => {
   } else {
     mergeEvents = mergeEventsArray(orginEvents, [newEvent])
   }
-  console.log('mergeEvents', mergeEvents)
   createSmartItem.value = {
     ...createSmartItem.value,
     [smartType]: !extend

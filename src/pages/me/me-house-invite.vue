@@ -41,7 +41,6 @@ async function onSubmit() {
 
 const init = () => {
   powerList.value = [[], [], []]
-  console.log('init', powerList.value)
 }
 
 init()

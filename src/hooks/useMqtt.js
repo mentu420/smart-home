@@ -6,12 +6,22 @@ import deviceStore from '@/store/deviceStore'
 import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import { getStorage } from '@/utils/storage'
+import { isObjectString } from '@/utils/common'
+
+const SENCE = 'Sence'
+const DEVICE = 'Device'
+
+const getTimeStamp = () => new Date().valueOf()
+
+const getMsgid = (yonghubianhao, theme, id) => {
+  return `${yonghubianhao}/${theme}/${id}/${getTimeStamp()}`
+}
 
 // showNotifications 是否打印
 export default function useMqtt() {
   const heartTimer = ref(null) //记录心跳定时器
   const heartDuration = ref(10 * 1000) // 心跳时长
-  const showLog = ref(false)
+  const showLog = ref(true)
 
   const PluginOptions = {
     autoConnect: false, //插件初始化时是否自动连接到代理。
@@ -52,8 +62,8 @@ export default function useMqtt() {
         `App/HeartBeat/${yonghubianhao}`,
         JSON.stringify({
           acessToken,
-          msgid: `${yonghubianhao}/${new Date().valueOf()}`,
-          timeStamp: new Date().valueOf(),
+          msgid: getMsgid(yonghubianhao, 'HeartBeat', '123'),
+          timeStamp: getTimeStamp(),
         }),
         'B',
         false
@@ -91,7 +101,7 @@ export default function useMqtt() {
      * 当设备的状态发生改变，云端或者网关会主动推送设备状态给App； 云端/网关->App
      * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
      * **/
-    $mqtt.subscribe(`Device/State/${yonghubianhao}`, (data) => {
+    $mqtt.subscribe(`${DEVICE}/State/${yonghubianhao}`, (data) => {
       if (showLog.value || getStorage('DEVELOPMENT'))
         console.log('%c设备状态接收主题', 'color: blue; font-weight: bold;', data)
       const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
@@ -117,18 +127,51 @@ export default function useMqtt() {
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
     $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
-      data = JSON.parse(data)
-      const [userId, theme, id] = data.msgid.split('/')
-      if (theme === 'Sence') {
-        const { setSceneLoading } = smartStore()
-        // setSceneLoading(id, false)
-      }
       if (showLog.value || getStorage('DEVELOPMENT')) {
         console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
       }
+      if (!isObjectString(data)) return
+      const { msgid, code } = JSON.parse(data)
+      const [userId, theme, id, timeStamp] = msgid.split('/')
+      if (theme === SENCE) {
+        const { setSceneLoading } = smartStore()
+        if (code == 0) setSceneLoading(id, false)
+      } else if (theme === DEVICE) {
+        /**
+         * 设备控制时：不管是卡片的快捷控制还是控制页面控制，200ms内秒收到mqtt控制回应就算指令发送成功，此时需要更新控制的图片的状态；如果200ms没有收到mqtt控制回应，就不切换；如果200ms回应设备离线等操作失败时也不需要切换控制图片
+         * 控制后如果正常收到指令控制成功的mqtt消息回应，还要延时5S启动检查，刷新当前页面上设备真实状态，以保证获取设备的真实状态；（所有设备的状态数据要缓存起来，mqtt收到状态后就更新缓存）
+         * **/
+        const { setDeviceLoading } = deviceStore()
+        if (code == 0) setDeviceLoading(id, false)
+      }
     })
   }
+  // 设备推送
+  async function mqttDevicePublish({ id, use, useStatus, useValue }, mode = 'B') {
+    const message = {
+      bianhao: id,
+      shuxing: use,
+      shuxingzhuangtai: useStatus,
+      shuxingzhi: useValue || '1',
+    }
+    useMqttPublish(DEVICE, message, mode)
+    const { setDeviceLoading } = deviceStore()
+    setDeviceLoading(id, true)
+  }
+
+  // 场景推送
+  function mqttScenePublish({ id }, mode = 'B') {
+    const message = { bianhao: id }
+    const { setSceneLoading } = smartStore()
+    setSceneLoading(id, true)
+    setTimeout(() => {
+      setSceneLoading(id, false)
+    }, 1000)
+    useMqttPublish(SENCE, message, mode)
+  }
+
   /**
+   * 推送
    * Publish a message
    * @message {msgid,bianhao,shuxing,shuxingzhuangtai,shuxingzhi}
    * {
@@ -139,26 +182,6 @@ export default function useMqtt() {
    *  shuxingzhi: useValue'要控制的设备的物模型属性值 说明：只有是动态属性值(亮度，温度，色温等)的才需要传该值，否则可以默认传"1" ',
    * }
    * **/
-  function mqttDevicePublish({ id, use, useStatus, useValue }, mode = 'B') {
-    const message = {
-      bianhao: id,
-      shuxing: use,
-      shuxingzhuangtai: useStatus,
-      shuxingzhi: useValue || '1',
-    }
-    useMqttPublish('Device', message, mode)
-  }
-
-  function mqttScenePublish({ id }, mode = 'B') {
-    const message = { bianhao: id }
-    const { setSceneLoading } = smartStore()
-    setSceneLoading(id, true)
-    setTimeout(() => {
-      setSceneLoading(id, false)
-    }, 1000)
-    useMqttPublish('Sence', message, mode)
-  }
-
   function useMqttPublish(theme, message, mode) {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
@@ -167,7 +190,7 @@ export default function useMqtt() {
     $mqtt.publish(
       `${theme}/Control/${yonghubianhao}`,
       JSON.stringify({
-        msgid: `${yonghubianhao}/${theme}/${message.bianhao}/${new Date().valueOf()}`,
+        msgid: getMsgid(yonghubianhao, theme, message.bianhao),
         ...message,
       }),
       mode

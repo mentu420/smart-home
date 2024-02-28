@@ -45,7 +45,7 @@ const onCardClick = (sceneItem) => {
 
 <template>
   <div
-    class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 relative"
+    class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 relative min-h-[44px]"
     :class="{ 'h-[30px]': props.isDrag, 'h-[76px]': !props.isDrag }"
   >
     <SmartImage class="w-full h-full" fit="cover" :src="sceneItem?.img" />
@@ -65,7 +65,7 @@ const onCardClick = (sceneItem) => {
         </slot>
       </div>
       <div class="absolute top-0 right-0 z-10 text-white text-[20px]">
-        <van-icon v-if="props.isDrag" class="px-2 py-1" name="wap-nav" />
+        <van-icon v-if="props.isDrag" class="p-3" name="wap-nav" />
         <template v-else>
           <div
             v-if="isMore && houseUserPower(currentHouse.id) != 2"

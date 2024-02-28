@@ -16,7 +16,6 @@ const onDevelopmentChange = (value) => {
 }
 
 const onSubmit = async () => {
-  console.log(123)
   location.reload()
 }
 </script>

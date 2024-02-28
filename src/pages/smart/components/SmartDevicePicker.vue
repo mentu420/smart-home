@@ -5,13 +5,11 @@ import { ref } from 'vue'
 import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import pickerSearch from '@/components/common/PickerSearch.vue'
 import SliderPicker from '@/components/common/SliderPicker.vue'
-import { useTrigger } from '@/components/trigger/useTrigger'
+import { getModeRange } from '@/components/trigger/useTrigger'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 
 const emits = defineEmits(['change'])
-
-const { getModeRange } = useTrigger()
 
 const sliderPickerRef = ref(null)
 const colorPickerRef = ref(null)

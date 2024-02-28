@@ -42,7 +42,6 @@ const onEditPower = async () => {
       [powerKey.value]: checked.value,
       fangwubianhao: route.query.hId,
     }
-    console.log(data)
     await setFamily({ params: { op: 3 }, data })
     familyList.value = familyList.value.map((item) => {
       if (item.id == route.query.id) return { ...item, [powerKey.value]: checked.value }

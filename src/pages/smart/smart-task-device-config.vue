@@ -78,7 +78,6 @@ const onSave = () => {
       })
       .filter((item) => item.useStatus != ''),
   }
-  console.log('currentDeviceItem', currentDeviceItem)
   const { smartType, eventIndex, extend } = route.query
   if (smartType == 'actions') {
     createSmartItem.value = {
@@ -99,8 +98,6 @@ const onSave = () => {
     } else {
       mergeEvents = mergeEventsArray(orginEvents, [newEvent])
     }
-
-    console.log('mergeEvents', mergeEvents)
 
     createSmartItem.value = {
       ...createSmartItem.value,

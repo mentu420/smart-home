@@ -33,7 +33,6 @@ const showDrag = computed(() => {
 const onSceneListSort = (data) => setSceneList({ params: { op: 7 }, data })
 
 async function onDragEnd() {
-  console.log('roomSceneList', roomSceneList.value)
   dragOptions.value.disabled = !dragOptions.value.disabled
   if (!dragOptions.value.disabled) return
   if (tabActive.value == 2) {

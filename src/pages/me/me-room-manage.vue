@@ -87,7 +87,6 @@ const onUpdateFloor = () => {
         [undefined, null]
       ),
     }
-    console.log(config)
     await setFloorList(config)
     await onRefresh()
     showAddFloor.value = false
@@ -127,7 +126,6 @@ const openRoomEdit = (roomItem = {}) => {
 // 新增房间
 const onAddRoomItem = () => {
   onAwaitLoad(async () => {
-    console.log(roomForm.value.checked)
     await Promise.all(
       roomForm.value.checked.map(async (checkedItem) => {
         const data = {

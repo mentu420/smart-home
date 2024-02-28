@@ -9,16 +9,18 @@ import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 
 import TriggerModePopover from './TriggerModePopover.vue'
-import { useTrigger } from './useTrigger'
+import {
+  triggerControl,
+  disabledClass,
+  isDisabled,
+  getModeActions,
+  onConfigFormat,
+  getModeRange,
+} from './useTrigger'
 
 const { useGetDeviceItem, includesUse } = deviceStore()
 
-const { triggerControl, disabledClass, isDisabled, getModeActions, onConfigFormat, getModeRange } =
-  useTrigger()
-
 const { FAN, MODE, TEMPERATURE, SETTEMPERATURE, CURRENTTEMPERATURE, SWITCH } = USE_KEY
-
-console.log(USE_KEY)
 
 const props = defineProps({
   id: {
@@ -65,11 +67,11 @@ watch(
   () => deviceItem.value,
   (val) => {
     if (!val) return
-    const { modeList, columns } = val
+    const { modeStatusList, columns } = val
     const [minValue, maxValue] = getModeRange(columns, TEMPERATURE)
     min.value = minValue
     max.value = maxValue
-    config.value = onConfigFormat(config.value, modeList)
+    config.value = onConfigFormat(config.value, modeStatusList)
     config.value[config.value[TEMPERATURE].useStatus] = config.value[TEMPERATURE].useValue
   },
   { immediate: true }
@@ -83,7 +85,7 @@ const setTemp = () => {
       useStatus: SETTEMPERATURE,
       useValue: config.value[SETTEMPERATURE],
     }
-    triggerControl(TEMPERATURE, deviceItem.value, config.value)
+    triggerControl({ use: TEMPERATURE, device: deviceItem.value, config: config.value })
   })
 }
 
@@ -100,13 +102,13 @@ const onRise = () => {
 }
 
 const onModeChange = (use) => {
-  triggerControl(use, deviceItem.value, config.value)
+  triggerControl({ use, device: deviceItem.value, config: config.value })
 }
 
 const toggle = () => {
   const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
-  triggerControl(SWITCH, deviceItem.value, config.value)
+  triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })
 }
 </script>
 

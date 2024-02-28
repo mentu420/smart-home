@@ -80,7 +80,6 @@ const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
   if (switchMode) {
     const useStatus = status || switchMode.useStatus == 'on' ? 'off' : 'on'
-    console.log('status', useStatus)
     mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
   } else {
     if (status) return

@@ -2,9 +2,7 @@
 import { useRect } from '@vant/use'
 import { ref, computed } from 'vue'
 
-import { useTrigger } from './useTrigger'
-
-const { getPlacement } = useTrigger()
+import { getPlacement } from './useTrigger'
 
 const props = defineProps({
   actions: {

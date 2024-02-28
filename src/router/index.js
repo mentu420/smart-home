@@ -91,8 +91,6 @@ Router.afterEach((to, from) => {
   NProgress.done()
 })
 
-console.log(Router)
-
 Router.goBack = function (delta = -1) {
   this.isBack = true //判断是否是返回操作
   window.history.go(delta)

@@ -52,7 +52,6 @@ const navList = computed(() => {
 const onNavItemClick = (navItem) => {
   if (navItem.id == 3) {
     clickCount.value++
-    console.log('clickCount', clickCount.value)
     if (clickCount.value == 5) {
       new Vconsole()
       setStorage('DEVELOPMENT')
