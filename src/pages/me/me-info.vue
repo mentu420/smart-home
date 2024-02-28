@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { showConfirmDialog } from 'vant'
-import Vconsole from 'vconsole'
+
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -16,7 +16,6 @@ defineOptions({ name: 'MeInfo' })
 
 const router = useRouter()
 const { userInfo } = storeToRefs(userStore())
-const clickCount = ref(0)
 const avatar = ref('https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg')
 
 const onLogout = async () => {
@@ -35,36 +34,18 @@ const onEditAvatar = async (fileList) => {
   userInfo.value = { ...userInfo.value, touxiang: url }
 }
 
-const isDev = ref(false)
-
-const navList = computed(() => {
-  const list = [
-    { id: 0, text: '昵称', value: userInfo.value?.xingming, path: '/me-nickname' },
-    { id: 1, text: '手机号', value: userInfo.value?.shouji, path: '/me-phone-change' },
-    { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
-    { id: 3, text: '版本', value: '', path: '/meVersion' },
-  ]
-  return isDev.value
-    ? [...list, { id: 4, text: '开发者模式', value: '', path: '/me-development' }]
-    : list
-})
+const navList = ref([
+  { id: 0, text: '昵称', value: userInfo.value?.xingming, path: '/me-nickname' },
+  { id: 1, text: '手机号', value: userInfo.value?.shouji, path: '/me-phone-change' },
+  { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
+  { id: 3, text: '版本', value: '', path: '/meVersion' },
+])
 
 const onNavItemClick = (navItem) => {
-  if (navItem.id == 3) {
-    clickCount.value++
-    if (clickCount.value == 5) {
-      new Vconsole()
-      setStorage('DEVELOPMENT')
-      isDev.value = true
-      clickCount.value = 0
-    }
-    return
-  }
   router.push({ path: navItem.path, query: { value: navItem.value } })
 }
 
 const init = () => {
-  isDev.value = getStorage('DEVELOPMENT') ?? false
   avatar.value = userInfo.value?.touxiang
 }
 

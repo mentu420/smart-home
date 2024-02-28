@@ -12,7 +12,7 @@ const form = ref({
 
 const onDevelopmentChange = (value) => {
   if (value) return
-  removeStorage('DEVELOPMENT')
+  removeStorage(import.meta.env.VITE_APP_DEVELOPER)
 }
 
 const onSubmit = async () => {
@@ -21,7 +21,7 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <div>
+  <div class="h-screen bg-page-gray">
     <HeaderNavbar title="开发者模式" />
     <van-form input-align="right" error-message-align="right" @submit="onSubmit">
       <van-field name="switch" label="开关">

@@ -82,6 +82,7 @@ import {
   Notify,
   ConfigProvider,
   NumberKeyboard,
+  FloatingBubble,
 } from 'vant'
 
 export function useVant(app) {
@@ -169,4 +170,5 @@ export function useVant(app) {
     .use(Notify)
     .use(ConfigProvider)
     .use(NumberKeyboard)
+    .use(FloatingBubble)
 }
