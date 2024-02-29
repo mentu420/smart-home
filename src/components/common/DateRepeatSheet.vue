@@ -69,7 +69,6 @@ const onRepeatSelect = async (detail) => {
       showWeek.value = true
       break
     case 5:
-      console.log('dayList', dayList)
       dateRef.value?.open({
         columns: dayList,
       })
@@ -121,6 +120,7 @@ const selectMonthDay = ({ selectedValues }) => {
         ? selectedValues.slice(0, 1)
         : [selectedValues.map((num) => (num < 10 ? '0' + num : num)).join('-')],
   }
+  console.log('selectMonthDay', selectedValues, checkedDate.value)
 }
 
 const toggle = (index) => {

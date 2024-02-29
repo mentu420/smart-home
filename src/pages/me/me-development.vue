@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 
 import { removeStorage } from '@/utils/storage'
+import { setKey } from '@/utils/native/nativeApi'
+import { showDialog } from 'vant'
 
 defineOptions({ name: 'MeDevelopment' })
 
@@ -16,7 +18,8 @@ const onDevelopmentChange = (value) => {
 }
 
 const onSubmit = async () => {
-  location.reload()
+  setKey('url', form.value.developmentUrl)
+  showDialog({ title: '提示', message: '操作成功，请重启APP' })
 }
 </script>
 
