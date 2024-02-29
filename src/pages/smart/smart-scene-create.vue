@@ -427,15 +427,20 @@ const getTaskConverActions = (actions) => {
   return ids.map((id) => {
     const actionModeList = modeActions.filter((modeItem) => modeItem.id == id)
     const ziyuanleixing = actionModeList[0]?.ziyuanleixing
+
     if (ziyuanleixing == 1) {
       const actionDevice = deviceList.value.find((item) => id == item.id)
       return {
         ...actionDevice,
         ziyuanleixing,
-        modeList: actionDevice.modeList.map((modeItem) => {
-          const newModeItem = actionModeList.find((item) => item.use == modeItem.use)
-          return { ...modeItem, ...newModeItem }
-        }),
+        modeList: actionDevice.modeList
+          .filter((modeItem) => {
+            return actionModeList.some((item) => item.use == modeItem.use)
+          })
+          .map((modeItem) => {
+            const newModeItem = actionModeList.find((item) => item.use == modeItem.use)
+            return { ...modeItem, ...newModeItem }
+          }),
       }
     } else {
       return {
@@ -508,8 +513,9 @@ const autoInit = () => {
 const sceneInit = () => {
   if (route.query.id) {
     const { id, rId, label, actions = [], events = [], ...data } = getSmartItem.value
+    console.log('actions', actions)
     const newActions = getTaskConverActions(actions)
-
+    console.log('newActions', newActions)
     createSmartItem.value = {
       ...createSmartItem.value,
       ...data,
