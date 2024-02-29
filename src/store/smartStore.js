@@ -49,10 +49,10 @@ export default defineStore(storeName, () => {
       return '周' + value.map((item) => weekData.value[item].replace('周', '')).join('、')
     } else if (type == 5) {
       return `${repeatItem?.name} - ${value.join(',')}${value.length ? '日' : ''}`
+    } else if (type == 6) {
+      return `${repeatItem?.name} - ${value[0]}月${value[1]}日`
     } else {
-      return `${type == 7 ? '' : repeatItem?.name} ${type == 7 ? '' : '-'}  ${dayjs(value).format(
-        repeatItem.format
-      )}`
+      return dayjs(value.join('-')).format(repeatItem.format)
     }
   })
   // 场景默认图库
