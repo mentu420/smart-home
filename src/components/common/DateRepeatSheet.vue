@@ -69,6 +69,7 @@ const onRepeatSelect = async (detail) => {
       showWeek.value = true
       break
     case 5:
+      console.log('dayList', dayList)
       dateRef.value?.open({
         columns: dayList,
       })
@@ -114,10 +115,10 @@ const onWeekChange = (value) => {
 const selectMonthDay = ({ selectedValues }) => {
   checkedDate.value = {
     ...checkedDate.value,
-    list: selectedValues,
+    list: checkedDate.value.type == 5 ? selectedValues.slice(0, 1) : selectedValues,
     value:
       checkedDate.value.type == 5
-        ? selectedValues
+        ? selectedValues.slice(0, 1)
         : [selectedValues.map((num) => (num < 10 ? '0' + num : num)).join('-')],
   }
 }

@@ -70,6 +70,7 @@ const clearUpdService = () => {
 
 // 根据网络类型出发udp
 function openUdpService() {
+  console.log('openUdpService init')
   const networkType = nativeApi.getNetworkType()
   console.log('openUdpService networkType', networkType)
   if (networkType !== WiFi) {

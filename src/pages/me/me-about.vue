@@ -64,7 +64,7 @@ init()
           《隐私政策》
         </span>
       </p>
-      <p class="mb-safe text-xs">Copyright ©2015-2024 ORVIBO Home.All Rights Reserved</p>
+      <p class="mb-safe text-xs">Copyright ©2022-2024 JoinedLinks.All Rights Reserved</p>
     </footer>
   </div>
 </template>
