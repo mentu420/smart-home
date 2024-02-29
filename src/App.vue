@@ -11,7 +11,7 @@ import useRem from '@/utils/flexible/useRem.js'
 import * as nativeApi from '@/utils/native/nativeApi'
 import { getBroadcastIPAddress, MULTICAST_ADDRESS, UDP_HOST, WiFi } from '@/utils/native/config'
 
-// if (import.meta.env.MODE === 'development') new VConsole()
+if (import.meta.env.MODE === 'development') new VConsole()
 
 const app = inject('App')
 const route = useRoute()
@@ -69,10 +69,9 @@ const clearUpdService = () => {
 }
 
 // 根据网络类型出发udp
-function onUdpService() {
-  console.log('onUdpService')
+function openUdpService() {
   const networkType = nativeApi.getNetworkType()
-  console.log('onUdpService', networkType)
+  console.log('openUdpService networkType', networkType)
   if (networkType !== WiFi) {
     clearUpdService()
     return
@@ -95,7 +94,7 @@ function netStateChange(networkType) {
     clearUpdService()
     return
   }
-  onUdpService()
+  openUdpService()
 }
 
 // 建立mqtt
@@ -122,7 +121,7 @@ const setNativeMethods = () => {
 
 function init() {
   onMqttConnect()
-  onUdpService
+  openUdpService()
 }
 
 useRem()
