@@ -45,7 +45,9 @@ watch(
       }
     })
     taskColumns.value = JSON.parse(JSON.stringify(newModeList.filter((item) => item.use != SWITCH)))
-    const { useStatus, useValue } = newModeList.find((item) => item.use == SWITCH)
+    const switchMode = newModeList.find((item) => item.use == SWITCH)
+    if (!switchMode) return
+    const { useStatus, useValue } = switchMode
     config.value[SWITCH] = { useStatus, useValue }
   },
   { immediate: true }

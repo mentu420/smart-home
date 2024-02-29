@@ -176,7 +176,7 @@ export function sendUdpData(ip, port, data) {
     try {
       api[methodName](ip, port, data)
     } catch (e) {
-      console.error(e)
+      console.warn('sendUdpData:', e)
     }
   })
 }

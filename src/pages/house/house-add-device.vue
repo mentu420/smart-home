@@ -14,10 +14,12 @@ import {
   setOffLineHost,
   getOffLineHost,
   isOnLineMode,
+  CMD_DISCOVER,
 } from '@/utils/native/config'
 import { getNetworkType, stopUdpService, sendUdpData } from '@/utils/native/nativeApi'
 
 import { showConfirmDialog, showDialog } from 'vant'
+import dayjs from 'dayjs'
 
 defineOptions({ name: 'HouseAddDevice' })
 
@@ -32,7 +34,6 @@ const { currentHouse } = storeToRefs(houseStore())
 
 const devices = ref([])
 const searchCount = ref(3)
-const CMD_DISCOVER = 'discover'
 
 const onStart = () => {
   action.value = 0
@@ -62,9 +63,9 @@ const onFoundGateway = (item) => {
 function getUdpData(evt) {
   if (!evt) return
   try {
-    console.log('接收到udp 数据：' + evt)
     const message = JSON.parse(evt)
     onFoundGateway(message)
+    console.log('接收到udp 数据：' + evt)
     if (Object.prototype.toString.call(evt) === '[object Object]' && evt.cmd === CMD_DISCOVER) {
       const { ip, mac, fangwubianhao } = evt.data
       if (fangwubianhao) return
@@ -79,6 +80,7 @@ function getUdpData(evt) {
 window.getUdpData = getUdpData
 
 const initSearch = async (timeout = 4000) => {
+  console.log('searchCount', searchCount.value)
   const networkType = getNetworkType()
   if (networkType !== WiFi) {
     onPause()
@@ -91,6 +93,7 @@ const initSearch = async (timeout = 4000) => {
     onPause()
     return
   }
+  console.log('upd扫描设备', dayjs().format('HH:mm:ss'))
   const data = JSON.stringify({ cmd: CMD_DISCOVER, data: '' })
   sendUdpData(getBroadcastIPAddress(), UDP_HOST, data)
   sendUdpData(MULTICAST_ADDRESS, UDP_HOST, data)

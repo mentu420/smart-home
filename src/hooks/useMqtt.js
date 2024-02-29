@@ -7,9 +7,14 @@ import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import { getStorage } from '@/utils/storage'
 import { isObjectString } from '@/utils/common'
+import deviceInfo from '@/utils/deviceInfo'
 
 const SENCE = 'Sence'
 const DEVICE = 'Device'
+
+const getLogStyle = (color) => {
+  return deviceInfo.platform == 'devtools' ? `color: ${color}; font-weight: bold;` : ''
+}
 
 const getTimeStamp = () => new Date().valueOf()
 
@@ -56,9 +61,9 @@ export default function useMqtt() {
       if (getMqttStatus() !== 'connected') return
       const { useGetToken } = userStore()
       const { acessToken, yonghubianhao } = useGetToken()
-      if (showLog.value) {
-        console.log('%cMQTT发送心跳', 'color: orange; font-weight: bold;', getMqttStatus())
-      }
+      // if (showLog.value) {
+      //   console.log('%cMQTT发送心跳', getLogStyle('orange'), getMqttStatus())
+      // }
       $mqtt.publish(
         `App/HeartBeat/${yonghubianhao}`,
         JSON.stringify({
@@ -87,11 +92,11 @@ export default function useMqtt() {
         createHeartTimer()
       },
       onFailure: (err) => {
-        if (showLog.value) console.log('%cMQTT链接失败', 'color: red; font-weight: bold;', err)
+        if (showLog.value) console.log('%cMQTT链接失败', getLogStyle('red'), err)
         clearHeartTimer()
       },
       onConnectionLost: (err) => {
-        if (showLog.value) console.log('%cMQTT链接丢失', 'color: red; font-weight: bold;', err)
+        if (showLog.value) console.log('%cMQTT链接丢失', getLogStyle('red'), err)
         clearHeartTimer()
       },
     })
@@ -101,12 +106,11 @@ export default function useMqtt() {
      * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
      * **/
     $mqtt.subscribe(`${DEVICE}/State/${yonghubianhao}`, (data) => {
-      if (showLog.value) console.log('%c设备状态接收主题', 'color: blue; font-weight: bold;', data)
+      if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
       const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
       const { deviceList } = storeToRefs(deviceStore())
       deviceList.value = deviceList.value.map((item) => {
         if (item.id == bianhao) {
-          if (showLog.value) console.log(item.label)
           return {
             ...item,
             modeList: item.modeList.map((modeItem) => {
@@ -129,7 +133,7 @@ export default function useMqtt() {
       const { msgid, code } = JSON.parse(data)
       const [userId, theme, id, timeStamp] = msgid.split('/')
       if (showLog.value && theme != 'HeartBeat') {
-        console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
+        console.log('%c通用结果应答主题', getLogStyle('pink'), data)
       }
       if (theme === SENCE) {
         const { setSceneLoading } = smartStore()
@@ -183,7 +187,7 @@ export default function useMqtt() {
   function useMqttPublish(theme, message, mode) {
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
-    if (showLog.value) console.log('%c主题', 'color: green; font-weight: bold;', theme, message)
+    if (showLog.value) console.log('%c主题', getLogStyle('green'), theme, message)
     $mqtt.publish(
       `${theme}/Control/${yonghubianhao}`,
       JSON.stringify({

@@ -37,7 +37,6 @@ const onSubmit = async () => {
         v-model.trim="form.developmentUrl"
         label="开发环境地址"
         placeholder="请输入开发环境地址"
-        :rules="[{ required: form.checked, message: '必填' }]"
       />
       <div class="p-4">
         <van-button round block native-type="submit">确定</van-button>

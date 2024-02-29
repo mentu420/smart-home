@@ -1,6 +1,6 @@
 <script setup>
 import VConsole from 'vconsole'
-import { ref, reactive, watch, onMounted, nextTick, inject } from 'vue'
+import { ref, reactive, watch, onMounted, nextTick, inject, onBeforeUnmount } from 'vue'
 import { $mqtt } from 'vue-paho-mqtt'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -8,8 +8,7 @@ import useMqtt from '@/hooks/useMqtt'
 import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
 import useRem from '@/utils/flexible/useRem.js'
-import * as nativeApi from '@/utils/native/nativeApi'
-import { getBroadcastIPAddress, MULTICAST_ADDRESS, UDP_HOST, WiFi } from '@/utils/native/config'
+import { openUdpService } from '@/utils/native/udpService'
 
 if (import.meta.env.MODE === 'development') new VConsole()
 
@@ -20,7 +19,7 @@ const includeList = ref(['TabbarPage'])
 const theme = ref('light')
 const transitionName = ref('van-slide-left')
 const isNativeBack = ref(false)
-const udpServiceTimer = ref(null) // upd局域网设备探测定时器
+
 const themeVars = reactive({
   uploaderDeleteIconSize: '1.2rem',
   primaryColor: '#07c160',
@@ -43,7 +42,6 @@ watch(
       router.isBack = false
     }
     isNativeBack.value = false
-    nextTick(init)
     //监听路由变化，把配置路由中keepAlive为true的name添加到include动态数组中
     if (includeList.value.includes(route.name)) return
     if (route.meta.keepAlive) includeList.value.push(route.name)
@@ -59,43 +57,6 @@ function h5Back() {
 function onBackKeyForAndroid() {
   if (disabledPaths.includes(route.path)) return
   router.goBack()
-}
-
-// 关闭udp服务 清除udp服务计时器
-const clearUpdService = () => {
-  nativeApi.stopUdpService()
-  clearInterval(udpServiceTimer)
-  udpServiceTimer.value = null
-}
-
-// 根据网络类型出发udp
-function openUdpService() {
-  console.log('openUdpService init')
-  const networkType = nativeApi.getNetworkType()
-  console.log('openUdpService networkType', networkType)
-  if (networkType !== WiFi) {
-    clearUpdService()
-    return
-  }
-  console.log('开启udp服务')
-  nativeApi.startUdpService(UDP_HOST, getBroadcastIPAddress())
-  nativeApi.startUdpService(UDP_HOST, MULTICAST_ADDRESS)
-  // 定时广播 发送局域网设备探测
-  udpServiceTimer.value = setInterval(() => {
-    const data = JSON.stringify({ cmd: 'lan', data: '' })
-    nativeApi.sendUdpData(getBroadcastIPAddress(), UDP_HOST, data)
-    nativeApi.sendUdpData(MULTICAST_ADDRESS, UDP_HOST, data)
-  }, 3000)
-}
-
-// 原生通知手机的网络状态改变
-function netStateChange(networkType) {
-  console.log('netStateChange', networkType)
-  if (networkType != WiFi) {
-    clearUpdService()
-    return
-  }
-  openUdpService()
 }
 
 // 建立mqtt
@@ -117,17 +78,15 @@ const onMqttConnect = () => {
 const setNativeMethods = () => {
   window.h5Back = h5Back
   window.routerBack = onBackKeyForAndroid
-  window.netStateChange = netStateChange
 }
 
 function init() {
   onMqttConnect()
   openUdpService()
 }
-
+init()
 useRem()
 setNativeMethods()
-onMounted(init)
 </script>
 
 <template>

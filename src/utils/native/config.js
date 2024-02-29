@@ -46,6 +46,8 @@ export const UDP_HOST = 1901
 // udp 网络类型WiFi
 export const WiFi = 'WiFi'
 
+export const CMD_DISCOVER = 'discover'
+
 /** 消息服务器主机地址 */
 export const WEB_STOMP_SOCKET_URL = `ws://${
   DEVELOPMENT_MODE ? DEBUGGER_SERVER_HOST_IP : RELEASE_SERVER_HOST_IP
