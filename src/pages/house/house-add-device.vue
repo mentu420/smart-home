@@ -5,38 +5,19 @@ import { setDeviceList } from '@/apis/smartApi'
 
 import LoopAnime from '@/components/anime/loopAnime.vue'
 import houseStore from '@/store/houseStore'
-
 import {
-  getIPAddress,
-  getNetworkType,
-  startUdpService,
-  stopUdpService,
-  sendUdpData,
-} from '@/utils/native/'
-
-import {
+  getBroadcastIPAddress,
+  MULTICAST_ADDRESS,
+  UDP_HOST,
+  WiFi,
   setRemoteHostMode,
   setOffLineHost,
   getOffLineHost,
   isOnLineMode,
 } from '@/utils/native/config'
+import { getNetworkType, stopUdpService, sendUdpData } from '@/utils/native/nativeApi'
+
 import { showConfirmDialog, showDialog } from 'vant'
-
-const AUTO_SEARCH_STATE = { NONE: 1, PENDING: 2, FINISH: 3 }
-const MULTICAST_ADDRESS = '224.0.0.1'
-const NETWORK_TYPE = {
-  WiFi: 'WiFi',
-  '4G': '4G',
-  '3G': '3G',
-  '2G': '2G',
-  NONE: 'No network',
-}
-
-function verifyIpAddress(value) {
-  return /^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])$/.test(
-    value
-  )
-}
 
 defineOptions({ name: 'HouseAddDevice' })
 
@@ -48,9 +29,10 @@ const textList = [
 ]
 const action = ref(0) //0 扫描设备 1 停止扫描并没有发现设备 2：停止扫描并发现设备
 const { currentHouse } = storeToRefs(houseStore())
-const state = ref(AUTO_SEARCH_STATE.NONE)
+
 const devices = ref([])
 const searchCount = ref(3)
+const CMD_DISCOVER = 'discover'
 
 const onStart = () => {
   action.value = 0
@@ -70,8 +52,8 @@ const onFoundGateway = (item) => {
     const { ip, fangwubianhao } = item.data
     if (fangwubianhao === currentHouse.value.id && getOffLineHost() !== ip) {
       console.log('切换到了网关' + ip)
-      setOffLineHost(ip)
-      setRemoteHostMode(false)
+      // setOffLineHost(ip)
+      // setRemoteHostMode(false)
       // this.cancelBroadcast()
     }
   }
@@ -83,10 +65,9 @@ function getUdpData(evt) {
     console.log('接收到udp 数据：' + evt)
     const message = JSON.parse(evt)
     onFoundGateway(message)
-    if (Object.prototype.toString.call(evt) === '[object Object]' && evt.cmd === 'discover') {
+    if (Object.prototype.toString.call(evt) === '[object Object]' && evt.cmd === CMD_DISCOVER) {
       const { ip, mac, fangwubianhao } = evt.data
       if (fangwubianhao) return
-
       const index = devices.value.findIndex((item) => item.mac === mac)
       index > -1 ? (devices.value[index].ip = ip) : devices.value.push({ ip, mac })
     }
@@ -97,17 +78,9 @@ function getUdpData(evt) {
 
 window.getUdpData = getUdpData
 
-const getBroadcastIPAddress = () => {
-  const ipV4ADDRESS = getIPAddress()
-  if (verifyIpAddress(ipV4ADDRESS)) {
-    return ipV4ADDRESS.substring(0, ipV4ADDRESS.lastIndexOf('.') + 1) + '255'
-  }
-  return '127.0.0.1'
-}
-
 const initSearch = async (timeout = 4000) => {
   const networkType = getNetworkType()
-  if (networkType !== NETWORK_TYPE.WiFi) {
+  if (networkType !== WiFi) {
     onPause()
     await showDialog({ title: '提示', message: '请切换至WIFI环境，再重新扫描设备' })
     return
@@ -118,10 +91,9 @@ const initSearch = async (timeout = 4000) => {
     onPause()
     return
   }
-  const ip = 1800
-  const data = JSON.stringify({ cmd: 'discover', data: '' })
-  sendUdpData(MULTICAST_ADDRESS, ip, data)
-  sendUdpData(getBroadcastIPAddress(), ip, data)
+  const data = JSON.stringify({ cmd: CMD_DISCOVER, data: '' })
+  sendUdpData(getBroadcastIPAddress(), UDP_HOST, data)
+  sendUdpData(MULTICAST_ADDRESS, UDP_HOST, data)
   setTimeout(initSearch, timeout)
 }
 

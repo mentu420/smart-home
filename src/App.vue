@@ -8,8 +8,10 @@ import useMqtt from '@/hooks/useMqtt'
 import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
 import useRem from '@/utils/flexible/useRem.js'
+import * as nativeApi from '@/utils/native/nativeApi'
+import { getBroadcastIPAddress, MULTICAST_ADDRESS, UDP_HOST, WiFi } from '@/utils/native/config'
 
-if (import.meta.env.MODE === 'development') new VConsole()
+// if (import.meta.env.MODE === 'development') new VConsole()
 
 const app = inject('App')
 const route = useRoute()
@@ -18,33 +20,20 @@ const includeList = ref(['TabbarPage'])
 const theme = ref('light')
 const transitionName = ref('van-slide-left')
 const isNativeBack = ref(false)
+const udpServiceTimer = ref(null) // upd局域网设备探测定时器
 const themeVars = reactive({
   uploaderDeleteIconSize: '1.2rem',
   primaryColor: '#07c160',
   navBarIconColor: '#333',
   checkboxCheckedIconColor: '#07c160',
 })
-
-useRem()
-
-function h5Back() {
-  if (
-    [
-      '/tabbar/tabbar-house',
-      '/tabbar/tabbar-smart',
-      '/tabbar/tabbar-me',
-      '/account-login',
-    ].includes(route.path)
-  )
-    return
-  router.goBack()
-}
-
-const setNativeMethods = () => {
-  window.h5Back = h5Back
-}
-
-setNativeMethods()
+// 禁止手势的路径
+const disabledPaths = [
+  '/tabbar/tabbar-house',
+  '/tabbar/tabbar-smart',
+  '/tabbar/tabbar-me',
+  '/account-login',
+]
 
 watch(
   () => route.path,
@@ -61,7 +50,56 @@ watch(
   }
 )
 
-function init() {
+// 原生手势返回
+function h5Back() {
+  if (disabledPaths.includes(route.path)) return
+  router.goBack()
+}
+//安卓返回键处理
+function onBackKeyForAndroid() {
+  if (disabledPaths.includes(route.path)) return
+  router.goBack()
+}
+
+// 关闭udp服务 清除udp服务计时器
+const clearUpdService = () => {
+  nativeApi.stopUdpService()
+  clearInterval(udpServiceTimer)
+  udpServiceTimer.value = null
+}
+
+// 根据网络类型出发udp
+function onUdpService() {
+  console.log('onUdpService')
+  const networkType = nativeApi.getNetworkType()
+  console.log('onUdpService', networkType)
+  if (networkType !== WiFi) {
+    clearUpdService()
+    return
+  }
+  console.log('开启udp服务')
+  nativeApi.startUdpService(UDP_HOST, getBroadcastIPAddress())
+  nativeApi.startUdpService(UDP_HOST, MULTICAST_ADDRESS)
+  // 定时广播 发送局域网设备探测
+  udpServiceTimer.value = setInterval(() => {
+    const data = JSON.stringify({ cmd: 'lan', data: '' })
+    nativeApi.sendUdpData(getBroadcastIPAddress(), UDP_HOST, data)
+    nativeApi.sendUdpData(MULTICAST_ADDRESS, UDP_HOST, data)
+  }, 3000)
+}
+
+// 原生通知手机的网络状态改变
+function netStateChange(networkType) {
+  console.log('netStateChange', networkType)
+  if (networkType != WiFi) {
+    clearUpdService()
+    return
+  }
+  onUdpService()
+}
+
+// 建立mqtt
+const onMqttConnect = () => {
   const { useGetToken } = userStore()
   const { createMqtt, mqttSubscribe, getMqttStatus } = useMqtt()
   const isWhite = [...commonRouters.map((item) => item.path), '/']
@@ -75,6 +113,20 @@ function init() {
   }
 }
 
+// 函数挂载window 原生调用
+const setNativeMethods = () => {
+  window.h5Back = h5Back
+  window.routerBack = onBackKeyForAndroid
+  window.netStateChange = netStateChange
+}
+
+function init() {
+  onMqttConnect()
+  onUdpService
+}
+
+useRem()
+setNativeMethods()
 onMounted(init)
 </script>
 

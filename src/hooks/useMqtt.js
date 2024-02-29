@@ -125,12 +125,12 @@ export default function useMqtt() {
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
     $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
-      if (showLog.value) {
-        console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
-      }
       if (!isObjectString(data)) return
       const { msgid, code } = JSON.parse(data)
       const [userId, theme, id, timeStamp] = msgid.split('/')
+      if (showLog.value && theme != 'HeartBeat') {
+        console.log('%c通用结果应答主题', 'color: pink; font-weight: bold;', data)
+      }
       if (theme === SENCE) {
         const { setSceneLoading } = smartStore()
         if (code == 0) setSceneLoading(id, false)

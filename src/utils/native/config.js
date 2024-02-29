@@ -1,5 +1,6 @@
 // import { defaultEmits } from 'vue'
 import store from '@/store'
+import { getIPAddress } from './nativeApi'
 
 const CUSTOMIZE_IP = localStorage.getItem('customize_ip')
 
@@ -35,6 +36,15 @@ export const REMOTE_HOST = `${
 /** 本地服务器主机地址 */
 // export let OFFLINE_HOST = '192.168.168.128'
 export let OFFLINE_HOST = '127.0.0.1'
+
+// udp 默认网关
+export const MULTICAST_ADDRESS = '239.0.0.1'
+
+// udp 默认端口
+export const UDP_HOST = 1901
+
+// udp 网络类型WiFi
+export const WiFi = 'WiFi'
 
 /** 消息服务器主机地址 */
 export const WEB_STOMP_SOCKET_URL = `ws://${
@@ -78,4 +88,19 @@ export function getBaseURL(allWaysRemote = false) {
     return `http://${REMOTE_HOST}/V4`
   }
   return `http://${REMOTE_HOST_MODE ? REMOTE_HOST : OFFLINE_HOST}/V4`
+}
+
+export function verifyIpAddress(value) {
+  return /^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])$/.test(
+    value
+  )
+}
+
+// 获取 ipv4 地址
+export const getBroadcastIPAddress = () => {
+  const ipV4ADDRESS = getIPAddress()
+  if (verifyIpAddress(ipV4ADDRESS)) {
+    return ipV4ADDRESS.substring(0, ipV4ADDRESS.lastIndexOf('.') + 1) + '255'
+  }
+  return '127.0.0.1'
 }
