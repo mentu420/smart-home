@@ -28,7 +28,7 @@ const { houseList, floorList, currentHouse, roomList } = storeToRefs(useHouseSto
 const { deviceList } = storeToRefs(useDeviceStore)
 const { sceneList } = storeToRefs(usesmartStore)
 const { mqttDevicePublish } = useMqtt()
-
+const skeletonLoading = ref(false)
 const loading = ref(false)
 const currentRoomId = ref('-1') //当前房间编号
 const currentFloorId = ref('') //当前楼层id
@@ -202,6 +202,7 @@ const onRoomChange = (roomItem, roomIndex) => {
 const init = async () => {
   try {
     loading.value = true
+    skeletonLoading.value = true
     dragOptions.value.disabled = true
     const { useGetToken, useUserInfoSync } = userStore()
     const token = useGetToken()
@@ -214,6 +215,7 @@ const init = async () => {
     console.warn(err)
   } finally {
     loading.value = false
+    skeletonLoading.value = false
   }
 }
 
@@ -237,7 +239,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 </script>
 
 <template>
-  <van-skeleton :loading="loading">
+  <van-skeleton :loading="skeletonLoading">
     <template #template>
       <ul class="h-screen w-full mt-safe overflow-hidden">
         <li class="h-[20px] my-[12px] bg-gray-200"></li>
