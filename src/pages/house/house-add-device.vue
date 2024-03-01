@@ -101,10 +101,14 @@ const initSearch = async (timeout = 4000) => {
 const onBindDevice = async (item) => {
   try {
     await showConfirmDialog({ title: '提示', message: '是否绑定？' })
-    await setDeviceList({
+    const params = {
       params: { op: 10 },
       data: { shebeibianhao: item.mac, fangwubianhao: currentHouse.value.id },
-    })
+    }
+    console.log('绑定设备的参数：', params)
+    const res = await setDeviceList(params)
+    console.log('绑定设备返回的结果：', res)
+    if (res.code != 0) return
     devices.value = devices.value.filter((deviceItem) => deviceItem.mac != item.mac)
     await showDialog({ title: '绑定成功' })
   } catch (error) {

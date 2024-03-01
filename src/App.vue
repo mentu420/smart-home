@@ -64,9 +64,10 @@ const isWhite = [...commonRouters.map((item) => item.path), '/']
 
 // 建立mqtt
 const onMqttConnect = () => {
+  console.log('MQTT Connect')
   const { createMqtt, mqttSubscribe, getMqttStatus } = useMqtt()
   const status = getMqttStatus()
-  if (!onLine.value || isWhite.includes(route.path)) {
+  if (!onLine.value) {
     if (status == 'connected') $mqtt.disconnect()
   } else {
     if (status == 'connected') return
