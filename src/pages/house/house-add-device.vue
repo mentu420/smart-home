@@ -144,7 +144,7 @@ onMounted(init)
         :title="deviceItem.mac"
         :label="deviceItem.ip"
       >
-        <van-button v-loading-click="onBindDevice(deviceItem)" size="small" plain round>
+        <van-button v-loading-click="() => onBindDevice(deviceItem)" size="small" plain round>
           绑定
         </van-button>
       </van-cell>
