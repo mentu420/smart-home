@@ -2,7 +2,6 @@
 import { storeToRefs } from 'pinia'
 import { ref, onMounted, computed } from 'vue'
 import { setDeviceList } from '@/apis/smartApi'
-
 import LoopAnime from '@/components/anime/loopAnime.vue'
 import houseStore from '@/store/houseStore'
 import {
@@ -10,16 +9,14 @@ import {
   MULTICAST_ADDRESS,
   UDP_HOST,
   WiFi,
-  setRemoteHostMode,
-  setOffLineHost,
   getOffLineHost,
   isOnLineMode,
   CMD_DISCOVER,
 } from '@/utils/native/config'
 import { getNetworkType, stopUdpService, sendUdpData } from '@/utils/native/nativeApi'
-
 import { showConfirmDialog, showDialog } from 'vant'
 import dayjs from 'dayjs'
+import { isObjectString } from '@/utils/common'
 
 defineOptions({ name: 'HouseAddDevice' })
 
@@ -63,6 +60,7 @@ const onFoundGateway = (item) => {
 function getUdpData(evt) {
   if (!evt) return
   try {
+    if (!isObjectString(evt)) return
     const message = JSON.parse(evt)
     onFoundGateway(message)
     console.log('接收到udp 数据：' + evt)

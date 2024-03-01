@@ -136,7 +136,6 @@ const toggle = (index) => {
     :label="getRepeatTimeText(checkedDate)"
     @click="showRepeatAction = true"
   />
-  {{ checkedDate }}
   <van-action-sheet
     v-model:show="showRepeatAction"
     :actions="sheetActions"

@@ -107,18 +107,21 @@ export default function useMqtt() {
      * **/
     $mqtt.subscribe(`${DEVICE}/State/${yonghubianhao}`, (data) => {
       if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
+      if (!isObjectString(data)) return
       const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
       const { deviceList } = storeToRefs(deviceStore())
       deviceList.value = deviceList.value.map((item) => {
         if (item.id == bianhao) {
+          const newModeList = item.modeList.map((modeItem) => {
+            if (modeItem.use == shuxing) {
+              return { ...modeItem, useStatus: shuxingzhuangtai, useValue: shuxingzhi }
+            }
+            return modeItem
+          })
           return {
             ...item,
-            modeList: item.modeList.map((modeItem) => {
-              if (modeItem.use == shuxing) {
-                return { ...modeItem, useStatus: shuxingzhuangtai, useValue: shuxingzhi }
-              }
-              return modeItem
-            }),
+            modeList: newModeList,
+            modeStatusList: newModeList.map(({ useColumns, ...statusItem }) => statusItem),
           }
         }
         return item
