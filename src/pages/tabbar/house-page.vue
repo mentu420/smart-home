@@ -201,6 +201,7 @@ const onRoomChange = (roomItem, roomIndex) => {
 
 const init = async () => {
   try {
+    loading.value = true
     dragOptions.value.disabled = true
     const { useGetToken, useUserInfoSync } = userStore()
     const token = useGetToken()
@@ -236,222 +237,247 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 </script>
 
 <template>
-  <div class="min-h-screen bg-page-gray p-safe">
-    <!--当前房屋-->
-    <van-sticky z-index="5" @change="(isFixed) => (isTopFixed = isFixed)">
-      <transition name="van-fade">
-        <section v-if="dragOptions.disabled && !isTopFixed" class="bg-page-gray mb-[30px]">
-          <div class="flex justify-between py-3 items-center px-4 space-x-4 transition-all">
-            <HousePopover
-              :model-value="currentHouse?.id"
-              :actions="houseList"
-              :more-action="{ path: '/me-house-list', label: '房屋管理' }"
-              placement="bottom-start"
-              @select="onHouseSelect"
+  <van-skeleton :loading="loading">
+    <template #template>
+      <ul class="h-screen w-full mt-safe overflow-hidden">
+        <li class="h-[20px] my-[12px] bg-gray-200"></li>
+        <li class="h-[30px]"></li>
+        <li class="h-[20px] my-[12px] bg-gray-200"></li>
+        <li class="h-[16px] bg-gray-200 w-[30vw] my-[12px]"></li>
+        <li class="mb-4">
+          <ol class="grid gap-4 grid-cols-2">
+            <li v-for="cardItem in 2" :key="cardItem" class="bg-gray-200 rounded-lg h-[76px]"></li>
+          </ol>
+        </li>
+        <li class="h-[16px] bg-gray-200 w-[30vw] my-[12px]"></li>
+        <li class="mb-4">
+          <ol class="grid gap-4 grid-cols-2">
+            <li v-for="cardItem in 8" :key="cardItem" class="bg-gray-200 rounded-lg h-[104px]"></li>
+          </ol>
+        </li>
+      </ul>
+    </template>
+    <div class="min-h-screen bg-page-gray p-safe">
+      <!--当前房屋-->
+      <van-sticky z-index="5" @change="(isFixed) => (isTopFixed = isFixed)">
+        <transition name="van-fade">
+          <section v-if="dragOptions.disabled && !isTopFixed" class="bg-page-gray mb-[30px]">
+            <div class="flex justify-between py-3 items-center px-4 space-x-4 transition-all">
+              <HousePopover
+                :model-value="currentHouse?.id"
+                :actions="houseList"
+                :more-action="{ path: '/me-house-list', label: '房屋管理' }"
+                placement="bottom-start"
+                @select="onHouseSelect"
+              >
+                <template #reference>
+                  <div class="flex items-center space-x-2 text-[16px]">
+                    <p class="max-w-[240px] truncate font-bold">{{ currentHouse?.label }}</p>
+                    <IconFont class="text-[6px]" icon="triangle-bottom" />
+                  </div>
+                </template>
+              </HousePopover>
+              <div class="space-x-4 shrink-0">
+                <van-icon size="20" name="bell" />
+                <van-icon size="20" name="plus" @click="goAddDevice" />
+              </div>
+            </div>
+          </section>
+        </transition>
+      </van-sticky>
+
+      <div
+        v-if="isTopFixed"
+        class="fixed left-0 right-0 w-full top-0 house-top__placeholder bg-page-gray z-[5]"
+      ></div>
+
+      <section class="bg-page-gray sticky z-10 house-tabs">
+        <div
+          class="h-[44px] overflow-hidden relative text-[16px] flex justify-between items-center"
+        >
+          <ul
+            ref="scrollContainerRef"
+            class="flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content pl-2"
+          >
+            <li
+              v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
+              :key="roomIndex"
+              class="relative flex-none leading-[44px] flex px-2 transition-all"
+              :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
+              @click="onRoomChange(roomItem, roomIndex)"
             >
-              <template #reference>
-                <div class="flex items-center space-x-2 text-[16px]">
-                  <p class="max-w-[240px] truncate font-bold">{{ currentHouse?.label }}</p>
-                  <IconFont class="text-[6px]" icon="triangle-bottom" />
-                </div>
-              </template>
-            </HousePopover>
-            <div class="space-x-4 shrink-0">
-              <van-icon size="20" name="bell" />
-              <van-icon size="20" name="plus" @click="goAddDevice" />
+              {{ roomItem.label }}
+            </li>
+          </ul>
+          <!--切换楼层-->
+          <div class="shrink-0 pl-2 bg-page-gray">
+            <div
+              class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4"
+              :class="{ 'bg-white': dragOptions.disabled }"
+            >
+              <van-button
+                v-if="!dragOptions.disabled"
+                v-loading-click="onDragEnd"
+                round
+                type="gray"
+                class="!px-3"
+                size="small"
+              >
+                完成
+              </van-button>
+              <HousePopover
+                v-else
+                v-model="currentFloorId"
+                :actions="floorList"
+                :more-action="{
+                  path: `/me-room-manage?id=${currentHouse.id}`,
+                  label: '房间管理',
+                }"
+                placement="bottom-end"
+                @select="setCurrentFloorRoomList"
+              >
+                <template #reference>
+                  <div class="flex items-center bg-white py-1 space-x-1">
+                    <p class="w-[40px] truncate text-xs shrink-0 text-center">
+                      {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
+                    </p>
+                    <IconFont class="text-[6px]" icon="triangle-bottom" />
+                  </div>
+                </template>
+              </HousePopover>
             </div>
           </div>
-        </section>
-      </transition>
-    </van-sticky>
-
-    <div
-      v-if="isTopFixed"
-      class="fixed left-0 right-0 w-full top-0 house-top__placeholder bg-page-gray z-[5]"
-    ></div>
-
-    <section class="bg-page-gray sticky z-10 house-tabs">
-      <div class="h-[44px] overflow-hidden relative text-[16px] flex justify-between items-center">
-        <ul
-          ref="scrollContainerRef"
-          class="flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content pl-2"
-        >
-          <li
-            v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
-            :key="roomIndex"
-            class="relative flex-none leading-[44px] flex px-2 transition-all"
-            :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
-            @click="onRoomChange(roomItem, roomIndex)"
-          >
-            {{ roomItem.label }}
-          </li>
-        </ul>
-        <!--切换楼层-->
-        <div class="shrink-0 pl-2 bg-page-gray">
-          <div
-            class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4"
-            :class="{ 'bg-white': dragOptions.disabled }"
-          >
-            <van-button
-              v-if="!dragOptions.disabled"
-              v-loading-click="onDragEnd"
-              round
-              type="gray"
-              class="!px-3"
-              size="small"
-            >
-              完成
-            </van-button>
-            <HousePopover
-              v-else
-              v-model="currentFloorId"
-              :actions="floorList"
-              :more-action="{
-                path: `/me-room-manage?id=${currentHouse.id}`,
-                label: '房间管理',
-              }"
-              placement="bottom-end"
-              @select="setCurrentFloorRoomList"
-            >
-              <template #reference>
-                <div class="flex items-center bg-white py-1 space-x-1">
-                  <p class="w-[40px] truncate text-xs shrink-0 text-center">
-                    {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
-                  </p>
-                  <IconFont class="text-[6px]" icon="triangle-bottom" />
-                </div>
-              </template>
-            </HousePopover>
-          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <div>
-      <van-tabs
-        v-model:active="currentRoomId"
-        class="house-tabs__hide"
-        background="#f7f7f7"
-        shrink
-        line-width="0"
-        animated
-        :swipeable="dragOptions.disabled"
-      >
-        <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
-          <section class="p-4">
-            <template v-for="collectItem in collectList" :key="collectItem.text">
-              <h4 class="mb-2 text-gray-600">{{ collectItem.text }}</h4>
+      <div>
+        <van-tabs
+          v-model:active="currentRoomId"
+          class="house-tabs__hide"
+          background="#f7f7f7"
+          shrink
+          line-width="0"
+          animated
+          :swipeable="dragOptions.disabled"
+        >
+          <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
+            <section class="p-4">
+              <template v-for="collectItem in collectList" :key="collectItem.text">
+                <h4 class="mb-2 text-gray-600">{{ collectItem.text }}</h4>
+                <draggable
+                  v-model="collectItem.list"
+                  item-key="id"
+                  :group="collectItem.group"
+                  v-bind="dragOptions"
+                  class="grid grid-cols-2 gap-4"
+                >
+                  <template #item="{ element }">
+                    <ScenenCardItem
+                      v-if="collectItem.group == 'collect-scene'"
+                      :id="element.id"
+                      :is-drag="!dragOptions.disabled"
+                    />
+                    <DeviceCardItem v-else :id="element.id" :is-drag="!dragOptions.disabled" />
+                  </template>
+                </draggable>
+                <van-empty
+                  v-if="collectItem.list?.length == 0"
+                  image-size="4rem"
+                  :image="collectEmptyImage"
+                  :description="`暂无收藏的${
+                    collectItem.group == 'collect-scene' ? '场景' : '设备'
+                  }`"
+                />
+                <div class="h-6"></div>
+              </template>
+            </section>
+          </van-tab>
+          <!--当前楼层所有房间-->
+          <van-tab
+            v-for="(roomItem, roomIndex) in roomFilterList"
+            :key="roomIndex"
+            :title="roomItem.label"
+            :disabled="!dragOptions.disabled"
+            :name="roomItem.id"
+          >
+            <section class="p-4">
               <draggable
-                v-model="collectItem.list"
+                v-model="roomItem.sceneList"
                 item-key="id"
-                :group="collectItem.group"
+                group="scene"
                 v-bind="dragOptions"
                 class="grid grid-cols-2 gap-4"
               >
-                <template #item="{ element }">
-                  <ScenenCardItem
-                    v-if="collectItem.group == 'collect-scene'"
-                    :id="element.id"
-                    :is-drag="!dragOptions.disabled"
-                  />
-                  <DeviceCardItem v-else :id="element.id" :is-drag="!dragOptions.disabled" />
+                <template #item="{ element: sceneItem }">
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
                 </template>
               </draggable>
-              <van-empty
-                v-if="collectItem.list?.length == 0"
-                image-size="4rem"
-                :image="collectEmptyImage"
-                :description="`暂无收藏的${collectItem.group == 'collect-scene' ? '场景' : '设备'}`"
-              />
-              <div class="h-6"></div>
-            </template>
-          </section>
-        </van-tab>
-        <!--当前楼层所有房间-->
-        <van-tab
-          v-for="(roomItem, roomIndex) in roomFilterList"
-          :key="roomIndex"
-          :title="roomItem.label"
-          :disabled="!dragOptions.disabled"
-          :name="roomItem.id"
-        >
-          <section class="p-4">
-            <draggable
-              v-model="roomItem.sceneList"
-              item-key="id"
-              group="scene"
-              v-bind="dragOptions"
-              class="grid grid-cols-2 gap-4"
-            >
-              <template #item="{ element: sceneItem }">
-                <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
-              </template>
-            </draggable>
 
-            <template v-if="roomItem.deviceList.length > 0">
-              <div class="flex items-center py-4">
-                <h4 class="text-gray-600">照明</h4>
-                <label class="ml-2 text-xs text-gray-400">
-                  {{
-                    roomItem.deviceList.filter((deviceItem) =>
-                      deviceItem.modeList?.filter(
-                        (modeItem) => modeItem?.use == 'switch' && modeItem?.useEn == 'on'
-                      )
-                    ).length
-                  }}个灯亮
-                </label>
-              </div>
-              <div v-if="dragOptions.disabled" class="mb-4 grid grid-cols-2 gap-4">
-                <div
-                  v-for="(switchItem, switchIndex) in [
-                    { text: '全开', status: 'on' },
-                    { text: '全关', status: 'off' },
-                  ]"
-                  :key="switchIndex"
-                  v-clickable-active
-                  class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 h-[76px] relative"
-                  @click="onAllDeviceToggle(roomItem.deviceList, switchItem.status)"
-                >
-                  <SmartImage
-                    class="w-full h-full"
-                    fit="cover"
-                    src="https://derucci-app-obs.iderucci.com/cloud-derucci-system/20230330/c21hcnQtYmctMS4xNjgwMTYzNzE5NzM2.jpg"
-                  />
+              <template v-if="roomItem.deviceList.length > 0">
+                <div class="flex items-center py-4">
+                  <h4 class="text-gray-600">照明</h4>
+                  <label class="ml-2 text-xs text-gray-400">
+                    {{
+                      roomItem.deviceList.filter((deviceItem) =>
+                        deviceItem.modeList?.filter(
+                          (modeItem) => modeItem?.use == 'switch' && modeItem?.useEn == 'on'
+                        )
+                      ).length
+                    }}个灯亮
+                  </label>
+                </div>
+                <div v-if="dragOptions.disabled" class="mb-4 grid grid-cols-2 gap-4">
                   <div
-                    class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white"
+                    v-for="(switchItem, switchIndex) in [
+                      { text: '全开', status: 'on' },
+                      { text: '全关', status: 'off' },
+                    ]"
+                    :key="switchIndex"
+                    v-clickable-active
+                    class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 h-[76px] relative"
+                    @click="onAllDeviceToggle(roomItem.deviceList, switchItem.status)"
                   >
-                    {{ switchItem.text }}
+                    <SmartImage
+                      class="w-full h-full"
+                      fit="cover"
+                      src="https://derucci-app-obs.iderucci.com/cloud-derucci-system/20230330/c21hcnQtYmctMS4xNjgwMTYzNzE5NzM2.jpg"
+                    />
+                    <div
+                      class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white"
+                    >
+                      {{ switchItem.text }}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </template>
-            <van-empty v-else image="search" description="暂无设备">
-              <van-button class="!px-6" size="small" plain round @click="goAddDevice">
-                添加设备
-              </van-button>
-            </van-empty>
-
-            <draggable
-              v-model="roomItem.deviceList"
-              item-key="id"
-              group="device"
-              v-bind="dragOptions"
-              class="grid grid-cols-2 gap-4"
-            >
-              <template #item="{ element: deviceItem }">
-                <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
               </template>
-            </draggable>
-          </section>
-        </van-tab>
-      </van-tabs>
-      <div v-if="showDragBtn" class="p-6 text-center">
-        <van-button class="!px-6" size="small" plain round @click="onDragCancel">
-          {{ dragOptions.disabled ? '编辑' : '取消' }}
-        </van-button>
+              <van-empty v-else image="search" description="暂无设备">
+                <van-button class="!px-6" size="small" plain round @click="goAddDevice">
+                  添加设备
+                </van-button>
+              </van-empty>
+
+              <draggable
+                v-model="roomItem.deviceList"
+                item-key="id"
+                group="device"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 gap-4"
+              >
+                <template #item="{ element: deviceItem }">
+                  <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
+                </template>
+              </draggable>
+            </section>
+          </van-tab>
+        </van-tabs>
+        <div v-if="showDragBtn" class="p-6 text-center">
+          <van-button class="!px-6" size="small" plain round @click="onDragCancel">
+            {{ dragOptions.disabled ? '编辑' : '取消' }}
+          </van-button>
+        </div>
       </div>
     </div>
-  </div>
+  </van-skeleton>
 </template>
 
 <style scoped lang="scss">
