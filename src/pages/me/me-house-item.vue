@@ -136,9 +136,9 @@ const addHouseItem = () => {
           </template>
         </SmartUploader>
       </van-cell>
-      <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
+      <!-- <van-cell center clickable title="家庭二维码" is-link @click="showQrCode = true">
         <IconFont icon="system-QRcode" />
-      </van-cell>
+      </van-cell> -->
       <div class="h-4 bg-page-gray"></div>
       <van-cell
         center

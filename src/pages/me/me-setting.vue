@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const navList = ref([
-  { path: '', text: '多语言', icon: 'chat-o' },
+  // { path: '', text: '多语言', icon: 'chat-o' },
   { path: '/me-about', text: '关于', icon: 'warning-o' },
 ])
 </script>

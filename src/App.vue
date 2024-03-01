@@ -1,4 +1,5 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import VConsole from 'vconsole'
 import { ref, reactive, watch, onMounted, nextTick, inject, onBeforeUnmount } from 'vue'
 import { $mqtt } from 'vue-paho-mqtt'
@@ -8,7 +9,7 @@ import useMqtt from '@/hooks/useMqtt'
 import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
 import useRem from '@/utils/flexible/useRem.js'
-import { openUdpService } from '@/utils/native/udpService'
+import { openUdpService, closeUdpService } from '@/utils/native/udpService'
 
 if (import.meta.env.MODE === 'development') new VConsole()
 
@@ -19,7 +20,7 @@ const includeList = ref(['TabbarPage'])
 const theme = ref('light')
 const transitionName = ref('van-slide-left')
 const isNativeBack = ref(false)
-
+const { onLine } = storeToRefs(userStore())
 const themeVars = reactive({
   uploaderDeleteIconSize: '1.2rem',
   primaryColor: '#07c160',
@@ -59,18 +60,27 @@ function onBackKeyForAndroid() {
   router.goBack()
 }
 
+const isWhite = [...commonRouters.map((item) => item.path), '/']
+
 // 建立mqtt
 const onMqttConnect = () => {
-  const { useGetToken } = userStore()
   const { createMqtt, mqttSubscribe, getMqttStatus } = useMqtt()
-  const isWhite = [...commonRouters.map((item) => item.path), '/']
   const status = getMqttStatus()
-  if (isWhite.includes(route.path)) {
+  if (!onLine.value || isWhite.includes(route.path)) {
     if (status == 'connected') $mqtt.disconnect()
   } else {
-    if (!useGetToken() || status == 'connected') return
+    if (status == 'connected') return
     createMqtt(app)
     mqttSubscribe(true)
+  }
+}
+
+const onUpdService = () => {
+  console.log('onUpdService', onLine.value)
+  if (!onLine.value) {
+    closeUdpService()
+  } else {
+    openUdpService()
   }
 }
 
@@ -82,9 +92,18 @@ const setNativeMethods = () => {
 
 function init() {
   onMqttConnect()
-  openUdpService()
+  onUpdService()
 }
-init()
+
+watch(
+  () => onLine.value,
+  (val) => {
+    console.log('在线状态变化', val)
+    init()
+  },
+  { immediate: true }
+)
+
 useRem()
 setNativeMethods()
 </script>

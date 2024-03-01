@@ -38,7 +38,7 @@ const navList = ref([
   { id: 0, text: '昵称', value: userInfo.value?.xingming, path: '/me-nickname' },
   { id: 1, text: '手机号', value: userInfo.value?.shouji, path: '/me-phone-change' },
   { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
-  { id: 3, text: '版本', value: '', path: '/meVersion' },
+  // { id: 3, text: '版本', value: '', path: '/meVersion' },
 ])
 
 const onNavItemClick = (navItem) => {

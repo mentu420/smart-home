@@ -71,6 +71,8 @@ const goOtherLogin = () => {
           class="!py-6"
           :formatter="trimFormat"
           :rules="[{ required: true, message: '请填写用户名' }]"
+          @focus="showPopover = true"
+          @blur="showPopover = false"
         >
           <template #extra>
             <van-popover v-model:show="showPopover" placement="bottom-end">
