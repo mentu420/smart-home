@@ -43,7 +43,7 @@ export default function useMqtt() {
 
       MqttOptions: {
         host: '152.136.150.207', //MQTT 代理的主机名或 IP 地址
-        port: 2883, //MQTT 代理的端口号
+        port: 8083, //MQTT 代理的端口号
         // useSSL: true,
         clientId: clientID, //连接到代理时使用的客户端标识符
         mainTopic: 'Cloud', // 主题
