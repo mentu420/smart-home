@@ -14,7 +14,7 @@ import {
   CMD_DISCOVER,
 } from '@/utils/native/config'
 import { getNetworkType, sendUdpData } from '@/utils/native/nativeApi'
-import { showConfirmDialog, showDialog } from 'vant'
+import { showConfirmDialog, showDialog, showToast } from 'vant'
 import dayjs from 'dayjs'
 import { isObjectString } from '@/utils/common'
 import deviceStore from '@/store/deviceStore'
@@ -27,7 +27,7 @@ const router = useRouter()
 
 const animeRef = ref(null)
 const textList = [
-  { title: '正在扫描附件的设备...', des: '请确保设备在手机附近,已接通电源,且连接WIFI' },
+  { title: '正在扫描附近的设备...', des: '请确保设备在手机附近,已接通电源,且连接WIFI' },
   { title: '未发现附近的设备！', des: '没有发现想要的设备，可点击下方的“重新扫描”' },
   { title: '发现设备', des: '请选择设备并绑定' },
 ]
@@ -35,7 +35,7 @@ const action = ref(0) //0 扫描设备 1 停止扫描并没有发现设备 2：�
 const { currentHouse } = storeToRefs(houseStore())
 const { hostList } = storeToRefs(deviceStore())
 
-//{"cmd":"discover","data":{"ip":"10.10.20.49","mac":"0a:52:11:6c:6c:da","sn":"3704d936-6664-48d9-970c-c48a33790b1f","type":"1"}}
+//
 const devices = ref([])
 const searchCount = ref(9)
 
@@ -97,6 +97,7 @@ const initSearch = async (timeout = updServiceTimeout) => {
   sendUdpTimer = setTimeout(initSearch, timeout)
 }
 
+//{"cmd":"discover","data":{"ip":"10.10.20.49","mac":"0a:52:11:6c:6c:da","sn":"3704d936-6664-48d9-970c-c48a33790b1f","type":"1"}}
 const onBindDevice = async (item) => {
   try {
     await showConfirmDialog({ title: '提示', message: '是否绑定？' })
@@ -111,13 +112,14 @@ const onBindDevice = async (item) => {
     // 绑定成功缓存网关地址
     hostList.value = [
       ...hostList.value,
-      devices.value.find((deviceItem) => deviceItem.mac == item.mac),
+      devices.value?.find((deviceItem) => deviceItem.mac == item.mac),
     ]
+
     devices.value = devices.value.filter((deviceItem) => deviceItem.mac != item.mac)
     await showDialog({ title: '绑定成功' })
     router.push({ path: '/me-host-list' })
   } catch (error) {
-    //
+    console.log(error)
   }
 }
 

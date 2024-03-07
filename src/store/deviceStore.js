@@ -14,8 +14,8 @@ export default defineStore(storeName, () => {
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
-    deviceList.value = storeRes?.deviceList
-    hostList.value = storeRes?.hostList
+    deviceList.value = storeRes?.deviceList ?? []
+    hostList.value = storeRes?.hostList ?? []
   }
 
   init()
