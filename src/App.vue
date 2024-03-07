@@ -81,7 +81,7 @@ const onUpdService = () => {
   if (!onLine.value) {
     closeUdpService()
   } else {
-    openUdpService()
+    // openUdpService()
   }
 }
 

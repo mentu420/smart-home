@@ -119,4 +119,10 @@ export default [
     component: () => import('@/pages/me/me-development.vue'),
     meta: { title: '开发者模式' },
   },
+  {
+    path: '/me-host-list',
+    name: 'MeHostList',
+    component: () => import('@/pages/me/me-host-list.vue'),
+    meta: { title: '开发者模式' },
+  },
 ]

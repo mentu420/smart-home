@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { setDeviceList } from '@/apis/smartApi'
 import LoopAnime from '@/components/anime/loopAnime.vue'
 import houseStore from '@/store/houseStore'
@@ -13,12 +13,17 @@ import {
   isOnLineMode,
   CMD_DISCOVER,
 } from '@/utils/native/config'
-import { getNetworkType, stopUdpService, sendUdpData } from '@/utils/native/nativeApi'
+import { getNetworkType, sendUdpData } from '@/utils/native/nativeApi'
 import { showConfirmDialog, showDialog } from 'vant'
 import dayjs from 'dayjs'
 import { isObjectString } from '@/utils/common'
+import deviceStore from '@/store/deviceStore'
+import { openUdpService, closeUdpService, updServiceTimeout } from '@/utils/native/udpService'
+import { useRouter } from 'vue-router'
 
 defineOptions({ name: 'HouseAddDevice' })
+
+const router = useRouter()
 
 const animeRef = ref(null)
 const textList = [
@@ -28,33 +33,26 @@ const textList = [
 ]
 const action = ref(0) //0 扫描设备 1 停止扫描并没有发现设备 2：停止扫描并发现设备
 const { currentHouse } = storeToRefs(houseStore())
+const { hostList } = storeToRefs(deviceStore())
 
+//{"cmd":"discover","data":{"ip":"10.10.20.49","mac":"0a:52:11:6c:6c:da","sn":"3704d936-6664-48d9-970c-c48a33790b1f","type":"1"}}
 const devices = ref([])
-const searchCount = ref(3)
+const searchCount = ref(9)
 
 const onStart = () => {
   action.value = 0
   searchCount.value = 3
   animeRef.value?.play()
+  openUdpService()
   initSearch()
 }
 
 const onPause = () => {
+  clearTimeout(sendUdpTimer)
+  sendUdpTimer = null
   action.value = 1
   animeRef.value.pause()
-  stopUdpService()
-}
-
-const onFoundGateway = (item) => {
-  if (isOnLineMode() && item.cmd === 'lan') {
-    const { ip, fangwubianhao } = item.data
-    if (fangwubianhao === currentHouse.value.id && getOffLineHost() !== ip) {
-      console.log('切换到了网关' + ip)
-      // setOffLineHost(ip)
-      // setRemoteHostMode(false)
-      // this.cancelBroadcast()
-    }
-  }
+  closeUdpService()
 }
 
 function getUdpData(evt) {
@@ -62,11 +60,10 @@ function getUdpData(evt) {
   try {
     if (!isObjectString(evt)) return
     const message = JSON.parse(evt)
-    onFoundGateway(message)
-    console.log('接收到udp 数据：' + evt)
-    if (Object.prototype.toString.call(evt) === '[object Object]' && evt.cmd === CMD_DISCOVER) {
-      const { ip, mac, fangwubianhao } = evt.data
-      if (fangwubianhao) return
+    console.log('接收到udp 数据：', message)
+    if (message.data != '' && message.cmd === CMD_DISCOVER) {
+      const { ip, mac, type = '1' } = message.data
+      if (type != '1') return
       const index = devices.value.findIndex((item) => item.mac === mac)
       index > -1 ? (devices.value[index].ip = ip) : devices.value.push({ ip, mac })
     }
@@ -77,7 +74,9 @@ function getUdpData(evt) {
 
 window.getUdpData = getUdpData
 
-const initSearch = async (timeout = 4000) => {
+var sendUdpTimer = null
+
+const initSearch = async (timeout = updServiceTimeout) => {
   console.log('searchCount', searchCount.value)
   const networkType = getNetworkType()
   if (networkType !== WiFi) {
@@ -95,7 +94,7 @@ const initSearch = async (timeout = 4000) => {
   const data = JSON.stringify({ cmd: CMD_DISCOVER, data: '' })
   sendUdpData(getBroadcastIPAddress(), UDP_HOST, data)
   sendUdpData(MULTICAST_ADDRESS, UDP_HOST, data)
-  setTimeout(initSearch, timeout)
+  sendUdpTimer = setTimeout(initSearch, timeout)
 }
 
 const onBindDevice = async (item) => {
@@ -105,12 +104,18 @@ const onBindDevice = async (item) => {
       params: { op: 10 },
       data: { shebeibianhao: item.mac, fangwubianhao: currentHouse.value.id },
     }
-    console.log('绑定设备的参数：', params)
-    const res = await setDeviceList(params)
-    console.log('绑定设备返回的结果：', res)
-    if (res.code != 0) return
+    const { code } = await setDeviceList(params)
+    if (code != 0) return
+    const { useGetDeviceListSync } = deviceStore()
+    useGetDeviceListSync(true)
+    // 绑定成功缓存网关地址
+    hostList.value = [
+      ...hostList.value,
+      devices.value.find((deviceItem) => deviceItem.mac == item.mac),
+    ]
     devices.value = devices.value.filter((deviceItem) => deviceItem.mac != item.mac)
     await showDialog({ title: '绑定成功' })
+    router.push({ path: '/me-host-list' })
   } catch (error) {
     //
   }
@@ -118,33 +123,45 @@ const onBindDevice = async (item) => {
 
 const init = () => {
   action.value = 0
+  openUdpService()
   initSearch()
 }
 
 onMounted(init)
+
+onBeforeUnmount(onPause)
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="添加设备" />
-    <div class="flex h-80 items-center justify-center">
-      <LoopAnime ref="animeRef" />
+    <div class="mb-4">
+      <div class="flex h-80 items-center justify-center">
+        <LoopAnime ref="animeRef" />
+      </div>
+      <div class="text-center space-y-4">
+        <p>{{ textList[action].title }}</p>
+        <p v-if="action == 0" class="text-xs text-gray-300">{{ textList[action].des }}</p>
+      </div>
+      <div v-if="action == 1" class="m-10">
+        <van-button round block @click="onStart">重新扫描</van-button>
+      </div>
     </div>
-    <div class="text-center space-y-4">
-      <p>{{ textList[action].title }}</p>
-      <p v-if="action == 0" class="text-xs text-gray-300">{{ textList[action].des }}</p>
-    </div>
-    <div v-if="action == 1" class="m-10">
-      <van-button round block @click="onStart">重新扫描</van-button>
-    </div>
-    <van-cell-group v-if="devices.length > 0">
+    <van-cell-group v-if="devices.length > 0" inset>
       <van-cell
         v-for="deviceItem in devices"
         :key="deviceItem.ip"
         :title="deviceItem.mac"
         :label="deviceItem.ip"
+        center
       >
-        <van-button v-loading-click="() => onBindDevice(deviceItem)" size="small" plain round>
+        <van-button
+          v-loading-click="() => onBindDevice(deviceItem)"
+          class="!px-6"
+          size="small"
+          plain
+          round
+        >
           绑定
         </van-button>
       </van-cell>

@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import dayjs from 'dayjs'
 
 var udpServiceTimer = null // upd局域网设备探测定时器
+export const updServiceTimeout = 3 * 1000
 
 // 关闭udp服务 清除udp服务计时器
 export const closeUdpService = () => {
@@ -32,7 +33,7 @@ export function openUdpService() {
     const data = JSON.stringify({ cmd: 'lan', data: '' })
     nativeApi.sendUdpData(getBroadcastIPAddress(), UDP_HOST, data)
     nativeApi.sendUdpData(MULTICAST_ADDRESS, UDP_HOST, data)
-  }, 3000)
+  }, updServiceTimeout)
 }
 
 // 原生通知手机的网络状态改变

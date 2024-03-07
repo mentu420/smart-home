@@ -9,11 +9,13 @@ import { isObjectString, stringToArray } from '@/utils/common'
 const storeName = 'deviceStore'
 
 export default defineStore(storeName, () => {
-  const deviceList = ref([])
+  const deviceList = ref([]) //设备列表
+  const hostList = ref([]) //网关列表
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
     deviceList.value = storeRes?.deviceList
+    hostList.value = storeRes?.hostList
   }
 
   init()
@@ -151,6 +153,7 @@ export default defineStore(storeName, () => {
 
   return {
     deviceList,
+    hostList,
     includesUse,
     getDeviceIcon,
     useGetDeviceListSync,
