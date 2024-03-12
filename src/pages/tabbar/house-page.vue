@@ -15,6 +15,7 @@ import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
+import { reloadSync } from '@/store/utils'
 
 defineOptions({ name: 'HousePage' })
 
@@ -92,19 +93,7 @@ const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
 // 初始化数据 hId 初始化房屋id
 // 请求完所有数据后设置当前房屋数据
 const onReload = async (hId) => {
-  const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
-    houseStore()
-  const { useGetDeviceListSync } = deviceStore()
-  const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-  await Promise.all([
-    useGetHouseListSync(true),
-    useGetRoomListSync(true),
-    useGetFloorListSync(true),
-    useGetDeviceListSync(true),
-    useGetSceneListSync(true),
-    useGetSmartListSync(true),
-    useGetFamilyListSync(true),
-  ])
+  await reloadSync()
   useHouseStore.setCurrentHouse(hId)
   currentFloorId.value = floorList.value[0]?.id
 }

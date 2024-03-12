@@ -5,10 +5,9 @@ import { ref, computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { getHouseList } from '@/apis/houseApi'
-import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
-import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
+import { reloadSync } from '@/store/utils'
 
 defineOptions({ name: 'MeHouse' })
 
@@ -20,32 +19,12 @@ const familyLength = computed(
   () => (id) => familyList.value.filter((familyItem) => familyItem.fangwubianhao == id).length
 )
 
-const onRefresh = async () => {
-  try {
-    const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
-      houseStore()
-    const { useGetDeviceListSync } = deviceStore()
-    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-    await Promise.all([
-      useGetHouseListSync(true),
-      useGetRoomListSync(true),
-      useGetFloorListSync(true),
-      useGetDeviceListSync(true),
-      useGetSceneListSync(true),
-      useGetSmartListSync(true),
-      useGetFamilyListSync(true),
-    ])
-  } finally {
-    loading.value = false
-  }
-}
-
 const onSelect = async ({ id }) => {
   try {
     loading.value = true
     const { useGetToken, useSetToken } = userStore()
     await getHouseList({ op: 5, fangwubianhao: id })
-    await onRefresh()
+    await reloadSync()
     houseStore().setCurrentHouse(id)
     useSetToken({ ...useGetToken(), fangwubianhao: id })
   } finally {

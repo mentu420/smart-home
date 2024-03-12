@@ -69,23 +69,6 @@ const createSmart = () => {
   router.push({ path: '/smart-scene-create', query: { fenlei } })
 }
 
-const onRefresh = async () => {
-  try {
-    loading.value = true
-    const { useGetFloorListSync, useGetRoomListSync } = houseStore()
-    const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-    await Promise.all([
-      useGetFloorListSync(true),
-      useGetRoomListSync(true),
-      useGetSceneListSync(true),
-      useGetSmartListSync(true),
-    ])
-    init()
-  } finally {
-    loading.value = false
-  }
-}
-
 const onSmartChange = (value, item) => {
   setSmartList({ params: { op: 6 }, data: { bianhao: item.id, shifouqiyong: value ? 1 : 0 } })
 }

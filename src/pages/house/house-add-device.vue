@@ -20,6 +20,7 @@ import { isObjectString } from '@/utils/common'
 import deviceStore from '@/store/deviceStore'
 import { openUdpService, closeUdpService, updServiceTimeout } from '@/utils/native/udpService'
 import { useRouter } from 'vue-router'
+import { reloadSync } from '@/store/utils'
 
 defineOptions({ name: 'HouseAddDevice' })
 
@@ -107,8 +108,7 @@ const onBindDevice = async (item) => {
     }
     const { code } = await setDeviceList(params)
     if (code != 0) return
-    const { useGetDeviceListSync } = deviceStore()
-    useGetDeviceListSync(true)
+    await reloadSync()
     // 绑定成功缓存网关地址
     hostList.value = [
       ...hostList.value,
