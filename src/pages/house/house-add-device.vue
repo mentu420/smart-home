@@ -109,11 +109,6 @@ const onBindDevice = async (item) => {
     const { code } = await setDeviceList(params)
     if (code != 0) return
     await reloadSync()
-    // 绑定成功缓存网关地址
-    hostList.value = [
-      ...hostList.value,
-      devices.value?.find((deviceItem) => deviceItem.mac == item.mac),
-    ]
 
     devices.value = devices.value.filter((deviceItem) => deviceItem.mac != item.mac)
     await showDialog({ title: '绑定成功' })

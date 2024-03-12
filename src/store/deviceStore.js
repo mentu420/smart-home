@@ -62,6 +62,8 @@ export default defineStore(storeName, () => {
   const useGetDeviceListSync = async (reload = false) => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
+    const macList = data.filter((item) => item.daleixing === '000')
+    hostList.value = macList
     deviceList.value = data
       .map((item) => {
         const columns = TYPE_VALUE_EXECL.filter(

@@ -2,23 +2,20 @@
 import { storeToRefs } from 'pinia'
 import { computed, onActivated, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import deviceStore from '@/store/deviceStore'
 
 import userStore from '@/store/userStore'
 
 defineOptions({ name: 'MePage' })
 
 const router = useRouter()
-const { hostList } = storeToRefs(deviceStore())
 
 const navList = computed(() => {
   const list = [
     { path: '/me-house-list', text: '家庭管理', icon: 'wap-home-o' },
     { path: '/me-setting', text: '设置', icon: 'setting-o' },
+    { path: '/me-host-list', text: '主机', icon: 'desktop-o' },
   ]
-  return hostList.value?.length == 0
-    ? list
-    : [...list, { path: '/me-host-list', text: '主机', icon: 'desktop-o' }]
+  return list
 })
 
 const { userInfo = {} } = storeToRefs(userStore())

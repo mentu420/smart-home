@@ -4,6 +4,10 @@ import { ref } from 'vue'
 import deviceStore from '@/store/deviceStore'
 import { showConfirmDialog } from 'vant'
 import { setDeviceList } from '@/apis/smartApi'
+import { reloadSync } from '@/store/utils'
+import houseStore from '@/store/houseStore'
+
+const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 
 defineOptions({ name: 'MeHostList' })
 
@@ -12,8 +16,8 @@ const { hostList } = storeToRefs(deviceStore())
 const onUnbindDevice = async (item) => {
   try {
     await showConfirmDialog({ title: '提示', message: '是否解绑？' })
-    await setDeviceList({ params: { op: 11, shebeibianhao: item.mac } })
-    hostList.value = hostList.value.filter((hostItem) => hostItem.mac != item.mac)
+    await setDeviceList({ params: { op: 11, shebeibianhao: item.bianhao } })
+    await reloadSync()
   } catch (error) {
     //
   }
@@ -32,6 +36,7 @@ const onUnbindDevice = async (item) => {
         center
       >
         <van-button
+          v-if="houseUserPower(currentHouse.id) == 0"
           v-loading-click="() => onUnbindDevice(hostItem)"
           class="!px-6"
           size="small"
