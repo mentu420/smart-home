@@ -8,7 +8,7 @@ import useWinResize from './useWinResize'
 export default function useSize() {
   const htmlFontSize = ref(16)
   const setRem = () => {
-    const baseSize = 16
+    const baseSize = window.screen.width > 768 ? 10 : 16
     const uiWidth = 375
     const clientWidth = document.documentElement.clientWidth
     const scale = clientWidth / uiWidth

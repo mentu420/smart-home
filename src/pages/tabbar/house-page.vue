@@ -237,7 +237,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           <li class="h-[20px] my-[12px] bg-gray-200"></li>
           <li class="h-[16px] bg-gray-200 w-[30vw] my-[12px]"></li>
           <li class="mb-4">
-            <ol class="grid gap-4 grid-cols-2">
+            <ol class="grid gap-4 grid-cols-2 md:grid-cols-4">
               <li
                 v-for="cardItem in 2"
                 :key="cardItem"
@@ -247,7 +247,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           </li>
           <li class="h-[16px] bg-gray-200 w-[30vw] my-[12px]"></li>
           <li class="mb-4">
-            <ol class="grid gap-4 grid-cols-2">
+            <ol class="grid gap-4 grid-cols-2 md:grid-cols-4">
               <li
                 v-for="cardItem in 8"
                 :key="cardItem"
@@ -369,7 +369,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     item-key="id"
                     :group="collectItem.group"
                     v-bind="dragOptions"
-                    class="grid grid-cols-2 gap-4"
+                    class="grid grid-cols-2 md:grid-cols-4 gap-4"
                   >
                     <template #item="{ element }">
                       <ScenenCardItem
@@ -406,7 +406,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   item-key="id"
                   group="scene"
                   v-bind="dragOptions"
-                  class="grid grid-cols-2 gap-4"
+                  class="grid grid-cols-2 md:grid-cols-4 gap-4"
                 >
                   <template #item="{ element: sceneItem }">
                     <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
@@ -426,7 +426,10 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                       }}个灯亮
                     </label>
                   </div>
-                  <div v-if="dragOptions.disabled" class="mb-4 grid grid-cols-2 gap-4">
+                  <div
+                    v-if="dragOptions.disabled"
+                    class="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4"
+                  >
                     <div
                       v-for="(switchItem, switchIndex) in [
                         { text: '全开', status: 'on' },
@@ -461,7 +464,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   item-key="id"
                   group="device"
                   v-bind="dragOptions"
-                  class="grid grid-cols-2 gap-4"
+                  class="grid grid-cols-2 md:grid-cols-4 gap-4"
                 >
                   <template #item="{ element: deviceItem }">
                     <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />

@@ -95,7 +95,7 @@ const openDeviceConfig = () => {
         </SmartImage>
       </template>
 
-      <p>{{ deviceItem?.label }}</p>
+      <p class="break-all">{{ deviceItem?.label }}</p>
       <p v-if="!props.isDrag" class="text-xs text-gray-400">
         {{ ['关', '开', '离线'][getDeviceStatus] }}
       </p>

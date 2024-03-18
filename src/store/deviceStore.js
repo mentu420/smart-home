@@ -63,7 +63,6 @@ export default defineStore(storeName, () => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
     const { data: resourceData } = await getDeviceResource()
-    console.log('resourceData', resourceData)
     const macList = data.filter((item) => item.daleixing === '000')
     hostList.value = macList
     deviceList.value = data

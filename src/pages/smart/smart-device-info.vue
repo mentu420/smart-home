@@ -113,9 +113,10 @@ const onCollectChange = async (value) => {
         <van-field
           v-model.trim="deviceItem.label"
           name="label"
-          label="房间名称"
-          placeholder="请填写房间名称"
-          :rules="[{ required: true, message: '房间名称不能为空' }]"
+          label="设备名称"
+          placeholder="请填写设备名称"
+          maxlength="6"
+          :rules="[{ required: true, message: '设备名称不能为空' }]"
         />
         <div class="pt-8 pb-4">
           <van-button round block native-type="submit" :loading="loading"> 提交 </van-button>

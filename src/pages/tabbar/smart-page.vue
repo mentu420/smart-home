@@ -191,7 +191,7 @@ onActivated(init)
               item-key="id"
               group="globalScene"
               v-bind="dragOptions"
-              class="grid grid-cols-2 gap-4"
+              class="grid grid-cols-2 md:grid-cols-4 gap-4"
             >
               <template #item="{ element: sceneItem }">
                 <ScenenCardItem
@@ -209,7 +209,7 @@ onActivated(init)
               item-key="id"
               :group="`${roomItem.id}-scene`"
               v-bind="dragOptions"
-              class="grid grid-cols-2 gap-4"
+              class="grid grid-cols-2 md:grid-cols-4 gap-4"
             >
               <template #item="{ element: sceneItem }">
                 <ScenenCardItem

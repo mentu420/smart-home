@@ -1,6 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import useWinResize from '@/utils/flexible/useWinResize'
 
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
@@ -33,6 +34,12 @@ const tabs = ref([
   },
 ])
 
+const placeholder = ref(window.screen.width < 768)
+
+useWinResize(() => {
+  placeholder.value = window.screen.width < 768
+})
+
 const init = () => {
   const { useGetToken } = userStore()
   const token = useGetToken()
@@ -57,33 +64,54 @@ export default {
 
 <template>
   <div class="bg-page-gray min-h-screen">
-    <router-view v-slot="{ Component }">
-      <transition>
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </transition>
-    </router-view>
+    <div class="md:ml-[60px]">
+      <router-view v-slot="{ Component }">
+        <transition>
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </transition>
+      </router-view>
+    </div>
 
-    <van-tabbar
-      v-model="tabIndex"
-      route
-      placeholder
-      z-index="99"
-      active-color="#000"
-      inactive-color="#999"
-      :border="false"
-      :safe-area-inset-bottom="true"
-    >
-      <van-tabbar-item
-        v-for="tabItem in tabs"
-        :key="tabItem.index"
-        :name="tabItem.index"
-        :to="tabItem.path"
-        :icon="tabItem.inactiveIcon"
+    <div class="smart-tabbar">
+      <van-tabbar
+        v-model="tabIndex"
+        route
+        :placeholder="placeholder"
+        z-index="99"
+        active-color="#000"
+        inactive-color="#999"
+        :border="false"
+        :safe-area-inset-bottom="true"
       >
-        {{ tabItem.text }}
-      </van-tabbar-item>
-    </van-tabbar>
+        <van-tabbar-item
+          v-for="tabItem in tabs"
+          :key="tabItem.index"
+          :name="tabItem.index"
+          :to="tabItem.path"
+          :icon="tabItem.inactiveIcon"
+        >
+          {{ tabItem.text }}
+        </van-tabbar-item>
+      </van-tabbar>
+    </div>
   </div>
 </template>
+
+<style scoped>
+/* 平板设备（中等屏幕） */
+@media only screen and (min-width: 768px) {
+  /* 在此设置针对平板设备的样式 */
+  .smart-tabbar:deep(.van-tabbar--fixed) {
+    top: 30%;
+    bottom: auto;
+    width: 60px;
+    height: auto;
+    flex-direction: column;
+  }
+  .smart-tabbar:deep(.van-tabbar-item) {
+    padding: 20px 0;
+  }
+}
+</style>
