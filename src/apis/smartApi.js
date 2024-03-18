@@ -23,3 +23,9 @@ export const getSmartList = (params) => request({ url: '/V1/ZhiNengHua.aspx', pa
 
 export const setSmartList = (config) =>
   request({ url: '/V1/ZhiNengHua.aspx', ...config, method: 'POST' })
+
+/**
+ * 获取设备图片图标
+ * **/
+export const getDeviceResource = (params) =>
+  request({ url: '/V1/PinLei.aspx', params: { op: 1, ...params } })

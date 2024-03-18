@@ -23,7 +23,6 @@ const props = defineProps({
 })
 
 const { deviceList } = storeToRefs(deviceStore())
-const { getDeviceIcon } = deviceStore()
 
 const router = useRouter()
 
@@ -88,11 +87,14 @@ const openDeviceConfig = () => {
 <template>
   <ul class="rounded-lg bg-white flex justify-between cursor-pointer" @click.stop="openDevice">
     <li class="space-y-2 p-3">
-      <IconFont
-        v-if="!props.isDrag"
-        class="text-origin"
-        :icon="getDeviceIcon(deviceItem?.classify)"
-      />
+      <template v-if="!props.isDrag">
+        <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
+          <template #error>
+            <IconFont class="text-origin" :icon="deviceItem.icon" />
+          </template>
+        </SmartImage>
+      </template>
+
       <p>{{ deviceItem?.label }}</p>
       <p v-if="!props.isDrag" class="text-xs text-gray-400">
         {{ ['关', '开', '离线'][getDeviceStatus] }}

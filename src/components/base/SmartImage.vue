@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, useAttrs, watch } from 'vue'
+import { computed, ref, useAttrs, useSlots } from 'vue'
 
 defineOptions({ name: 'SmartImage' })
 
@@ -22,5 +22,9 @@ const src = computed(() => localImage.value || attrs?.src)
 </script>
 
 <template>
-  <van-image v-bind="attrs" :src="src" @load="onLoad" />
+  <van-image v-bind="attrs" :src="src" @load="onLoad">
+    <template #error>
+      <slot name="error"></slot>
+    </template>
+  </van-image>
 </template>

@@ -27,7 +27,6 @@ const isAll = (fId) => {
 }
 
 const searchList = computed(() => {
-  const { getDeviceIcon } = deviceStore()
   return CLASSIFY_EXECL.map((item) => {
     return {
       ...item,
@@ -36,7 +35,8 @@ const searchList = computed(() => {
           ? checkedRoom.value.includes(deviceItem.rId) && deviceItem.classify == item.classify
           : deviceItem.classify == item.classify
       }).length,
-      icon: getDeviceIcon(item.classify),
+      iconUrl: deviceList.value.find((deviceItem) => deviceItem.classify == item.classify)?.iconUrl,
+      icon: deviceList.value.find((deviceItem) => deviceItem.classify == item.classify)?.icon,
     }
   }).filter((item) => {
     return classifyChecked.value.length > 0
@@ -190,7 +190,6 @@ init()
           </van-dropdown-item>
         </van-dropdown-menu>
       </div>
-
       <div class="p-4 space-y-4">
         <van-cell
           v-for="searchItem in searchList"
@@ -202,7 +201,11 @@ init()
           @click="goTaskDeviceList(searchItem)"
         >
           <template #icon>
-            <IconFont class="mr-2" :icon="searchItem.icon" />
+            <SmartImage class="w-[28px] h-[28px]" :src="searchItem?.iconUrl">
+              <template #error>
+                <IconFont class="mr-2" :icon="searchItem.icon" />
+              </template>
+            </SmartImage>
           </template>
         </van-cell>
       </div>

@@ -54,12 +54,7 @@ init()
       </template>
     </HeaderNavbar>
     <section class="pb-4">
-      <SmartImage
-        width="100vw"
-        height="100vw"
-        fit="cover"
-        src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
-      />
+      <SmartImage width="100vw" height="100vw" fit="cover" :src="deviceItem?.imageUrl" />
       <component :is="triggerComponents[route.query.classify]" :id="route.query.id" />
     </section>
   </div>

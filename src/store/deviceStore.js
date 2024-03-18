@@ -2,7 +2,7 @@ import localforage from 'localforage'
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
-import { getDeviceList } from '@/apis/smartApi'
+import { getDeviceList, getDeviceResource } from '@/apis/smartApi'
 import { CLASSIFY_ICON, USE_KEY, TYPE_VALUE_EXECL } from '@/enums/deviceEnums'
 import { isObjectString, stringToArray } from '@/utils/common'
 
@@ -62,6 +62,8 @@ export default defineStore(storeName, () => {
   const useGetDeviceListSync = async (reload = false) => {
     if (deviceList.value.length > 0 && !reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
+    const { data: resourceData } = await getDeviceResource()
+    console.log('resourceData', resourceData)
     const macList = data.filter((item) => item.daleixing === '000')
     hostList.value = macList
     deviceList.value = data
@@ -83,7 +85,9 @@ export default defineStore(storeName, () => {
         )
 
         const modeList = setModeColumns(columns)
-
+        const resourceItem = resourceData.find(
+          (resourceItem) => resourceItem.leixing == item.daleixing
+        )
         return {
           ...item,
           modeNames,
@@ -95,6 +99,8 @@ export default defineStore(storeName, () => {
           collect: item.shouye == 1, // 首页是否收藏
           category: item.xiaoleixing,
           icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
+          iconUrl: resourceItem?.xiaotubiao,
+          imageUrl: resourceItem?.tupian,
           columns, // 记录设备原始值
           // 记录当前设备模块控制值
           // mqtt 对应关系 {use:shuxing, useValue:shuxingzhi, useStatus:shuxingzhuangtai}
