@@ -138,6 +138,13 @@ setNativeMethods()
   overflow-y: scroll;
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+  overscroll-behavior: none;
+}
+
+body,
+html {
+  /* 禁用橡皮筋效果 */
+  overscroll-behavior: none;
 }
 
 #app::-webkit-scrollbar {
