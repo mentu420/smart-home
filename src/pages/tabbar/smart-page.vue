@@ -101,7 +101,7 @@ onActivated(init)
 
 <template>
   <div class="min-h-screen bg-page-gray p-safe">
-    <section class="bg-page-gray fixed left-0 right-0 smart-tabs z-10">
+    <section class="bg-page-gray fixed w-full smart-tabs z-10">
       <div class="flex justify-between items-center px-4 py-3">
         <ul class="flex items-center text-[16px] space-x-4">
           <li
