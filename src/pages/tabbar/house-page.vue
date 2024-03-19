@@ -426,7 +426,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                       }}个灯亮
                     </label>
                   </div>
-                  <div
+                  <!-- <div
                     v-if="dragOptions.disabled"
                     class="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4"
                   >
@@ -451,7 +451,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                         {{ switchItem.text }}
                       </div>
                     </div>
-                  </div>
+                  </div> -->
                 </template>
                 <van-empty v-else image="search" description="暂无设备">
                   <van-button class="!px-6" size="small" plain round @click="goAddDevice">
