@@ -4,6 +4,8 @@ import TriggerFreshAir from './TriggerFreshAir.vue'
 import TriggerLamp from './TriggerLamp.vue'
 import TriggerMusic from './TriggerMusic.vue'
 import TriggerUnderfloorHeat from './TriggerUnderfloorHeat.vue'
+import TriggerFloatBubble from './TriggerFloatBubble.vue'
+import TriggerClassifyDetail from './TriggerClassifyDetail.vue'
 
 export {
   TriggerLamp,
@@ -12,4 +14,6 @@ export {
   TriggerUnderfloorHeat,
   TriggerFreshAir,
   TriggerMusic,
+  TriggerFloatBubble,
+  TriggerClassifyDetail,
 }

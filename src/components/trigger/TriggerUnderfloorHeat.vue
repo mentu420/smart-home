@@ -135,7 +135,7 @@ const toggle = () => {
       </div>
       <IconFont
         v-if="includesUse(props.id, SWITCH)"
-        :class="config[SWITCH]?.useStatus != 'off' ? 'text-primary' : 'text-gray-300'"
+        :class="config[SWITCH]?.useStatus != 'off' ? 'text-origin' : 'text-gray-300'"
         icon="switch"
         @click="toggle"
       />

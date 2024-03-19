@@ -152,7 +152,7 @@ const onProcessChange = () => {
       </div>
     </li>
     <div ref="modeRef" class="grid gap-4 grid-cols-2">
-      <li class="flex flex-1 items-center justify-between rounded-lg bg-white px-3">
+      <li class="flex flex-1 items-center justify-between flex-wrap rounded-lg bg-white px-3">
         <van-popover v-model:show="showVolume" :placement="placement">
           <template #reference>
             <IconFont
@@ -211,9 +211,13 @@ const onProcessChange = () => {
 .volume-stepper:deep(.van-stepper__minus) {
   border-color: #000;
   color: #000;
+  width: 1.6em;
+  height: 1.6em;
 }
 .volume-stepper:deep(.van-stepper__plus) {
   background: #000;
   color: #fff;
+  width: 1.6em;
+  height: 1.6em;
 }
 </style>

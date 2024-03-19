@@ -89,7 +89,7 @@ const toggle = () => {
         {{ config[SWITCH]?.useStatus != 'off' ? '已开启' : '已关闭' }}
       </div>
       <IconFont
-        :class="config[SWITCH]?.useStatus != 'off' ? 'text-primary' : 'text-gray-300'"
+        :class="config[SWITCH]?.useStatus != 'off' ? 'text-origin' : 'text-gray-300'"
         icon="switch"
         @click="toggle"
       />

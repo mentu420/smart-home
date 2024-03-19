@@ -8,6 +8,7 @@ import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 import { onDeviceStatusChange, onDeviceStatusRefresh } from '@/components/trigger/useTrigger'
+import { TriggerFloatBubble } from '@/components/trigger/'
 
 const { mqttDevicePublish } = useMqtt()
 
@@ -25,7 +26,7 @@ const props = defineProps({
 const { deviceList } = storeToRefs(deviceStore())
 
 const router = useRouter()
-
+const triggerRef = ref(null)
 const controlTimeout = 500 // 设备操作间隔
 const { SWITCH, PLAY, PAUSE, PLAYCONTROL, ON } = USE_KEY
 const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
@@ -79,6 +80,10 @@ const openDevice = () => {
 
 const openDeviceConfig = () => {
   if (props.isDrag) return
+  if (window.screen.width > 768) {
+    triggerRef.value?.onShow()
+    return
+  }
   const { id, label, classify, rId } = deviceItem.value
   router.push({
     path: '/smart-device-info',
@@ -88,31 +93,34 @@ const openDeviceConfig = () => {
 </script>
 
 <template>
-  <ul class="rounded-lg bg-white flex justify-between cursor-pointer" @click.stop="openDevice">
-    <li class="space-y-2 p-3">
-      <template v-if="!props.isDrag">
-        <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
-          <template #error>
-            <IconFont class="text-origin" :icon="deviceItem.icon" />
-          </template>
-        </SmartImage>
-      </template>
+  <div class="h-full rounded-lg bg-white">
+    <ul class="flex justify-between cursor-pointer" @click.stop="openDevice">
+      <li class="space-y-2 p-3">
+        <template v-if="!props.isDrag">
+          <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
+            <template #error>
+              <IconFont class="text-origin" :icon="deviceItem.icon" />
+            </template>
+          </SmartImage>
+        </template>
 
-      <p class="break-all">{{ deviceItem?.label }}</p>
-      <p v-if="!props.isDrag && showStatus" class="text-xs text-gray-400">
-        {{ ['关', '开', '离线'][getDeviceStatus] }}
-      </p>
-    </li>
-    <li v-if="props.isDrag" class="p-3">
-      <van-icon class="!text-[20px]" name="wap-nav" />
-    </li>
-    <li v-else class="flex flex-col justify-between text-gray-400">
-      <div class="text-right p-3">
-        <van-icon class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
-      </div>
-      <div v-if="showStatus" class="p-3" @click.stop="onSwitchChanage">
-        <IconFont :class="{ 'text-origin': getDeviceStatus == 1 }" icon="switch" />
-      </div>
-    </li>
-  </ul>
+        <p class="break-all">{{ deviceItem?.label }}</p>
+        <p v-if="!props.isDrag && showStatus" class="text-xs text-gray-400">
+          {{ ['关', '开', '离线'][getDeviceStatus] }}
+        </p>
+      </li>
+      <li v-if="props.isDrag" class="p-3">
+        <van-icon class="!text-[20px]" name="wap-nav" />
+      </li>
+      <li v-else class="flex flex-col justify-between text-gray-400">
+        <div class="text-right p-3">
+          <van-icon class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
+        </div>
+        <div v-if="showStatus" class="p-3" @click.stop="onSwitchChanage">
+          <IconFont :class="{ 'text-origin': getDeviceStatus == 1 }" icon="switch" />
+        </div>
+      </li>
+    </ul>
+    <TriggerFloatBubble :id="props.id" ref="triggerRef" :title="deviceItem.label" />
+  </div>
 </template>

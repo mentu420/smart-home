@@ -126,7 +126,7 @@ const toggle = () => {
         <p class="text-xs text-gray-400">当前温度</p>
       </div>
       <IconFont
-        :class="config[SWITCH]?.useStatus != 'off' ? 'text-primary' : 'text-gray-300'"
+        :class="config[SWITCH]?.useStatus != 'off' ? 'text-origin' : 'text-gray-300'"
         icon="switch"
         @click="toggle"
       />
