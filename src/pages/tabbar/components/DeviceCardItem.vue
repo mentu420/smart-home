@@ -30,6 +30,9 @@ const controlTimeout = 500 // 设备操作间隔
 const { SWITCH, PLAY, PAUSE, PLAYCONTROL, ON } = USE_KEY
 const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
 
+// 灯(照明)、空调、地暖、新风这些大类型的设备控制卡片才能显示”快捷开关”和状态
+const showStatus = computed(() => ['100', '102', '103', '104'].includes(deviceItem.value?.classify))
+
 // 获取设备状态
 const getDeviceStatus = computed(() => {
   if (!deviceItem.value) return 0
@@ -96,7 +99,7 @@ const openDeviceConfig = () => {
       </template>
 
       <p class="break-all">{{ deviceItem?.label }}</p>
-      <p v-if="!props.isDrag" class="text-xs text-gray-400">
+      <p v-if="!props.isDrag && showStatus" class="text-xs text-gray-400">
         {{ ['关', '开', '离线'][getDeviceStatus] }}
       </p>
     </li>
@@ -107,7 +110,7 @@ const openDeviceConfig = () => {
       <div class="text-right p-3">
         <van-icon class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
       </div>
-      <div class="p-3" @click.stop="onSwitchChanage">
+      <div v-if="showStatus" class="p-3" @click.stop="onSwitchChanage">
         <IconFont :class="{ 'text-origin': getDeviceStatus == 1 }" icon="switch" />
       </div>
     </li>

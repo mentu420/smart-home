@@ -12,11 +12,9 @@ import smartStore from '@/store/smartStore'
 defineOptions({ name: 'SmartPage' })
 
 const router = useRouter()
-const loading = ref(false)
-const tabActive = ref(2)
+const tabActive = ref('1')
 const { sceneList, smartList } = storeToRefs(smartStore())
 const { roomList, floorList, houseUserPower, currentHouse } = storeToRefs(houseStore())
-const isTabsFixed = ref(false)
 const globalSceneList = ref([])
 const roomSceneList = ref([])
 
@@ -159,7 +157,13 @@ onActivated(init)
         <div v-if="smartList.length > 0" class="p-4">
           <section class="mb-6">
             <h4 class="mb-2 text-gray-600">全局</h4>
-            <draggable v-model="smartList" item-key="id" group="scene" v-bind="dragOptions">
+            <draggable
+              v-model="smartList"
+              item-key="id"
+              group="scene"
+              v-bind="dragOptions"
+              class="md:grid md:grid-cols-2 md:gap-4"
+            >
               <template #item="{ element: smartItem }">
                 <div
                   class="bg-white flex justify-between p-4 w-full rounded-lg items-center mb-4"
