@@ -220,4 +220,8 @@ const onProcessChange = () => {
   width: 1.6em;
   height: 1.6em;
 }
+.volume-stepper:deep(.van-stepper__input) {
+  width: 1.6em;
+  height: 1.6em;
+}
 </style>
