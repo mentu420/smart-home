@@ -80,7 +80,7 @@ const openDevice = () => {
 
 const openDeviceConfig = () => {
   if (props.isDrag) return
-  if (window.screen.width > 768) {
+  if (window.screen.width >= 768) {
     triggerRef.value?.onShow()
     return
   }
