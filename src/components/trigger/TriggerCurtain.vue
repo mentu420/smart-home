@@ -77,54 +77,56 @@ const onAngleChange = () => {
 </script>
 
 <template>
-  <van-cell-group style="background: transparent" inset :border="false">
-    <van-cell class="mt-4 rounded-xl" center :border="false">
-      <template #icon>
-        <IconFont
-          v-clickable-active="{ color: '#e39334' }"
-          class="text-gray-400"
-          icon="curtain-off"
-          @click="onSwitch('0')"
-        />
-      </template>
-      <div
-        v-clickable-active="{ color: '#e39334' }"
-        class="flex items-center justify-center leading-none"
-      >
-        <IconFont icon="stop" @click="onStopToggle" />
-      </div>
-
-      <template #right-icon>
-        <IconFont
-          v-clickable-active="{ color: '#e39334' }"
-          class="text-gray-400"
-          icon="curtain-on"
-          @click="onSwitch('1')"
-        />
-      </template>
-    </van-cell>
-    <template
-      v-for="(modeLabel, modeKey) in { [PERCENT]: '开合度', [ANGLE]: '角度' }"
-      :key="modeKey"
-    >
-      <van-cell
-        v-if="includesUse(props.id, modeKey)"
-        class="mt-4 rounded-xl"
-        center
-        :title="modeLabel"
-        :label="`${config[modeKey].useValue}%`"
-        :border="false"
-        title-style="flex:0 0 auto"
-      >
-        <div class="h-10 p-4 pl-8">
-          <van-slider
-            v-model="config[modeKey].useValue"
-            :min="min"
-            :max="max"
-            @change="onPercentChange"
+  <div class="p-4">
+    <van-cell-group style="background: transparent" :border="false">
+      <van-cell class="rounded-xl" center :border="false">
+        <template #icon>
+          <IconFont
+            v-clickable-active="{ color: '#e39334' }"
+            class="text-gray-400"
+            icon="curtain-off"
+            @click="onSwitch('0')"
           />
+        </template>
+        <div
+          v-clickable-active="{ color: '#e39334' }"
+          class="flex items-center justify-center leading-none"
+        >
+          <IconFont icon="stop" @click="onStopToggle" />
         </div>
+
+        <template #right-icon>
+          <IconFont
+            v-clickable-active="{ color: '#e39334' }"
+            class="text-gray-400"
+            icon="curtain-on"
+            @click="onSwitch('1')"
+          />
+        </template>
       </van-cell>
-    </template>
-  </van-cell-group>
+      <template
+        v-for="(modeLabel, modeKey) in { [PERCENT]: '开合度', [ANGLE]: '角度' }"
+        :key="modeKey"
+      >
+        <van-cell
+          v-if="includesUse(props.id, modeKey)"
+          class="mt-4 rounded-xl"
+          center
+          :title="modeLabel"
+          :label="`${config[modeKey].useValue}%`"
+          :border="false"
+          title-style="flex:0 0 auto"
+        >
+          <div class="h-10 p-4 pl-8">
+            <van-slider
+              v-model="config[modeKey].useValue"
+              :min="min"
+              :max="max"
+              @change="onPercentChange"
+            />
+          </div>
+        </van-cell>
+      </template>
+    </van-cell-group>
+  </div>
 </template>

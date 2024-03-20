@@ -64,32 +64,34 @@ defineExpose({ onShow, onHide })
     @opened="onOpened"
   >
     <div class="h-full p-4 flex justify-center items-center" @click.self="onHide">
-      <div ref="contentRef" class="min-h-[70vh] bg-page-gray rounded-xl overflow-hidden">
-        <div :style="{ height: popupHeight }" class="w-[32vw] text-[#323233]">
-          <ul class="flex justify-between items-center p-4">
-            <li>
-              <van-icon name="arrow-left" @click="onBack" />
-              <span class="ml-2">{{ props.title }}</span>
-            </li>
-            <li>
-              <IconFont
-                v-if="houseUserPower(currentHouse.id) != 2"
-                class="text-xs text-gray-400"
-                :class="{ 'opacity-30': active == 1 }"
-                icon="more-round"
-                @click="onMore"
-              />
-            </li>
-          </ul>
-          <transition-group :name="transitionName">
-            <div v-if="active == 0" class="h-full">
-              <TriggerClassifyDetail :id="props.id" />
-            </div>
-            <div v-else class="h-full">
-              <TriggerAttrConfig :id="props.id" />
-            </div>
-          </transition-group>
-        </div>
+      <div
+        ref="contentRef"
+        :style="{ height: popupHeight }"
+        class="w-[32vw] min-h-[50vh] text-[#323233] bg-page-gray rounded-xl overflow-hidden pb-4"
+      >
+        <ul class="flex justify-between items-center p-4">
+          <li>
+            <van-icon name="arrow-left" @click="onBack" />
+            <span class="ml-2">{{ props.title }}</span>
+          </li>
+          <li>
+            <IconFont
+              v-if="houseUserPower(currentHouse.id) != 2"
+              class="text-xs text-gray-400"
+              :class="{ 'opacity-30': active == 1 }"
+              icon="more-round"
+              @click="onMore"
+            />
+          </li>
+        </ul>
+        <transition-group :name="transitionName">
+          <div v-if="active == 0" class="h-full">
+            <TriggerClassifyDetail :id="props.id" />
+          </div>
+          <div v-else class="h-full">
+            <TriggerAttrConfig :id="props.id" />
+          </div>
+        </transition-group>
       </div>
     </div>
   </van-popup>

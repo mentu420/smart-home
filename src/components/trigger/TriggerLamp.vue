@@ -109,14 +109,9 @@ const openColorPicker = () => {
 </script>
 
 <template>
-  <div>
-    <van-cell-group style="background: transparent" inset :border="false">
-      <van-cell
-        class="mt-4 rounded-xl"
-        center
-        :title="!isOff ? '已开启' : '已关闭'"
-        :border="false"
-      >
+  <div class="p-4">
+    <van-cell-group style="background: transparent" :border="false">
+      <van-cell class="rounded-xl" center :title="!isOff ? '已开启' : '已关闭'" :border="false">
         <template #right-icon>
           <IconFont
             :class="!isOff ? 'text-origin' : 'text-gray-400'"
