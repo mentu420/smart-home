@@ -57,7 +57,10 @@ function onToggle() {
             <p>{{ props.title }}</p>
             <p class="text-xs text-gray-400">{{ currentModeItem?.useCn }}</p>
           </div>
-          <IconFont :icon="`${currentModeItem?.use}-${currentModeItem?.useEn}`" />
+          <IconFont
+            class="text-[14px]"
+            :icon="`${currentModeItem?.use}-${currentModeItem?.useEn}`"
+          />
         </div>
       </template>
       <van-cell-group>
@@ -69,7 +72,7 @@ function onToggle() {
           @click="onModelSelect(modeItem)"
         >
           <template #icon>
-            <IconFont class="mr-2" :icon="`${modeItem?.use}-${modeItem?.useEn}`" />
+            <IconFont class="mr-2 text-[14px]" :icon="`${modeItem?.use}-${modeItem?.useEn}`" />
           </template>
         </van-cell>
       </van-cell-group>
