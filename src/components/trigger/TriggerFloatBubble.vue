@@ -40,7 +40,7 @@ defineExpose({ onShow, onHide })
     z-index="2000"
     class="trigger-popup"
   >
-    <div class="h-screen p-4 mt-safe">
+    <div class="h-screen p-4 mt-safe flex justify-center items-center">
       <div class="w-[32vw] min-h-[50vh] bg-page-gray text-[#323233] rounded-xl overflow-hidden">
         <ul class="flex justify-between items-center p-4">
           <li>

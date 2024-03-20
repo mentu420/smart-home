@@ -28,8 +28,6 @@ const emits = defineEmits(['change', 'update:modelValue'])
 const modeRef = ref(null)
 const showMode = ref(false)
 
-const placement = computed(() => getPlacement(modeRef.value))
-
 const use = computed({
   get: () => props.modelValue,
   set: (val) => emits('update:modelValue', val),
@@ -52,7 +50,7 @@ function onToggle() {
 
 <template>
   <div ref="modeRef" class="mode w-full">
-    <van-popover v-model:show="showMode" :placement="placement" trigger="manual">
+    <van-popover v-model:show="showMode" :placement="getPlacement(modeRef)" trigger="manual">
       <template #reference>
         <div class="flex w-full items-center justify-between p-3" @click="onToggle">
           <div class="mr-4 flex-shrink-0">

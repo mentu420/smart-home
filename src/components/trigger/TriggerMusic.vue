@@ -77,8 +77,6 @@ const disabled = computed(() => isDisabled(config.value))
 const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 const sourceActions = computed(() => getModeActions(deviceItem.value, SOURCE))
 
-const placement = computed(() => getPlacement(modeRef.value))
-
 watch(
   () => deviceItem.value,
   (val) => {
@@ -153,7 +151,7 @@ const onProcessChange = () => {
     </li>
     <div ref="modeRef" class="grid gap-4 grid-cols-2">
       <li class="flex flex-1 items-center justify-between flex-wrap rounded-lg bg-white px-3">
-        <van-popover v-model:show="showVolume" :placement="placement">
+        <van-popover v-model:show="showVolume" :placement="getPlacement(modeRef)">
           <template #reference>
             <IconFont
               v-clickable-active="{ color: '#e39334' }"

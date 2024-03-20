@@ -134,7 +134,7 @@ onActivated(init)
       </div>
     </section>
 
-    <div class="fixed left-0 right-0 top-0 smart-tab__placeholder bg-page-gray z-[5]"></div>
+    <div class="fixed right-0 top-0 smart-tab__placeholder bg-page-gray z-[5]"></div>
     <div class="h-[45px]"></div>
 
     <van-tabs

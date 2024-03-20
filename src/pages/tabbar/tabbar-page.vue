@@ -103,6 +103,13 @@ export default {
 /* 平板设备（中等屏幕） */
 @media only screen and (min-width: 768px) {
   /* 在此设置针对平板设备的样式 */
+  .smart-tabbar {
+    top: 0;
+    bottom: 0;
+    background-color: #fff;
+    position: fixed;
+    width: 60px;
+  }
   .smart-tabbar:deep(.van-tabbar--fixed) {
     top: 30%;
     bottom: auto;
