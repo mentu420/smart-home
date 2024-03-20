@@ -11,6 +11,7 @@ defineOptions({ name: 'TriggerFloatBubble' })
 const props = defineProps({
   id: { type: String, default: '', required: true },
   title: { type: String, default: '' },
+  scope: { type: String, default: 'base' }, // base 可以显示设备和配置 config 只显示配置
 })
 
 const { houseUserPower, currentHouse } = storeToRefs(houseStore())
@@ -27,7 +28,7 @@ const onShow = () => (visible.value = true)
 const onHide = () => (visible.value = false)
 
 const onBack = () => {
-  if (active.value > 0) {
+  if (active.value > 0 && props.scope == 'base') {
     --active.value
     return
   }
@@ -40,9 +41,9 @@ const onMore = () => {
 }
 
 const onOpened = async () => {
+  active.value = { base: 0, config: 1 }[props.scope]
   await nextTick()
   const { height } = useRect(contentRef.value)
-  console.log('height', height)
   popupHeight.value = height + 'px'
 }
 
@@ -60,6 +61,11 @@ defineExpose({ onShow, onHide })
     safe-area-inset-bottom
     z-index="2000"
     class="trigger-popup"
+    @open="
+      () => {
+        active = props.scope == 'base' ? 0 : 1
+      }
+    "
     @closed="active = 0"
     @opened="onOpened"
   >
@@ -88,7 +94,7 @@ defineExpose({ onShow, onHide })
           <div v-if="active == 0" class="h-full">
             <TriggerClassifyDetail :id="props.id" />
           </div>
-          <div v-else class="h-full">
+          <div v-if="active == 1" class="h-full">
             <TriggerAttrConfig :id="props.id" />
           </div>
         </transition-group>

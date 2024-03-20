@@ -30,6 +30,7 @@ const triggerRef = ref(null)
 const controlTimeout = 500 // 设备操作间隔
 const { SWITCH, PLAY, PAUSE, PLAYCONTROL, ON } = USE_KEY
 const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
+const scope = ref('base')
 
 // 灯(照明)、空调、地暖、新风这些大类型的设备控制卡片才能显示”快捷开关”和状态
 const showStatus = computed(() => ['100', '102', '103', '104'].includes(deviceItem.value?.classify))
@@ -72,6 +73,7 @@ const onSwitchChanage = throttle(async () => {
 const openDevice = () => {
   if (props.isDrag) return
   if (window.screen.width >= 768) {
+    scope.value = 'base'
     triggerRef.value?.onShow()
     return
   }
@@ -84,6 +86,11 @@ const openDevice = () => {
 
 const openDeviceConfig = () => {
   if (props.isDrag) return
+  if (window.screen.width >= 768) {
+    scope.value = 'config'
+    triggerRef.value?.onShow()
+    return
+  }
   const { id, label, classify, rId } = deviceItem.value
   router.push({
     path: '/smart-device-info',
@@ -121,6 +128,6 @@ const openDeviceConfig = () => {
         </div>
       </li>
     </ul>
-    <TriggerFloatBubble :id="props.id" ref="triggerRef" :title="deviceItem.label" />
+    <TriggerFloatBubble :id="props.id" ref="triggerRef" :title="deviceItem.label" :scope="scope" />
   </div>
 </template>
