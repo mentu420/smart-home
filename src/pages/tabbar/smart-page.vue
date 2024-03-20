@@ -154,7 +154,7 @@ onActivated(init)
         :disabled="!dragOptions.disabled"
         name="2"
       >
-        <div v-if="smartList.length > 0" class="p-4">
+        <section v-if="smartList.length > 0" class="p-4 min-h-[94vh]">
           <section class="mb-6">
             <h4 class="mb-2 text-gray-600">全局</h4>
             <draggable
@@ -183,11 +183,22 @@ onActivated(init)
               </template>
             </draggable>
           </section>
-        </div>
+          <div v-if="showDrag" class="p-6 text-center">
+            <van-button
+              class="!px-6"
+              size="small"
+              round
+              plain
+              @click="dragOptions.disabled = !dragOptions.disabled"
+            >
+              {{ dragOptions.disabled ? '编辑' : '取消' }}
+            </van-button>
+          </div>
+        </section>
         <van-empty v-else description="暂无自动化" />
       </van-tab>
       <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
-        <div class="p-4">
+        <section class="p-4 min-h-[94vh]">
           <section v-if="globalSceneList.length > 0" class="mb-6">
             <h4 class="mb-2 text-gray-600">全局</h4>
             <draggable
@@ -228,20 +239,20 @@ onActivated(init)
             v-if="globalSceneList.length == 0 && roomSceneList.length == 0"
             description="暂无场景"
           />
-        </div>
+          <div v-if="showDrag" class="p-6 text-center">
+            <van-button
+              class="!px-6"
+              size="small"
+              round
+              plain
+              @click="dragOptions.disabled = !dragOptions.disabled"
+            >
+              {{ dragOptions.disabled ? '编辑' : '取消' }}
+            </van-button>
+          </div>
+        </section>
       </van-tab>
     </van-tabs>
-    <div v-if="showDrag" class="p-6 text-center">
-      <van-button
-        class="!px-6"
-        size="small"
-        round
-        plain
-        @click="dragOptions.disabled = !dragOptions.disabled"
-      >
-        {{ dragOptions.disabled ? '编辑' : '取消' }}
-      </van-button>
-    </div>
   </div>
 </template>
 

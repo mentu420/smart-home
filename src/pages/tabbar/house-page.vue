@@ -361,7 +361,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
             :swipeable="dragOptions.disabled"
           >
             <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
-              <section class="p-4">
+              <section class="p-4 min-h-[85vh]">
                 <template v-for="collectItem in collectList" :key="collectItem.text">
                   <h4 class="mb-2 text-gray-600">{{ collectItem.text }}</h4>
                   <draggable
@@ -390,6 +390,11 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   />
                   <div class="h-6"></div>
                 </template>
+                <div v-if="showDragBtn" class="p-6 text-center">
+                  <van-button class="!px-6" size="small" plain round @click="onDragCancel">
+                    {{ dragOptions.disabled ? '编辑' : '取消' }}
+                  </van-button>
+                </div>
               </section>
             </van-tab>
             <!--当前楼层所有房间-->
@@ -400,7 +405,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               :disabled="!dragOptions.disabled"
               :name="roomItem.id"
             >
-              <section class="p-4">
+              <section class="p-4 min-h-[85vh]">
                 <draggable
                   v-model="roomItem.sceneList"
                   item-key="id"
@@ -470,14 +475,15 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
                   </template>
                 </draggable>
+
+                <div v-if="showDragBtn" class="p-6 text-center">
+                  <van-button class="!px-6" size="small" plain round @click="onDragCancel">
+                    {{ dragOptions.disabled ? '编辑' : '取消' }}
+                  </van-button>
+                </div>
               </section>
             </van-tab>
           </van-tabs>
-          <div v-if="showDragBtn" class="p-6 text-center">
-            <van-button class="!px-6" size="small" plain round @click="onDragCancel">
-              {{ dragOptions.disabled ? '编辑' : '取消' }}
-            </van-button>
-          </div>
         </div>
       </div>
     </van-skeleton>
