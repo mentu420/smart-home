@@ -71,6 +71,10 @@ const onSwitchChanage = throttle(async () => {
 //打开设备
 const openDevice = () => {
   if (props.isDrag) return
+  if (window.screen.width >= 768) {
+    triggerRef.value?.onShow()
+    return
+  }
   const { id, label, classify } = deviceItem.value
   router.push({
     path: '/smart-device-status',
@@ -80,10 +84,6 @@ const openDevice = () => {
 
 const openDeviceConfig = () => {
   if (props.isDrag) return
-  if (window.screen.width >= 768) {
-    triggerRef.value?.onShow()
-    return
-  }
   const { id, label, classify, rId } = deviceItem.value
   router.push({
     path: '/smart-device-info',

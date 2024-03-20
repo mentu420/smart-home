@@ -3,8 +3,12 @@ import { storeToRefs } from 'pinia'
 import { computed, ref, useAttrs } from 'vue'
 import TriggerClassifyDetail from './TriggerClassifyDetail.vue'
 import houseStore from '@/store/houseStore'
+import deviceStore from '@/store/deviceStore'
+import { useRouter } from 'vue-router'
 
 defineOptions({ name: 'TriggerFloatBubble' })
+
+const router = useRouter()
 
 const props = defineProps({
   id: { type: String, default: '', required: true },
@@ -14,6 +18,8 @@ const props = defineProps({
 const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 const visible = ref(false)
 const offset = ref({ x: window.screen.width - window.screen.width / 3, y: 100 })
+const { deviceList } = storeToRefs(deviceStore())
+const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
 
 const onShow = () => (visible.value = true)
 
@@ -49,7 +55,10 @@ defineExpose({ onShow, onHide })
               @click="
                 router.push({
                   path: '/smart-device-info',
-                  query: { ...route.query, rId: deviceItem.rId },
+                  query: {
+                    id: props.id,
+                    rId: deviceItem.rId,
+                  },
                 })
               "
             />
