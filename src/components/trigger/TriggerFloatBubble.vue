@@ -44,6 +44,7 @@ const onOpened = async () => {
   active.value = { base: 0, config: 1 }[props.scope]
   await nextTick()
   const { height } = useRect(contentRef.value)
+  console.log('高度', height)
   popupHeight.value = height + 'px'
 }
 
