@@ -73,7 +73,7 @@ defineExpose({ onShow, onHide })
       <div
         ref="contentRef"
         :style="{ height: popupHeight }"
-        class="w-[32vw] min-h-[50vh] text-[#323233] bg-page-gray rounded-xl overflow-hidden pb-4"
+        class="w-[32vw] min-h-[70vh] text-[#323233] bg-page-gray rounded-xl overflow-hidden pb-4"
       >
         <ul class="flex justify-between items-center p-4">
           <li>
