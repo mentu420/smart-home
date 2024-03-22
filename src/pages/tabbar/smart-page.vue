@@ -34,7 +34,7 @@ async function onDragEnd() {
   dragOptions.value.disabled = !dragOptions.value.disabled
   if (!dragOptions.value.disabled) return
   if (tabActive.value == 2) {
-    //setSmartList
+    if (smartList.value.length == 0) return
     await setSmartList({
       params: { op: 7 },
       data: smartList.value.map((item, i) => ({
@@ -43,12 +43,15 @@ async function onDragEnd() {
       })),
     })
   } else {
-    await onSceneListSort(
-      globalSceneList.value.map((item, i) => ({
-        changjingbianhao: item.id,
-        paixu: i,
-      }))
-    )
+    if (globalSceneList.value.length > 0) {
+      await onSceneListSort(
+        globalSceneList.value.map((item, i) => ({
+          changjingbianhao: item.id,
+          paixu: i,
+        }))
+      )
+    }
+
     await Promise.all(
       roomSceneList.value.map(async (roomItem) => {
         return await onSceneListSort(
