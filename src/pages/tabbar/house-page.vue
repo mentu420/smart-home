@@ -25,7 +25,7 @@ const route = useRoute()
 const useHouseStore = houseStore()
 const useDeviceStore = deviceStore()
 const usesmartStore = smartStore()
-const { houseList, floorList, currentHouse, roomList } = storeToRefs(useHouseStore)
+const { houseList, floorList, currentHouse, roomList, houseUserPower } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { sceneList } = storeToRefs(usesmartStore)
 const { mqttDevicePublish } = useMqtt()
@@ -123,20 +123,24 @@ const onDragEnd = async () => {
     const { deviceList, sceneList } = roomFilterList.value.find(
       (item) => item.id == currentRoomId.value
     )
-    await setDeviceList({
-      params: { op: 7 },
-      data: deviceList.map((item, i) => ({
-        shebeibianhao: item.id,
-        paixu: i,
-      })),
-    })
-    await setSceneList({
-      params: { op: 7 },
-      data: sceneList.map((item, i) => ({
-        changjingbianhao: item.id,
-        paixu: i,
-      })),
-    })
+    if (deviceList.length > 0) {
+      await setDeviceList({
+        params: { op: 7 },
+        data: deviceList.map((item, i) => ({
+          shebeibianhao: item.id,
+          paixu: i,
+        })),
+      })
+    }
+    if (sceneList.length > 0) {
+      await setSceneList({
+        params: { op: 7 },
+        data: sceneList.map((item, i) => ({
+          changjingbianhao: item.id,
+          paixu: i,
+        })),
+      })
+    }
   }
   dragOptions.value.disabled = !dragOptions.value.disabled
 }
@@ -279,7 +283,12 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 </HousePopover>
                 <div class="space-x-4 shrink-0">
                   <van-icon size="20" name="bell" />
-                  <van-icon size="20" name="plus" @click="goAddDevice" />
+                  <van-icon
+                    v-if="houseUserPower(currentHouse.id) != 2"
+                    size="20"
+                    name="plus"
+                    @click="goAddDevice"
+                  />
                 </div>
               </div>
             </section>

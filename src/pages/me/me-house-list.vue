@@ -70,7 +70,7 @@ const goHouseItem = async (houseItem) => {
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="家庭管理" />
-    <van-pull-refresh v-model="loading" class="min-h-[80vh]" @refresh="onRefresh">
+    <van-pull-refresh v-model="loading" class="min-h-[80vh]" disabled>
       <section class="p-4">
         <div class="space-y-4">
           <van-swipe-cell

@@ -128,6 +128,6 @@ const openDeviceConfig = () => {
         </div>
       </li>
     </ul>
-    <TriggerFloatBubble :id="props.id" ref="triggerRef" :title="deviceItem.label" :scope="scope" />
+    <TriggerFloatBubble :id="props.id" ref="triggerRef" :title="deviceItem?.label" :scope="scope" />
   </div>
 </template>
