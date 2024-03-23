@@ -162,7 +162,8 @@ const onSubmitRoomCustom = () => {
 
 const onEdit = async () => {
   disabled.value = !disabled.value
-  if (!disabled.value) return
+  if (!disabled.value || floorList.value.length == 0) return
+
   onAwaitLoad(async () => {
     //这里只需要更新排序
     const floorSortRes = floorList.value.map((item, i) => ({ quyubianhao: item.id, paixu: i }))
@@ -233,7 +234,7 @@ async function onRefresh() {
       </template>
     </HeaderNavbar>
 
-    <van-collapse v-model="activeNames" class="p-4">
+    <van-collapse v-if="floorList.length > 0" v-model="activeNames" class="p-4">
       <draggable v-model="floorList" item-key="id" :disabled="disabled" group="floor">
         <template #item="{ element: floorItem }">
           <van-collapse-item

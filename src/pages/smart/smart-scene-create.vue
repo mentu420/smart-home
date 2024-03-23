@@ -443,9 +443,10 @@ const getTaskConverActions = (actions) => {
           }),
       }
     } else {
+      const actionModeIitem = actionModeList.find((action) => action.id == id)
       return {
         ...sceneList.value.find((sceneItem) => sceneItem.id == id),
-        ziyuanleixing,
+        ...actionModeIitem,
       }
     }
   })
@@ -575,7 +576,7 @@ function goEventConfig() {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar :title="`${route.query.id ? '编辑' : '创建'}${pageName}`">
       <template #right>
-        <van-button v-loading-click="onSave" size="small">保存</van-button>
+        <van-button v-loading-click="onSave" type="gray" size="small">保存</van-button>
       </template>
     </HeaderNavbar>
     <van-form ref="formRef" class="m-4">

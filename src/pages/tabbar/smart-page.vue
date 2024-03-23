@@ -137,8 +137,8 @@ onActivated(init)
       </div>
     </section>
 
-    <div class="fixed right-0 top-0 smart-tab__placeholder bg-page-gray z-[5]"></div>
-    <div class="h-[45px]"></div>
+    <div class="fixed left-0 right-0 top-0 smart-tab__placeholder bg-page-gray z-[1]"></div>
+    <div class="w-full h-[45px]"></div>
 
     <van-tabs
       v-model:active="tabActive"

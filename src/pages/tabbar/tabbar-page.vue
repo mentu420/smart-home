@@ -109,6 +109,7 @@ export default {
     background-color: #fff;
     position: fixed;
     width: 60px;
+    z-index: 99;
   }
   .smart-tabbar:deep(.van-tabbar--fixed) {
     top: 30%;
