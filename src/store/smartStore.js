@@ -46,7 +46,7 @@ export default defineStore(storeName, () => {
     if (type == 3) {
       return repeatItem?.name
     } else if (type == 4) {
-      return '周' + value.map((item) => weekData.value[item].replace('周', '')).join('、')
+      return '周' + value.map((item) => weekData.value[item]?.replace('周', '')).join('、')
     } else if (type == 5) {
       return `${repeatItem?.name} - ${value.join(',')}${value.length ? '日' : ''}`
     } else if (type == 6) {

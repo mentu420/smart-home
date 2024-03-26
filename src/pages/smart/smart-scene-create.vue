@@ -331,11 +331,13 @@ const onSave = async () => {
     await formRef.value?.validate()
     const { actions = [], events, img, ...residue } = createSmartItem.value
 
-    if (actions.length == 0) {
+    const isSceneKnx = !!route.query.id && getSmartItem.value.leixing != 2
+
+    if (actions.length == 0 && isSceneKnx) {
       showToast('请添加任务')
       return
     }
-    const actionsResult = transformSaveActions(actions)
+    const actionsResult = isSceneKnx ? getSmartItem.value.actions : transformSaveActions(actions)
 
     const eventsResult = transformSaveEvents(events)
 
@@ -352,7 +354,7 @@ const onSave = async () => {
       params: { op },
       data: op == 3 ? { bianhao: route.query.id, ...data } : data,
     }
-
+    console.log('config', config)
     const { useGetSceneListSync, useGetSmartListSync } = smartStore()
 
     if (route.query.fenlei == 2) {
@@ -360,11 +362,11 @@ const onSave = async () => {
       await setSmartList(config)
       await useGetSmartListSync(true)
     } else {
-      //场景
+      // 场景
       await setSceneList(config)
       await useGetSceneListSync(true)
     }
-    router.goBack()
+    // router.goBack()
   } catch (error) {
     console.warn(error)
     formRef.value?.scrollToField(error[0].name)
@@ -514,7 +516,7 @@ const autoInit = () => {
 const sceneInit = () => {
   if (route.query.id) {
     const { id, rId, label, actions = [], events = [], ...data } = getSmartItem.value
-    console.log('actions', actions)
+    console.log('getSmartItem', getSmartItem.value)
     const newActions = getTaskConverActions(actions)
     console.log('newActions', newActions)
     createSmartItem.value = {
@@ -687,7 +689,7 @@ function goEventConfig() {
       </ul>
     </section>
     <!--任务-->
-    <section class="p-4">
+    <section v-if="!(route.query.fenlei == 1 && getSmartItem.leixing == 2)" class="p-4">
       <div
         v-if="!createSmartItem.actions || createSmartItem.actions?.length == 0"
         class="van-haptics-feedback flex h-16 items-center justify-center rounded-lg bg-white"
@@ -756,7 +758,7 @@ function goEventConfig() {
             <van-cell center :title="`控制 - ${actionItem.label} 场景`">
               <template #label>
                 <label
-                  v-if="actionItem.dealy"
+                  v-if="actionItem?.dealy > 0"
                   class="my-2 px-4 py-1 bg-gray-100 rounded-full text-[14px] text-[#323233]"
                   @click.stop="operationRef.open({ actionItem })"
                 >

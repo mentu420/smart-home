@@ -207,7 +207,7 @@ export default function useMqtt() {
   }
 
   function mqttDisconnect() {
-    $mqtt.disconnect()
+    if (getMqttStatus() === 'connected') $mqtt.disconnect()
     clearHeartTimer
   }
 
