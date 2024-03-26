@@ -221,7 +221,9 @@ onActivated(init)
             </draggable>
           </section>
           <section v-for="roomItem in roomSceneList" :key="roomItem.id" class="mb-6">
-            <h4 class="mb-2 text-gray-600">{{ roomItem.floorName }} - {{ roomItem.label }}</h4>
+            <h4 class="mb-2 text-gray-600">
+              {{ roomItem.floorName || '未知区域' }} - {{ roomItem.label }}
+            </h4>
             <draggable
               v-model="roomItem.sceneList"
               item-key="id"

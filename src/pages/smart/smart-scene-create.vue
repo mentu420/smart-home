@@ -57,10 +57,15 @@ const timeEvents = computed(() => {
 })
 
 function openRoomPicker() {
-  roomPickerRef.value?.open({ columns: roomList.value })
+  const { useGetFloorTree } = houseStore()
+  roomPickerRef.value?.open({ columns: useGetFloorTree() })
 }
 function onSelectRoomItem({ selectedValues }) {
-  createSmartItem.value = { ...createSmartItem.value, fangjianbianhao: selectedValues[0] }
+  if (!selectedValues[1]) {
+    showToast('沒有房间！')
+    return
+  }
+  createSmartItem.value = { ...createSmartItem.value, fangjianbianhao: selectedValues[1] }
 }
 
 /**
@@ -366,7 +371,7 @@ const onSave = async () => {
       await setSceneList(config)
       await useGetSceneListSync(true)
     }
-    // router.goBack()
+    router.goBack()
   } catch (error) {
     console.warn(error)
     formRef.value?.scrollToField(error[0].name)
@@ -807,7 +812,7 @@ function goEventConfig() {
 
     <pickerSearch
       ref="roomPickerRef"
-      :columns-field-names="{ text: 'label', value: 'id' }"
+      :columns-field-names="{ text: 'label', value: 'id', children: 'roomList' }"
       @select="onSelectRoomItem"
     />
 
