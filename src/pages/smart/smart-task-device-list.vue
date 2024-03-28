@@ -164,20 +164,7 @@ init()
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="选择设备" />
-    <!-- <div class="flex items-center justify-between p-4">
-      <p class="text-gray-500">选择希望控制的设备</p>
-      <van-button
-        v-if="!isEvents"
-        class="!px-6"
-        size="small"
-        round
-        @click="onAllChecked"
-      >
-        {{ checkedAll ? '反选' : '全选' }}
-      </van-button>
-    </div> -->
     <section class="px-4">
-      <!-- <van-checkbox-group ref="checkboxGroup" v-model="checkedDevice" @change="onCheckChange"> -->
       <div v-for="floorItem in floorTree" :key="floorItem.id">
         <h3 class="p-4">{{ floorItem.label }}</h3>
         <div class="rounded-lg overflow-hidden">
@@ -192,17 +179,12 @@ init()
               @click="goDeviceConfig(deviceItem)"
             >
               <template #icon>
-                <IconFont class="mr-2" :icon="deviceItem.icon" />
+                <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
+                  <template #error>
+                    <IconFont class="mr-2" :icon="deviceItem.icon" />
+                  </template>
+                </SmartImage>
               </template>
-              <!-- <template #right-icon>
-                  <van-checkbox
-                    v-if="!isEvents"
-                    :ref="(el) => (checkboxRefs[deviceItem.id] = el)"
-                    v-model="deviceItem.checked"
-                    :name="deviceItem.id"
-                    @click.stop
-                  ></van-checkbox>
-                </template> -->
               <div class="flex justify-end items-center pr-4 text-gray-300">
                 <IconFont icon="more-round" />
               </div>
@@ -210,7 +192,6 @@ init()
           </van-cell-group>
         </div>
       </div>
-      <!-- </van-checkbox-group> -->
     </section>
   </div>
 </template>

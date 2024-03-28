@@ -468,7 +468,14 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   </div> -->
                 </template>
                 <van-empty v-else image="search" description="暂无设备">
-                  <van-button class="!px-6" size="small" plain round @click="goAddDevice">
+                  <van-button
+                    v-if="houseUserPower(currentHouse.id) != 2"
+                    class="!px-6"
+                    size="small"
+                    plain
+                    round
+                    @click="goAddDevice"
+                  >
                     添加设备
                   </van-button>
                 </van-empty>
