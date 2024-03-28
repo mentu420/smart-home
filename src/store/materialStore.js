@@ -10,6 +10,7 @@ export default defineStore(storeName, () => {
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
     materialImages.value = storeRes?.materialImages ?? {}
+    console.log('静态资源初始化完成', materialImages.value)
   }
 
   init()

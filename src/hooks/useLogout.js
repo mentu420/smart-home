@@ -6,6 +6,7 @@ import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
+import materialStore from '@/store/materialStore'
 
 const { mqttDisconnect } = useMqtt()
 
