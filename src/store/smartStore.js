@@ -50,7 +50,9 @@ export default defineStore(storeName, () => {
     } else if (type == 5) {
       return `${repeatItem?.name} - ${value.join(',')}${value.length ? '日' : ''}`
     } else if (type == 6) {
-      return `${repeatItem?.name} - ${value[0]}月${value[1]}日`
+      console.log(value)
+      const arr = value[0]?.split('-') ?? []
+      return `${repeatItem?.name} - ${arr[0] ?? 1}月${arr[1] ?? 1}日`
     } else {
       return dayjs(value.join('-')).format(repeatItem.format)
     }

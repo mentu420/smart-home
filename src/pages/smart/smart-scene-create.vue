@@ -259,7 +259,6 @@ function selectOperationDealy({ selectedValues }, { actionItem, modeItem }) {
 
 // 保存是转换actions
 const transformSaveActions = (actions) => {
-  console.log('transformSaveActions', actions)
   return actions
     .map(({ ziyuanleixing, dealy = 0, modeList, id }) => {
       if (ziyuanleixing == 1) {
@@ -413,19 +412,21 @@ async function onDelect() {
  * 2：设备转化 ziyuanleixing 2
  * **/
 const getTaskConverActions = (actions) => {
-  const modeActions = actions.map(({ caozuo, ...item }) => {
-    return transformKeys(
-      { ...caozuo, ...item },
-      {
-        ziyuanbianhao: 'id',
-        yanshi: 'dealy',
-        shuxing: 'use',
-        shuxingzhuangtai: 'useStatus',
-        shuxingzhi: 'useValue',
-        ziyuanleixing: 'ziyuanleixing',
-      }
-    )
-  })
+  const modeActions = actions
+    .filter((item) => item.ziyuanbianhao)
+    .map(({ caozuo, ...item }) => {
+      return transformKeys(
+        { ...caozuo, ...item },
+        {
+          ziyuanbianhao: 'id',
+          yanshi: 'dealy',
+          shuxing: 'use',
+          shuxingzhuangtai: 'useStatus',
+          shuxingzhi: 'useValue',
+          ziyuanleixing: 'ziyuanleixing',
+        }
+      )
+    })
   const ids = [...new Set(modeActions.map((item) => item.id))]
   return ids.map((id) => {
     const actionModeList = modeActions.filter((modeItem) => modeItem.id == id)
@@ -447,6 +448,7 @@ const getTaskConverActions = (actions) => {
       }
     } else {
       const actionModeIitem = actionModeList.find((action) => action.id == id)
+      console.log('actionModeIitem', actionModeIitem)
       return {
         ...sceneList.value.find((sceneItem) => sceneItem.id == id),
         ...actionModeIitem,
@@ -517,9 +519,7 @@ const autoInit = () => {
 const sceneInit = () => {
   if (route.query.id) {
     const { id, rId, label, actions = [], events = [], ...data } = getSmartItem.value
-    console.log('getSmartItem', getSmartItem.value)
     const newActions = getTaskConverActions(actions)
-    console.log('newActions', newActions)
     createSmartItem.value = {
       ...createSmartItem.value,
       ...data,
@@ -544,6 +544,7 @@ const init = () => {
    * 1：自动化比场景多一个events，自动化有两个智能设备actions
    * **/
   createSmartItem.value = { ...createSmartItem.value, fenlei: route.query.fenlei }
+  console.log('init', createSmartItem.value)
 }
 
 onMounted(init)
