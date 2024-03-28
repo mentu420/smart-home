@@ -8,7 +8,7 @@ const localImage = ref(null)
 
 // 原生调用
 function getPhotolocalDone(ora, localUrl) {
-  console.log('原生读取图片完成', localUrl)
+  console.log('原生读取图片完成', ora, localUrl)
   localImage.value = localUrl
 }
 

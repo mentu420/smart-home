@@ -44,22 +44,14 @@ const roomPickerRef = ref(null)
 const repeatTimeRef = ref(null)
 const pageName = computed(() => (route.query.fenlei == 2 ? '自动化' : '场景'))
 
-// 自动化点击事件
-const pressEvent = computed(() => {
-  const { events = [] } = createSmartItem.value
-  return events.find((item) => item.leixing == 0)
-})
+const dealyFormat = computed(() => (dealy) => `${Math.floor(dealy / 60)}分${dealy % 60}秒`)
 
-// 自动化时间重复事件
-const timeEvents = computed(() => {
-  const { events = [] } = createSmartItem.value
-  return events.filter((item) => item.leixing == 1)
-})
-
+// 打开房间选择
 function openRoomPicker() {
   const { useGetFloorTree } = houseStore()
   roomPickerRef.value?.open({ columns: useGetFloorTree() })
 }
+// 选择房间
 function onSelectRoomItem({ selectedValues }) {
   if (!selectedValues[1]) {
     showToast('沒有房间！')
@@ -114,6 +106,7 @@ const openEventDeviceMode = (modeItem, eventItem, eventIndex, type) => {
   })
 }
 
+// 选择附加条件
 const selectEventMoreItem = (action, eventItem, eventIndex) => {
   const { events } = createSmartItem.value
   switch (action.id) {
@@ -196,7 +189,8 @@ async function onActionSelect(action, actionItem, modeItem) {
   }
 }
 
-function openActionModeItem(modeItem, deviceItem, smartType) {
+// 打开设备模块picker
+function openDeviceModeItem(modeItem, deviceItem, smartType) {
   modePickerRef.value.open({ modeItem, id: deviceItem.id, smartType })
 }
 // 设备模块变更
@@ -265,14 +259,15 @@ function selectOperationDealy({ selectedValues }, { actionItem, modeItem }) {
 
 // 保存是转换actions
 const transformSaveActions = (actions) => {
+  console.log('transformSaveActions', actions)
   return actions
-    .map(({ ziyuanleixing, dealy = '0', modeList, id }) => {
+    .map(({ ziyuanleixing, dealy = 0, modeList, id }) => {
       if (ziyuanleixing == 1) {
         return modeList.map((modeItem) => {
           return {
             ziyuanleixing: ziyuanleixing,
             ziyuanbianhao: id,
-            yanshi: modeItem?.dealy || '0',
+            yanshi: modeItem?.dealy ?? 0,
             caozuo: {
               shuxing: modeItem.use,
               shuxingzhuangtai: modeItem.useStatus,
@@ -336,7 +331,9 @@ const onSave = async () => {
     await formRef.value?.validate()
     const { actions = [], events, img, ...residue } = createSmartItem.value
 
-    const isSceneKnx = !!route.query.id && getSmartItem.value.leixing != 2
+    // 特殊的场景,不能编辑actions 源数据返回
+    const isSceneKnx =
+      !!route.query.id && route.query.fenlei == 1 && getSmartItem.value.leixing == 2
 
     if (actions.length == 0 && isSceneKnx) {
       showToast('请添加任务')
@@ -359,7 +356,6 @@ const onSave = async () => {
       params: { op },
       data: op == 3 ? { bianhao: route.query.id, ...data } : data,
     }
-    console.log('config', config)
     const { useGetSceneListSync, useGetSmartListSync } = smartStore()
 
     if (route.query.fenlei == 2) {
@@ -682,7 +678,7 @@ function goEventConfig() {
                       { text: '删除', id: 2 },
                     ]
               "
-              placement="bottom-end"
+              placement="left"
               @select="(action) => selectEventMoreItem(action, eventItem, eventIndex)"
             >
               <template #reference>
@@ -738,7 +734,7 @@ function goEventConfig() {
                   <label
                     v-clickable-active
                     class="px-4 py-1 bg-gray-100 rounded-full"
-                    @click="openActionModeItem(modeItem, actionItem, 'actions')"
+                    @click="openDeviceModeItem(modeItem, actionItem, 'actions')"
                   >
                     {{ modeItem.label }}
                     -
@@ -753,7 +749,7 @@ function goEventConfig() {
                     class="px-4 py-1 bg-gray-100 rounded-full"
                     @click="operationRef.open({ actionItem, modeItem })"
                   >
-                    延时 - {{ `${Math.floor(modeItem.dealy / 60)}分${modeItem.dealy % 60}秒` }}
+                    延时 - {{ dealyFormat(modeItem.dealy) }}
                   </label>
                 </dd>
               </dl>
@@ -767,7 +763,7 @@ function goEventConfig() {
                   class="my-2 px-4 py-1 bg-gray-100 rounded-full text-[14px] text-[#323233]"
                   @click.stop="operationRef.open({ actionItem })"
                 >
-                  延时 - {{ `${Math.floor(actionItem.dealy / 60)}分${actionItem.dealy % 60}秒` }}
+                  延时 - {{ dealyFormat(actionItem.dealy) }}
                 </label>
               </template>
               <template #right-icon>

@@ -121,7 +121,7 @@ init()
   <div class="bg-page-gray">
     <HeaderNavbar title="场景列表">
       <template #right>
-        <van-button size="small" :disabled="checkedScene.length == 0" @click="onSave">
+        <van-button size="small" type="gray" :disabled="checkedScene.length == 0" @click="onSave">
           保存
         </van-button>
       </template>
