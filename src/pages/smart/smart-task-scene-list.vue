@@ -22,6 +22,12 @@ const { sceneList, createSmartItem } = storeToRefs(smartStore())
 const checkboxRefs = ref([])
 const allScene = ref(false)
 
+// 获取已经存在的场景
+const getSelectSceneList = () => {
+  const { smartType } = route.query
+  return createSmartItem.value[smartType]?.filter((item) => item.ziyuanleixing == 2) || []
+}
+
 const toggle = (index) => {
   checkboxRefs.value[index].toggle()
 }
@@ -92,15 +98,24 @@ const selectAllScene = () => {
 
 const onSave = () => {
   // //ziyuanleixing 资源类型 1，设备；2，场景
-  const { smartType, fenlei } = route.query
-  const list = createSmartItem.value[smartType]?.filter((item) => item.ziyuanleixing == 2) || []
+  const { smartType } = route.query
   const deviceActions =
     createSmartItem.value[smartType]?.filter((item) => item.ziyuanleixing == 1) || []
+
+  // 已经选择了的场景
+  const list = getSelectSceneList()
+  // 新选择的场景
   const checkList = sceneList.value.filter((item) => checkedScene.value.includes(item.id))
+  // 最终选择的场景id
   const ids = [...new Set([...list, ...checkList].map((item) => item.id))]
+  // 合并成新的场景列表
   const newSceneList = ids
     .map((id) => sceneList.value.find((item) => item.id == id))
-    .map((item) => ({ ...item, ziyuanleixing: 2 }))
+    .map((item) => {
+      const option = list.find((option) => option.id == item.id) || {}
+      return { ...item, ziyuanleixing: 2, ...option }
+    })
+
   createSmartItem.value = {
     ...createSmartItem.value,
     [smartType]: [...deviceActions, ...newSceneList],
@@ -112,6 +127,8 @@ const init = () => {
   const { useGetFloorTree } = houseStore()
   const floorList = useGetFloorTree()
   floorTree.value = floorList.filter((item) => item.roomList.length > 0)
+  const list = getSelectSceneList()
+  checkedScene.value = list.map((item) => item.id)
 }
 
 init()
