@@ -10,6 +10,7 @@ const { materialImages } = storeToRefs(materialStore())
 
 // 原生调用
 function getPhotolocalDone(ora, localUrl) {
+  if (materialImages.value[ora]) return
   console.log('原生读取图片完成', ora, localUrl)
   materialImages.value = { ...materialImages.value, [ora]: localUrl }
 }
