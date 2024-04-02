@@ -104,8 +104,8 @@ onActivated(init)
 
 <template>
   <div class="min-h-screen bg-page-gray p-safe">
-    <section class="bg-page-gray fixed w-full smart-tabs z-10">
-      <div class="flex justify-between items-center px-4 py-3">
+    <section class="bg-page-gray sticky smart-tabs z-10">
+      <div class="px-4 py-3 flex justify-between items-center">
         <ul class="flex items-center text-[16px] space-x-4">
           <li
             v-if="houseUserPower(currentHouse.id) != 2"
@@ -116,7 +116,7 @@ onActivated(init)
           </li>
           <li :class="{ 'font-bold': tabActive == 1 }" @click="tabActive = '1'">场景</li>
         </ul>
-        <div class="flex-1 text-right">
+        <div class="">
           <div
             v-if="dragOptions.disabled && houseUserPower(currentHouse.id) != 2"
             class="rounded-lg"
@@ -138,7 +138,7 @@ onActivated(init)
     </section>
 
     <div class="fixed left-0 right-0 top-0 smart-tab__placeholder bg-page-gray z-[1]"></div>
-    <div class="w-full h-[45px]"></div>
+    <!-- <div class="w-full h-[45px]"></div> -->
 
     <van-tabs
       v-model:active="tabActive"
