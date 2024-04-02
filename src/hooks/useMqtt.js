@@ -27,7 +27,7 @@ export default function useMqtt() {
   const heartTimer = ref(null) //记录心跳定时器
   const heartDuration = ref(10 * 1000) // 心跳时长
   const { VITE_APP_DEVELOPER } = import.meta.env || {}
-  const showLog = ref(getStorage(VITE_APP_DEVELOPER) || false)
+  const showLog = ref(getStorage(VITE_APP_DEVELOPER) || true)
 
   const PluginOptions = {
     autoConnect: false, //插件初始化时是否自动连接到代理。
@@ -128,10 +128,11 @@ export default function useMqtt() {
       })
     })
     /**
+     * 应答通知
      * 云端/网关在完成一个操作后，进行应答 云服务器/网关->App
      * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
      * **/
-    $mqtt.subscribe(`Result/${yonghubianhao}`, (data) => {
+    $mqtt.subscribe(`Result/${yonghubianhao}`, async (data) => {
       if (!isObjectString(data)) return
       const { msgid, code } = JSON.parse(data)
       const [userId, theme, id, timeStamp] = msgid.split('/')
@@ -169,9 +170,6 @@ export default function useMqtt() {
     const message = { bianhao: id }
     const { setSceneLoading } = smartStore()
     setSceneLoading(id, true)
-    setTimeout(() => {
-      setSceneLoading(id, false)
-    }, 1000)
     useMqttPublish(SENCE, message, mode)
   }
 
@@ -188,6 +186,8 @@ export default function useMqtt() {
    * }
    * **/
   function useMqttPublish(theme, message, mode) {
+    const status = getMqttStatus()
+    if (!['connecting', 'connected'].includes(status)) mqttSubscribe(true)
     const { useGetToken } = userStore()
     const { yonghubianhao } = useGetToken()
     if (showLog.value) console.log('%c主题', getLogStyle('green'), theme, message)

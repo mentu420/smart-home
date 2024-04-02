@@ -66,13 +66,13 @@ const isWhite = [...commonRouters.map((item) => item.path), '/']
 const onMqttConnect = () => {
   console.log('MQTT Connect')
   const { createMqtt, mqttSubscribe, getMqttStatus } = useMqtt()
+  createMqtt(app)
   const status = getMqttStatus()
   if (!onLine.value) {
     if (status == 'connected') $mqtt.disconnect()
   } else {
     if (status == 'connected') return
-    createMqtt(app)
-    mqttSubscribe(true)
+    mqttSubscribe()
   }
 }
 

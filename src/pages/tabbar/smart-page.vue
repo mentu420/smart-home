@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { computed, onActivated, onMounted, ref } from 'vue'
+import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
@@ -83,21 +83,28 @@ const editSmartItem = (smartItem) => {
 
 const init = () => {
   dragOptions.value.disabled = true
-  globalSceneList.value = sceneList.value?.filter((option) => option.rId == '')
-  roomSceneList.value = roomList.value
-    .map((roomItem) => {
-      const floorRes = floorList.value.find((floorItem) => floorItem.id == roomItem.fId)
-      return {
-        ...roomItem,
-        floorName: floorRes?.label,
-        floorSort: floorRes?.sort,
-        sceneList: sceneList.value.filter((sceneItem) => sceneItem.rId == roomItem.id),
-      }
-    })
-    .filter((item) => item.sceneList.length > 0)
 }
 
-onMounted(init)
+watch(
+  () => [sceneList.value, roomList.value, floorList.value],
+  () => {
+    globalSceneList.value = sceneList.value?.filter((option) => option.rId == '')
+    roomSceneList.value = roomList.value
+      .map((roomItem) => {
+        const floorRes = floorList.value.find((floorItem) => floorItem.id == roomItem.fId)
+        return {
+          ...roomItem,
+          floorName: floorRes?.label,
+          floorSort: floorRes?.sort,
+          sceneList: sceneList.value.filter((sceneItem) => sceneItem.rId == roomItem.id),
+        }
+      })
+      .filter((item) => item.sceneList.length > 0)
+  },
+  {
+    immediate: true,
+  }
+)
 
 onActivated(init)
 </script>

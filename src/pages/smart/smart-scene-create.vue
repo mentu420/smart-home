@@ -14,6 +14,7 @@ import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import { transformKeys, mergeObjectIntoArray, getWebUrlName } from '@/utils/common'
+import { onScenePublishDebounce } from '@/hooks/useSmart'
 
 import SmartCondtionList from './components/SmartCondtionList.vue'
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
@@ -21,7 +22,7 @@ import SmartRepeatTime from './components/SmartRepeatTime.vue'
 
 defineOptions({ name: 'SmartSceneCreate' })
 
-const { mqttDevicePublish, mqttScenePublish } = useMqtt()
+const { mqttDevicePublish } = useMqtt()
 
 const router = useRouter()
 const route = useRoute()
@@ -166,7 +167,7 @@ async function onActionSelect(action, actionItem, modeItem) {
     if (modeItem) {
       mqttDevicePublish({ id: actionItem.id, ...modeItem })
     } else {
-      mqttScenePublish({ id: actionItem.id })
+      onScenePublishDebounce(actionItem.id)
     }
   } else if (action.id == 1) {
     operationRef.value?.open({ actionItem, modeItem })
