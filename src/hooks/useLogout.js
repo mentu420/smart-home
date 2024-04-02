@@ -7,10 +7,12 @@ import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import materialStore from '@/store/materialStore'
+import { removeStorage } from '@/utils/storage'
 
 const { mqttDisconnect } = useMqtt()
 
 export const storeReset = () => {
+  removeStorage('materialImages') // 网络对应本地资源图片路径缓存
   houseStore().reset()
   smartStore().reset()
   deviceStore().reset()

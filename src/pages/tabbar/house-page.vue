@@ -430,7 +430,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 <template v-if="roomItem.deviceList.length > 0">
                   <div class="flex items-center py-4">
                     <h4 class="text-gray-600">照明</h4>
-                    <label class="ml-2 text-xs text-gray-400">
+                    <!-- <label class="ml-2 text-xs text-gray-400">
                       {{
                         roomItem.deviceList.filter((deviceItem) =>
                           deviceItem.modeList?.filter(
@@ -438,7 +438,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                           )
                         ).length
                       }}个灯亮
-                    </label>
+                    </label> -->
                   </div>
                   <!-- <div
                     v-if="dragOptions.disabled"
