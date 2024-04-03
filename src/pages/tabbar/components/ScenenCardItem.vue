@@ -4,7 +4,6 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import emptyBgc from '@/assets/images/empty/empty-bgc.jpg'
 
-import useMqtt from '@/hooks/useMqtt'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import { onScenePublishDebounce } from '@/hooks/useSmart'

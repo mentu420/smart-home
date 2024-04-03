@@ -1,19 +1,14 @@
 <script setup>
-import { useRect } from '@vant/use'
-import { storeToRefs } from 'pinia'
 import { ref, computed, watch, nextTick } from 'vue'
 
 import { USE_KEY } from '@/enums/deviceEnums'
-import useMqtt from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
-import { throttle } from '@/utils/common'
 
 import TriggerModePopover from './TriggerModePopover.vue'
 import {
   triggerControl,
   disabledClass,
   isDisabled,
-  getPlacement,
   getModeActions,
   onConfigFormat,
 } from './useTrigger'

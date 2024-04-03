@@ -4,13 +4,11 @@ import { computed, nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { USE_KEY } from '@/enums/deviceEnums'
-import useMqtt from '@/hooks/useMqtt'
+import { mqttDevicePublish } from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 import { onDeviceStatusChange, onDeviceStatusRefresh } from '@/components/trigger/useTrigger'
 import { TriggerFloatBubble } from '@/components/trigger/'
-
-const { mqttDevicePublish } = useMqtt()
 
 const props = defineProps({
   isDrag: {

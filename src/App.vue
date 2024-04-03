@@ -5,13 +5,18 @@ import { ref, reactive, watch, onMounted, nextTick, inject, onBeforeUnmount } fr
 import { $mqtt } from 'vue-paho-mqtt'
 import { useRoute, useRouter } from 'vue-router'
 
-import useMqtt from '@/hooks/useMqtt'
+import {
+  createMqttPlugin,
+  onMqttConnect,
+  onMqttAutoReconnect,
+  mqttDisconnect,
+} from '@/hooks/useMqtt'
 import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
 import useRem from '@/utils/flexible/useRem.js'
 import { openUdpService, closeUdpService } from '@/utils/native/udpService'
 
-if (import.meta.env.MODE === 'development') new VConsole()
+// if (import.meta.env.MODE === 'development') new VConsole()
 
 const app = inject('App')
 const route = useRoute()
@@ -63,16 +68,13 @@ function onBackKeyForAndroid() {
 const isWhite = [...commonRouters.map((item) => item.path), '/']
 
 // 建立mqtt
-const onMqttConnect = () => {
+const onConnect = () => {
   console.log('MQTT Connect')
-  const { createMqtt, mqttSubscribe, getMqttStatus } = useMqtt()
-  createMqtt(app)
-  const status = getMqttStatus()
   if (!onLine.value) {
-    if (status == 'connected') $mqtt.disconnect()
+    mqttDisconnect()
   } else {
-    if (status == 'connected') return
-    mqttSubscribe()
+    // onMqttConnect()
+    onMqttAutoReconnect()
   }
 }
 
@@ -92,7 +94,8 @@ const setNativeMethods = () => {
 }
 
 function init() {
-  onMqttConnect()
+  createMqttPlugin(app)
+  onConnect()
   onUpdService()
 }
 

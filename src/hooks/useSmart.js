@@ -1,4 +1,4 @@
-import useMqtt from '@/hooks/useMqtt'
+import { mqttScenePublish } from '@/hooks/useMqtt'
 import { storeToRefs } from 'pinia'
 import smartStore from '@/store/smartStore'
 import { showToast } from 'vant'
@@ -15,6 +15,5 @@ export const onScenePublishDebounce = (id) => {
     showToast({ message: `正在执行${sceneItem?.label}，请稍后再试。。。`, position: 'bottom' })
     return
   }
-  const { mqttScenePublish } = useMqtt()
   mqttScenePublish({ id })
 }

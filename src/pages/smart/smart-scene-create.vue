@@ -9,7 +9,7 @@ import pickerSearch from '@/components/common/PickerSearch.vue'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import TimePicker from '@/components/common/TimePicker.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
-import useMqtt from '@/hooks/useMqtt'
+import { mqttDevicePublish } from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
@@ -21,8 +21,6 @@ import SmartDevicePicker from './components/SmartDevicePicker.vue'
 import SmartRepeatTime from './components/SmartRepeatTime.vue'
 
 defineOptions({ name: 'SmartSceneCreate' })
-
-const { mqttDevicePublish } = useMqtt()
 
 const router = useRouter()
 const route = useRoute()

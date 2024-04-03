@@ -2,7 +2,7 @@ import { useRect } from '@vant/use'
 import { computed } from 'vue'
 
 import { TYPE_VALUE_EXECL, USE_KEY } from '@/enums/deviceEnums'
-import useMqtt from '@/hooks/useMqtt'
+import { mqttDevicePublish } from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
 import { throttle, stringToArray, debounce } from '@/utils/common'
 
@@ -103,7 +103,6 @@ export const onDeviceStatusRefresh = debounce((id) => {
 // 设备模块控制
 export const triggerControl = throttle(({ use, device, config }) => {
   const { modeStatusList, id } = device
-  const { mqttDevicePublish } = useMqtt()
   const newModeList = modeStatusList.map((modeItem) => {
     const modeConfig = config[modeItem.use]
     return { ...modeItem, ...modeConfig }

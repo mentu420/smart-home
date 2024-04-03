@@ -6,7 +6,7 @@ import draggable from 'vuedraggable'
 
 import { getHouseList, setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
-import useMqtt from '@/hooks/useMqtt'
+import { mqttDevicePublish } from '@/hooks/useMqtt'
 import DeviceCardItem from '@/pages/tabbar/components/DeviceCardItem.vue'
 import HousePopover from '@/pages/tabbar/components/HousePopover.vue'
 import ScenenCardItem from '@/pages/tabbar/components/ScenenCardItem.vue'
@@ -28,7 +28,6 @@ const usesmartStore = smartStore()
 const { houseList, floorList, currentHouse, roomList, houseUserPower } = storeToRefs(useHouseStore)
 const { deviceList } = storeToRefs(useDeviceStore)
 const { sceneList } = storeToRefs(usesmartStore)
-const { mqttDevicePublish } = useMqtt()
 const skeletonLoading = ref(false)
 const loading = ref(false)
 const currentRoomId = ref('-1') //当前房间编号
