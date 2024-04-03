@@ -18,7 +18,7 @@ export const onScenePublishDebounce = (id) => {
   }
   mqttScenePublish({ id })
   setTimeout(() => {
-    const sceneItem = sceneList.value.find((item) => item.loading)
+    const sceneItem = sceneList.value.find((item) => item.id == id)
     if (!sceneItem?.loading) return
     setSceneLoading(id, false)
     showToast({ message: `场景${sceneItem?.label}操作失败` })
