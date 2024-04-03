@@ -42,7 +42,7 @@ const src = computed(() => {
   <van-image v-bind="attrs" :src="src">
     <template #error>
       <slot name="error">
-        <van-icon class="text-[32px]" name="photo-fail" />
+        <van-icon class="!text-[32px]" name="photo-fail" />
       </slot>
     </template>
   </van-image>

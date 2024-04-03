@@ -54,8 +54,8 @@ export function createMqttPlugin(app) {
       enableMainTopic: true, // 是否启用主题
       username: yonghubianhao, //连接到代理时使用的用户名
       password: acessToken, //连接到代理时使用的密码
-      watchdogTimeout: 1000, //等待重新连接的时间
-      reconnectTimeout: 1000, //断开后重新连接的时间
+      watchdogTimeout: 0, //等待重新连接的时间
+      reconnectTimeout: 0, //断开后重新连接的时间
     },
   })
   app.use(plugin)

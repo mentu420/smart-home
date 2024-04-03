@@ -76,7 +76,7 @@ const onDelFamily = async () => {
 }
 
 const editFamilyItem = (key) => {
-  if (key != 'xingming') return
+  if (key != 'xingming' || houseUserPower.value(route.query.hId) == 2) return
   router.push({
     path: '/me-house-member-remark',
     query: { value: familyItem.value[key], id: familyItem.value.id },
@@ -105,7 +105,7 @@ const editFamilyPower = (power) => {
           :key="familyKey"
           :title="familyLabel"
           :value="familyItem[familyKey]"
-          :is-link="familyKey === 'xingming'"
+          :is-link="familyKey === 'xingming' && houseUserPower(route.query.hId) != 2"
           @click="editFamilyItem(familyKey)"
         />
       </div>
