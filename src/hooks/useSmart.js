@@ -10,10 +10,14 @@ const { sceneList } = storeToRefs(smartStore())
  * 一个场景没有执行完，不能执行其他场景，设备控制不管控
  * **/
 export const onScenePublishDebounce = (id) => {
+  const { setSceneLoading } = smartStore()
   const sceneItem = sceneList.value.find((item) => item.loading)
   if (sceneItem) {
     showToast({ message: `正在执行${sceneItem?.label}，请稍后再试。。。`, position: 'bottom' })
     return
   }
   mqttScenePublish({ id })
+  setTimeout(() => {
+    setSceneLoading(id, false)
+  }, 10 * 1000)
 }
