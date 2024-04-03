@@ -5,12 +5,7 @@ import { ref, reactive, watch, onMounted, nextTick, inject, onBeforeUnmount } fr
 import { $mqtt } from 'vue-paho-mqtt'
 import { useRoute, useRouter } from 'vue-router'
 
-import {
-  createMqttPlugin,
-  onMqttConnect,
-  onMqttAutoReconnect,
-  mqttDisconnect,
-} from '@/hooks/useMqtt'
+import MqttClient from '@/hooks/useMqtt'
 import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
 import useRem from '@/utils/flexible/useRem.js'
@@ -71,10 +66,12 @@ const isWhite = [...commonRouters.map((item) => item.path), '/']
 const onConnect = () => {
   console.log('MQTT Connect')
   if (!onLine.value) {
-    mqttDisconnect()
+    // mqttDisconnect()
   } else {
     // onMqttConnect()
-    onMqttAutoReconnect()
+    // onMqttAutoReconnect()
+    // initClient()
+    const client = new MqttClient()
   }
 }
 
@@ -94,7 +91,7 @@ const setNativeMethods = () => {
 }
 
 function init() {
-  createMqttPlugin(app)
+  // createMqttPlugin(app)
   onConnect()
   onUpdService()
 }

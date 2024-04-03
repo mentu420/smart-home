@@ -1,6 +1,6 @@
 import { showToast } from 'vant'
 
-import { mqttDisconnect } from '@/hooks/useMqtt'
+// import { mqttDisconnect } from '@/hooks/useMqtt'
 import router from '@/router/'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
@@ -21,7 +21,7 @@ export const storeReset = () => {
 
 export const useLogout = async (message = '请重新登陆') => {
   storeReset()
-  mqttDisconnect()
+  // mqttDisconnect()
   showToast(message)
   router.replace({ path: '/account-login', replace: true })
 }
