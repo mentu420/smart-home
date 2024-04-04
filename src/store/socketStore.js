@@ -36,8 +36,8 @@ export default defineStore('socketStore', () => {
     password.value = acessToken
     mqtt.connect('ws://152.136.150.207:8083/mqtt', {
       clientId: `APP_${yonghubianhao}`, //连接到代理时使用的客户端标识符
-      mainTopic: 'Cloud', // 主题
-      enableMainTopic: true, // 是否启用主题
+      autoUseTopicAlias: 'Cloud', // 主题
+      autoAssignTopicAlias: true, // 是否启用主题
       username: yonghubianhao, //连接到代理时使用的用户名
       password: acessToken, //连接到代理时使用的密码
     })
@@ -85,7 +85,7 @@ export default defineStore('socketStore', () => {
   function onDeviceSubscribe() {
     mqtt.subscribe(`${DEVICE}/State/${username.value}`, (data) => {
       if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
-      if (!isObjectString(data)) return
+      if (!data || !isObjectString(data)) return
       const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
       const { deviceList } = storeToRefs(deviceStore())
       deviceList.value = deviceList.value.map((item) => {
@@ -116,7 +116,7 @@ export default defineStore('socketStore', () => {
     console.log('开始订阅')
     mqtt.subscribe(`Result/${username.value}`, async (data) => {
       console.log('onResponesSubscribe', data)
-      if (!isObjectString(data)) return
+      if (!data || !isObjectString(data)) return
       const { msgid, code } = JSON.parse(data)
       const [userId, theme, id, timeStamp] = msgid.split('/')
       if (showLog.value) {

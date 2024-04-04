@@ -19,7 +19,7 @@
     "@radial-color-picker/rotator": "^3.0.2",
     "@vant/area-data": "^1.5.0",
     "@vant/touch-emulator": "^1.4.0",
-    "@vant/use": "^1.5.2",
+    "@vant/use": "^1.6.0",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.4.0",
     "crypto-js": "^4.1.1",
