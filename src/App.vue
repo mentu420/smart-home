@@ -71,7 +71,9 @@ const onConnect = () => {
     // onMqttConnect()
     // onMqttAutoReconnect()
     // initClient()
-    const client = new MqttClient()
+    const { useGetToken } = userStore()
+    const { yonghubianhao, acessToken } = useGetToken() || {}
+    new MqttClient({ username: yonghubianhao, password: acessToken })
   }
 }
 

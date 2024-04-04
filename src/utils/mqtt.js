@@ -6,13 +6,11 @@ import mqtt from 'mqtt'
  * QoS 2：仅接收一次：与 QoS 1 相同，但没有重复。
  **/
 export default class MQTT {
-  constructor(host, opts, qos) {
+  constructor(opts, qos) {
     this.mqClient = null
-    this.host = host
     this.opts = opts
     this.qos = qos ?? 0
     this.reconnectCount = 0
-    // this.connect(host, opts)
   }
   /**  是否已连接到服务器 */
   isConnected() {
@@ -32,14 +30,18 @@ export default class MQTT {
     }
   }
   static destory() {
+    this.disReconnect()
+  }
+  disReconnect() {
     if (!this.mqClient) return
     this.mqClient.end(true)
     this.mqClient = null
   }
   connect(host, opts) {
+    if (this.isConnected()) return
     this.mqClient = new mqtt.connect(host, opts)
     this.mqClient.on('connect', () => {
-      console.log('连接成功---', this.mqClient.connected)
+      console.log('成功连接---', this.mqClient?.connected)
     })
     this.mqClient.on('message', (topic, payload) => {
       console.log('数据响应了---', topic, payload)
@@ -47,12 +49,16 @@ export default class MQTT {
     this.mqClient.on('error', (err) => {
       console.log('连接错误--------------------', err)
     })
+    this.mqClient.on('disconnect', (err) => {
+      console.log('断开连接--------------------', err)
+    })
     this.mqClient.on('reconnect', () => {
-      console.log('重连中......')
       ++this.reconnectCount
-      if (this.reconnectCount == 5) {
-        this.mqClient.reconnectPeriod = 0
+      console.log('重连中......', this.reconnectCount)
+      if (this.reconnectCount == 4) {
+        this.disReconnect()
       }
     })
+    return this.mqClient
   }
 }
