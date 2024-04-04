@@ -66,7 +66,7 @@ export default defineStore('socketStore', () => {
         `App/HeartBeat/${username.value}`,
         JSON.stringify({
           acessToken: password.value,
-          msgid: getMsgid(username.value, 'HeartBeat', '123'),
+          msgid: getMsgid('HeartBeat', '123'),
           timeStamp: getTimeStamp(),
         })
       )
@@ -174,7 +174,7 @@ export default defineStore('socketStore', () => {
     mqtt.publish(
       `${theme}/Control/${username.value}`,
       JSON.stringify({
-        msgid: getMsgid(username.value, theme, message.bianhao),
+        msgid: getMsgid(theme, message.bianhao),
         ...message,
       })
     )
