@@ -1,13 +1,8 @@
 import '@vant/touch-emulator'
 import 'tailwindcss/tailwind.css'
 /**vant-ui 函数式组件样式**/
-// import 'vant/es/dialog/style'
-// import 'vant/es/image-preview/style'
-// import 'vant/es/notify/style'
-// import 'vant/es/toast/style'
 import 'vant/lib/index.css'
 import { createApp, provide } from 'vue'
-import { createPahoMqttPlugin } from 'vue-paho-mqtt'
 import Vue3TouchEvents from 'vue3-touch-events'
 
 //重置样式

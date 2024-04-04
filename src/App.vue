@@ -1,15 +1,13 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import VConsole from 'vconsole'
-import { ref, reactive, watch, onMounted, nextTick, inject, onBeforeUnmount } from 'vue'
-import { $mqtt } from 'vue-paho-mqtt'
+import { ref, reactive, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import MqttClient from '@/hooks/useMqtt'
-import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
+import socketStore from '@/store/socketStore'
 import useRem from '@/utils/flexible/useRem.js'
-import { openUdpService, closeUdpService } from '@/utils/native/udpService'
+socketStore()
 
 // if (import.meta.env.MODE === 'development') new VConsole()
 
@@ -60,49 +58,16 @@ function onBackKeyForAndroid() {
   router.goBack()
 }
 
-const isWhite = [...commonRouters.map((item) => item.path), '/']
-
-// 建立mqtt
-const onConnect = () => {
-  console.log('MQTT Connect')
-  if (!onLine.value) {
-    // mqttDisconnect()
-  } else {
-    // onMqttConnect()
-    // onMqttAutoReconnect()
-    // initClient()
-    const { useGetToken } = userStore()
-    const { yonghubianhao, acessToken } = useGetToken() || {}
-    new MqttClient({ username: yonghubianhao, password: acessToken })
-  }
-}
-
-const onUpdService = () => {
-  console.log('onUpdService', onLine.value)
-  if (!onLine.value) {
-    closeUdpService()
-  } else {
-    // openUdpService()
-  }
-}
-
 // 函数挂载window 原生调用
 const setNativeMethods = () => {
   window.h5Back = h5Back
   window.routerBack = onBackKeyForAndroid
 }
 
-function init() {
-  // createMqttPlugin(app)
-  onConnect()
-  onUpdService()
-}
-
 watch(
   () => onLine.value,
   (val) => {
     console.log('在线状态变化', val)
-    init()
   },
   { immediate: true }
 )

@@ -1,4 +1,4 @@
-import { onMounted, ref } from 'vue'
+import { onActivated, ref } from 'vue'
 
 import useWinResize from './useWinResize'
 /**
@@ -19,7 +19,7 @@ export default function useSize() {
     }
   }
   useWinResize(setRem)
-  onMounted(() => {
+  onActivated(() => {
     setRem()
   })
   return {

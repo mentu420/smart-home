@@ -14,7 +14,7 @@ export default class MQTT {
   }
   /**  是否已连接到服务器 */
   isConnected() {
-    return this.mqClient?.connected == true
+    return this.mqClient?.connected
   }
   /**  订阅主题  */
   subscribe(topic, callback) {
@@ -25,8 +25,8 @@ export default class MQTT {
   }
   publish(topic, message) {
     if (this.isConnected()) {
-      console.log('订阅主题----', topic, message)
-      this.mqClient.publish(topic, { qos: this.qos })
+      console.log('推送信息----', topic, message)
+      this.mqClient.publish(topic, message, { qos: this.qos })
     }
   }
   static destory() {
@@ -37,28 +37,37 @@ export default class MQTT {
     this.mqClient.end(true)
     this.mqClient = null
   }
+  onReadly(callback) {
+    callback && callback()
+  }
   connect(host, opts) {
-    if (this.isConnected()) return
-    this.mqClient = new mqtt.connect(host, opts)
-    this.mqClient.on('connect', () => {
-      console.log('成功连接---', this.mqClient?.connected)
-    })
-    this.mqClient.on('message', (topic, payload) => {
-      console.log('数据响应了---', topic, payload)
-    })
-    this.mqClient.on('error', (err) => {
-      console.log('连接错误--------------------', err)
-    })
-    this.mqClient.on('disconnect', (err) => {
-      console.log('断开连接--------------------', err)
-    })
-    this.mqClient.on('reconnect', () => {
-      ++this.reconnectCount
-      console.log('重连中......', this.reconnectCount)
-      if (this.reconnectCount == 4) {
-        this.disReconnect()
-      }
-    })
-    return this.mqClient
+    try {
+      if (this.isConnected()) return
+      this.mqClient = new mqtt.connect(host, opts)
+      console.log(this.mqClient)
+      this.mqClient.on('connect', (e) => {
+        console.log('成功连接---', this.isConnected())
+        this.onReadly()
+      })
+      this.mqClient.on('message', (topic, payload) => {
+        console.log('数据响应了---', topic, payload)
+      })
+      this.mqClient.on('error', (err) => {
+        console.log('连接错误--------------------', err)
+      })
+      this.mqClient.on('disconnect', (err) => {
+        console.log('断开连接--------------------', err)
+      })
+      this.mqClient.on('reconnect', () => {
+        ++this.reconnectCount
+        console.log('重连中......', this.reconnectCount)
+        if (this.reconnectCount == 4) {
+          this.disReconnect()
+        }
+      })
+      return this.mqClient
+    } catch (error) {
+      //
+    }
   }
 }
