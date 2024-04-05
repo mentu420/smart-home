@@ -35,7 +35,7 @@ export default defineStore('socketStore', () => {
     const { yonghubianhao, acessToken } = useGetToken() || {}
     username.value = yonghubianhao
     password.value = acessToken
-    client.value = new Paho.Client('152.136.150.207', 8083, '/mqtt', `Cloud/APP_${username.value}`)
+    client.value = new Paho.Client('152.136.150.207', 8083, '/mqtt', `APP_${username.value}`)
     console.log('client', client.value)
     client.value.connect({
       // clientId: `Cloud/APP_${username.value}`, //连接到代理时使用的客户端标识符
@@ -72,7 +72,7 @@ export default defineStore('socketStore', () => {
         console.log('%cMQTT发送心跳', getLogStyle('orange'))
       }
       client.value.publish(
-        `Cloud/App/HeartBeat/${username.value}`,
+        `App/HeartBeat/${username.value}`,
         JSON.stringify({
           acessToken: password.value,
           msgid: getMsgid('HeartBeat', '123'),
@@ -92,7 +92,7 @@ export default defineStore('socketStore', () => {
    * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
    * **/
   function onDeviceSubscribe() {
-    client.value.subscribe(`${DEVICE}/State/${username.value}`, (data) => {
+    client.value.subscribe(`Cloud/${DEVICE}/State/${username.value}`, (data) => {
       if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
       if (!data || !isObjectString(data)) return
       const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
@@ -123,7 +123,7 @@ export default defineStore('socketStore', () => {
    * **/
   function onResponesSubscribe() {
     console.log('开始订阅')
-    client.value.subscribe(`Result/${username.value}`, async (data) => {
+    client.value.subscribe(`Cloud/Result/${username.value}`, async (data) => {
       console.log('onResponesSubscribe', data)
       if (!data || !isObjectString(data)) return
       const { msgid, code } = JSON.parse(data)
