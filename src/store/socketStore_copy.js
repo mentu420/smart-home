@@ -7,10 +7,11 @@ import MQTT from '@/utils/mqtt'
 import { openUdpService, closeUdpService } from '@/utils/native/udpService'
 import deviceInfo from '@/utils/deviceInfo'
 import { isObjectString } from '@/utils/common'
+import Paho from 'paho-mqtt'
 
 export default defineStore('socketStore', () => {
   const { onLine } = storeToRefs(userStore())
-  const mqtt = new MQTT()
+  const client = ref(null)
   const username = ref('')
   const password = ref('')
   const showLog = ref(true)
@@ -34,36 +35,44 @@ export default defineStore('socketStore', () => {
     const { yonghubianhao, acessToken } = useGetToken() || {}
     username.value = yonghubianhao
     password.value = acessToken
-    mqtt.connect('ws://152.136.150.207:8083/mqtt', {
-      clientId: `Cloud/APP_${username.value}`, //连接到代理时使用的客户端标识符
-      autoUseTopicAlias: true, // 主题
-      autoAssignTopicAlias: true, // 是否启用主题
-      username: yonghubianhao, //连接到代理时使用的用户名
+    client.value = new Paho.Client('152.136.150.207', 8083, '/mqtt', `APP_${username.value}`)
+    console.log('client', client.value)
+    client.value.connect({
+      // clientId: `Cloud/APP_${username.value}`, //连接到代理时使用的客户端标识符
+      // autoUseTopicAlias: true, // 主题
+      // autoAssignTopicAlias: true, // 是否启用主题
+      userName: yonghubianhao, //连接到代理时使用的用户名
       password: password.value, //连接到代理时使用的密码
+      onSuccess: () => {
+        console.log('onReadly')
+        createHeartTimer()
+        onDeviceSubscribe()
+        onResponesSubscribe()
+      },
     })
-    mqtt.onReadly = () => {
-      console.log('onReadly')
-      createHeartTimer()
-      onDeviceSubscribe()
-      onResponesSubscribe()
-    }
+    // client.value.onReadly = () => {
+    //   console.log('onReadly')
+    //   createHeartTimer()
+    //   onDeviceSubscribe()
+    //   onResponesSubscribe()
+    // }
   }
 
   const disReconnect = () => {
     clearHeartTimer()
-    mqtt.disReconnect()
+    client.value.disReconnect()
   }
 
   //发送心跳
   function createHeartTimer() {
     if (heartTimer) return
     heartTimer = setInterval(() => {
-      if (!mqtt.isConnected()) return
+      if (!client.value.isConnected()) return
       if (showLog.value) {
         console.log('%cMQTT发送心跳', getLogStyle('orange'))
       }
-      mqtt.publish(
-        `Cloud/App/HeartBeat/${username.value}`,
+      client.value.publish(
+        `App/HeartBeat/${username.value}`,
         JSON.stringify({
           acessToken: password.value,
           msgid: getMsgid('HeartBeat', '123'),
@@ -83,7 +92,7 @@ export default defineStore('socketStore', () => {
    * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
    * **/
   function onDeviceSubscribe() {
-    mqtt.subscribe(`${DEVICE}/State/${username.value}`, (data) => {
+    client.value.subscribe(`Cloud/${DEVICE}/State/${username.value}`, (data) => {
       if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
       if (!data || !isObjectString(data)) return
       const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
@@ -114,7 +123,7 @@ export default defineStore('socketStore', () => {
    * **/
   function onResponesSubscribe() {
     console.log('开始订阅')
-    mqtt.subscribe(`Result/${username.value}`, async (data) => {
+    client.value.subscribe(`Cloud/Result/${username.value}`, async (data) => {
       console.log('onResponesSubscribe', data)
       if (!data || !isObjectString(data)) return
       const { msgid, code } = JSON.parse(data)
@@ -171,7 +180,7 @@ export default defineStore('socketStore', () => {
    * **/
   function useMqttPublish(theme, message) {
     if (showLog.value) console.log('%c主题', getLogStyle('green'), theme, message)
-    mqtt.publish(
+    client.value.publish(
       `${theme}/Control/${username.value}`,
       JSON.stringify({
         msgid: getMsgid(theme, message.bianhao),
