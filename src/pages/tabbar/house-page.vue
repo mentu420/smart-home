@@ -6,7 +6,7 @@ import draggable from 'vuedraggable'
 
 import { getHouseList, setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
-import { mqttDevicePublish } from '@/hooks/useMqtt'
+import socketStore from '@/store/socketStore'
 import DeviceCardItem from '@/pages/tabbar/components/DeviceCardItem.vue'
 import HousePopover from '@/pages/tabbar/components/HousePopover.vue'
 import ScenenCardItem from '@/pages/tabbar/components/ScenenCardItem.vue'
@@ -77,6 +77,7 @@ const showDragBtn = computed(() => {
 
 // 控制设备
 const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
+  const { mqttDevicePublish } = socketStore()
   const switchMode = modeList.find((item) => ['switch'].includes(item.use))
   if (switchMode) {
     const useStatus = status || switchMode.useStatus == 'on' ? 'off' : 'on'
@@ -358,78 +359,77 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           </div>
         </section>
 
-        <div>
-          <van-tabs
-            v-model:active="currentRoomId"
-            class="house-tabs__hide"
-            background="#f7f7f7"
-            shrink
-            line-width="0"
-            animated
-            :swipeable="dragOptions.disabled"
-          >
-            <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
-              <section class="p-4 min-h-[85vh]">
-                <template v-for="collectItem in collectList" :key="collectItem.text">
-                  <h4 class="mb-2 text-gray-600">{{ collectItem.text }}</h4>
-                  <draggable
-                    v-model="collectItem.list"
-                    item-key="id"
-                    :group="collectItem.group"
-                    v-bind="dragOptions"
-                    class="grid grid-cols-2 md:grid-cols-4 gap-4"
-                  >
-                    <template #item="{ element }">
-                      <ScenenCardItem
-                        v-if="collectItem.group == 'collect-scene'"
-                        :id="element.id"
-                        :is-drag="!dragOptions.disabled"
-                      />
-                      <DeviceCardItem v-else :id="element.id" :is-drag="!dragOptions.disabled" />
-                    </template>
-                  </draggable>
-                  <van-empty
-                    v-if="collectItem.list?.length == 0"
-                    image-size="4rem"
-                    :image="collectEmptyImage"
-                    :description="`暂无收藏的${
-                      collectItem.group == 'collect-scene' ? '场景' : '设备'
-                    }`"
-                  />
-                  <div class="h-6"></div>
-                </template>
-                <div v-if="showDragBtn" class="p-6 text-center">
-                  <van-button class="!px-6" size="small" plain round @click="onDragCancel">
-                    {{ dragOptions.disabled ? '编辑' : '取消' }}
-                  </van-button>
-                </div>
-              </section>
-            </van-tab>
-            <!--当前楼层所有房间-->
-            <van-tab
-              v-for="(roomItem, roomIndex) in roomFilterList"
-              :key="roomIndex"
-              :title="roomItem.label"
-              :disabled="!dragOptions.disabled"
-              :name="roomItem.id"
-            >
-              <section class="p-4 min-h-[85vh]">
+        <van-tabs
+          v-model:active="currentRoomId"
+          class="house-tabs__hide"
+          background="#f7f7f7"
+          shrink
+          line-width="0"
+          animated
+          :swipeable="dragOptions.disabled"
+        >
+          <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
+            <section class="p-4 min-h-[85vh]">
+              <template v-for="collectItem in collectList" :key="collectItem.text">
+                <h4 class="mb-2 text-gray-600">{{ collectItem.text }}</h4>
                 <draggable
-                  v-model="roomItem.sceneList"
+                  v-model="collectItem.list"
                   item-key="id"
-                  group="scene"
+                  :group="collectItem.group"
                   v-bind="dragOptions"
                   class="grid grid-cols-2 md:grid-cols-4 gap-4"
                 >
-                  <template #item="{ element: sceneItem }">
-                    <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
+                  <template #item="{ element }">
+                    <ScenenCardItem
+                      v-if="collectItem.group == 'collect-scene'"
+                      :id="element.id"
+                      :is-drag="!dragOptions.disabled"
+                    />
+                    <DeviceCardItem v-else :id="element.id" :is-drag="!dragOptions.disabled" />
                   </template>
                 </draggable>
+                <van-empty
+                  v-if="collectItem.list?.length == 0"
+                  image-size="4rem"
+                  :image="collectEmptyImage"
+                  :description="`暂无收藏的${
+                    collectItem.group == 'collect-scene' ? '场景' : '设备'
+                  }`"
+                />
+                <div class="h-6"></div>
+              </template>
+              <div v-if="showDragBtn" class="p-6 text-center">
+                <van-button class="!px-6" size="small" plain round @click="onDragCancel">
+                  {{ dragOptions.disabled ? '编辑' : '取消' }}
+                </van-button>
+              </div>
+            </section>
+          </van-tab>
+          <!--当前楼层所有房间-->
+          <van-tab
+            v-for="(roomItem, roomIndex) in roomFilterList"
+            :key="roomIndex"
+            :title="roomItem.label"
+            :disabled="!dragOptions.disabled"
+            :name="roomItem.id"
+          >
+            <section class="p-4 min-h-[85vh]">
+              <draggable
+                v-model="roomItem.sceneList"
+                item-key="id"
+                group="scene"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 md:grid-cols-4 gap-4"
+              >
+                <template #item="{ element: sceneItem }">
+                  <ScenenCardItem :id="sceneItem.id" :is-drag="!dragOptions.disabled" />
+                </template>
+              </draggable>
 
-                <template v-if="roomItem.deviceList.length > 0">
-                  <div class="flex items-center py-4">
-                    <h4 class="text-gray-600">照明</h4>
-                    <!-- <label class="ml-2 text-xs text-gray-400">
+              <template v-if="roomItem.deviceList.length > 0">
+                <div class="flex items-center py-4">
+                  <h4 class="text-gray-600">照明</h4>
+                  <!-- <label class="ml-2 text-xs text-gray-400">
                       {{
                         roomItem.deviceList.filter((deviceItem) =>
                           deviceItem.modeList?.filter(
@@ -438,8 +438,8 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                         ).length
                       }}个灯亮
                     </label> -->
-                  </div>
-                  <!-- <div
+                </div>
+                <!-- <div
                     v-if="dragOptions.disabled"
                     class="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4"
                   >
@@ -465,41 +465,40 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                       </div>
                     </div>
                   </div> -->
-                </template>
-                <van-empty v-else image="search" description="暂无设备">
-                  <van-button
-                    v-if="houseUserPower(currentHouse.id) != 2"
-                    class="!px-6"
-                    size="small"
-                    plain
-                    round
-                    @click="goAddDevice"
-                  >
-                    添加设备
-                  </van-button>
-                </van-empty>
-
-                <draggable
-                  v-model="roomItem.deviceList"
-                  item-key="id"
-                  group="device"
-                  v-bind="dragOptions"
-                  class="grid grid-cols-2 md:grid-cols-4 gap-4"
+              </template>
+              <van-empty v-else image="search" description="暂无设备">
+                <van-button
+                  v-if="houseUserPower(currentHouse.id) != 2"
+                  class="!px-6"
+                  size="small"
+                  plain
+                  round
+                  @click="goAddDevice"
                 >
-                  <template #item="{ element: deviceItem }">
-                    <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
-                  </template>
-                </draggable>
+                  添加设备
+                </van-button>
+              </van-empty>
 
-                <div v-if="showDragBtn" class="p-6 text-center">
-                  <van-button class="!px-6" size="small" plain round @click="onDragCancel">
-                    {{ dragOptions.disabled ? '编辑' : '取消' }}
-                  </van-button>
-                </div>
-              </section>
-            </van-tab>
-          </van-tabs>
-        </div>
+              <draggable
+                v-model="roomItem.deviceList"
+                item-key="id"
+                group="device"
+                v-bind="dragOptions"
+                class="grid grid-cols-2 md:grid-cols-4 gap-4"
+              >
+                <template #item="{ element: deviceItem }">
+                  <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
+                </template>
+              </draggable>
+
+              <div v-if="showDragBtn" class="p-6 text-center">
+                <van-button class="!px-6" size="small" plain round @click="onDragCancel">
+                  {{ dragOptions.disabled ? '编辑' : '取消' }}
+                </van-button>
+              </div>
+            </section>
+          </van-tab>
+        </van-tabs>
       </div>
     </van-skeleton>
   </div>

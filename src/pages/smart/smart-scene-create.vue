@@ -9,7 +9,7 @@ import pickerSearch from '@/components/common/PickerSearch.vue'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import TimePicker from '@/components/common/TimePicker.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
-import { mqttDevicePublish } from '@/hooks/useMqtt'
+import socketStore from '@/store/socketStore'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
@@ -163,7 +163,7 @@ const onDelectSceneItem = async (sceneItem) => {
 async function onActionSelect(action, actionItem, modeItem) {
   if (action.id == 0) {
     if (modeItem) {
-      mqttDevicePublish({ id: actionItem.id, ...modeItem })
+      socketStore().mqttDevicePublish({ id: actionItem.id, ...modeItem })
     } else {
       onScenePublishDebounce(actionItem.id)
     }

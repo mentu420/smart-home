@@ -1,7 +1,8 @@
-import { mqttScenePublish } from '@/hooks/useMqtt'
+// import { mqttScenePublish } from '@/hooks/useMqtt'
 import { storeToRefs } from 'pinia'
 import smartStore from '@/store/smartStore'
 import { showToast } from 'vant'
+import socketStore from '@/store/socketStore'
 
 const { sceneList } = storeToRefs(smartStore())
 
@@ -16,7 +17,7 @@ export const onScenePublishDebounce = (id) => {
     showToast({ message: `正在执行${sceneItem?.label}，请稍后再试。。。`, position: 'bottom' })
     return
   }
-  mqttScenePublish({ id })
+  socketStore().mqttScenePublish({ id })
   setTimeout(() => {
     const sceneItem = sceneList.value.find((item) => item.id == id)
     if (!sceneItem?.loading) return

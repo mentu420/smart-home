@@ -40,6 +40,9 @@ export default class MQTT {
   onReadly(callback) {
     callback && callback()
   }
+  onMessage(callback) {
+    callback && callback()
+  }
   connect(host, opts) {
     try {
       if (this.isConnected()) return
@@ -50,10 +53,8 @@ export default class MQTT {
         this.onReadly()
       })
       this.mqClient.on('message', (topic, payload) => {
-        console.log('数据响应了---', topic, payload)
-      })
-      this.mqClient.on('packetreceive', (topic, payload) => {
-        console.log('packetreceive---', topic, payload)
+        const message = JSON.parse(payload.toString())
+        console.log('数据响应了---', topic, message)
       })
       this.mqClient.on('error', (err) => {
         console.log('连接错误--------------------', err)
