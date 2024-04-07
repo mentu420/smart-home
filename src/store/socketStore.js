@@ -57,8 +57,9 @@ export default defineStore('socketStore', () => {
         onResponesSubscribe()
       })
       mqClient.on('message', (topic, payload) => {
+        if (!payload) return
         const data = JSON.parse(payload.toString())
-        const { msgid, code } = data
+        const { msgid = '', code } = data
         const [userId, theme, id, timeStamp] = msgid.split('/')
         if (showLog.value && theme != 'HeartBeat') {
           console.log('%c通用结果应答主题', getLogStyle('pink'), data)
@@ -197,7 +198,8 @@ export default defineStore('socketStore', () => {
         console.log('%c通用结果应答主题', getLogStyle('pink'), data)
       }
       if (!data || !isObjectString(data)) return
-      const { msgid, code } = JSON.parse(data)
+
+      const { msgid = '', code } = JSON.parse(data)
       const [userId, theme, id, timeStamp] = msgid.split('/')
       if (theme === SENCE) {
         const { setSceneLoading } = smartStore()
