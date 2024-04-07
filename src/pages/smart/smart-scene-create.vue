@@ -343,9 +343,9 @@ const onSave = async () => {
 
     const op = route.query.id ? 3 : 2
     let data = {
-      ...residue,
       leixing: 1,
       isor: 0,
+      ...residue,
       actions: actionsResult,
       img: getWebUrlName(img),
     }

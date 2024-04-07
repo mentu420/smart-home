@@ -16,6 +16,7 @@ import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
 import { reloadSync } from '@/store/utils'
+import { useScreenSafeArea } from '@vueuse/core'
 
 defineOptions({ name: 'HousePage' })
 

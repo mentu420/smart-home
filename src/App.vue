@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import userStore from '@/store/userStore'
 import socketStore from '@/store/socketStore'
-import useRem from '@/utils/flexible/useRem.js'
+import useSize from '@/utils/flexible/useRem.js'
 socketStore()
 
 if (import.meta.env.MODE === 'development') new VConsole()
@@ -72,7 +72,7 @@ watch(
   { immediate: true }
 )
 
-useRem()
+useSize()
 setNativeMethods()
 </script>
 
