@@ -8,12 +8,15 @@ import { openUdpService, closeUdpService } from '@/utils/native/udpService'
 import deviceInfo from '@/utils/deviceInfo'
 import { isObjectString, mergingStep } from '@/utils/common'
 import { showToast } from 'vant'
+import { getStorage } from '@/utils/storage'
 
 export default defineStore('socketStore', () => {
   const { onLine } = storeToRefs(userStore())
   const username = ref('')
   const password = ref('')
-  const showLog = ref(true)
+  const showLog = ref(
+    getStorage(import.meta.env.VITE_APP_DEVELOPER) || import.meta.env.MODE === 'development'
+  )
   const { sceneList } = storeToRefs(smartStore())
   const SENCE = 'Sence'
   const DEVICE = 'Device'
@@ -55,7 +58,6 @@ export default defineStore('socketStore', () => {
       })
       mqClient.on('message', (topic, payload) => {
         const data = JSON.parse(payload.toString())
-        console.log('数据响应了---', topic, data)
         const { msgid, code } = data
         const [userId, theme, id, timeStamp] = msgid.split('/')
         if (showLog.value && theme != 'HeartBeat') {
