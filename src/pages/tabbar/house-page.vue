@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { computed, nextTick, onActivated, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onActivated, onMounted, ref, watch, unref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
@@ -16,7 +16,7 @@ import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
 import { reloadSync } from '@/store/utils'
-import { useScreenSafeArea } from '@vueuse/core'
+import { useScreenSafeArea, useWindowScroll } from '@vueuse/core'
 
 defineOptions({ name: 'HousePage' })
 
@@ -191,6 +191,19 @@ const onRoomChange = (roomItem, roomIndex) => {
   scrollContainerRef.value.scrollLeft = itemLeft - (containerWidth - itemWidth) / 2
 }
 
+const onAppScrollend = async () => {
+  const { top } = useScreenSafeArea()
+  setTimeout(() => {
+    const h = parseInt(unref(top) || 0)
+    const scrollableEl = document.getElementById('app')
+    if (scrollableEl.scrollTop >= h) return
+    scrollableEl.scroll({
+      top: 0, // 滚动到距离顶部 100px 的位置
+      behavior: 'smooth', // 使用平滑滚动
+    })
+  }, 350)
+}
+
 const init = async () => {
   try {
     loading.value = true
@@ -229,7 +242,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 </script>
 
 <template>
-  <div>
+  <div v-touch:swipe.top="onAppScrollend">
     <van-skeleton :loading="skeletonLoading">
       <template #template>
         <ul class="h-screen w-full mt-safe overflow-hidden">
@@ -260,7 +273,11 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
       </template>
       <div class="min-h-screen bg-page-gray p-safe flex-1">
         <!--当前房屋-->
-        <van-sticky z-index="5" @change="(isFixed) => (isTopFixed = isFixed)">
+        <van-sticky
+          :class="{ '!h-0': isTopFixed }"
+          z-index="5"
+          @change="(isFixed) => (isTopFixed = isFixed)"
+        >
           <transition name="van-fade">
             <section v-if="dragOptions.disabled && !isTopFixed" class="bg-page-gray mb-[30px]">
               <div class="flex justify-between py-3 items-center px-4 space-x-4 transition-all">
