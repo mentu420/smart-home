@@ -31,9 +31,21 @@ const { sceneList } = storeToRefs(usesmartStore)
 const skeletonLoading = ref(false)
 const loading = ref(false)
 const currentRoomId = ref('-1') //当前房间编号
+const tabsRef = ref(null)
 const currentFloorId = ref('') //当前楼层id
 const isTopFixed = ref(false) // top 吸顶
-const roomFilterList = ref([]) // 当前楼层房间列表
+// 当前楼层房间列表
+const roomFilterList = computed(() => {
+  return roomList.value
+    ?.filter((roomItem) => roomItem.fId == currentFloorId.value)
+    .map((roomItem) => {
+      return {
+        ...roomItem,
+        deviceList: deviceList.value?.filter((item) => item.rId == roomItem.id),
+        sceneList: sceneList.value?.filter((item) => item.rId == roomItem.id),
+      }
+    })
+})
 const collectList = ref([
   {
     text: '常用场景',
@@ -100,7 +112,6 @@ const onReload = async (hId) => {
 
 const onDragCancel = () => {
   dragOptions.value.disabled = !dragOptions.value.disabled
-  setCurrentFloorRoomList()
 }
 
 // 拖拽排序
@@ -154,24 +165,11 @@ const onHouseSelect = async (action) => {
     await getHouseList({ op: 5, fangwubianhao: hId })
     await onReload(hId)
     useSetToken({ ...useGetToken(), fangwubianhao: hId })
-    setCurrentFloorRoomList()
   } finally {
     loading.value = false
   }
 }
 
-// 设置当前楼层的房间
-function setCurrentFloorRoomList() {
-  roomFilterList.value = roomList.value
-    .filter((roomItem) => roomItem.fId == currentFloorId.value)
-    .map((roomItem) => {
-      return {
-        ...roomItem,
-        deviceList: deviceList.value.filter((item) => item.rId == roomItem.id),
-        sceneList: sceneList.value.filter((item) => item.rId == roomItem.id),
-      }
-    })
-}
 // 设备全开全关
 function onAllDeviceToggle(deviceList, status) {
   deviceList.forEach((deviceItem) => {
@@ -203,7 +201,6 @@ const init = async () => {
     await onReload(token.fangwubianhao)
     await useUserInfoSync()
     currentFloorId.value = floorList.value[0]?.id
-    setCurrentFloorRoomList()
   } catch (err) {
     console.warn(err)
   } finally {
@@ -216,7 +213,6 @@ onMounted(init)
 
 onActivated(() => {
   dragOptions.value.disabled = true
-  setCurrentFloorRoomList()
 })
 
 watch(
@@ -261,7 +257,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           </li>
         </ul>
       </template>
-      <div class="min-h-screen bg-page-gray p-safe">
+      <div class="min-h-screen bg-page-gray p-safe flex-1">
         <!--当前房屋-->
         <van-sticky z-index="5" @change="(isFixed) => (isTopFixed = isFixed)">
           <transition name="van-fade">
@@ -343,7 +339,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     label: '房间管理',
                   }"
                   placement="bottom-end"
-                  @select="setCurrentFloorRoomList"
                 >
                   <template #reference>
                     <div class="flex items-center bg-white py-1 space-x-1">
@@ -360,6 +355,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
         </section>
 
         <van-tabs
+          ref="tabsRef"
           v-model:active="currentRoomId"
           class="house-tabs__hide"
           background="#f7f7f7"
@@ -514,6 +510,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
   top: env(safe-area-inset-top);
 }
 .house-tabs__hide:deep(.van-tabs__wrap) {
-  display: none !important;
+  // display: none !important;
+  height: 0 !important;
 }
 </style>

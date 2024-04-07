@@ -79,11 +79,11 @@ setNativeMethods()
 <template>
   <van-config-provider :theme="theme" :theme-vars="themeVars" theme-vars-scope="global">
     <router-view v-slot="{ Component }">
-      <transition :name="transitionName">
-        <keep-alive :include="includeList" :max="10">
+      <keep-alive :include="includeList" :max="10">
+        <transition :name="transitionName">
           <component :is="Component" />
-        </keep-alive>
-      </transition>
+        </transition>
+      </keep-alive>
     </router-view>
   </van-config-provider>
 </template>
