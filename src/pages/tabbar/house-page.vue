@@ -23,12 +23,9 @@ defineOptions({ name: 'HousePage' })
 const router = useRouter()
 const route = useRoute()
 
-const useHouseStore = houseStore()
-const useDeviceStore = deviceStore()
-const usesmartStore = smartStore()
-const { houseList, floorList, currentHouse, roomList, houseUserPower } = storeToRefs(useHouseStore)
-const { deviceList } = storeToRefs(useDeviceStore)
-const { sceneList } = storeToRefs(usesmartStore)
+const { houseList, floorList, currentHouse, roomList, houseUserPower } = storeToRefs(houseStore())
+const { deviceList } = storeToRefs(deviceStore())
+const { sceneList } = storeToRefs(smartStore())
 const skeletonLoading = ref(false)
 const loading = ref(false)
 const currentRoomId = ref('-1') //当前房间编号
@@ -106,8 +103,13 @@ const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
 // 初始化数据 hId 初始化房屋id
 // 请求完所有数据后设置当前房屋数据
 const onReload = async (hId) => {
-  await reloadSync()
-  useHouseStore.setCurrentHouse(hId)
+  // 防止token中的默认房屋被删除
+  if (houseList.value.length > 0 && !houseList.value.some((item) => item.id == hId)) {
+    hId = houseList.value[0].id
+  }
+
+  const { setCurrentHouse } = houseStore()
+  await setCurrentHouse(hId)
   currentFloorId.value = floorList.value[0]?.id
 }
 
@@ -163,7 +165,6 @@ const onHouseSelect = async (action) => {
     loading.value = true
     const { useGetToken, useSetToken } = userStore()
     const hId = action.id
-    await getHouseList({ op: 5, fangwubianhao: hId })
     await onReload(hId)
     useSetToken({ ...useGetToken(), fangwubianhao: hId })
   } finally {
@@ -298,7 +299,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 <div class="space-x-4 shrink-0">
                   <van-icon size="20" name="bell" />
                   <van-icon
-                    v-if="houseUserPower(currentHouse.id) != 2"
+                    v-if="houseUserPower(currentHouse?.id) != 2"
                     size="20"
                     name="plus"
                     @click="goAddDevice"
@@ -323,7 +324,9 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               class="flex h-full overflow-x-auto overflow-y-hidden relative no-scrollbar box-content pl-2"
             >
               <li
-                v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }, ...roomFilterList]"
+                v-for="(roomItem, roomIndex) in [{ id: '-1', label: '全屋' }].concat(
+                  roomFilterList
+                )"
                 :key="roomIndex"
                 class="relative flex-none leading-[44px] flex px-2 transition-all"
                 :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
@@ -353,7 +356,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   v-model="currentFloorId"
                   :actions="floorList"
                   :more-action="{
-                    path: `/me-room-manage?id=${currentHouse.id}`,
+                    path: `/me-room-manage?id=${currentHouse?.id}`,
                     label: '房间管理',
                   }"
                   placement="bottom-end"
@@ -482,7 +485,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               </template>
               <van-empty v-else image="search" description="暂无设备">
                 <van-button
-                  v-if="houseUserPower(currentHouse.id) != 2"
+                  v-if="houseUserPower(currentHouse?.id) != 2"
                   class="!px-6"
                   size="small"
                   plain

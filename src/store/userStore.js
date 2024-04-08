@@ -43,6 +43,7 @@ export default defineStore(storeName, () => {
   const reset = () => {
     userInfo.value = null
     onLine.value = false
+    useRemoveToken()
   }
 
   return {

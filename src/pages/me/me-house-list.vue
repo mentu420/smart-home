@@ -22,11 +22,8 @@ const familyLength = computed(
 const onSelect = async ({ id }) => {
   try {
     loading.value = true
-    const { useGetToken, useSetToken } = userStore()
-    await getHouseList({ op: 5, fangwubianhao: id })
-    await reloadSync()
-    houseStore().setCurrentHouse(id)
-    useSetToken({ ...useGetToken(), fangwubianhao: id })
+    const { setCurrentHouse } = houseStore()
+    await setCurrentHouse(id)
   } finally {
     loading.value = false
   }

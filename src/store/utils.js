@@ -1,6 +1,7 @@
 import deviceStore from '@/store/deviceStore'
 import smartStore from '@/store/smartStore'
 import houseStore from '@/store/houseStore'
+import userStore from './userStore'
 
 // 刷新所有数据
 export const reloadSync = async () => {
@@ -17,4 +18,11 @@ export const reloadSync = async () => {
     useGetSmartListSync(true),
     useGetFamilyListSync(true),
   ])
+}
+
+export const storeReset = () => {
+  houseStore().reset()
+  smartStore().reset()
+  deviceStore().reset()
+  userStore().reset()
 }

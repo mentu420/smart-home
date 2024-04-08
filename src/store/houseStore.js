@@ -7,6 +7,7 @@ import { getHouseList, getRoomList, getFloorList, getFamily } from '@/apis/house
 import deviceStore from './deviceStore'
 import smartStore from './smartStore'
 import userStore from './userStore'
+import { reloadSync } from './utils'
 
 const storeName = 'houseStore'
 
@@ -22,7 +23,7 @@ export default defineStore(storeName, () => {
   const { deviceList } = storeToRefs(deviceStore())
   const { sceneList } = storeToRefs(smartStore())
   const { userInfo } = storeToRefs(userStore())
-  const { useGetToken } = userStore()
+  const { useGetToken, useSetToken } = userStore()
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
@@ -36,8 +37,12 @@ export default defineStore(storeName, () => {
   init()
 
   // 切换当前房屋
-  const setCurrentHouse = (id) => {
+  const setCurrentHouse = async (id) => {
+    const { code } = await getHouseList({ op: 5, fangwubianhao: id })
+    if (code != 0) return
     currentHouse.value = houseList.value.find((item) => item.bianhao == id)
+    useSetToken({ ...useGetToken(), fangwubianhao: id })
+    await reloadSync()
   }
 
   const setHouseList = (payload) => {
@@ -51,7 +56,7 @@ export default defineStore(storeName, () => {
 
   // 异步获取房屋列表
   const useGetHouseListSync = async (reload = false) => {
-    if (houseList.value.length > 0 && !reload) return houseList.value
+    if (!reload) return houseList.value
     const { data } = await getHouseList({ op: 1 })
     houseList.value = data.map((item) => ({
       ...item,
@@ -68,7 +73,7 @@ export default defineStore(storeName, () => {
 
   // 异步获取房屋列表
   const useGetRoomListSync = async (reload = false) => {
-    if (roomList.value.length > 0 && !reload) return roomList.value
+    if (!reload) return roomList.value
     const { data } = await getRoomList({ op: 1 })
     roomList.value = data
       .map((item) => ({
@@ -92,7 +97,7 @@ export default defineStore(storeName, () => {
 
   // 异步获取楼层
   const useGetFloorListSync = async (reload = false) => {
-    if (floorList.value.length > 0 && !reload) return floorList.value
+    if (!reload) return floorList.value
     const { data } = await getFloorList({ op: 1 })
     floorList.value = data
       .map((item) => ({
@@ -106,7 +111,7 @@ export default defineStore(storeName, () => {
   }
   // 异步获取家庭成员
   const useGetFamilyListSync = async (reload = false) => {
-    if (familyList.value.length > 0 && !reload) return familyList.value
+    if (!reload) return familyList.value
     const { data } = await getFamily({ op: 1 })
     familyList.value = data.map((item) => ({
       ...item,
