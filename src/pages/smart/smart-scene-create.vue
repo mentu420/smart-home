@@ -333,7 +333,7 @@ const onSave = async () => {
     const isSceneKnx =
       !!route.query.id && route.query.fenlei == 1 && getSmartItem.value.leixing == 2
 
-    if (actions.length == 0 && isSceneKnx) {
+    if (actions.length == 0 && !isSceneKnx) {
       showToast('请添加任务')
       return
     }
