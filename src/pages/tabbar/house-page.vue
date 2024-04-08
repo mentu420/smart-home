@@ -15,7 +15,7 @@ import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
-import { reloadSync } from '@/store/utils'
+import { reloadStoreSync } from '@/store/utils'
 import { useScreenSafeArea, useWindowScroll } from '@vueuse/core'
 
 defineOptions({ name: 'HousePage' })
@@ -110,7 +110,6 @@ const onReload = async (hId) => {
 
   const { setCurrentHouse } = houseStore()
   await setCurrentHouse(hId)
-  currentFloorId.value = floorList.value[0]?.id
 }
 
 const onDragCancel = () => {
@@ -163,11 +162,10 @@ const onDragEnd = async () => {
 const onHouseSelect = async (action) => {
   try {
     loading.value = true
-    const { useGetToken, useSetToken } = userStore()
     const hId = action.id
     await onReload(hId)
-    useSetToken({ ...useGetToken(), fangwubianhao: hId })
   } finally {
+    currentFloorId.value = floorList.value[0]?.id
     loading.value = false
   }
 }
@@ -206,19 +204,19 @@ const onAppScrollend = async () => {
 }
 
 const init = async () => {
+  const { useGetToken, useUserInfoSync } = userStore()
   try {
     loading.value = true
     skeletonLoading.value = true
     dragOptions.value.disabled = true
-    const { useGetToken, useUserInfoSync } = userStore()
     const token = useGetToken()
     if (!token) return
     await onReload(token.fangwubianhao)
-    await useUserInfoSync()
-    currentFloorId.value = floorList.value[0]?.id
   } catch (err) {
     console.warn(err)
   } finally {
+    await useUserInfoSync()
+    currentFloorId.value = floorList.value[0]?.id
     loading.value = false
     skeletonLoading.value = false
   }
@@ -228,6 +226,9 @@ onMounted(init)
 
 onActivated(() => {
   dragOptions.value.disabled = true
+  if (!floorList.value.some((item) => item.id == currentFloorId.value)) {
+    currentFloorId.value = floorList.value[0]?.id
+  }
 })
 
 watch(

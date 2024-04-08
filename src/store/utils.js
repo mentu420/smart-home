@@ -4,7 +4,7 @@ import houseStore from '@/store/houseStore'
 import userStore from './userStore'
 
 // 刷新所有数据
-export const reloadSync = async () => {
+export const reloadStoreSync = async () => {
   const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
     houseStore()
   const { useGetDeviceListSync } = deviceStore()

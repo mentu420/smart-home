@@ -7,7 +7,7 @@ import { getHouseList, getRoomList, getFloorList, getFamily } from '@/apis/house
 import deviceStore from './deviceStore'
 import smartStore from './smartStore'
 import userStore from './userStore'
-import { reloadSync } from './utils'
+import { reloadStoreSync } from './utils'
 
 const storeName = 'houseStore'
 
@@ -38,11 +38,16 @@ export default defineStore(storeName, () => {
 
   // 切换当前房屋
   const setCurrentHouse = async (id) => {
-    const { code } = await getHouseList({ op: 5, fangwubianhao: id })
-    if (code != 0) return
-    currentHouse.value = houseList.value.find((item) => item.bianhao == id)
-    useSetToken({ ...useGetToken(), fangwubianhao: id })
-    await reloadSync()
+    try {
+      await getHouseList({ op: 5, fangwubianhao: id })
+      currentHouse.value = houseList.value.find((item) => item.bianhao == id)
+      useSetToken({ ...useGetToken(), fangwubianhao: id })
+      await reloadStoreSync()
+    } catch (error) {
+      await useGetHouseListSync(true)
+      if (houseList.value.length == 0) return
+      await setCurrentHouse(houseList.value[0].id)
+    }
   }
 
   const setHouseList = (payload) => {

@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router'
 import { getHouseList } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
 import userStore from '@/store/userStore'
-import { reloadSync } from '@/store/utils'
+import { reloadStoreSync } from '@/store/utils'
 
 defineOptions({ name: 'MeHouse' })
 
@@ -62,12 +62,20 @@ const goHouseItem = async (houseItem) => {
   // await onSelect(houseItem)
   router.push({ path: '/me-house-item', query: { id: houseItem.id } })
 }
+
+const onRefresh = async () => {
+  try {
+    await reloadStoreSync()
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="家庭管理" />
-    <van-pull-refresh v-model="loading" class="min-h-[80vh]" disabled>
+    <van-pull-refresh v-model="loading" class="min-h-[80vh]" @refresh="onRefresh">
       <section class="p-4">
         <div class="space-y-4">
           <van-swipe-cell

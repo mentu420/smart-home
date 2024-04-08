@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import deviceStore from '@/store/deviceStore'
 import { showConfirmDialog } from 'vant'
 import { setDeviceList } from '@/apis/smartApi'
-import { reloadSync } from '@/store/utils'
+import { reloadStoreSync } from '@/store/utils'
 import houseStore from '@/store/houseStore'
 
 const { houseUserPower, currentHouse } = storeToRefs(houseStore())
@@ -17,7 +17,7 @@ const onUnbindDevice = async (item) => {
   try {
     await showConfirmDialog({ title: '提示', message: '是否解绑？' })
     await setDeviceList({ params: { op: 11, shebeibianhao: item.bianhao } })
-    await reloadSync()
+    await reloadStoreSync()
   } catch (error) {
     //
   }
