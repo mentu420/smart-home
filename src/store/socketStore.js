@@ -115,7 +115,6 @@ export default defineStore('socketStore', () => {
    * **/
   async function useMqttPublish(theme, message) {
     try {
-      console.log('publish', mqClient)
       if (!isConnected.value) {
         await initClient()
       }
