@@ -94,7 +94,7 @@ setNativeMethods()
 }
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
 }
 #app {

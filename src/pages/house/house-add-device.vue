@@ -104,7 +104,7 @@ const onBindDevice = async (item) => {
     await showConfirmDialog({ title: '提示', message: '是否绑定？' })
     const params = {
       params: { op: 10 },
-      data: { shebeibianhao: item.mac, fangwubianhao: currentHouse.value.id },
+      data: { shebeibianhao: item.mac, fangwubianhao: currentHouse.value?.id },
     }
     const { code } = await setDeviceList(params)
     if (code != 0) return

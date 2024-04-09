@@ -19,7 +19,7 @@ const { houseUserPower, currentHouse } = storeToRefs(houseStore())
     <HeaderNavbar :title="route.query.name">
       <template #right>
         <IconFont
-          v-if="houseUserPower(currentHouse.id) != 2"
+          v-if="houseUserPower(currentHouse?.id) != 2"
           class="text-xs text-gray-400"
           icon="more-round"
           @click="

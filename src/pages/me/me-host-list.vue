@@ -36,7 +36,7 @@ const onUnbindDevice = async (item) => {
         center
       >
         <van-button
-          v-if="houseUserPower(currentHouse.id) == 0"
+          v-if="houseUserPower(currentHouse?.id) == 0"
           v-loading-click="() => onUnbindDevice(hostItem)"
           class="!px-6"
           size="small"

@@ -115,7 +115,7 @@ onActivated(init)
       <div class="px-4 py-3 flex justify-between items-center">
         <ul class="flex items-center text-[16px] space-x-4">
           <li
-            v-if="houseUserPower(currentHouse.id) != 2"
+            v-if="houseUserPower(currentHouse?.id) != 2"
             :class="{ 'font-bold': tabActive == 2 }"
             @click="tabActive = '2'"
           >
@@ -125,7 +125,7 @@ onActivated(init)
         </ul>
         <div class="">
           <div
-            v-if="dragOptions.disabled && houseUserPower(currentHouse.id) != 2"
+            v-if="dragOptions.disabled && houseUserPower(currentHouse?.id) != 2"
             class="rounded-lg"
           >
             <van-icon size="20" name="plus" @click="createSmart" />
@@ -159,7 +159,7 @@ onActivated(init)
       @change="init"
     >
       <van-tab
-        v-if="houseUserPower(currentHouse.id) != 2"
+        v-if="houseUserPower(currentHouse?.id) != 2"
         title="自动化"
         :disabled="!dragOptions.disabled"
         name="2"

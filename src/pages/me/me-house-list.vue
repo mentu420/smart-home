@@ -32,7 +32,7 @@ const onSelect = async ({ id }) => {
 async function onDelect({ id, label }) {
   try {
     loading.value = true
-    if (currentHouse.value.id == id) {
+    if (currentHouse.value?.id == id) {
       showDialog({ title: '提示', message: '请切换当前房屋后再删除！' })
       return
     }
@@ -96,8 +96,8 @@ const onRefresh = async () => {
             >
               <template #title>
                 <p>
-                  <van-icon v-if="currentHouse.id == houseItem.id" class="mr-2" name="wap-home" />
-                  <span :class="{ 'text-primary': currentHouse.id == houseItem.id }">
+                  <van-icon v-if="currentHouse?.id == houseItem.id" class="mr-2" name="wap-home" />
+                  <span :class="{ 'text-primary': currentHouse?.id == houseItem.id }">
                     {{ houseItem.label }}
                   </span>
                 </p>

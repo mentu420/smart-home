@@ -70,7 +70,7 @@ const onCardClick = (sceneItem) => {
         <van-icon v-if="props.isDrag" class="p-3" name="wap-nav" />
         <template v-else>
           <div
-            v-if="isMore && houseUserPower(currentHouse.id) != 2"
+            v-if="isMore && houseUserPower(currentHouse?.id) != 2"
             class="px-2 py-1"
             @click.stop="
               router.push({
