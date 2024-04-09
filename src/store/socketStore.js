@@ -36,7 +36,6 @@ export default defineStore('socketStore', () => {
   }
 
   const initClient = mergingStep(() => {
-    console.log('init client')
     return new Promise((resolve, reject) => {
       const { useGetToken } = userStore()
       const { yonghubianhao, acessToken } = useGetToken() || {}
@@ -51,6 +50,7 @@ export default defineStore('socketStore', () => {
         password: password.value, //连接到代理时使用的密码
       })
       mqClient.on('connect', () => {
+        console.log('连接成功--------------------', mqClient)
         resolve(mqClient)
         createHeartTimer()
         onDeviceSubscribe()
@@ -119,7 +119,7 @@ export default defineStore('socketStore', () => {
       if (!isConnected.value) {
         await initClient()
       }
-      if (showLog.value) console.log('%c主题', getLogStyle('green'), theme, message)
+      if (showLog.value) console.log('%c推送', getLogStyle('green'), theme, message)
       mqClient?.publish(
         `Cloud/${theme}/Control/${username.value}`,
         JSON.stringify({
