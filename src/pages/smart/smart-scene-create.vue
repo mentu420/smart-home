@@ -783,7 +783,7 @@ function goEventConfig() {
       </ul>
     </section>
 
-    <div v-if="route.query.id" class="p-6">
+    <div v-if="route.query.id" class="p-6 mb-safe">
       <van-button v-loading-click="onDelect" block round> 删除 </van-button>
     </div>
 
