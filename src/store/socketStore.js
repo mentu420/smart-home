@@ -99,6 +99,7 @@ export default defineStore('socketStore', () => {
   function disReconnect() {
     clearHeartTimer()
     mqClient?.end()
+    mqClient = null
   }
 
   /**
@@ -238,6 +239,7 @@ export default defineStore('socketStore', () => {
   watch(
     () => onLine.value,
     (val) => {
+      console.log('在线状态变化', val)
       if (val) {
         initClient()
       } else {

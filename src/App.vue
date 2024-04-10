@@ -18,7 +18,6 @@ const includeList = ref(['TabbarPage'])
 const theme = ref('light')
 const transitionName = ref('van-slide-left')
 const isNativeBack = ref(false)
-const { onLine } = storeToRefs(userStore())
 const themeVars = reactive({
   uploaderDeleteIconSize: '1.2rem',
   primaryColor: '#07c160',
@@ -63,14 +62,6 @@ const setNativeMethods = () => {
   window.h5Back = h5Back
   window.routerBack = onBackKeyForAndroid
 }
-
-watch(
-  () => onLine.value,
-  (val) => {
-    console.log('在线状态变化', val)
-  },
-  { immediate: true }
-)
 
 useSize()
 setNativeMethods()
