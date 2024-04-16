@@ -42,6 +42,13 @@ export default defineStore('socketStore', () => {
       username.value = yonghubianhao
       password.value = acessToken
       const host = 'ws://152.136.150.207:8083/mqtt'
+
+      const deviceStateTopic = `Cloud/${DEVICE}/State/${username.value}`
+
+      const resultTopic = `Cloud/Result/${username.value}`
+
+      const heartTopic = `App/HeartBeat/${username.value}`
+
       mqClient = new mqtt.connect(host, {
         clientId: `APP_${username.value}`, //连接到代理时使用的客户端标识符
         autoUseTopicAlias: true, // 主题
@@ -52,28 +59,29 @@ export default defineStore('socketStore', () => {
       mqClient.on('connect', () => {
         console.log('连接成功--------------------', mqClient)
         resolve(mqClient)
-        createHeartTimer()
-        onDeviceSubscribe()
-        onResponesSubscribe()
+        createHeartTimer(heartTopic)
+        mqClient?.subscribe(deviceStateTopic, (err) => {
+          if (err) console.log('订阅失败：', deviceStateTopic)
+        })
+        mqClient?.subscribe(resultTopic, (err) => {
+          if (err) console.log('订阅失败:', resultTopic)
+        })
       })
       mqClient.on('message', (topic, payload) => {
+        console.log('message--------------------', topic, payload)
         if (!payload) return
         const data = JSON.parse(payload.toString())
-        const { msgid = '', code } = data
-        const [userId, theme, id, timeStamp] = msgid.split('/')
-        if (showLog.value && theme != 'HeartBeat') {
-          console.log('%c通用结果应答主题', getLogStyle('pink'), data)
-        }
-        if (theme === SENCE) {
-          const { setSceneLoading } = smartStore()
-          if (code == 0) setSceneLoading(id, false)
-        } else if (theme === DEVICE) {
-          /**
-           * 设备控制时：不管是卡片的快捷控制还是控制页面控制，200ms内秒收到mqtt控制回应就算指令发送成功，此时需要更新控制的图片的状态；如果200ms没有收到mqtt控制回应，就不切换；如果200ms回应设备离线等操作失败时也不需要切换控制图片
-           * 控制后如果正常收到指令控制成功的mqtt消息回应，还要延时5S启动检查，刷新当前页面上设备真实状态，以保证获取设备的真实状态；（所有设备的状态数据要缓存起来，mqtt收到状态后就更新缓存）
-           * **/
-          const { setDeviceLoading } = deviceStore()
-          if (code == 0) setDeviceLoading(id, false)
+
+        if (topic == deviceStateTopic) {
+          onDeviceSubscribe(data)
+        } else if (topic == resultTopic) {
+          onResponesSubscribe(data)
+        } else {
+          if (showLog.value) {
+            console.log('%c接收到信息', getLogStyle('gray'), topic, data)
+          }
+          if (topic != heartTopic) return
+          onSmartSuccess(data)
         }
       })
       mqClient.on('error', (err) => {
@@ -99,6 +107,7 @@ export default defineStore('socketStore', () => {
   function disReconnect() {
     clearHeartTimer()
     mqClient?.end()
+    mqClient = null
   }
 
   /**
@@ -134,7 +143,7 @@ export default defineStore('socketStore', () => {
   }
 
   //发送心跳
-  function createHeartTimer() {
+  function createHeartTimer(topic) {
     if (heartTimer) return
     heartTimer = setInterval(() => {
       if (!isConnected.value) return
@@ -142,7 +151,7 @@ export default defineStore('socketStore', () => {
         console.log('%cMQTT发送心跳', getLogStyle('orange'))
       }
       mqClient?.publish(
-        `App/HeartBeat/${username.value}`,
+        topic,
         JSON.stringify({
           acessToken: password.value,
           msgid: getMsgid('HeartBeat', '123'),
@@ -157,32 +166,46 @@ export default defineStore('socketStore', () => {
     heartTimer = null
   }
 
+  function onSmartSuccess(data) {
+    const { msgid = '', code } = data
+    const [userId, theme, id, timeStamp] = msgid.split('/')
+    if (theme === SENCE) {
+      const { setSceneLoading } = smartStore()
+      if (code == 0) setSceneLoading(id, false)
+    } else if (theme === DEVICE) {
+      /**
+       * 设备控制时：不管是卡片的快捷控制还是控制页面控制，200ms内秒收到mqtt控制回应就算指令发送成功，此时需要更新控制的图片的状态；如果200ms没有收到mqtt控制回应，就不切换；如果200ms回应设备离线等操作失败时也不需要切换控制图片
+       * 控制后如果正常收到指令控制成功的mqtt消息回应，还要延时5S启动检查，刷新当前页面上设备真实状态，以保证获取设备的真实状态；（所有设备的状态数据要缓存起来，mqtt收到状态后就更新缓存）
+       * **/
+      const { setDeviceLoading } = deviceStore()
+      if (code == 0) setDeviceLoading(id, false)
+    }
+  }
+
   /**
    * 当设备的状态发生改变，云端或者网关会主动推送设备状态给App； 云端/网关->App
    * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
    * **/
-  function onDeviceSubscribe() {
-    mqClient?.subscribe(`Cloud/${DEVICE}/State/${username.value}`, (data) => {
-      if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
-      if (!data || !isObjectString(data)) return
-      const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = JSON.parse(data)
-      const { deviceList } = storeToRefs(deviceStore())
-      deviceList.value = deviceList.value.map((item) => {
-        if (item.id == bianhao) {
-          const newModeList = item.modeList.map((modeItem) => {
-            if (modeItem.use == shuxing) {
-              return { ...modeItem, useStatus: shuxingzhuangtai, useValue: shuxingzhi }
-            }
-            return modeItem
-          })
-          return {
-            ...item,
-            modeList: newModeList,
-            modeStatusList: newModeList.map(({ useColumns, ...statusItem }) => statusItem),
+  function onDeviceSubscribe(data) {
+    if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
+
+    const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = data
+    const { deviceList } = storeToRefs(deviceStore())
+    deviceList.value = deviceList.value.map((item) => {
+      if (item.id == bianhao) {
+        const newModeList = item.modeList.map((modeItem) => {
+          if (modeItem.use == shuxing) {
+            return { ...modeItem, useStatus: shuxingzhuangtai, useValue: shuxingzhi }
           }
+          return modeItem
+        })
+        return {
+          ...item,
+          modeList: newModeList,
+          modeStatusList: newModeList.map(({ useColumns, ...statusItem }) => statusItem),
         }
-        return item
-      })
+      }
+      return item
     })
   }
 
@@ -191,27 +214,23 @@ export default defineStore('socketStore', () => {
    * 云端/网关在完成一个操作后，进行应答 云服务器/网关->App
    * @data {msgid:'消息唯一id，服务器会返回该msgid消息的执行结果',code:'0：操作成功',desc:'描述'}
    * **/
-  function onResponesSubscribe() {
-    mqClient?.subscribe(`Cloud/Result/${username.value}`, async (data) => {
-      if (showLog.value) {
-        console.log('%c通用结果应答主题', getLogStyle('pink'), data)
-      }
-      if (!data || !isObjectString(data)) return
-
-      const { msgid = '', code } = JSON.parse(data)
-      const [userId, theme, id, timeStamp] = msgid.split('/')
-      if (theme === SENCE) {
-        const { setSceneLoading } = smartStore()
-        if (code == 0) setSceneLoading(id, false)
-      } else if (theme === DEVICE) {
-        /**
-         * 设备控制时：不管是卡片的快捷控制还是控制页面控制，200ms内秒收到mqtt控制回应就算指令发送成功，此时需要更新控制的图片的状态；如果200ms没有收到mqtt控制回应，就不切换；如果200ms回应设备离线等操作失败时也不需要切换控制图片
-         * 控制后如果正常收到指令控制成功的mqtt消息回应，还要延时5S启动检查，刷新当前页面上设备真实状态，以保证获取设备的真实状态；（所有设备的状态数据要缓存起来，mqtt收到状态后就更新缓存）
-         * **/
-        const { setDeviceLoading } = deviceStore()
-        if (code == 0) setDeviceLoading(id, false)
-      }
-    })
+  function onResponesSubscribe(data) {
+    if (showLog.value) {
+      console.log('%c通用结果应答主题', getLogStyle('pink'), data)
+    }
+    const { msgid = '', code } = data
+    const [userId, theme, id, timeStamp] = msgid.split('/')
+    if (theme === SENCE) {
+      const { setSceneLoading } = smartStore()
+      if (code == 0) setSceneLoading(id, false)
+    } else if (theme === DEVICE) {
+      /**
+       * 设备控制时：不管是卡片的快捷控制还是控制页面控制，200ms内秒收到mqtt控制回应就算指令发送成功，此时需要更新控制的图片的状态；如果200ms没有收到mqtt控制回应，就不切换；如果200ms回应设备离线等操作失败时也不需要切换控制图片
+       * 控制后如果正常收到指令控制成功的mqtt消息回应，还要延时5S启动检查，刷新当前页面上设备真实状态，以保证获取设备的真实状态；（所有设备的状态数据要缓存起来，mqtt收到状态后就更新缓存）
+       * **/
+      const { setDeviceLoading } = deviceStore()
+      if (code == 0) setDeviceLoading(id, false)
+    }
   }
 
   // 设备推送
@@ -238,6 +257,7 @@ export default defineStore('socketStore', () => {
   watch(
     () => onLine.value,
     (val) => {
+      console.log('在线状态变化', val)
       if (val) {
         initClient()
       } else {
