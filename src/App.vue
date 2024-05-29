@@ -9,7 +9,7 @@ import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
 socketStore()
 
-if (import.meta.env.MODE === 'development') new VConsole()
+// if (import.meta.env.MODE === 'development') new VConsole()
 
 const app = inject('App')
 const route = useRoute()
