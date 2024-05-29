@@ -19,10 +19,8 @@ export default defineConfig({
     legacy({
       // 需要兼容的目标列表，可以设置多个
       targets: ['defaults', 'not IE 11'],
-      polyfills: ['es.promise.finally', 'es/map', 'es/set'],
-      modernPolyfills: ['es.promise.finally'],
-      // 默认为true，一般用在使用modernPolyfill为现代语法构建注入polyfill时设置为false, 解决Big integer literals are not available in the configured target environment
-      renderLegacyChunks: false,
+      // 此处影响了打包出workers相关文件
+      renderModernChunks: false,
     }),
   ],
   base: './',
