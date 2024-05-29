@@ -12,14 +12,15 @@ export default defineStore(storeName, () => {
   // 统一token处理
   const { VITE_APP_STORAGE_TOKEN } = import.meta.env
   const useGetToken = () => getStorage(VITE_APP_STORAGE_TOKEN)
+
+  const userInfo = ref(null)
+  const onLine = ref(useGetToken() ? true : false) // 记录是否在线
+
   const useSetToken = (value) => {
     onLine.value = true
     setStorage(VITE_APP_STORAGE_TOKEN, value)
   }
   const useRemoveToken = () => removeStorage(VITE_APP_STORAGE_TOKEN)
-
-  const userInfo = ref(null)
-  const onLine = ref(useGetToken() ? true : false) // 记录是否在线
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
