@@ -4,7 +4,7 @@ import { computed, nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { USE_KEY } from '@/enums/deviceEnums'
-import { mqttDevicePublish } from '@/hooks/useMqtt'
+import socketStore from '@/store/socketStore'
 import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 import { onDeviceStatusChange, onDeviceStatusRefresh } from '@/components/trigger/useTrigger'
@@ -51,6 +51,7 @@ const getDeviceStatus = computed(() => {
 
 // 设备开关触发
 const onSwitchChanage = throttle(async () => {
+  const { mqttDevicePublish } = socketStore()
   const { modeStatusList = [], id } = deviceItem.value
   const switchMode = modeStatusList.find((item) => [SWITCH].includes(item.use))
   if (switchMode) {

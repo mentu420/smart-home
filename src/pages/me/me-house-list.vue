@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router'
 import { getHouseList } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
 import userStore from '@/store/userStore'
-import { reloadSync } from '@/store/utils'
+import { reloadStoreSync } from '@/store/utils'
 
 defineOptions({ name: 'MeHouse' })
 
@@ -22,11 +22,8 @@ const familyLength = computed(
 const onSelect = async ({ id }) => {
   try {
     loading.value = true
-    const { useGetToken, useSetToken } = userStore()
-    await getHouseList({ op: 5, fangwubianhao: id })
-    await reloadSync()
-    houseStore().setCurrentHouse(id)
-    useSetToken({ ...useGetToken(), fangwubianhao: id })
+    const { setCurrentHouse } = houseStore()
+    await setCurrentHouse(id)
   } finally {
     loading.value = false
   }
@@ -35,7 +32,7 @@ const onSelect = async ({ id }) => {
 async function onDelect({ id, label }) {
   try {
     loading.value = true
-    if (currentHouse.value.id == id) {
+    if (currentHouse.value?.id == id) {
       showDialog({ title: '提示', message: '请切换当前房屋后再删除！' })
       return
     }
@@ -65,12 +62,20 @@ const goHouseItem = async (houseItem) => {
   // await onSelect(houseItem)
   router.push({ path: '/me-house-item', query: { id: houseItem.id } })
 }
+
+const onRefresh = async () => {
+  try {
+    await reloadStoreSync()
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="家庭管理" />
-    <van-pull-refresh v-model="loading" class="min-h-[80vh]" disabled>
+    <van-pull-refresh v-model="loading" class="min-h-[80vh]" @refresh="onRefresh">
       <section class="p-4">
         <div class="space-y-4">
           <van-swipe-cell
@@ -91,8 +96,8 @@ const goHouseItem = async (houseItem) => {
             >
               <template #title>
                 <p>
-                  <van-icon v-if="currentHouse.id == houseItem.id" class="mr-2" name="wap-home" />
-                  <span :class="{ 'text-primary': currentHouse.id == houseItem.id }">
+                  <van-icon v-if="currentHouse?.id == houseItem.id" class="mr-2" name="wap-home" />
+                  <span :class="{ 'text-primary': currentHouse?.id == houseItem.id }">
                     {{ houseItem.label }}
                   </span>
                 </p>

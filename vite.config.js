@@ -19,27 +19,10 @@ export default defineConfig({
     legacy({
       // 需要兼容的目标列表，可以设置多个
       targets: ['defaults', 'not IE 11'],
-      // additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
-      // renderLegacyChunks: true,
-      // // 下面的数组可以自定义添加低版本转换的方法
-      // polyfills: [
-      //   'es.symbol',
-      //   'es.array.filter',
-      //   'es.promise',
-      //   'es.promise.finally',
-      //   'es/map',
-      //   'es/set',
-      //   'es.array.for-each',
-      //   'es.object.define-properties',
-      //   'es.object.define-property',
-      //   'es.object.get-own-property-descriptor',
-      //   'es.object.get-own-property-descriptors',
-      //   'es.object.keys',
-      //   'es.object.to-string',
-      //   'web.dom-collections.for-each',
-      //   'esnext.global-this',
-      //   'esnext.string.match-all',
-      // ],
+      polyfills: ['es.promise.finally', 'es/map', 'es/set'],
+      modernPolyfills: ['es.promise.finally'],
+      // 默认为true，一般用在使用modernPolyfill为现代语法构建注入polyfill时设置为false, 解决Big integer literals are not available in the configured target environment
+      renderLegacyChunks: false,
     }),
   ],
   base: './',

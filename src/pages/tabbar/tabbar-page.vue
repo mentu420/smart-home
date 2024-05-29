@@ -34,11 +34,11 @@ const tabs = ref([
   },
 ])
 
-const placeholder = ref(window.screen.width < 768)
+const placeholder = computed(() => window.screen.width < 768)
 
-useWinResize(() => {
-  placeholder.value = window.screen.width < 768
-})
+// useWinResize(() => {
+//   placeholder.value = window.screen.width < 768
+// })
 
 const init = () => {
   const { useGetToken } = userStore()

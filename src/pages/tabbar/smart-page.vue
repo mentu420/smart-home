@@ -115,7 +115,7 @@ onActivated(init)
       <div class="px-4 py-3 flex justify-between items-center">
         <ul class="flex items-center text-[16px] space-x-4">
           <li
-            v-if="houseUserPower(currentHouse.id) != 2"
+            v-if="houseUserPower(currentHouse?.id) != 2"
             :class="{ 'font-bold': tabActive == 2 }"
             @click="tabActive = '2'"
           >
@@ -125,7 +125,7 @@ onActivated(init)
         </ul>
         <div class="">
           <div
-            v-if="dragOptions.disabled && houseUserPower(currentHouse.id) != 2"
+            v-if="dragOptions.disabled && houseUserPower(currentHouse?.id) != 2"
             class="rounded-lg"
           >
             <van-icon size="20" name="plus" @click="createSmart" />
@@ -159,53 +159,55 @@ onActivated(init)
       @change="init"
     >
       <van-tab
-        v-if="houseUserPower(currentHouse.id) != 2"
+        v-if="houseUserPower(currentHouse?.id) != 2"
         title="自动化"
         :disabled="!dragOptions.disabled"
         name="2"
       >
-        <section v-if="smartList.length > 0" class="p-4 min-h-[94vh]">
-          <section class="mb-6">
-            <h4 class="mb-2 text-gray-600">全局</h4>
-            <draggable
-              v-model="smartList"
-              item-key="id"
-              group="scene"
-              v-bind="dragOptions"
-              class="md:grid md:grid-cols-2 md:gap-4"
-            >
-              <template #item="{ element: smartItem }">
-                <div
-                  class="bg-white flex justify-between p-4 w-full rounded-lg items-center mb-4"
-                  @click="editSmartItem(smartItem)"
-                >
-                  <div>{{ smartItem.label }}</div>
-                  <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
-                  <van-switch
-                    v-else
-                    v-model="smartItem.shifouqiyong"
-                    :active-value="1"
-                    :inactive-value="0"
-                    @click.stop
-                    @change="(value) => onSmartChange(value, smartItem)"
-                  />
-                </div>
-              </template>
-            </draggable>
-          </section>
-          <div v-if="showDrag" class="p-6 text-center">
-            <van-button
-              class="!px-6"
-              size="small"
-              round
-              plain
-              @click="dragOptions.disabled = !dragOptions.disabled"
-            >
-              {{ dragOptions.disabled ? '编辑' : '取消' }}
-            </van-button>
-          </div>
+        <section class="p-4 min-h-[94vh]">
+          <template v-if="smartList.length">
+            <section class="mb-6">
+              <h4 class="mb-2 text-gray-600">全局</h4>
+              <draggable
+                v-model="smartList"
+                item-key="id"
+                group="scene"
+                v-bind="dragOptions"
+                class="md:grid md:grid-cols-2 md:gap-4"
+              >
+                <template #item="{ element: smartItem }">
+                  <div
+                    class="bg-white flex justify-between p-4 w-full rounded-lg items-center mb-4"
+                    @click="editSmartItem(smartItem)"
+                  >
+                    <div>{{ smartItem.label }}</div>
+                    <van-icon v-if="!dragOptions.disabled" name="wap-nav" />
+                    <van-switch
+                      v-else
+                      v-model="smartItem.shifouqiyong"
+                      :active-value="1"
+                      :inactive-value="0"
+                      @click.stop
+                      @change="(value) => onSmartChange(value, smartItem)"
+                    />
+                  </div>
+                </template>
+              </draggable>
+            </section>
+            <div v-if="showDrag" class="p-6 text-center">
+              <van-button
+                class="!px-6"
+                size="small"
+                round
+                plain
+                @click="dragOptions.disabled = !dragOptions.disabled"
+              >
+                {{ dragOptions.disabled ? '编辑' : '取消' }}
+              </van-button>
+            </div>
+          </template>
+          <van-empty v-else description="暂无自动化" />
         </section>
-        <van-empty v-else description="暂无自动化" />
       </van-tab>
       <van-tab title="场景" :disabled="!dragOptions.disabled" name="1">
         <section class="p-4 min-h-[94vh]">
@@ -279,6 +281,6 @@ onActivated(init)
   height: calc(env(safe-area-inset-top) + 45px);
 }
 .smart-tabs__hide:deep(.van-tabs__wrap) {
-  display: none !important;
+  height: 0 !important;
 }
 </style>

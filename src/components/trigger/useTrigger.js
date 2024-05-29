@@ -2,8 +2,8 @@ import { useRect } from '@vant/use'
 import { computed } from 'vue'
 
 import { TYPE_VALUE_EXECL, USE_KEY } from '@/enums/deviceEnums'
-import { mqttDevicePublish } from '@/hooks/useMqtt'
 import deviceStore from '@/store/deviceStore'
+import socketStore from '@/store/socketStore'
 import { throttle, stringToArray, debounce } from '@/utils/common'
 
 //设备是否禁用 适用['100', '101', '102', '103', '104']
@@ -109,7 +109,7 @@ export const triggerControl = throttle(({ use, device, config }) => {
   })
   const useMode = newModeList.find((item) => item.use == use)
   const publishRes = { ...useMode, id }
-  mqttDevicePublish(publishRes)
+  socketStore().mqttDevicePublish(publishRes)
   onDeviceStatusChange(publishRes)
   onDeviceStatusRefresh(id)
 }, 500)

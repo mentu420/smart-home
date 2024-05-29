@@ -46,7 +46,7 @@ const onCardClick = (sceneItem) => {
     class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 relative min-h-[44px]"
     :class="{ 'h-[30px]': props.isDrag, 'h-[76px]': !props.isDrag }"
   >
-    <SmartImage class="w-full h-full" fit="cover" :src="sceneItem?.img">
+    <SmartImage class="w-full h-full" fit="cover" :src="sceneItem?.img || emptyBgc">
       <template #error>
         <SmartImage class="w-full h-full" fit="cover" :src="emptyBgc" />
       </template>
@@ -70,7 +70,7 @@ const onCardClick = (sceneItem) => {
         <van-icon v-if="props.isDrag" class="p-3" name="wap-nav" />
         <template v-else>
           <div
-            v-if="isMore && houseUserPower(currentHouse.id) != 2"
+            v-if="isMore && houseUserPower(currentHouse?.id) != 2"
             class="px-2 py-1"
             @click.stop="
               router.push({

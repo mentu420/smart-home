@@ -155,13 +155,13 @@ export default defineStore(storeName, () => {
       .sort((a, b) => a.sort - b.sort)
 
   const useGetSceneListSync = async (reload = false) => {
-    if (sceneList.value.length > 0 && !reload) return sceneList.value
+    if (!reload) return sceneList.value
     const { data } = await getSceneList({ op: 1 })
     sceneList.value = transformList(data)
   }
 
   const useGetSmartListSync = async (reload = false) => {
-    if (smartList.value.length > 0 && !reload) return smartList.value
+    if (!reload) return smartList.value
     const { data } = await getSmartList({ op: 1 })
     smartList.value = transformList(data)
   }

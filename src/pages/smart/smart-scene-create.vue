@@ -9,7 +9,7 @@ import pickerSearch from '@/components/common/PickerSearch.vue'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import TimePicker from '@/components/common/TimePicker.vue'
 import { trimFormat } from '@/hooks/useFormValidator.js'
-import { mqttDevicePublish } from '@/hooks/useMqtt'
+import socketStore from '@/store/socketStore'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
@@ -163,7 +163,7 @@ const onDelectSceneItem = async (sceneItem) => {
 async function onActionSelect(action, actionItem, modeItem) {
   if (action.id == 0) {
     if (modeItem) {
-      mqttDevicePublish({ id: actionItem.id, ...modeItem })
+      socketStore().mqttDevicePublish({ id: actionItem.id, ...modeItem })
     } else {
       onScenePublishDebounce(actionItem.id)
     }
@@ -333,7 +333,7 @@ const onSave = async () => {
     const isSceneKnx =
       !!route.query.id && route.query.fenlei == 1 && getSmartItem.value.leixing == 2
 
-    if (actions.length == 0 && isSceneKnx) {
+    if (actions.length == 0 && !isSceneKnx) {
       showToast('请添加任务')
       return
     }
@@ -343,9 +343,9 @@ const onSave = async () => {
 
     const op = route.query.id ? 3 : 2
     let data = {
-      ...residue,
       leixing: 1,
       isor: 0,
+      ...residue,
       actions: actionsResult,
       img: getWebUrlName(img),
     }
@@ -783,7 +783,7 @@ function goEventConfig() {
       </ul>
     </section>
 
-    <div v-if="route.query.id" class="p-6">
+    <div v-if="route.query.id" class="p-6 mb-safe">
       <van-button v-loading-click="onDelect" block round> 删除 </van-button>
     </div>
 

@@ -20,7 +20,7 @@ import { isObjectString } from '@/utils/common'
 import deviceStore from '@/store/deviceStore'
 import { openUdpService, closeUdpService, updServiceTimeout } from '@/utils/native/udpService'
 import { useRouter } from 'vue-router'
-import { reloadSync } from '@/store/utils'
+import { reloadStoreSync } from '@/store/utils'
 
 defineOptions({ name: 'HouseAddDevice' })
 
@@ -104,11 +104,11 @@ const onBindDevice = async (item) => {
     await showConfirmDialog({ title: '提示', message: '是否绑定？' })
     const params = {
       params: { op: 10 },
-      data: { shebeibianhao: item.mac, fangwubianhao: currentHouse.value.id },
+      data: { shebeibianhao: item.mac, fangwubianhao: currentHouse.value?.id },
     }
     const { code } = await setDeviceList(params)
     if (code != 0) return
-    await reloadSync()
+    await reloadStoreSync()
 
     devices.value = devices.value.filter((deviceItem) => deviceItem.mac != item.mac)
     await showDialog({ title: '绑定成功' })

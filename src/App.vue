@@ -1,20 +1,13 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import VConsole from 'vconsole'
-import { ref, reactive, watch, onMounted, nextTick, inject, onBeforeUnmount } from 'vue'
-import { $mqtt } from 'vue-paho-mqtt'
+import { ref, reactive, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import {
-  createMqttPlugin,
-  onMqttConnect,
-  onMqttAutoReconnect,
-  mqttDisconnect,
-} from '@/hooks/useMqtt'
-import commonRouters from '@/router/modules/common.js'
 import userStore from '@/store/userStore'
-import useRem from '@/utils/flexible/useRem.js'
-import { openUdpService, closeUdpService } from '@/utils/native/udpService'
+import socketStore from '@/store/socketStore'
+import useSize from '@/utils/flexible/useRem.js'
+socketStore()
 
 // if (import.meta.env.MODE === 'development') new VConsole()
 
@@ -25,7 +18,6 @@ const includeList = ref(['TabbarPage'])
 const theme = ref('light')
 const transitionName = ref('van-slide-left')
 const isNativeBack = ref(false)
-const { onLine } = storeToRefs(userStore())
 const themeVars = reactive({
   uploaderDeleteIconSize: '1.2rem',
   primaryColor: '#07c160',
@@ -65,50 +57,13 @@ function onBackKeyForAndroid() {
   router.goBack()
 }
 
-const isWhite = [...commonRouters.map((item) => item.path), '/']
-
-// 建立mqtt
-const onConnect = () => {
-  console.log('MQTT Connect')
-  if (!onLine.value) {
-    mqttDisconnect()
-  } else {
-    // onMqttConnect()
-    onMqttAutoReconnect()
-  }
-}
-
-const onUpdService = () => {
-  console.log('onUpdService', onLine.value)
-  if (!onLine.value) {
-    closeUdpService()
-  } else {
-    // openUdpService()
-  }
-}
-
 // 函数挂载window 原生调用
 const setNativeMethods = () => {
   window.h5Back = h5Back
   window.routerBack = onBackKeyForAndroid
 }
 
-function init() {
-  createMqttPlugin(app)
-  onConnect()
-  onUpdService()
-}
-
-watch(
-  () => onLine.value,
-  (val) => {
-    console.log('在线状态变化', val)
-    init()
-  },
-  { immediate: true }
-)
-
-useRem()
+useSize()
 setNativeMethods()
 </script>
 
@@ -130,7 +85,7 @@ setNativeMethods()
 }
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
 }
 #app {

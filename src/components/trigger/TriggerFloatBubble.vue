@@ -83,7 +83,7 @@ defineExpose({ onShow, onHide })
           </li>
           <li>
             <IconFont
-              v-if="houseUserPower(currentHouse.id) != 2"
+              v-if="houseUserPower(currentHouse?.id) != 2"
               class="text-xs text-gray-400"
               :class="{ 'opacity-30': active == 1 }"
               icon="more-round"

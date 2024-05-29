@@ -216,7 +216,7 @@ init()
 
 async function onRefresh() {
   // 编辑的是当前房屋将更新缓存数据
-  if (currentHouse.value.id == route.query.id) {
+  if (currentHouse.value?.id == route.query.id) {
     const { useGetRoomListSync, useGetFloorListSync, useSetRoomItem } = houseStore()
     await Promise.all([useGetFloorListSync(true), useGetRoomListSync(true)])
   }
