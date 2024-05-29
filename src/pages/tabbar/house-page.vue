@@ -187,7 +187,10 @@ const onRoomChange = (roomItem, roomIndex) => {
   const itemWidth = item.offsetWidth
   const itemLeft = item.offsetLeft
 
-  scrollContainerRef.value.scrollLeft = itemLeft - (containerWidth - itemWidth) / 2
+  scrollContainerRef.value.scrollTo({
+    left: itemLeft - (containerWidth - itemWidth) / 2,
+    behavior: 'smooth',
+  })
 }
 
 const onAppScrollend = async () => {
