@@ -3,17 +3,24 @@ import { computed, watch, ref } from 'vue'
 import userStore from './userStore'
 import deviceStore from './deviceStore'
 import smartStore from './smartStore'
+// import mqtt from 'mqtt'
 import { openUdpService, closeUdpService } from '@/utils/native/udpService'
 import deviceInfo from '@/utils/deviceInfo'
 import { isObjectString, mergingStep } from '@/utils/common'
 import { getStorage } from '@/utils/storage'
-import PahoMQTT from 'paho-mqtt'
+import mqtt from 'paho-mqtt'
+
+console.log('mqttX', mqttX)
+
+const mqtt = {}
 
 export default defineStore('socketStore', () => {
   const { onLine } = storeToRefs(userStore())
   const username = ref('')
   const password = ref('')
-  const showLog = ref(getStorage(import.meta.env.VITE_APP_DEVELOPER) ?? false)
+  const showLog = ref(
+    getStorage(import.meta.env.VITE_APP_DEVELOPER) || import.meta.env.MODE === 'development'
+  )
   const { sceneList } = storeToRefs(smartStore())
   const SENCE = 'Sence'
   const DEVICE = 'Device'
@@ -46,23 +53,27 @@ export default defineStore('socketStore', () => {
 
       const heartTopic = `App/HeartBeat/${username.value}`
 
-      console.log('创建客户端')
-
-      mqClient = new PahoMQTT.Client('152.136.150.207', 8083, `APP_${username.value}`)
-
-      console.log('mqClient', mqClient)
-
-      // set callback handlers
-      mqClient.onConnectionLost = (err) => {
-        console.log('断开丢失--------------------', err)
-      }
-      mqClient.onConnected = (err) => {
-        console.log('断开连接--------------------', err)
-      }
-      mqClient.onMessageArrived = (message) => {
-        const { payloadString, topic } = message
-        if (!payloadString || !isObjectString(payloadString)) return
-        const data = JSON.parse(payloadString)
+      mqClient = new mqtt.connect(host, {
+        clientId: `APP_${username.value}`, //连接到代理时使用的客户端标识符
+        autoUseTopicAlias: true, // 主题
+        autoAssignTopicAlias: true, // 是否启用主题
+        username: yonghubianhao, //连接到代理时使用的用户名
+        password: password.value, //连接到代理时使用的密码
+      })
+      mqClient.on('connect', () => {
+        console.log('连接成功--------------------', mqClient)
+        resolve(mqClient)
+        createHeartTimer(heartTopic)
+        mqClient?.subscribe(deviceStateTopic, (err) => {
+          if (err) console.log('订阅失败：', deviceStateTopic)
+        })
+        mqClient?.subscribe(resultTopic, (err) => {
+          if (err) console.log('订阅失败:', resultTopic)
+        })
+      })
+      mqClient.on('message', (topic, payload) => {
+        if (!payload) return
+        const data = JSON.parse(payload.toString())
 
         if (topic == deviceStateTopic) {
           onDeviceSubscribe(data)
@@ -75,47 +86,30 @@ export default defineStore('socketStore', () => {
           if (topic != heartTopic) return
           onSmartSuccess(data)
         }
-      }
-      mqClient.onMessageDelivered = (message) => {
-        console.log('发送信息--------------------', message)
-      }
-
-      mqClient.connect({
-        userName: username.value,
-        password: password.value,
-        onSuccess: () => {
-          console.log('连接成功--------------------', mqClient)
-          resolve(mqClient)
-          createHeartTimer(heartTopic)
-          mqClient?.subscribe(deviceStateTopic, {
-            onSuccess: () => {
-              console.log('订阅设备状态主题成功')
-            },
-          })
-          mqClient?.subscribe(resultTopic, {
-            onSuccess: () => {
-              console.log('订阅通用应答结果主题成功')
-            },
-          })
-        },
-        onFailure: (err) => {
-          // ++reconnectCount.value
-          // console.log('重连中......', reconnectCount.value)
-          // if (reconnectCount.value == 4) {
-          //   reject(new Error('连接失败' + err))
-          //   reconnectCount.value = 0
-          //   disReconnect()
-          // }
-        },
+      })
+      mqClient.on('error', (err) => {
+        console.log('连接错误--------------------', err)
+      })
+      mqClient.on('disconnect', (err) => {
+        console.log('断开连接--------------------', err)
+      })
+      mqClient.on('reconnect', () => {
+        ++reconnectCount.value
+        console.log('重连中......', reconnectCount.value)
+        if (reconnectCount.value == 4) {
+          reject(`连接失败`)
+          reconnectCount.value = 0
+          disReconnect()
+        }
       })
     })
   })
 
-  const isConnected = computed(() => mqClient?.isConnected())
+  const isConnected = computed(() => mqClient?.connected)
 
   function disReconnect() {
     clearHeartTimer()
-    mqClient?.disconnect()
+    mqClient?.end()
     mqClient = null
   }
 
