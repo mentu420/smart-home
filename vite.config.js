@@ -1,26 +1,28 @@
 import legacy from '@vitejs/plugin-legacy'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
-import { VantResolver } from 'unplugin-vue-components/resolvers'
 import { defineConfig } from 'vite'
 import eslintPlugin from 'vite-plugin-eslint' //打包后文件分析
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { VantResolver } from '@vant/auto-import-resolver'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    // Components({
-    //   resolvers: [VantResolver()],
-    // }),
     vue(),
+    AutoImport({
+      resolvers: [VantResolver()],
+    }),
+    Components({
+      resolvers: [VantResolver()],
+    }),
     eslintPlugin({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
     }),
     visualizer({ open: false, brotliSize: true, filename: 'report.html' }),
     legacy({
-      // 需要兼容的目标列表，可以设置多个
       targets: ['defaults', 'not IE 11'],
-      // 此处影响了打包出workers相关文件
-      renderModernChunks: false,
     }),
   ],
   base: './',
@@ -40,5 +42,15 @@ export default defineConfig({
     //     rewrite: (path) => path.replace(/^\/api/, ""),
     //   },
     // },
+  },
+  build: {
+    // chunkSizeWarningLimit: 2048,
+    output: {
+      manualChunks(id) {
+        if (id.indexOf('node_modules')) {
+          return id.toString().split('node_modules/')[1].split('/')[0].toString()
+        }
+      },
+    },
   },
 })

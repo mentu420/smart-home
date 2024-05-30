@@ -1,7 +1,7 @@
 import '@vant/touch-emulator'
-import 'tailwindcss/tailwind.css'
+// import 'tailwindcss/tailwind.css'
 /**vant-ui 函数式组件样式**/
-import 'vant/lib/index.css'
+// import 'vant/lib/index.css'
 import { createApp, provide } from 'vue'
 import Vue3TouchEvents from 'vue3-touch-events'
 
@@ -14,20 +14,17 @@ import ListLoad from '@/components/layout/ListLoad.vue'
 import clickableActive from '@/directive/clickableActive.js'
 import copy from '@/directive/copy.js'
 import loadingClick from '@/directive/loadingClick.js'
-import permission from '@/directive/permission.js'
-import pointerDrag from '@/directive/pointerDrag.js'
-import press from '@/directive/press.js'
 import pinia from '@/store/'
 
 import App from './App.vue'
 import Router from './router'
-import { useVant } from './vant'
+// import { useVant } from './vant'
 
 const app = createApp(App)
 
 app.provide('App', app)
 
-useVant(app)
+// useVant(app)
 
 app
   .component(HeaderNavbar.name, HeaderNavbar)
@@ -42,7 +39,4 @@ app
   .directive('loading-click', loadingClick)
   .directive('clickable-active', clickableActive)
   .directive('copy', copy)
-  .directive('press', press)
-  .directive('permission', permission)
-  .directive('pointer-drag', pointerDrag)
   .mount('#app')

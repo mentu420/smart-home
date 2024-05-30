@@ -1,5 +1,3 @@
-import { showToast } from 'vant'
-
 import router from '@/router/'
 import { removeStorage } from '@/utils/storage'
 import { storeReset } from '@/store/utils'

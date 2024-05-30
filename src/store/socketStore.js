@@ -3,11 +3,10 @@ import { computed, watch, ref } from 'vue'
 import userStore from './userStore'
 import deviceStore from './deviceStore'
 import smartStore from './smartStore'
-import mqtt from 'mqtt'
+import mqtt from 'mqtt/dist/mqtt.esm'
 import { openUdpService, closeUdpService } from '@/utils/native/udpService'
 import deviceInfo from '@/utils/deviceInfo'
 import { isObjectString, mergingStep } from '@/utils/common'
-import { showToast } from 'vant'
 import { getStorage } from '@/utils/storage'
 
 export default defineStore('socketStore', () => {

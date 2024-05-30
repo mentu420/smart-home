@@ -1,6 +1,5 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showConfirmDialog } from 'vant'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import draggable from 'vuedraggable'

@@ -12,7 +12,6 @@
 </template>
 
 <script>
-import { showLoadingToast, closeToast } from 'vant'
 export default {
   name: 'WebviewPage',
   data() {

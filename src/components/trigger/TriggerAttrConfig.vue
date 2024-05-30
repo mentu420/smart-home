@@ -1,6 +1,5 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showToast } from 'vant'
 import { computed, ref, watch } from 'vue'
 
 import { setDeviceList } from '@/apis/smartApi'

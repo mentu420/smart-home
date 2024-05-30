@@ -1,6 +1,5 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showConfirmDialog, showToast } from 'vant'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 

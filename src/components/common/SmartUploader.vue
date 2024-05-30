@@ -1,5 +1,4 @@
 <script setup>
-import { showToast, showConfirmDialog, showDialog } from 'vant'
 import { ref, reactive, computed, useAttrs, useSlots } from 'vue'
 
 import { uploadFile } from '@/apis/commonApi'

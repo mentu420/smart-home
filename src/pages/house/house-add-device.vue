@@ -14,7 +14,6 @@ import {
   CMD_DISCOVER,
 } from '@/utils/native/config'
 import { getNetworkType, sendUdpData } from '@/utils/native/nativeApi'
-import { showConfirmDialog, showDialog, showToast } from 'vant'
 import dayjs from 'dayjs'
 import { isObjectString } from '@/utils/common'
 import deviceStore from '@/store/deviceStore'

@@ -3,7 +3,6 @@ import { ref } from 'vue'
 
 import { removeStorage } from '@/utils/storage'
 import { setKey } from '@/utils/native/nativeApi'
-import { showDialog } from 'vant'
 
 defineOptions({ name: 'MeDevelopment' })
 

@@ -1,6 +1,5 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showConfirmDialog, showDialog } from 'vant'
 import { computed, ref } from 'vue'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { useRoute, useRouter } from 'vue-router'

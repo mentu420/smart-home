@@ -40,6 +40,12 @@ module.exports = {
     BMAP_STATUS_SUCCESS: 'readonly',
     Paho: 'readonly',
     jdwl: 'readonly',
+    showToast: 'readonly',
+    showDialog: 'readonly',
+    showConfirmDialog: 'readonly',
+    showNotify: 'readonly',
+    showLoadingToast: 'readonly',
+    closeToast: 'readonly',
   },
   // 这里时配置规则的,自己看情况配置
   rules: {

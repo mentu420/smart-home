@@ -79,7 +79,11 @@ setNativeMethods()
   </van-config-provider>
 </template>
 
-<style>
+<style lang="scss">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   user-select: none;
 }

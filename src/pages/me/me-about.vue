@@ -4,7 +4,6 @@ import logoIcon from '@/assets/images/smart-logo.png'
 import { useRouter } from 'vue-router'
 import { getStorage, setStorage } from '@/utils/storage'
 import Vconsole from 'vconsole'
-import { showConfirmDialog } from 'vant'
 
 defineOptions({ name: 'MeAbout' })
 

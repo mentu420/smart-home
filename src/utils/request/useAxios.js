@@ -1,5 +1,4 @@
 import axios, { isCancel } from 'axios' // 此处引入axios官方文件
-import { showToast } from 'vant'
 
 import { useLogout } from '@/hooks/useLogout.js'
 

@@ -2,7 +2,6 @@
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import deviceStore from '@/store/deviceStore'
-import { showConfirmDialog } from 'vant'
 import { setDeviceList } from '@/apis/smartApi'
 import { reloadStoreSync } from '@/store/utils'
 import houseStore from '@/store/houseStore'
