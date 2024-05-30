@@ -1,17 +1,14 @@
 <script setup>
-import { storeToRefs } from 'pinia'
 import VConsole from 'vconsole'
 import { ref, reactive, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
-import userStore from '@/store/userStore'
 import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
+
 socketStore()
 
 // if (import.meta.env.MODE === 'development') new VConsole()
 
-const app = inject('App')
 const route = useRoute()
 const router = useRouter()
 const includeList = ref(['TabbarPage'])
