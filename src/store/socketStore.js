@@ -9,111 +9,149 @@ import { isObjectString, mergingStep } from '@/utils/common'
 import { getStorage } from '@/utils/storage'
 import PahoMQTT from 'paho-mqtt'
 
+const getLogStyle = (color) => {
+  return deviceInfo.platform == 'devtools' ? `color: ${color}; font-weight: bold;` : ''
+}
+
+const getTimeStamp = () => new Date().valueOf()
+
 export default defineStore('socketStore', () => {
   const { onLine } = storeToRefs(userStore())
-  const username = ref('')
-  const password = ref('')
-  const showLog = ref(getStorage(import.meta.env.VITE_APP_DEVELOPER) ?? false)
   const { sceneList } = storeToRefs(smartStore())
-  const SENCE = 'Sence'
-  const DEVICE = 'Device'
+
   let heartTimer = null
   let mqClient = null
   const heartDuration = 10 * 1000
+  const username = ref('')
+  const password = ref('')
   const reconnectCount = ref(0)
+  const host = '152.136.150.207'
+  const port = 8083
+  const SENCE = 'Sence'
+  const DEVICE = 'Device'
+  const resultTopic = ref('') // 通用应答主推
+  const heartTopic = ref('') // 心跳主图
+  const deviceStateTopic = ref('') // 设备状态主题
+  const isDisConnect = ref(false) // 是否主动断开链接
+  const showLog = ref(getStorage(import.meta.env.VITE_APP_DEVELOPER) ?? false)
 
-  const getLogStyle = (color) => {
-    return deviceInfo.platform == 'devtools' ? `color: ${color}; font-weight: bold;` : ''
-  }
-
-  const getTimeStamp = () => new Date().valueOf()
+  const isConnected = computed(() => mqClient?.isConnected()) // mqtt是否已经链接
 
   const getMsgid = (theme, id) => {
     return `${username.value}/${theme}/${id}/${getTimeStamp()}`
   }
 
-  const initClient = mergingStep(() => {
+  const init = () => {
+    const { useGetToken } = userStore()
+    const { yonghubianhao, acessToken } = useGetToken() || {}
+    username.value = yonghubianhao
+    password.value = acessToken
+
+    resultTopic.value = `Cloud/Result/${username.value}`
+
+    heartTopic.value = `App/HeartBeat/${username.value}`
+
+    deviceStateTopic.value = `Cloud/${DEVICE}/State/${username.value}`
+
+    initClient()
+  }
+
+  function initClient() {
+    mqClient = new PahoMQTT.Client(host, port, `APP_${username.value}`)
+
+    console.log('mqClient', mqClient)
+
+    // set callback handlers
+    mqClient.onConnected = (err) => {
+      console.log('断开连接--------------------', err)
+    }
+    mqClient.onMessageArrived = (message) => {
+      const { payloadString, topic } = message
+      if (!payloadString || !isObjectString(payloadString)) return
+      const data = JSON.parse(payloadString)
+
+      if (topic == deviceStateTopic.value) {
+        onDeviceSubscribe(data)
+      } else if (topic == resultTopic.value) {
+        onResponesSubscribe(data)
+      } else {
+        if (showLog.value) {
+          console.log('%c接收到信息', getLogStyle('gray'), topic, data)
+        }
+        if (topic != heartTopic.value) return
+        onSmartSuccess(data)
+      }
+    }
+    mqClient.onMessageDelivered = (message) => {
+      console.log('发送信息--------------------', message)
+    }
+  }
+
+  const onConnectSuccess = () => {
+    createHeartTimer(heartTopic.value)
+    mqClient?.subscribe(deviceStateTopic.value, {
+      onSuccess: () => {
+        console.log('订阅设备状态主题成功')
+      },
+    })
+    mqClient?.subscribe(resultTopic.value, {
+      onSuccess: () => {
+        console.log('订阅通用应答结果主题成功')
+      },
+    })
+  }
+
+  const onClientConnecte = () => {
     return new Promise((resolve, reject) => {
-      const { useGetToken } = userStore()
-      const { yonghubianhao, acessToken } = useGetToken() || {}
-      username.value = yonghubianhao
-      password.value = acessToken
-      const host = 'ws://152.136.150.207:8083/mqtt'
-
-      const deviceStateTopic = `Cloud/${DEVICE}/State/${username.value}`
-
-      const resultTopic = `Cloud/Result/${username.value}`
-
-      const heartTopic = `App/HeartBeat/${username.value}`
-
-      console.log('创建客户端')
-
-      mqClient = new PahoMQTT.Client('152.136.150.207', 8083, `APP_${username.value}`)
-
-      console.log('mqClient', mqClient)
-
-      // set callback handlers
-      mqClient.onConnectionLost = (err) => {
-        console.log('断开丢失--------------------', err)
+      if (isConnected.value) {
+        resolve(mqClient)
+        return
       }
-      mqClient.onConnected = (err) => {
-        console.log('断开连接--------------------', err)
+      const connect = () => {
+        mqClient?.connect({
+          timeout: 10 * 1000,
+          reconnect: false,
+          userName: username.value,
+          password: password.value,
+          onSuccess: () => {
+            console.log('连接成功--------------------', mqClient)
+            isDisConnect.value = false
+            resolve(mqClient)
+            onConnectSuccess()
+          },
+          onFailure: (err) => {
+            console.log('链接失败--------------------', err)
+            reconnect()
+          },
+        })
       }
-      mqClient.onMessageArrived = (message) => {
-        const { payloadString, topic } = message
-        if (!payloadString || !isObjectString(payloadString)) return
-        const data = JSON.parse(payloadString)
 
-        if (topic == deviceStateTopic) {
-          onDeviceSubscribe(data)
-        } else if (topic == resultTopic) {
-          onResponesSubscribe(data)
-        } else {
-          if (showLog.value) {
-            console.log('%c接收到信息', getLogStyle('gray'), topic, data)
-          }
-          if (topic != heartTopic) return
-          onSmartSuccess(data)
+      const reconnect = () => {
+        ++reconnectCount.value
+        if (mqClient) {
+          console.log('重连中......', reconnectCount.value)
+          connect()
+        }
+        if (reconnectCount.value == 4) {
+          reconnectCount.value = 0
+          disReconnect()
+          reject(new Error('重连失败'))
         }
       }
-      mqClient.onMessageDelivered = (message) => {
-        console.log('发送信息--------------------', message)
+
+      connect()
+
+      mqClient.onConnectionLost = (err) => {
+        console.log('链接丢失--------------------', err)
+        if (!isDisConnect.value) reconnect()
       }
-
-      mqClient.connect({
-        userName: username.value,
-        password: password.value,
-        onSuccess: () => {
-          console.log('连接成功--------------------', mqClient)
-          resolve(mqClient)
-          createHeartTimer(heartTopic)
-          mqClient?.subscribe(deviceStateTopic, {
-            onSuccess: () => {
-              console.log('订阅设备状态主题成功')
-            },
-          })
-          mqClient?.subscribe(resultTopic, {
-            onSuccess: () => {
-              console.log('订阅通用应答结果主题成功')
-            },
-          })
-        },
-        onFailure: (err) => {
-          // ++reconnectCount.value
-          // console.log('重连中......', reconnectCount.value)
-          // if (reconnectCount.value == 4) {
-          //   reject(new Error('连接失败' + err))
-          //   reconnectCount.value = 0
-          //   disReconnect()
-          // }
-        },
-      })
     })
-  })
+  }
 
-  const isConnected = computed(() => mqClient?.isConnected())
+  const waitConnected = mergingStep(onClientConnecte)
 
   function disReconnect() {
+    isDisConnect.value = true
     clearHeartTimer()
     mqClient?.disconnect()
     mqClient = null
@@ -134,7 +172,7 @@ export default defineStore('socketStore', () => {
   async function useMqttPublish(theme, message) {
     try {
       if (!isConnected.value) {
-        await initClient()
+        await waitConnected()
       }
       if (showLog.value) console.log('%c推送', getLogStyle('green'), theme, message)
       mqClient?.publish(
@@ -268,7 +306,8 @@ export default defineStore('socketStore', () => {
     (val) => {
       console.log('在线状态变化', val)
       if (val) {
-        initClient()
+        init()
+        waitConnected()
       } else {
         closeUdpService()
         disReconnect()
