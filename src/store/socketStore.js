@@ -103,7 +103,7 @@ export default defineStore('socketStore', () => {
 
   const onClientConnecte = () => {
     return new Promise((resolve, reject) => {
-      if (isConnected.value) {
+      if (mqClient?.isConnected()) {
         resolve(mqClient)
         return
       }
@@ -171,7 +171,7 @@ export default defineStore('socketStore', () => {
    * **/
   async function useMqttPublish(theme, message) {
     try {
-      if (!isConnected.value) {
+      if (!mqClient?.isConnected()) {
         await waitConnected()
       }
       if (showLog.value) console.log('%c推送', getLogStyle('green'), theme, message)
@@ -193,7 +193,7 @@ export default defineStore('socketStore', () => {
   function createHeartTimer(topic) {
     if (heartTimer) return
     heartTimer = setInterval(() => {
-      if (!isConnected.value) return
+      if (!mqClient?.isConnected()) return
       if (showLog.value) {
         console.log('%cMQTT发送心跳', getLogStyle('orange'))
       }
