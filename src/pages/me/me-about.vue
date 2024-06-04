@@ -4,6 +4,7 @@ import logoIcon from '@/assets/images/smart-logo.png'
 import { useRouter } from 'vue-router'
 import { getStorage, setStorage } from '@/utils/storage'
 import Vconsole from 'vconsole'
+import socketStore from '@/store/socketStore'
 
 defineOptions({ name: 'MeAbout' })
 
@@ -19,6 +20,8 @@ const onClick = async () => {
   if (clickCount.value == 5) {
     try {
       await showConfirmDialog({ title: '提示', message: '是否打开开发者模式' })
+      const { useSetShowLog } = socketStore()
+      useSetShowLog(true)
       new Vconsole()
       setStorage(VITE_APP_DEVELOPER, 1)
       isDev.value = true

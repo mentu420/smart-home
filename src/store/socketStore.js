@@ -35,6 +35,11 @@ export default defineStore('socketStore', () => {
   const isDisConnect = ref(false) // 是否主动断开链接
   const showLog = ref(getStorage(import.meta.env.VITE_APP_DEVELOPER) ?? false)
 
+  const useSetShowLog = (value) => {
+    console.log('useSetShowLog', value)
+    showLog.value = value
+  }
+
   const isConnected = computed(() => mqClient?.isConnected()) // mqtt是否已经链接
 
   const getMsgid = (theme, id) => {
@@ -102,6 +107,7 @@ export default defineStore('socketStore', () => {
   }
 
   const onClientConnecte = () => {
+    if (!mqClient) initClient()
     return new Promise((resolve, reject) => {
       if (mqClient?.isConnected()) {
         resolve(mqClient)
@@ -316,5 +322,5 @@ export default defineStore('socketStore', () => {
     { immediate: true }
   )
 
-  return { mqttScenePublish, mqttDevicePublish }
+  return { mqttScenePublish, mqttDevicePublish, useSetShowLog }
 })
