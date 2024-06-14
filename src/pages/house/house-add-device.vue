@@ -33,7 +33,6 @@ const textList = [
 ]
 const action = ref(0) //0 扫描设备 1 停止扫描并没有发现设备 2：停止扫描并发现设备
 const { currentHouse } = storeToRefs(houseStore())
-const { hostList } = storeToRefs(deviceStore())
 
 //
 const devices = ref([])
@@ -62,8 +61,8 @@ function getUdpData(evt) {
     const message = JSON.parse(evt)
     console.log('接收到udp 数据：', message)
     if (message.data != '' && message.cmd === CMD_DISCOVER) {
-      const { ip, mac, type = '1' } = message.data
-      if (type != '1') return
+      const { ip, mac, type = null } = message.data
+      if (type === null) return
       const index = devices.value.findIndex((item) => item.mac === mac)
       index > -1 ? (devices.value[index].ip = ip) : devices.value.push({ ip, mac })
     }
