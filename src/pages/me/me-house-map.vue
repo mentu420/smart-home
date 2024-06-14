@@ -1,5 +1,4 @@
 <script setup>
-import { showToast } from 'vant'
 import { reactive, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 

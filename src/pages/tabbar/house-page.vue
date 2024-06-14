@@ -296,7 +296,8 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   <template #reference>
                     <div class="flex items-center space-x-2 text-[16px]">
                       <p class="max-w-[240px] truncate font-bold">{{ currentHouse?.label }}</p>
-                      <IconFont class="text-[6px]" icon="triangle-bottom" />
+                      <van-loading v-if="loading" size="20" />
+                      <IconFont v-else class="text-[6px]" icon="triangle-bottom" />
                     </div>
                   </template>
                 </HousePopover>
@@ -370,7 +371,8 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                       <p class="w-[40px] truncate text-xs shrink-0 text-center">
                         {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
                       </p>
-                      <IconFont class="text-[6px]" icon="triangle-bottom" />
+                      <van-loading v-if="loading" size="20" />
+                      <IconFont v-else class="text-[6px]" icon="triangle-bottom" />
                     </div>
                   </template>
                 </HousePopover>

@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 import { removeStorage } from '@/utils/storage'
 import { setKey } from '@/utils/native/nativeApi'
-import { showDialog } from 'vant'
+import socketStore from '@/store/socketStore'
 
 defineOptions({ name: 'MeDevelopment' })
 
@@ -13,6 +13,8 @@ const form = ref({
 })
 
 const onDevelopmentChange = (value) => {
+  const { useSetShowLog } = socketStore()
+  useSetShowLog(value)
   if (value) return
   removeStorage(import.meta.env.VITE_APP_DEVELOPER)
 }

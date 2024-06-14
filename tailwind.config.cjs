@@ -129,6 +129,7 @@ module.exports = {
       //   { values: '0px' }
       // )
     }),
+    require('tailwindcss-safe-area'),
   ],
   corePlugins: {
     preflight: false,

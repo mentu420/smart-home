@@ -1,16 +1,15 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { showConfirmDialog } from 'vant'
 
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { setUserConfig } from '@/apis/commonApi'
+import { setUserConfig, getUserConfig } from '@/apis/commonApi'
 import SmartUploader from '@/components/common/SmartUploader.vue'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
 import { getWebUrlName } from '@/utils/common'
-import { setStorage, getStorage } from '@/utils/storage'
+import { showConfirmDialog, showDialog } from 'vant'
 
 defineOptions({ name: 'MeInfo' })
 
@@ -38,10 +37,25 @@ const navList = ref([
   { id: 0, text: '昵称', value: userInfo.value?.xingming, path: '/me-nickname' },
   { id: 1, text: '手机号', value: userInfo.value?.shouji, path: '/me-phone-change' },
   { id: 2, text: '修改密码', value: '', path: '/me-password-change' },
-  // { id: 3, text: '版本', value: '', path: '/meVersion' },
+  { id: 3, text: '注销账号', value: '', path: '' },
 ])
 
-const onNavItemClick = (navItem) => {
+const onCancelAccount = async () => {
+  try {
+    await showConfirmDialog({ title: '提示', message: '是否注销账号？' })
+    const { code } = await getUserConfig({ params: { op: 9 } })
+    if (code != 0) return
+    useLogout('注销成功')
+  } catch (error) {
+    //
+  }
+}
+
+const onNavItemClick = async (navItem) => {
+  if (navItem.id == 3) {
+    onCancelAccount()
+    return
+  }
   router.push({ path: navItem.path, query: { value: navItem.value } })
 }
 

@@ -2,7 +2,6 @@
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import deviceStore from '@/store/deviceStore'
-import { showConfirmDialog } from 'vant'
 import { setDeviceList } from '@/apis/smartApi'
 import { reloadStoreSync } from '@/store/utils'
 import houseStore from '@/store/houseStore'
@@ -36,7 +35,7 @@ const onUnbindDevice = async (item) => {
         center
       >
         <van-button
-          v-if="houseUserPower(currentHouse?.id) == 0"
+          v-if="houseUserPower(currentHouse?.id) != 2"
           v-loading-click="() => onUnbindDevice(hostItem)"
           class="!px-6"
           size="small"

@@ -1,5 +1,4 @@
 <script setup>
-import { showDialog } from 'vant'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -45,7 +44,7 @@ const onValidPhone = (value) => vaildPhone(value)
 </script>
 
 <template>
-  <div class="p-4 mt-safe h-screen">
+  <div class="p-4 pt-safe-offset-4 h-screen">
     <h1 class="mb-10 ml-2 mt-10">验证码登录</h1>
     <van-form ref="formRef" class="m-2" @submit="onSubmit">
       <van-cell-group>
