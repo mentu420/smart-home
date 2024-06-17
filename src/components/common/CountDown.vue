@@ -58,7 +58,7 @@ export default {
       try {
         loading.value = true
         if (countTime.value > 0) return
-        await props.request()
+        // await props.request()
         countTime.value = props.duration * 1000
         codeStatus.value = 1
       } finally {
@@ -82,7 +82,6 @@ export default {
   <van-button size="small" native-type="button" :loading="loading" v-bind="$attrs" @click="sendSms">
     <van-count-down
       v-if="countTime > 0"
-      class="count-time"
       :time="countTime"
       :format="format"
       @change="onChange"
@@ -93,9 +92,3 @@ export default {
     </label>
   </van-button>
 </template>
-
-<style lang="scss" scoped>
-.count-time {
-  color: #fff;
-}
-</style>
