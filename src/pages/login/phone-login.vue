@@ -71,7 +71,12 @@ const onValidPhone = (value) => vaildPhone(value)
           :rules="[{ required: true, message: '请填写验证码' }]"
         >
           <template #extra>
-            <CountDown :disabled="!form.phone" :duration="60" :request="getRegisterCode" />
+            <CountDown
+              :disabled="!form.phone"
+              :duration="60"
+              :request="getRegisterCode"
+              cookie-key="phone-login-countdown"
+            />
           </template>
         </van-field>
       </van-cell-group>

@@ -9,7 +9,7 @@ export default [
     path: '/phone-login',
     name: 'PhoneLogin',
     component: () => import('@/pages/login/phone-login.vue'),
-    meta: { title: '手机号登录' },
+    meta: { title: '手机号登录', keepAlive: true },
   },
   {
     path: '/forget-password',

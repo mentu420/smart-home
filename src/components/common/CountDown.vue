@@ -37,7 +37,10 @@ export default {
       if (countTime.value > 0) codeStatus.value = 1
     }
 
+    onMounted(fetchDownCountTime)
+
     onActivated(() => {
+      console.log('countdown activeted')
       fetchDownCountTime()
     })
 
@@ -58,7 +61,7 @@ export default {
       try {
         loading.value = true
         if (countTime.value > 0) return
-        await props.request()
+        // await props.request()
         countTime.value = props.duration * 1000
         codeStatus.value = 1
       } finally {

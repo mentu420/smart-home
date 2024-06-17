@@ -58,7 +58,12 @@ const onSubmit = async () => {
         :rules="[{ required: true, message: '请填写短信验证码' }]"
       >
         <template #extra>
-          <CountDown format="ss秒" :request="sendCode" />
+          <CountDown
+            :disabled="form.phone == ''"
+            :request="sendCode"
+            format="ss秒"
+            cookie-key="phone-change-countdown"
+          />
         </template>
       </van-field>
       <div class="my-10 flex space-x-4">
