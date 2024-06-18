@@ -20,6 +20,7 @@ import deviceStore from '@/store/deviceStore'
 import { openUdpService, closeUdpService, updServiceTimeout } from '@/utils/native/udpService'
 import { useRouter } from 'vue-router'
 import { reloadStoreSync } from '@/store/utils'
+import { showConfirmDialog, showDialog } from 'vant'
 
 defineOptions({ name: 'HouseAddDevice' })
 

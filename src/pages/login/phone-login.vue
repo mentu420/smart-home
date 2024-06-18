@@ -6,6 +6,7 @@ import { getSms, setUserConfig } from '@/apis/commonApi.js'
 import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, phoneReg, setFormFormat } from '@/hooks/useFormValidator.js'
 import useLogin from '@/hooks/useLogin'
+import { showDialog } from 'vant'
 
 defineOptions({ name: 'PhoneLogin' })
 

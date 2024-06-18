@@ -8,6 +8,7 @@ import { getRoomList, setRoomList, setFloorList, getFloorList } from '@/apis/hou
 import { validKeyboard } from '@/hooks/useFormValidator'
 import houseStore from '@/store/houseStore'
 import { objDelByValues } from '@/utils/common'
+import { showConfirmDialog } from 'vant'
 
 defineOptions({ name: 'MeRoomManage' })
 

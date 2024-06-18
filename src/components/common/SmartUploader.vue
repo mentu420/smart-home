@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, computed, useAttrs, useSlots } from 'vue'
+import { showConfirmDialog, showDialog, showToast } from 'vant'
 
 import { uploadFile } from '@/apis/commonApi'
 import { AUDIO_TYPES } from '@/enums/fileType'

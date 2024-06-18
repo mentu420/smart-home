@@ -8,6 +8,7 @@ import deviceInfo from '@/utils/deviceInfo'
 import { isObjectString, mergingStep } from '@/utils/common'
 import { getStorage } from '@/utils/storage'
 import PahoMQTT from 'paho-mqtt'
+import { showToast } from 'vant'
 
 const getLogStyle = (color) => {
   return deviceInfo.platform == 'devtools' ? `color: ${color}; font-weight: bold;` : ''

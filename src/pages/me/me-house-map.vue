@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 
 import { mapLoad, getCityInfoByIp } from '@/hooks/useAMap'
 import { loadScript } from '@/utils/common.js'
+import { showToast } from 'vant'
 
 defineOptions({ name: 'MeHouseMap' })
 

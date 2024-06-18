@@ -1,6 +1,7 @@
 import router from '@/router/'
 import { removeStorage } from '@/utils/storage'
 import { storeReset } from '@/store/utils'
+import { showToast } from 'vant'
 
 export const cleanStore = () => {
   removeStorage('materialImages') // 网络对应本地资源图片路径缓存
