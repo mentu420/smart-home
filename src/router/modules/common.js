@@ -9,13 +9,13 @@ export default [
     path: '/phone-login',
     name: 'PhoneLogin',
     component: () => import('@/pages/login/phone-login.vue'),
-    meta: { title: '手机号登录', keepAlive: true },
+    meta: { title: '手机号登录' },
   },
   {
     path: '/forget-password',
     name: 'ForgetPassword',
     component: () => import('@/pages/login/forget-password.vue'),
-    meta: { title: '忘记密码', keepAlive: true },
+    meta: { title: '忘记密码' },
   },
   {
     path: '/forget-vaildator',
