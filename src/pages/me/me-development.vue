@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { removeStorage } from '@/utils/storage'
 import { setKey } from '@/utils/native/nativeApi'
 import socketStore from '@/store/socketStore'
+import { showDialog } from 'vant'
 
 defineOptions({ name: 'MeDevelopment' })
 

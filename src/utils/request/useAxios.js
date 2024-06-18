@@ -9,6 +9,7 @@ import {
 } from './requestCache.js'
 import { addPendingRequest, removePendingRequest } from './requestCancelRepeat.js' // 取消重复请求
 // import { refreshTokenRequest } from './requestRefreshToken.js'
+import { showToast } from 'vant'
 
 const useAxios = axios.create({
   baseURL: import.meta.env.VITE_APP_API_URL,

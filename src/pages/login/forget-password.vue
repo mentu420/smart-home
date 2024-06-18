@@ -65,7 +65,12 @@ watch(
         :rules="[{ required: true, message: '请填写短信验证码' }]"
       >
         <template #extra>
-          <CountDown format="ss秒" :request="sendCode" />
+          <CountDown
+            :disabled="form.phone == ''"
+            :request="sendCode"
+            format="ss秒"
+            cookie-key="forget-password-countdown"
+          />
         </template>
       </van-field>
       <div class="my-10">

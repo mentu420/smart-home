@@ -6,6 +6,7 @@ import { setDeviceList } from '@/apis/smartApi'
 import PickerSearch from '@/components/common/PickerSearch.vue'
 import deviceStore from '@/store/deviceStore'
 import houseStore from '@/store/houseStore'
+import { showToast } from 'vant'
 
 defineOptions({ name: 'TriggerAttrConfig' })
 

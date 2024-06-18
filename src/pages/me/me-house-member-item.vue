@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { setFamily, getFamily } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
+import { showConfirmDialog } from 'vant'
 
 defineOptions({ name: 'MeHouseMemberItem' })
 

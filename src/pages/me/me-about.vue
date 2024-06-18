@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { getStorage, setStorage } from '@/utils/storage'
 import Vconsole from 'vconsole'
 import socketStore from '@/store/socketStore'
+import { showConfirmDialog } from 'vant'
 
 defineOptions({ name: 'MeAbout' })
 

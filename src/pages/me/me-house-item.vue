@@ -9,6 +9,7 @@ import SmartUploader from '@/components/common/SmartUploader.vue'
 import houseStore from '@/store/houseStore'
 import userStore from '@/store/userStore'
 import { getWebUrlName } from '@/utils/common'
+import { showConfirmDialog } from 'vant'
 
 defineOptions({ name: 'MeHouse' })
 

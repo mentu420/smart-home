@@ -6,6 +6,7 @@ import { trimFormat } from '@/hooks/useFormValidator.js'
 import useLogin from '@/hooks/useLogin'
 import { mergeObjectIntoArray } from '@/utils/common'
 import { getStorage, setStorage } from '@/utils/storage.js'
+import { showDialog } from 'vant'
 
 defineOptions({ name: 'AccountLogin' })
 

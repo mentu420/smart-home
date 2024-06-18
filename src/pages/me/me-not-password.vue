@@ -91,7 +91,11 @@ const onSubmit = async () => {
         :rules="[{ required: true, message: '请填写验证码' }]"
       >
         <template #extra>
-          <CountDown :duration="60" :request="getRegisterCode" />
+          <CountDown
+            :duration="60"
+            :request="getRegisterCode"
+            cookie-key="note-password-countdown"
+          />
         </template>
       </van-field>
       <div class="my-10">

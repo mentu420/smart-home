@@ -1,6 +1,7 @@
 import { storeToRefs } from 'pinia'
 import smartStore from '@/store/smartStore'
 import socketStore from '@/store/socketStore'
+import { showToast } from 'vant'
 
 const { sceneList } = storeToRefs(smartStore())
 

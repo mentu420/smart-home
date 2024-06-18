@@ -16,12 +16,12 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    AutoImport({
-      resolvers: [VantResolver()],
-    }),
-    Components({
-      resolvers: [VantResolver()],
-    }),
+    // AutoImport({
+    //   resolvers: [VantResolver()],
+    // }),
+    // Components({
+    //   resolvers: [VantResolver()],
+    // }),
     eslintPlugin({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
     }),

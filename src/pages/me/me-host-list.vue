@@ -5,6 +5,7 @@ import deviceStore from '@/store/deviceStore'
 import { setDeviceList } from '@/apis/smartApi'
 import { reloadStoreSync } from '@/store/utils'
 import houseStore from '@/store/houseStore'
+import { showConfirmDialog } from 'vant'
 
 const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 

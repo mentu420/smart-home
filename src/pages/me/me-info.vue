@@ -9,7 +9,7 @@ import SmartUploader from '@/components/common/SmartUploader.vue'
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
 import { getWebUrlName } from '@/utils/common'
-import { showConfirmDialog, showDialog } from 'vant'
+import { showConfirmDialog } from 'vant'
 
 defineOptions({ name: 'MeInfo' })
 

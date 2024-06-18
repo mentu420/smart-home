@@ -7,6 +7,7 @@ import { getHouseList } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
 import userStore from '@/store/userStore'
 import { reloadStoreSync } from '@/store/utils'
+import { showConfirmDialog, showDialog } from 'vant'
 
 defineOptions({ name: 'MeHouse' })
 
