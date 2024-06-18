@@ -237,7 +237,7 @@ onActivated(() => {
 watch(
   () => route.path,
   (to, from) => {
-    if (to == '/tabbar/tabbar-house' && ['/account-login', '/phone-login'].includes(from)) {
+    if (to == '/tabbar' && ['/account-login', '/phone-login'].includes(from)) {
       init()
     }
   }

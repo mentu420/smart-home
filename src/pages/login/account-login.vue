@@ -27,7 +27,7 @@ const onSubmit = async (values) => {
     }
     await useLogin({ shoujihaoma: values.username, mima: values.password, dengluleixing: 1 })
 
-    router.replace({ path: '/tabbar/tabbar-house' })
+    router.replace({ path: '/tabbar' })
   } catch (error) {
     showDialog({ title: '错误', message: error?.data?.des || JSON.stringify(error?.data) })
   } finally {

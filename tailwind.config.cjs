@@ -119,15 +119,6 @@ module.exports = {
   plugins: [
     plugin(function ({ addBase, addUtilities, addComponents, matchUtilities, theme }) {
       addUtilities(newUtilities)
-      // matchUtilities(
-      //   {
-      //     'pb-safe': (value) => ({
-      //       paddingBottom: `calc(constant(safe-area-inset-bottom) + ${value})`,
-      //       paddingBottom: `calc(env(safe-area-inset-bottom) + ${value})`,
-      //     }),
-      //   },
-      //   { values: '0px' }
-      // )
     }),
     require('tailwindcss-safe-area'),
   ],

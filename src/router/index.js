@@ -13,7 +13,7 @@ import smartRouters from './modules/smart.js'
 const redirect = (to) => {
   const token = getStorage(import.meta.env.VITE_APP_STORAGE_TOKEN)
   if (token) {
-    return '/tabbar/tabbar-house'
+    return '/tabbar'
   } else {
     return '/account-login'
   }
@@ -52,26 +52,27 @@ const Router = createRouter({
       path: '/tabbar',
       name: 'TabbarPage',
       component: () => import('@/pages/tabbar/tabbar-page.vue'),
-      children: [
-        {
-          path: 'tabbar-house',
-          name: 'HousePage',
-          component: () => import('@/pages/tabbar/house-page.vue'),
-          meta: { title: '家', keepAlive: true },
-        },
-        {
-          path: 'tabbar-smart',
-          name: 'SmartPage',
-          component: () => import('@/pages/tabbar/smart-page.vue'),
-          meta: { title: '智能' },
-        },
-        {
-          path: 'tabbar-me',
-          name: 'MePage',
-          component: () => import('@/pages/tabbar/me-page.vue'),
-          meta: { title: '我的' },
-        },
-      ],
+      meta: { keepAlive: true },
+      // children: [
+      //   {
+      //     path: 'tabbar-house',
+      //     name: 'HousePage',
+      //     component: () => import('@/pages/tabbar/house-page.vue'),
+      //     meta: { title: '家', keepAlive: true },
+      //   },
+      //   {
+      //     path: 'tabbar-smart',
+      //     name: 'SmartPage',
+      //     component: () => import('@/pages/tabbar/smart-page.vue'),
+      //     meta: { title: '智能' },
+      //   },
+      //   {
+      //     path: 'tabbar-me',
+      //     name: 'MePage',
+      //     component: () => import('@/pages/tabbar/me-page.vue'),
+      //     meta: { title: '我的' },
+      //   },
+      // ],
     },
     ...meRouters,
     ...smartRouters,

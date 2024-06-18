@@ -2,14 +2,17 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import useWinResize from '@/utils/flexible/useWinResize'
-
 import { useLogout } from '@/hooks/useLogout'
 import userStore from '@/store/userStore'
+import HousePage from './house-page.vue'
+import SmartPage from './smart-page.vue'
+import MePage from './me-page.vue'
 
 defineOptions({ name: 'TabbarPage' })
 
 const route = useRoute()
 const tabIndex = ref(0)
+const transitionName = ref('van-slide-left')
 const tabs = ref([
   {
     text: '家',
@@ -36,10 +39,6 @@ const tabs = ref([
 
 const placeholder = computed(() => window.screen.width < 768)
 
-// useWinResize(() => {
-//   placeholder.value = window.screen.width < 768
-// })
-
 const init = () => {
   const { useGetToken } = userStore()
   const token = useGetToken()
@@ -48,9 +47,9 @@ const init = () => {
     return
   }
 
-  const tabItem = tabs.value.find((item) => item.path == route.path)
-  if (route.path != tabItem.path) return
-  tabIndex.value = tabItem.index
+  // const tabItem = tabs.value.find((item) => item.path == route.path)
+  // if (route.path != tabItem.path) return
+  // tabIndex.value = tabItem.index
 }
 
 init()
@@ -65,31 +64,40 @@ export default {
 <template>
   <div class="bg-page-gray min-h-screen">
     <div class="md:ml-[60px]">
-      <router-view v-slot="{ Component }">
+      <!-- <router-view v-slot="{ Component }">
         <transition>
           <keep-alive>
             <component :is="Component" />
           </keep-alive>
         </transition>
-      </router-view>
+      </router-view> -->
+      <van-tabs v-model:active="tabIndex" class="no-bar">
+        <van-tab>
+          <HousePage />
+        </van-tab>
+        <van-tab>
+          <SmartPage />
+        </van-tab>
+        <van-tab>
+          <MePage />
+        </van-tab>
+      </van-tabs>
     </div>
 
     <div class="smart-tabbar">
       <van-tabbar
         v-model="tabIndex"
-        route
-        :placeholder="placeholder"
         z-index="99"
         active-color="#000"
         inactive-color="#999"
         :border="false"
+        :placeholder="placeholder"
         :safe-area-inset-bottom="true"
       >
         <van-tabbar-item
           v-for="tabItem in tabs"
           :key="tabItem.index"
           :name="tabItem.index"
-          :to="tabItem.path"
           :icon="tabItem.inactiveIcon"
         >
           {{ tabItem.text }}
@@ -121,5 +129,8 @@ export default {
   .smart-tabbar:deep(.van-tabbar-item) {
     padding: 20px 0;
   }
+}
+.no-bar:deep(.van-tabs__wrap) {
+  display: none;
 }
 </style>
