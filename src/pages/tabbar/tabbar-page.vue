@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import useWinResize from '@/utils/flexible/useWinResize'
 import { useLogout } from '@/hooks/useLogout'
@@ -40,6 +40,7 @@ const tabs = ref([
 const placeholder = computed(() => window.screen.width < 768)
 
 const init = () => {
+  tabIndex.value = 0
   const { useGetToken } = userStore()
   const token = useGetToken()
   if (!token) {
@@ -53,6 +54,15 @@ const init = () => {
 }
 
 init()
+
+watch(
+  () => route.path,
+  (to, from) => {
+    if (to == '/tabbar' && ['/account-login', '/phone-login'].includes(from)) {
+      init()
+    }
+  }
+)
 </script>
 
 <script>
