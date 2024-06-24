@@ -10,8 +10,8 @@ export const getFileAttribute = (fileUrl) => {
   let mime = acceptFileValidate(fileUrl, imageTypes)
     ? `image/*`
     : acceptFileValidate(fileUrl, videoTypes)
-    ? `video/*`
-    : FILE_TYPE['.' + type]
+      ? `video/*`
+      : FILE_TYPE['.' + type]
   if (!mime) mime = FILE_TYPE['']
 
   return { fileName, mime }

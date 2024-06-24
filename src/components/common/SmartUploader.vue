@@ -11,6 +11,8 @@ import {
   isObjectString,
   stringToArray,
 } from '@/utils/common'
+import Compressor from 'compressorjs'
+import { readFiles } from '@/utils/dealImg'
 
 const attrs = useAttrs()
 const slots = useSlots()
@@ -42,6 +44,10 @@ const props = defineProps({
   stringSeparator: {
     type: String,
     default: null,
+  },
+  compressorOptions: {
+    type: [Object, Boolean],
+    default: () => {},
   },
 })
 
@@ -143,6 +149,17 @@ const getAcceptFileTypes = (accept) => {
   ]
 }
 
+function compressorImage(file, options) {
+  return new Promise((success, error) => {
+    new Compressor(file, {
+      checkOrientation: false,
+      ...options,
+      success,
+      error,
+    })
+  })
+}
+
 /**
  * 多文件上传
  * @params files 可以是对象 单文件 数组 多文件
@@ -178,9 +195,20 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
   fileMap.forEach((file) => setLoading(file))
   return await Promise.all(
     fileMap.map(async (fileItem) => {
+      let file = fileItem.file
+      if (
+        imageTypes.includes(file.type.split('/')[1]) &&
+        typeof props.compressorOptions === 'object'
+      ) {
+        const blob = await compressorImage(fileItem.file)
+        file = new File([blob], file.name, {
+          type: blob.type, // 保持原有的媒体类型
+          lastModified: new Date().getTime(), // 可以使用当前时间作为文件的最后修改时间
+        })
+      }
       const { data = {} } = await uploadFile({
         params: { op: 1 },
-        data: { file: fileItem.file },
+        data: { file },
         onUploadProgress,
       })
       const { name: url } = data

@@ -22,6 +22,7 @@
     "@vant/use": "^1.5.2",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.4.0",
+    "compressorjs": "^1.2.1",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.11.9",
     "gsap": "^3.12.2",

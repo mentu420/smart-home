@@ -831,7 +831,7 @@ function goEventConfig() {
           >
             <template #default="slotProps">
               <van-loading v-if="slotProps.loading" />
-              <p v-else class="w-screen">选择相机</p>
+              <p v-else class="w-screen">选择文件</p>
             </template>
           </SmartUploader>
         </li>
