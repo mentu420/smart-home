@@ -9,12 +9,12 @@ import { showConfirmDialog } from 'vant'
 
 defineOptions({ name: 'MeAbout' })
 
+const router = useRouter()
+
 const isDev = ref(false)
 const clickCount = ref(0)
 
-const router = useRouter()
-
-const { VITE_APP_DEVELOPER } = import.meta.env
+const { VITE_APP_DEVELOPER, VITE_APP_VERSION } = import.meta.env
 
 const onClick = async () => {
   clickCount.value++
@@ -50,7 +50,7 @@ init()
         <van-image class="w-[70px] h-[70px]" fit="contain" :src="logoIcon" @click="onClick" />
         <div class="text-center mt-[30px]">
           <h3>智家365</h3>
-          <p class="mt-2 text-gray-400">1.0.0</p>
+          <p class="mt-2 text-gray-400">{{ VITE_APP_VERSION }}</p>
         </div>
       </div>
     </div>

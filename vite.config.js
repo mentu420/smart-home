@@ -49,4 +49,16 @@ export default defineConfig({
     //   },
     // },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // 入口文件名
+        entryFileNames: `assets/[name]-${timestamp}.js`,
+        // 块文件名
+        chunkFileNames: `assets/[name]-[hash]-${timestamp}.js`,
+        // 资源文件名 css 图片等等
+        assetFileNames: `assets/[name]-[hash]-${timestamp}.[ext]`,
+      },
+    },
+  },
 })
