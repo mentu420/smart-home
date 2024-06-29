@@ -21,7 +21,7 @@ function writeVersion() {
   let content = readFileSync(envPath, 'utf8')
   content = updateVersion(content) // 只更新 VITE_APP_VERSION 行
   writeFileSync(envPath, content, 'utf8')
-  console.log('Version updated', content)
+  console.log('Version updated')
 }
 
 writeVersion()
