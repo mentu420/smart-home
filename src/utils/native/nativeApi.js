@@ -31,10 +31,7 @@ function isFunction(val) {
 }
 
 function getNativeInterface() {
-  if (browser.versions.ios) {
-    return window.jdwl || noopInterface
-  }
-  return window.AcematicCommon || noopInterface
+  return window.jdwl || noopInterface
 }
 
 /**
