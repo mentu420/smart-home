@@ -9,9 +9,9 @@
     "dev:prd": "vite --mode production",
     "update:version": "node updateVersion.js",
     "build:push": "git add . && git commit -m \"version updated\" && git push",
-    "build": "npm run update:version && vite build",
+    "build": "npm run update:version && vite build && && npm run build:push",
     "build:dev": "npm run update:version && vite build --mode development && npm run build:push",
-    "build:prd": "npm run update:version && vite build --mode production",
+    "build:prd": "npm run update:version && vite build --mode production && npm run build:push",
     "preview": "vite preview",
     "lint": "eslint --fix --ext .js,.vue src",
     "format": "prettier --write \"./**/*.{html,vue,ts,js,json,md}\""
