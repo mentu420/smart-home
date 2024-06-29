@@ -115,8 +115,8 @@ const onDelectRoom = async (roomItem) => {
 // 打开房间编辑表单
 const openRoomEdit = (roomItem = {}) => {
   roomForm.value = {
+    ...roomForm.value,
     id: roomItem?.id,
-    fId: roomItem?.fId,
     label: roomItem?.label,
     op: roomItem.op,
   }
