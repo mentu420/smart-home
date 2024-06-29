@@ -79,7 +79,7 @@ var sendUdpTimer = null
 const initSearch = async (timeout = updServiceTimeout) => {
   console.log('searchCount', searchCount.value)
   const networkType = getNetworkType()
-  if (networkType !== WiFi) {
+  if (networkType.toUpperCase() !== WiFi) {
     onPause()
     await showDialog({ title: '提示', message: '请切换至WIFI环境，再重新扫描设备' })
     return

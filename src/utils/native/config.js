@@ -44,7 +44,7 @@ export const MULTICAST_ADDRESS = '239.0.0.1'
 export const UDP_HOST = 1901
 
 // udp 网络类型WiFi
-export const WiFi = 'WiFi'
+export const WiFi = 'WIFI'
 
 export const CMD_DISCOVER = 'discover'
 
