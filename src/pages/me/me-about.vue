@@ -14,7 +14,7 @@ const router = useRouter()
 const isDev = ref(false)
 const clickCount = ref(0)
 
-const { VITE_APP_DEVELOPER, VITE_APP_VERSION } = import.meta.env
+const { VITE_APP_DEVELOPER, VITE_APP_VERSION, VITE_APP_APP_NAME } = import.meta.env
 
 const onClick = async () => {
   clickCount.value++
@@ -46,10 +46,10 @@ init()
   <div class="h-screen bg-page-gray">
     <HeaderNavbar title="关于" />
     <div class="flex justify-center my-[70px]">
-      <div>
+      <div class="text-center">
         <van-image class="w-[70px] h-[70px]" fit="contain" :src="logoIcon" @click="onClick" />
-        <div class="text-center mt-[30px]">
-          <h3>智家365</h3>
+        <div class="mt-[30px]">
+          <h3>{{ VITE_APP_APP_NAME }}</h3>
           <p class="mt-2 text-gray-400">{{ VITE_APP_VERSION }}</p>
         </div>
       </div>
