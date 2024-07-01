@@ -260,6 +260,7 @@ async function onRefresh() {
       v-if="floorList.length > 0"
       v-model="activeNames"
       class="p-4"
+      :border="false"
       :class="{ 'mr-8': !dragDisabled }"
     >
       <draggable v-model="floorList" item-key="id" :disabled="dragDisabled" group="floor">
@@ -365,7 +366,7 @@ async function onRefresh() {
       </draggable>
     </van-collapse>
 
-    <div v-if="disabled" class="p-4 pb-safe-offset-4">
+    <div v-if="disabled && dragDisabled" class="p-4 pb-safe-offset-4">
       <van-button class="!px-4" round block :loading="loading" @click="addFloorItem">
         添加楼层
       </van-button>
