@@ -248,27 +248,27 @@ async function onRefresh() {
 
                 <label>{{ floorItem.label }}</label>
               </div>
-            </template>
-            <template #value>
-              <div v-if="!disabled">
+              <div v-if="!disabled" class="space-x-4 my-2">
                 <van-button
                   round
-                  class="!mr-4"
+                  class="!px-4"
                   size="small"
                   icon="edit"
                   :loading="loading"
                   @click.stop="onEditFloor(floorItem)"
-                />
+                  >编辑</van-button
+                >
                 <van-button
                   v-if="!floorItem?.roomList?.some((item) => item.deviceCount > 0)"
                   round
-                  class="!mr-4"
+                  class="!px-4"
                   size="small"
                   type="danger"
                   icon="delete-o"
                   :loading="loading"
                   @click.stop="onDelFloor(floorItem)"
-                />
+                  >删除</van-button
+                >
               </div>
             </template>
 
@@ -279,30 +279,38 @@ async function onRefresh() {
               :group="floorItem.id"
             >
               <template #item="{ element: roomItem }">
-                <van-cell :border="false" :title="roomItem.label" center>
-                  <template v-if="!disabled" #icon>
-                    <van-icon name="wap-nav" class="mr-2" />
+                <van-cell :border="false" center>
+                  <template #title>
+                    <div class="flex items-center">
+                      <van-icon v-if="!disabled" name="wap-nav" class="mr-2" />
+                      <label>{{ roomItem.label }}</label>
+                    </div>
                   </template>
-                  <template #value>
-                    <template v-if="!disabled">
+                  <template #label>
+                    <div v-if="!disabled" class="space-x-4">
                       <van-button
                         round
-                        class="!mr-4"
+                        class="!px-4"
                         size="small"
                         icon="edit"
                         :loading="loading"
                         @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
-                      />
+                      >
+                        编辑
+                      </van-button>
                       <van-button
                         v-if="roomItem.shebeishu == 0 && roomItem.changjingshu == 0"
                         round
+                        class="!px-4"
                         size="small"
                         icon="delete-o"
                         type="danger"
                         :loading="loading"
                         @click="onDelectRoom(roomItem)"
-                      />
-                    </template>
+                      >
+                        删除
+                      </van-button>
+                    </div>
                     <div v-else class="space-x-2 text-xs">
                       <label v-if="roomItem.shebeishu > 0"> {{ roomItem.shebeishu }}个设备 </label>
                       <label v-if="roomItem.changjingshu > 0">
@@ -317,6 +325,7 @@ async function onRefresh() {
             <van-button
               v-if="disabled"
               round
+              class="!px-4"
               size="small"
               icon="add-o"
               :loading="loading"
