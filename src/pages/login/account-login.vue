@@ -21,10 +21,10 @@ const loading = ref(false)
 const onSubmit = async (values) => {
   try {
     loading.value = true
-    if (checked.value) {
-      accountList.value = mergeObjectIntoArray(values, accountList.value, 'username')
-      setStorage('account-list', accountList.value)
-    }
+    // if (checked.value) {
+    //   accountList.value = mergeObjectIntoArray(values, accountList.value, 'username')
+    //   setStorage('account-list', accountList.value)
+    // }
     await useLogin({ shoujihaoma: values.username, mima: values.password, dengluleixing: 1 })
 
     router.replace({ path: '/tabbar' })
