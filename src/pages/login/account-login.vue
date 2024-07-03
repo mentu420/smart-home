@@ -52,8 +52,8 @@ init()
 const goForget = () => {
   router.push({ path: '/forget-password' })
 }
-const goOtherLogin = () => {
-  router.push({ path: '/phone-login' })
+const goOtherLogin = (type) => {
+  router.push({ path: '/phone-login', query: { type } })
 }
 </script>
 
@@ -74,7 +74,7 @@ const goOtherLogin = () => {
           @focus="showPopover = true"
           @blur="showPopover = false"
         >
-          <template #extra>
+          <!-- <template #extra>
             <van-popover v-model:show="showPopover" placement="bottom-end">
               <template #reference>
                 <van-icon :name="showPopover ? 'arrow-down' : 'arrow'" />
@@ -91,7 +91,7 @@ const goOtherLogin = () => {
                 </van-cell>
               </van-cell-group>
             </van-popover>
-          </template>
+          </template> -->
         </van-field>
         <!-- <transition name="van-fade"> </transition> -->
         <van-field
@@ -104,26 +104,29 @@ const goOtherLogin = () => {
           :type="showPassword ? 'text' : 'password'"
           :rules="[{ required: true, message: '请填写密码' }]"
         >
-          <template #right-icon>
-            <van-icon
-              :name="showPassword ? 'eye-o' : 'closed-eye'"
-              @click="showPassword = !showPassword"
-            />
-          </template>
           <template #extra>
-            <label class="ml-4" @click="goForget">忘记密码</label>
+            <div class="flex items-center">
+              <van-icon
+                :name="showPassword ? 'eye-o' : 'closed-eye'"
+                @click="showPassword = !showPassword"
+              />
+              <label class="ml-4" @click="goForget">忘记密码</label>
+            </div>
           </template>
         </van-field>
       </van-cell-group>
-      <div class="ml-2 mt-10">
+      <!-- <div class="ml-2 mt-10">
         <van-checkbox v-model="checked">记住密码</van-checkbox>
-      </div>
+      </div> -->
       <div class="my-4">
         <van-button round block type="success" :loading="loading" native-type="submit">
           登录
         </van-button>
       </div>
-      <div class="text-center" @click="goOtherLogin">其他方式登录</div>
+      <ul class="text-center flex justify-between items-center p-4">
+        <li @click="goOtherLogin(0)">立即注册</li>
+        <li @click="goOtherLogin(1)">验证码登录</li>
+      </ul>
     </van-form>
   </div>
 </template>

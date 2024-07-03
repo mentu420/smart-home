@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { getSms, setUserConfig } from '@/apis/commonApi.js'
 import CountDown from '@/components/common/CountDown.vue'
@@ -11,6 +11,7 @@ import { showDialog } from 'vant'
 defineOptions({ name: 'PhoneLogin' })
 
 const router = useRouter()
+const route = useRoute()
 const form = ref({})
 const checked = ref(true) // 是否记住账号密码
 const formRef = ref(null)
@@ -46,7 +47,7 @@ const onValidPhone = (value) => vaildPhone(value)
 
 <template>
   <div class="p-4 pt-safe-offset-4 h-screen">
-    <h1 class="mb-10 ml-2 mt-10">验证码登录</h1>
+    <h1 class="mb-10 ml-2 mt-10">{{ ['立即注册', '验证码登录'][route.query.type] }}</h1>
     <van-form ref="formRef" class="m-2" @submit="onSubmit">
       <van-cell-group>
         <van-field
