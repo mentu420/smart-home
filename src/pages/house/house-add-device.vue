@@ -36,7 +36,7 @@ const action = ref(0) //0 扫描设备 1 停止扫描并没有发现设备 2：�
 const { currentHouse } = storeToRefs(houseStore())
 
 //
-const devices = ref([])
+const hostList = ref([])
 const searchCount = ref(9)
 
 const onStart = () => {
@@ -64,8 +64,8 @@ function getUdpData(evt) {
     if (message.data != '' && message.cmd === CMD_DISCOVER) {
       const { ip, mac, type = null } = message.data
       if (type === null) return
-      const index = devices.value.findIndex((item) => item.mac === mac)
-      index > -1 ? (devices.value[index].ip = ip) : devices.value.push({ ip, mac })
+      const index = hostList.value.findIndex((item) => item.mac === mac)
+      index > -1 ? (hostList.value[index].ip = ip) : hostList.value.push(message.data)
     }
   } catch (e) {
     console.error(e)
@@ -79,7 +79,7 @@ var sendUdpTimer = null
 const initSearch = async (timeout = updServiceTimeout) => {
   console.log('searchCount', searchCount.value)
   const networkType = getNetworkType()
-  if (networkType.toUpperCase() !== WiFi) {
+  if (networkType?.toUpperCase() !== WiFi) {
     onPause()
     await showDialog({ title: '提示', message: '请切换至WIFI环境，再重新扫描设备' })
     return
@@ -109,7 +109,7 @@ const onBindDevice = async (item) => {
     if (code != 0) return
     await reloadStoreSync()
 
-    devices.value = devices.value.filter((deviceItem) => deviceItem.mac != item.mac)
+    hostList.value = hostList.value.filter((deviceItem) => deviceItem.mac != item.mac)
     await showDialog({ title: '绑定成功' })
     router.push({ path: '/me-host-list' })
   } catch (error) {
@@ -143,23 +143,33 @@ onBeforeUnmount(onPause)
         <van-button round block @click="onStart">重新扫描</van-button>
       </div>
     </div>
-    <van-cell-group v-if="devices.length > 0" inset>
-      <van-cell
-        v-for="deviceItem in devices"
-        :key="deviceItem.ip"
-        :title="deviceItem.mac"
-        :label="deviceItem.ip"
-        center
-      >
-        <van-button
-          v-loading-click="() => onBindDevice(deviceItem)"
-          class="!px-6"
-          size="small"
-          plain
-          round
-        >
-          绑定
-        </van-button>
+    <van-cell-group v-if="hostList.length > 0" inset>
+      <van-cell v-for="hostItem in hostList" :key="hostItem.ip" :title="hostItem.mac" center>
+        <template #label>
+          <p
+            v-for="(hostLabel, hostKey) in {
+              mingcheng: '名称',
+              ip: 'IP',
+              model: '型号',
+              SWVersion: '软件版本',
+              HWVersion: '硬件版本',
+            }"
+            :key="hostKey"
+          >
+            {{ hostLabel }} : {{ hostItem[hostKey] }}
+          </p>
+        </template>
+        <template #extra>
+          <van-button
+            v-loading-click="() => onBindDevice(hostItem)"
+            class="!px-6"
+            size="small"
+            plain
+            round
+          >
+            绑定
+          </van-button>
+        </template>
       </van-cell>
     </van-cell-group>
   </div>

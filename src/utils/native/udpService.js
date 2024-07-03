@@ -18,7 +18,7 @@ export const closeUdpService = () => {
 // 根据网络类型出发udp
 export function openUdpService() {
   const networkType = nativeApi.getNetworkType()
-  if (networkType.toUpperCase() !== WiFi) {
+  if (networkType?.toUpperCase() !== WiFi) {
     closeUdpService()
     return
   }
