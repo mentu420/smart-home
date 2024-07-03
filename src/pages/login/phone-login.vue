@@ -82,9 +82,6 @@ const onValidPhone = (value) => vaildPhone(value)
           </template>
         </van-field>
       </van-cell-group>
-      <div class="ml-2 mt-10">
-        <van-checkbox v-model="checked">记住密码</van-checkbox>
-      </div>
       <div class="my-4">
         <van-button round block type="success" native-type="submit"> 提交 </van-button>
       </div>
