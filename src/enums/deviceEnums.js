@@ -8,7 +8,7 @@ export const CLASSIFY_ICON = {
 }
 
 export const CLASSIFY_EXECL = [
-  { classify: '100', classifyName: '灯光' },
+  { classify: '100', classifyName: '照明' },
   { classify: '101', classifyName: '窗帘' },
   { classify: '102', classifyName: '空调' },
   { classify: '103', classifyName: '地暖' },
