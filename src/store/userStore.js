@@ -5,6 +5,7 @@ import { computed, reactive, ref } from 'vue'
 import { setUserConfig, getUserConfig } from '@/apis/commonApi.js'
 import { mergingStep } from '@/utils/common.js'
 import { getStorage, removeStorage, setStorage } from '@/utils/storage.js'
+import { setKey } from '@/utils/native/nativeApi'
 
 const storeName = 'userStore'
 
@@ -19,8 +20,12 @@ export default defineStore(storeName, () => {
   const useSetToken = (value) => {
     onLine.value = true
     setStorage(VITE_APP_STORAGE_TOKEN, value)
+    setKey('acessToken', value.acessToken) // 设置原生token
   }
-  const useRemoveToken = () => removeStorage(VITE_APP_STORAGE_TOKEN)
+  const useRemoveToken = () => {
+    removeStorage(VITE_APP_STORAGE_TOKEN)
+    setKey('acessToken', '') // 移除原生token
+  }
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
