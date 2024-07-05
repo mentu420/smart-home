@@ -29,7 +29,10 @@ const onSubmit = async (values) => {
 
     router.replace({ path: '/tabbar' })
   } catch (error) {
-    showDialog({ title: '错误', message: error?.data?.des || JSON.stringify(error?.data) })
+    showDialog({
+      title: '错误',
+      message: error?.data?.des ?? error.message ?? JSON.stringify(error?.data),
+    })
   } finally {
     loading.value = false
   }

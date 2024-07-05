@@ -11,6 +11,8 @@ import { addPendingRequest, removePendingRequest } from './requestCancelRepeat.j
 // import { refreshTokenRequest } from './requestRefreshToken.js'
 import { showToast } from 'vant'
 
+const timeoutMessage = '网络请求超时，请稍后重试！'
+
 const useAxios = axios.create({
   baseURL: import.meta.env.VITE_APP_API_URL,
   timeout: 10 * 1000,
@@ -33,7 +35,7 @@ const responseHandle = (response) => {
     response.config.withShowErrorMsg
   ) {
     showToast({
-      message: response.data.des || '网络请求超时，请稍后重试！',
+      message: response.data.des || timeoutMessage,
       position: 'bottom',
       closeOnClick: true,
     })
@@ -43,7 +45,7 @@ const responseHandle = (response) => {
     response.data.code != 0
   ) {
     showToast({
-      message: response.data.des || '网络请求超时，请稍后重试！',
+      message: response.data.des || timeoutMessage,
       position: 'bottom',
       closeOnClick: true,
     })
@@ -77,8 +79,8 @@ useAxios.interceptors.response.use(
   (error) => {
     if (error.config.__retryCount == 2) {
       const messageReuslt = {
-        ECONNABORTED: '网络请求超时，请稍后重试！',
-        ERR_NETWORK: '网络请求失败，请稍后重试！',
+        ECONNABORTED: timeoutMessage,
+        ERR_NETWORK: '网络请求失败，请检查网络！',
         ERR_BAD_RESPONSE: error.message,
       }
       if (Object.keys(messageReuslt).includes(error.code))
