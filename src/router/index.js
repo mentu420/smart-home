@@ -49,6 +49,11 @@ const Router = createRouter({
       },
     },
     {
+      path: '/:pathMatch(.*)*', // 此路由会匹配所有路径
+      name: 'NotFound',
+      component: () => import('@/pages/common/not-found.vue'),
+    },
+    {
       path: '/tabbar',
       name: 'TabbarPage',
       component: () => import('@/pages/tabbar/tabbar-page.vue'),
