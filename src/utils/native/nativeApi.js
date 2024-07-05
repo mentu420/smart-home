@@ -93,9 +93,9 @@ export function scanCode(callbackName = 'onScanCode') {
 /** 拍照
  * @param {string} original  1 返回原图、0返回压缩后的图
  * */
-export function takePhoto(original = '0') {
+export function takePhoto(original = '0', callbackName = 'onMessage') {
   return isNativeMethod('openCamera', (api, methodName) =>
-    browser.versions.ios ? api[methodName]() : api[methodName]('onMessage', original)
+    browser.versions.ios ? api[methodName]() : api[methodName](callbackName, original)
   )
 }
 

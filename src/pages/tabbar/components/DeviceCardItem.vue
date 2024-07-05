@@ -71,7 +71,7 @@ const onSwitchChanage = throttle(async () => {
 //打开设备
 const openDevice = () => {
   if (props.isDrag) return
-  if (window.screen.width >= 768) {
+  if (document.documentElement.clientWidth >= 768) {
     scope.value = 'base'
     triggerRef.value?.onShow()
     return
@@ -85,7 +85,7 @@ const openDevice = () => {
 
 const openDeviceConfig = () => {
   if (props.isDrag) return
-  if (window.screen.width >= 768) {
+  if (document.documentElement.clientWidth >= 768) {
     scope.value = 'config'
     triggerRef.value?.onShow()
     return
