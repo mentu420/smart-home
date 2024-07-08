@@ -6,21 +6,43 @@ import { setNativeMethods } from '@/utils/native/fn'
 const attrs = useAttrs()
 const props = defineProps({
   actions: { type: Array, default: () => [] },
-  compressor: { type: string, default: '0' }, //是否压缩图片
-  maxCount: { type: [String, Number], default: 0 },
+  compressor: { type: String, default: '0' }, //是否压缩图片
+  maxlength: { type: [String, Number], default: 0 },
 })
-const emits = defineEmits(['select'])
+const emits = defineEmits(['select', 'afterRead'])
 
 const show = ref(false)
 
-function onAppCamera(base64) {}
-
-function onAppAlbum(base64) {}
-
 const innerActions = [
-  { name: '相机', icon: 'cart-o', type: 'onAppCamera' },
-  { name: '相册', icon: 'photo-o', type: 'onAppAlbum' },
+  {
+    name: '相机',
+    icon: 'video',
+    type: 'onAppCamera',
+    nativeCallback: (base64) => {
+      console.log('相机结果', base64)
+      emits('afterRead', [base64])
+    },
+  },
+  {
+    name: '相册',
+    icon: 'photo',
+    type: 'onAppAlbum',
+    nativeCallback: (base64List) => {
+      console.log('相册结果', base64List)
+      emits('afterRead', base64List)
+    },
+  },
 ]
+
+/**
+ * 3: this.onAppResume,
+        4: this.onAppPause,
+        5: this.onAppCamera,
+        6: this.onAppCamera
+ * **/
+window.onMessage = (type, base64) => {
+  console.log(type, base64)
+}
 
 const sheetActions = ref(innerActions)
 
@@ -36,21 +58,25 @@ function close() {
   show.value = false
 }
 
-// setNativeMethods()
+function open() {
+  show.value = true
+}
 
 function onSelect(action, index) {
   if (action.disabled || action.loading) return
   emits('select', action, index)
 
-  if (action.type === 'camera') {
+  if (action.type === 'onAppCamera') {
     // 调用原生相机
     takePhoto(props.compressor, action.type)
     //onAppCamera 原生回调
-  } else if (action.type === 'album') {
-    getPhoto(Number(props.maxCount), props.compressor, action.type)
+  } else if (action.type === 'onAppAlbum') {
+    getPhoto(Number(props.maxlength), props.compressor, action.type)
     //onMessage 原生调用
   }
 }
+
+defineExpose({ open, close })
 </script>
 
 <template>

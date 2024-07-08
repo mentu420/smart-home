@@ -12,7 +12,9 @@ import {
   stringToArray,
 } from '@/utils/common'
 import Compressor from 'compressorjs'
-import { readFiles } from '@/utils/dealImg'
+import NativeUploader from '@/components/common/NativeUploader.vue'
+import { convertFiles } from '@/utils/dealImg'
+import { isRN } from '@/utils/native/nativeApi'
 
 const attrs = useAttrs()
 const slots = useSlots()
@@ -29,7 +31,7 @@ const props = defineProps({
   //一次最多可以上传几个文件
   oneMaxCount: {
     type: Number,
-    default: 0,
+    default: 1,
   },
   // 是否自动上传
   autoUpload: {
@@ -45,16 +47,16 @@ const props = defineProps({
     type: String,
     default: null,
   },
-  compressorOptions: {
-    type: [Object, Boolean],
-    default: () => {},
-  },
+  actions: { type: Array, default: () => [] },
+  compressor: { type: String, default: '0' }, //是否压缩图片 0 压缩，1 原图
 })
 
 const emits = defineEmits(['update:modelValue', 'success', 'error', 'update:loading'])
 
+const sheetRef = ref(null)
 const uploaderRef = ref(null)
 const uploading = ref(false)
+const readonly = computed(() => !isRN())
 
 const setLoading = (file) => {
   file.status = 'uploading'
@@ -196,10 +198,7 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
   return await Promise.all(
     fileMap.map(async (fileItem) => {
       let file = fileItem.file
-      if (
-        imageTypes.includes(file.type.split('/')[1]) &&
-        typeof props.compressorOptions === 'object'
-      ) {
+      if (imageTypes.includes(file.type.split('/')[1]) && props.compressor === '0') {
         const blob = await compressorImage(fileItem.file)
         file = new File([blob], file.name, {
           type: blob.type, // 保持原有的媒体类型
@@ -220,6 +219,16 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
       return { ...fileItem, url }
     })
   )
+}
+
+// 原生图片上传
+async function onNativeAfterRead(base64List) {
+  const files = await new Promise.all(
+    base64List.map(async (base64) => {
+      return await convertFiles(base64)
+    })
+  )
+  onAfterRead(files)
 }
 
 const onAfterRead = async (files) => {
@@ -245,15 +254,33 @@ const onAfterRead = async (files) => {
 const closeImagePreview = () => uploaderRef.value?.closeImagePreview()
 const chooseFile = () => uploaderRef.value?.chooseFile()
 
-// defineOptions({ inheritAttrs: false })
+const onClickUpload = () => {
+  sheetRef.value?.open()
+}
 
 defineExpose({ closeImagePreview, chooseFile })
 </script>
 
 <template>
-  <van-uploader ref="uploaderRef" v-model="fileList" v-bind="attrs" :after-read="onAfterRead">
-    <template v-for="(_, scopeSlotName) in slots" :key="scopeSlotName" #[scopeSlotName]="scope">
-      <slot :name="scopeSlotName" v-bind="scope" :loading="uploading" />
-    </template>
-  </van-uploader>
+  <div>
+    <van-uploader
+      ref="uploaderRef"
+      v-model="fileList"
+      v-bind="attrs"
+      :readonly="isRN()"
+      :after-read="onAfterRead"
+      @click-upload="onClickUpload"
+    >
+      <template v-for="(_, scopeSlotName) in slots" :key="scopeSlotName" #[scopeSlotName]="scope">
+        <slot :name="scopeSlotName" v-bind="scope" :loading="uploading" />
+      </template>
+    </van-uploader>
+    <NativeUploader
+      ref="sheetRef"
+      :maxlength="props.oneMaxCount"
+      :actions="props.actions"
+      :compressor="props.compressor"
+      @after-read="onNativeAfterRead"
+    />
+  </div>
 </template>

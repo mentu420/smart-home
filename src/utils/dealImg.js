@@ -71,6 +71,7 @@ export const compressBase64 = (
 
 //bse64转换为file
 export const convertFiles = (dataurl, filename = 'base64tofile') => {
+  filename = filename == 'base64tofile' ? filename + new Date().valueOf() : filename
   let arr = dataurl.split(',')
   let mime = arr[0].match(/:(.*?);/)[1]
   let suffix = mime.split('/')[1]

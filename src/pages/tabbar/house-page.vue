@@ -484,44 +484,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                     </template>
                   </draggable>
                 </div>
-                <!-- <div class="flex items-center py-4">
-                  <h4 class="text-gray-600">照明</h4>
-                  <label class="ml-2 text-xs text-gray-400">
-                      {{
-                        roomItem.deviceList.filter((deviceItem) =>
-                          deviceItem.modeList?.filter(
-                            (modeItem) => modeItem?.use == 'switch' && modeItem?.useEn == 'on'
-                          )
-                        ).length
-                      }}个灯亮
-                    </label>
-                </div> -->
-                <!-- <div
-                    v-if="dragOptions.disabled"
-                    class="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4"
-                  >
-                    <div
-                      v-for="(switchItem, switchIndex) in [
-                        { text: '全开', status: 'on' },
-                        { text: '全关', status: 'off' },
-                      ]"
-                      :key="switchIndex"
-                      v-clickable-active
-                      class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 h-[76px] relative"
-                      @click="onAllDeviceToggle(roomItem.deviceList, switchItem.status)"
-                    >
-                      <SmartImage
-                        class="w-full h-full"
-                        fit="cover"
-                        src="https://derucci-app-obs.iderucci.com/cloud-derucci-system/20230330/c21hcnQtYmctMS4xNjgwMTYzNzE5NzM2.jpg"
-                      />
-                      <div
-                        class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white"
-                      >
-                        {{ switchItem.text }}
-                      </div>
-                    </div>
-                  </div> -->
               </template>
               <van-empty v-else image="search" description="暂无设备">
                 <van-button

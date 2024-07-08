@@ -13,7 +13,9 @@
 
 const userAgent = navigator.userAgent
 const _toString = Object.prototype.toString
-const noopInterface = { getVersion: () => 'pc' }
+
+const PC = 'PC'
+
 /**
  * webview 信息
  * */
@@ -30,8 +32,14 @@ function isFunction(val) {
   return typeStr === '[object Function]' || typeStr === '[object CallbackFunction]'
 }
 
+// 获取原生对象
 function getNativeInterface() {
-  return window.jdwl || noopInterface
+  return window.jdwl || { getVersion: () => PC }
+}
+
+export function isRN() {
+  const nativeInterface = getNativeInterface()
+  return nativeInterface?.getVersion() !== PC
 }
 
 /**
