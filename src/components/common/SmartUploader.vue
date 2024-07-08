@@ -263,14 +263,7 @@ defineExpose({ closeImagePreview, chooseFile })
 
 <template>
   <div>
-    <van-uploader
-      ref="uploaderRef"
-      v-model="fileList"
-      v-bind="attrs"
-      :readonly="isRN()"
-      :after-read="onAfterRead"
-      @click-upload="onClickUpload"
-    >
+    <van-uploader ref="uploaderRef" v-model="fileList" v-bind="attrs" :after-read="onAfterRead">
       <template v-for="(_, scopeSlotName) in slots" :key="scopeSlotName" #[scopeSlotName]="scope">
         <slot :name="scopeSlotName" v-bind="scope" :loading="uploading" />
       </template>

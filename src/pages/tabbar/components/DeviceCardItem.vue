@@ -99,8 +99,31 @@ const openDeviceConfig = () => {
 </script>
 
 <template>
-  <div class="h-full rounded-lg bg-white">
-    <ul class="flex justify-between cursor-pointer" @click.stop="openDevice">
+  <div class="h-full rounded-lg bg-white cursor-pointer">
+    <ul v-if="!props.isDrag" class="py-3 space-y-3" @click.stop="openDevice">
+      <li class="flex justify-between px-3">
+        <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
+          <template #error>
+            <IconFont class="text-origin" :icon="deviceItem.icon" />
+          </template>
+        </SmartImage>
+        <van-icon class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
+      </li>
+      <li class="truncate px-3">{{ deviceItem?.label }}</li>
+      <li v-if="showStatus" class="flex justify-between items-center text-gray-400">
+        <p class="text-xs pl-4">
+          {{ ['关', '开', '离线'][getDeviceStatus] }}
+        </p>
+        <div class="px-3" @click.stop="onSwitchChanage">
+          <IconFont :class="{ 'text-origin': getDeviceStatus == 1 }" icon="switch" />
+        </div>
+      </li>
+    </ul>
+    <div v-else class="flex justify-between items-center px-3 py-2">
+      <p class="flex-1 truncate">{{ deviceItem?.label }}</p>
+      <van-icon class="!text-[20px] flex-shrink-0" name="wap-nav" />
+    </div>
+    <!-- <ul class="flex justify-between cursor-pointer" @click.stop="openDevice">
       <li class="space-y-2 p-3">
         <template v-if="!props.isDrag">
           <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
@@ -126,7 +149,7 @@ const openDeviceConfig = () => {
           <IconFont :class="{ 'text-origin': getDeviceStatus == 1 }" icon="switch" />
         </div>
       </li>
-    </ul>
+    </ul> -->
     <TriggerFloatBubble :id="props.id" ref="triggerRef" :title="deviceItem?.label" :scope="scope" />
   </div>
 </template>

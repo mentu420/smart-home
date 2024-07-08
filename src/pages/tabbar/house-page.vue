@@ -285,7 +285,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <li
                 v-for="cardItem in 16"
                 :key="cardItem"
-                class="bg-gray-200 rounded-lg h-[104px]"
+                class="bg-gray-200 rounded-lg h-[124px]"
               ></li>
             </ol>
           </li>
