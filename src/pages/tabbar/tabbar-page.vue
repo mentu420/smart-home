@@ -7,6 +7,7 @@ import userStore from '@/store/userStore'
 import HousePage from './house-page.vue'
 import SmartPage from './smart-page.vue'
 import MePage from './me-page.vue'
+import deviceInfo from '@/utils/deviceInfo'
 
 defineOptions({ name: 'TabbarPage' })
 
@@ -73,7 +74,10 @@ export default {
 
 <template>
   <div class="bg-page-gray min-h-screen">
-    <div class="md:ml-[60px]">
+    <div
+      class="md:ml-[60px]"
+      :class="{ 'android-height overflow-y-scroll': deviceInfo.system == 'android' }"
+    >
       <!-- <router-view v-slot="{ Component }">
         <transition>
           <keep-alive>
@@ -118,8 +122,15 @@ export default {
 </template>
 
 <style scoped>
+.android-height {
+  height: calc(100vh - 50px);
+}
+
 /* 平板设备（中等屏幕） */
 @media only screen and (min-width: 768px) {
+  .android-height {
+    height: auto;
+  }
   /* 在此设置针对平板设备的样式 */
   .smart-tabbar {
     top: 0;
