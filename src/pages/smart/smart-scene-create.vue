@@ -436,8 +436,8 @@ const getTaskConverActions = (actions) => {
       return {
         ...actionDevice,
         ziyuanleixing,
-        modeList: actionDevice.modeList
-          .filter((modeItem) => {
+        modeList: actionDevice?.modeList
+          ?.filter((modeItem) => {
             return actionModeList.some((item) => item.use == modeItem.use)
           })
           .map((modeItem) => {
@@ -551,7 +551,7 @@ onMounted(init)
 watch(
   () => route.path,
   (to, from) => {
-    if (to == '/smart-scene-create' && from === '/tabbar/tabbar-smart') init()
+    if (to == '/smart-scene-create' && from === '/tabbar') init()
   }
 )
 
