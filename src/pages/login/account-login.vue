@@ -7,12 +7,14 @@ import useLogin from '@/hooks/useLogin'
 import { mergeObjectIntoArray } from '@/utils/common'
 import { getStorage, setStorage } from '@/utils/storage.js'
 import { showDialog } from 'vant'
+import AgreementConceal from '@/components/common/AgreementConceal.vue'
 
 defineOptions({ name: 'AccountLogin' })
 
 const router = useRouter()
 const form = ref({})
 const checked = ref(true) // 是否记住账号密码
+const agree = ref(true)
 const showPopover = ref(false) //是否展示记住的账号
 const showPassword = ref(false)
 const accountList = ref([])
@@ -117,6 +119,7 @@ const goOtherLogin = (type) => {
             </div>
           </template>
         </van-field>
+        <AgreementConceal v-model="agree" />
       </van-cell-group>
       <!-- <div class="ml-2 mt-10">
         <van-checkbox v-model="checked">记住密码</van-checkbox>

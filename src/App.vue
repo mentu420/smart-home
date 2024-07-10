@@ -7,7 +7,7 @@ import useSize from '@/utils/flexible/useRem.js'
 
 socketStore()
 
-if (import.meta.env.MODE === 'development') new VConsole()
+// if (import.meta.env.MODE === 'development') new VConsole()
 
 const route = useRoute()
 const router = useRouter()
