@@ -7,7 +7,7 @@ import useSize from '@/utils/flexible/useRem.js'
 import { setNativeMethods } from '@/utils/native/fn'
 import { NATIVE_FILES } from '@/enums/nativeEnums'
 
-if (import.meta.env.MODE === 'development') new VConsole()
+// if (import.meta.env.MODE === 'development') new VConsole()
 
 socketStore()
 useSize()
