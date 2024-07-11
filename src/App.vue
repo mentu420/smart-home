@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
 import { setNativeMethods } from '@/utils/native/fn'
+import { NATIVE_FILES } from '@/enums/nativeEnums'
 
 if (import.meta.env.MODE === 'development') new VConsole()
 
@@ -25,7 +26,7 @@ const themeVars = reactive({
 })
 const nativeFiles = ref([])
 
-provide('nativeFiles', nativeFiles)
+provide(NATIVE_FILES, nativeFiles)
 
 // 禁止手势的路径
 const disabledPaths = [
@@ -58,7 +59,11 @@ function onNativeMessage(type, data) {
 }
 
 // 函数挂载window 原生调用
-setNativeMethods({ h5Back, routerBack: onBackKeyForAndroid, onMessage: onNativeMessage })
+setNativeMethods({
+  h5Back,
+  routerBack: onBackKeyForAndroid,
+  onMessage: onNativeMessage,
+})
 
 watch(
   () => route.path,

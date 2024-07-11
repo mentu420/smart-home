@@ -120,6 +120,10 @@ module.exports = {
     plugin(function ({ addBase, addUtilities, addComponents, matchUtilities, theme }) {
       addUtilities(newUtilities)
     }),
+    //https://github.com/mvllow/tailwindcss-safe-area
+    //<footer class="pb-safe">...</footer> 底部安全边距
+    //<div class="pr-safe-offset-4">...</div> 安全边距加4个单位距离
+    //<div class="pb-safe-or-8">...</div>  应用安全区域插图和 8 个单位间距刻度中较大的底部填充
     require('tailwindcss-safe-area'),
   ],
   corePlugins: {

@@ -15,6 +15,7 @@ import smartStore from '@/store/smartStore'
 import { transformKeys, mergeObjectIntoArray, getWebUrlName } from '@/utils/common'
 import { onScenePublishDebounce } from '@/hooks/useSmart'
 import { showConfirmDialog, showToast } from 'vant'
+import { sceneGallery } from '@/enums/galleryEnums'
 
 import SmartCondtionList from './components/SmartCondtionList.vue'
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
@@ -32,7 +33,7 @@ const taskActions = [
   { id: 2, text: '删除' },
 ]
 
-const { createSmartItem, sceneGallery, sceneList, smartList } = storeToRefs(smartStore())
+const { createSmartItem, sceneList, smartList } = storeToRefs(smartStore())
 const { roomList } = storeToRefs(houseStore())
 const { deviceList } = storeToRefs(deviceStore())
 const operationRef = ref(null)
@@ -525,7 +526,7 @@ const sceneInit = () => {
       actions: newActions,
     }
   } else {
-    createSmartItem.value = { ...createSmartItem.value, img: sceneGallery.value[0].src }
+    createSmartItem.value = { ...createSmartItem.value, img: sceneGallery[0].src }
   }
 }
 
@@ -562,8 +563,8 @@ const goConditionConfig = (params = {}) => {
   })
 }
 
-const openGallery = () => {
-  showGallery.value = false
+const openGallery = (action) => {
+  if (action.icon != 'star') return
   router.push({ path: '/smart-scene-gallery' })
 }
 
@@ -604,14 +605,31 @@ function goEventConfig() {
             <van-switch v-model="createSmartItem.collect" @change="onColleceChange" />
           </van-cell>
           <van-cell center is-link title="场景图片">
-            <SmartImage
-              width="8rem"
-              height="4rem"
-              fit="cover"
-              radius="10"
-              :src="createSmartItem.img"
-              @click="showGallery = true"
-            />
+            <SmartUploader
+              accept="image/*"
+              :max-count="1"
+              :actions="[{ name: '默认图库', icon: 'star' }]"
+              @select="openGallery"
+              @success="
+                (list) => {
+                  createSmartItem.img = list[0].url
+                }
+              "
+            >
+              <template #default="slotProps">
+                <div class="w-[8rem] h-[4rem] flex justify-center items-center">
+                  <van-loading v-if="slotProps.loading" />
+                  <SmartImage
+                    v-else
+                    width="8rem"
+                    height="4rem"
+                    fit="cover"
+                    radius="10"
+                    :src="createSmartItem.img"
+                  />
+                </div>
+              </template>
+            </SmartUploader>
           </van-cell>
         </template>
       </van-cell-group>
@@ -814,29 +832,6 @@ function goEventConfig() {
 
     <SmartDevicePicker ref="modePickerRef" @change="onDeviceModeChange" />
 
-    <!--场景图库-->
-    <van-action-sheet v-model:show="showGallery" cancel-text="取消" close-on-click-action>
-      <ul class="space-y-6 py-4 text-center">
-        <li @click="openGallery">默认图库</li>
-        <li>
-          <SmartUploader
-            accept="image/*"
-            :max-count="1"
-            @success="
-              (list) => {
-                showGallery = false
-                createSmartItem.img = list[0].url
-              }
-            "
-          >
-            <template #default="slotProps">
-              <van-loading v-if="slotProps.loading" />
-              <p v-else class="w-screen">选择文件</p>
-            </template>
-          </SmartUploader>
-        </li>
-      </ul>
-    </van-action-sheet>
     <!--自动化事件中的重复时间-->
     <SmartRepeatTime ref="repeatTimeRef" @change="onExecutionTimeConfirm" />
   </div>

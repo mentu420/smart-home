@@ -11,9 +11,9 @@ import {
   isObjectString,
   stringToArray,
 } from '@/utils/common'
-import Compressor from 'compressorjs'
 import NativeUploader from '@/components/common/NativeUploader.vue'
 import { isRN } from '@/utils/native/nativeApi'
+import { filesUploader, setError } from '@/hooks/useUploader'
 
 const attrs = useAttrs()
 const slots = useSlots()
@@ -47,26 +47,14 @@ const props = defineProps({
     default: null,
   },
   actions: { type: Array, default: () => [] },
-  compressor: { type: String, default: '1' }, //是否压缩图片 0 压缩，1 原图
+  compressor: { type: String, default: '0' }, //是否压缩图片 0 压缩，1 原图
 })
 
-const emits = defineEmits(['update:modelValue', 'success', 'error', 'update:loading'])
+const emit = defineEmits(['update:modelValue', 'success', 'error', 'update:loading'])
 
-const sheetRef = ref(null)
+const showSheet = ref(false)
 const uploaderRef = ref(null)
 const uploading = ref(false)
-
-const setLoading = (file) => {
-  file.status = 'uploading'
-}
-const setFinish = (file, url) => {
-  file.status = ''
-  file.message = ''
-  file.url = url
-}
-const setError = (file) => {
-  file.status = 'failed'
-}
 
 const getOriginType = (origin) => Object.prototype.toString.call(origin)
 
@@ -125,7 +113,7 @@ const fileList = computed({
     if (['[object String]', '[object Array]'].includes(originType) && props.stringSeparator) {
       list = list.map((item) => item.url).join(props.stringSeparator)
     }
-    emits('update:modelValue', list)
+    emit('update:modelValue', list)
   },
 })
 
@@ -149,92 +137,25 @@ const getAcceptFileTypes = (accept) => {
   ]
 }
 
-function compressorImage(file, options) {
-  return new Promise((success, error) => {
-    new Compressor(file, {
-      checkOrientation: false,
-      ...options,
-      success,
-      error,
-    })
-  })
-}
-
-/**
- * 多文件上传
- * @params files 可以是对象 单文件 数组 多文件
- * @params uploadOptions obs 上传进度对象
- * @params {fastPass,accept} fastPass 是否md5对比检查  accept 是input 标签的原生属性，检查文件类型
- * **/
-const filesUploader = async (files, uploadOptions = {}, options = {}) => {
-  console.log('files', files)
-  const { accept } = options
-  const { onUploadProgress } = uploadOptions
-  let fileMap = Array.isArray(files) ? files : [files]
-  //判断文件类型只判断图片与视频
-  if (accept) {
-    const fileTypeList = getAcceptFileTypes(accept)
-    const isAccordAccept = fileMap.every((fileItem) => {
-      console.log('fileItem', fileItem.file.name)
-      return acceptFileValidate(fileItem?.file?.name || fileItem?.url, fileTypeList)
-    })
-    if (!isAccordAccept) {
-      const errMessage = '文件格式有误!'
-      await showDialog({ title: errMessage, message: '请重新选择上传' })
-      throw new Error(errMessage)
-    }
-  }
-
-  //限制一次上传文件数
-  if (props.oneMaxCount > 0 && fileMap.length > props.oneMaxCount) {
-    await showConfirmDialog({
-      title: `一次最多只能上传${props.oneMaxCount}个文件`,
-      message: `是否为您上传选择的前${props.oneMaxCount}个文件`,
-    })
-    fileMap = fileMap.slice(0, 15)
-  }
-  //文件上传
-  fileMap.forEach((file) => setLoading(file))
-  return await Promise.all(
-    fileMap.map(async (fileItem) => {
-      let file = fileItem.file
-      if (imageTypes.includes(file.type.split('/')[1]) && props.compressor === '0') {
-        const blob = await compressorImage(fileItem.file)
-        file = new File([blob], file.name, {
-          type: blob.type, // 保持原有的媒体类型
-          lastModified: new Date().getTime(), // 可以使用当前时间作为文件的最后修改时间
-        })
-      }
-      const { data = {} } = await uploadFile({
-        params: { op: 1 },
-        data: { file },
-        onUploadProgress,
-      })
-      const { name: url } = data
-      if (url) {
-        setFinish(fileItem, url)
-      } else {
-        setError(fileItem)
-      }
-      return { ...fileItem, url }
-    })
-  )
-}
-
 const onAfterRead = async (files) => {
   try {
     uploading.value = true
     if (props.autoUpload) {
-      const fileList = await filesUploader(files, props.uploadOptions, { accept: attrs.accept })
-      emits('success', fileList)
+      const fileList = await filesUploader(files, props.uploadOptions, {
+        accept: attrs.accept,
+        oneMaxCount: props.oneMaxCount,
+        compressor: props.compressor,
+        fileExtension: props.fileExtension,
+      })
+      emit('success', fileList)
       return
     }
-    emits('success', files)
+    emit('success', files)
   } catch (error) {
     console.warn(error)
     fileList.value = fileList.value.map((fileItem) => setError(fileItem))
     if (error == 'cancel') showToast('取消了上传')
-    emits('error', error)
+    emit('error', error)
     throw new Error(JSON.stringify(error))
   } finally {
     uploading.value = false
@@ -246,7 +167,7 @@ const chooseFile = () => uploaderRef.value?.chooseFile()
 
 const onClickUpload = () => {
   if (!isRN()) return
-  sheetRef.value?.open()
+  showSheet.value = true
 }
 
 defineExpose({ closeImagePreview, chooseFile })
@@ -266,9 +187,11 @@ defineExpose({ closeImagePreview, chooseFile })
     </template>
   </van-uploader>
   <NativeUploader
-    ref="sheetRef"
+    v-model:show="showSheet"
+    v-bind="attrs"
     :maxlength="props.oneMaxCount"
     :actions="props.actions"
+    :auto-upload="false"
     :compressor="props.compressor"
     @after-read="onAfterRead"
   />
