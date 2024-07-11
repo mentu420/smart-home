@@ -26,7 +26,7 @@ const checked = computed({
     <template #input>
       <van-checkbox v-model="checked">
         <span class="text-gray-500">
-          我同意并遵守
+          同意并遵守
           <span class="text-origin" @click.stop.self="router.push({ path: '/me-agreement' })">
             《软件许可及服务协议》
           </span>

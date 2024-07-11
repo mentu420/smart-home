@@ -1,13 +1,15 @@
 <script setup>
 import VConsole from 'vconsole'
-import { ref, reactive, watch, inject } from 'vue'
+import { ref, reactive, watch, provide } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
+import { setNativeMethods } from '@/utils/native/fn'
+
+if (import.meta.env.MODE === 'development') new VConsole()
 
 socketStore()
-
-// if (import.meta.env.MODE === 'development') new VConsole()
+useSize()
 
 const route = useRoute()
 const router = useRouter()
@@ -21,6 +23,10 @@ const themeVars = reactive({
   navBarIconColor: '#333',
   checkboxCheckedIconColor: '#07c160',
 })
+const nativeFiles = ref([])
+
+provide('nativeFiles', nativeFiles)
+
 // 禁止手势的路径
 const disabledPaths = [
   '/tabbar/tabbar-house',
@@ -28,6 +34,31 @@ const disabledPaths = [
   '/tabbar/tabbar-me',
   '/account-login',
 ]
+
+// 原生手势返回
+function h5Back() {
+  if (disabledPaths.includes(route.path)) return
+  router.goBack()
+}
+//安卓返回键处理
+function onBackKeyForAndroid() {
+  if (disabledPaths.includes(route.path)) return
+  router.goBack()
+}
+/**
+ * 3: this.onAppResume,
+ *  4: this.onAppPause,
+ *  5: this.onAppCamera,
+ *  6: this.onAppCamera
+ * **/
+function onNativeMessage(type, data) {
+  if (type == 5) {
+    nativeFiles.value = data.split(',')
+  }
+}
+
+// 函数挂载window 原生调用
+setNativeMethods({ h5Back, routerBack: onBackKeyForAndroid, onMessage: onNativeMessage })
 
 watch(
   () => route.path,
@@ -42,26 +73,6 @@ watch(
     if (route.meta.keepAlive) includeList.value.push(route.name)
   }
 )
-
-// 原生手势返回
-function h5Back() {
-  if (disabledPaths.includes(route.path)) return
-  router.goBack()
-}
-//安卓返回键处理
-function onBackKeyForAndroid() {
-  if (disabledPaths.includes(route.path)) return
-  router.goBack()
-}
-
-// 函数挂载window 原生调用
-const setNativeMethods = () => {
-  window.h5Back = h5Back
-  window.routerBack = onBackKeyForAndroid
-}
-
-useSize()
-setNativeMethods()
 </script>
 
 <template>

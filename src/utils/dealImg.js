@@ -74,14 +74,17 @@ export const convertFiles = (dataurl, filename = 'base64tofile') => {
   filename = filename == 'base64tofile' ? filename + new Date().valueOf() : filename
   let arr = dataurl.split(',')
   let mime = arr[0].match(/:(.*?);/)[1]
+  console.log('mime', mime)
   let suffix = mime.split('/')[1]
+  console.log('suffix', suffix)
   let bstr = atob(arr[1])
   let n = bstr.length
   let u8arr = new Uint8Array(n)
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n)
   }
-  return new File([u8arr], `${filename}.${suffix}`, { type: mime })
+  const blob = new Blob([u8arr], { type: mime })
+  return new File([blob], `${filename}.${suffix}`, { blob: blob.type })
 }
 
 //本地图片转换为base64

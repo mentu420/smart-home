@@ -13,7 +13,6 @@ import {
 } from '@/utils/common'
 import Compressor from 'compressorjs'
 import NativeUploader from '@/components/common/NativeUploader.vue'
-import { convertFiles } from '@/utils/dealImg'
 import { isRN } from '@/utils/native/nativeApi'
 
 const attrs = useAttrs()
@@ -48,7 +47,7 @@ const props = defineProps({
     default: null,
   },
   actions: { type: Array, default: () => [] },
-  compressor: { type: String, default: '0' }, //是否压缩图片 0 压缩，1 原图
+  compressor: { type: String, default: '1' }, //是否压缩图片 0 压缩，1 原图
 })
 
 const emits = defineEmits(['update:modelValue', 'success', 'error', 'update:loading'])
@@ -56,7 +55,6 @@ const emits = defineEmits(['update:modelValue', 'success', 'error', 'update:load
 const sheetRef = ref(null)
 const uploaderRef = ref(null)
 const uploading = ref(false)
-const readonly = computed(() => !isRN())
 
 const setLoading = (file) => {
   file.status = 'uploading'
@@ -169,15 +167,17 @@ function compressorImage(file, options) {
  * @params {fastPass,accept} fastPass 是否md5对比检查  accept 是input 标签的原生属性，检查文件类型
  * **/
 const filesUploader = async (files, uploadOptions = {}, options = {}) => {
+  console.log('files', files)
   const { accept } = options
   const { onUploadProgress } = uploadOptions
   let fileMap = Array.isArray(files) ? files : [files]
   //判断文件类型只判断图片与视频
   if (accept) {
     const fileTypeList = getAcceptFileTypes(accept)
-    const isAccordAccept = fileMap.every((fileItem) =>
-      acceptFileValidate(fileItem?.file?.name || fileItem?.url, fileTypeList)
-    )
+    const isAccordAccept = fileMap.every((fileItem) => {
+      console.log('fileItem', fileItem.file.name)
+      return acceptFileValidate(fileItem?.file?.name || fileItem?.url, fileTypeList)
+    })
     if (!isAccordAccept) {
       const errMessage = '文件格式有误!'
       await showDialog({ title: errMessage, message: '请重新选择上传' })
@@ -221,16 +221,6 @@ const filesUploader = async (files, uploadOptions = {}, options = {}) => {
   )
 }
 
-// 原生图片上传
-async function onNativeAfterRead(base64List) {
-  const files = await new Promise.all(
-    base64List.map(async (base64) => {
-      return await convertFiles(base64)
-    })
-  )
-  onAfterRead(files)
-}
-
 const onAfterRead = async (files) => {
   try {
     uploading.value = true
@@ -255,6 +245,7 @@ const closeImagePreview = () => uploaderRef.value?.closeImagePreview()
 const chooseFile = () => uploaderRef.value?.chooseFile()
 
 const onClickUpload = () => {
+  if (!isRN()) return
   sheetRef.value?.open()
 }
 
@@ -262,18 +253,23 @@ defineExpose({ closeImagePreview, chooseFile })
 </script>
 
 <template>
-  <div>
-    <van-uploader ref="uploaderRef" v-model="fileList" v-bind="attrs" :after-read="onAfterRead">
-      <template v-for="(_, scopeSlotName) in slots" :key="scopeSlotName" #[scopeSlotName]="scope">
-        <slot :name="scopeSlotName" v-bind="scope" :loading="uploading" />
-      </template>
-    </van-uploader>
-    <NativeUploader
-      ref="sheetRef"
-      :maxlength="props.oneMaxCount"
-      :actions="props.actions"
-      :compressor="props.compressor"
-      @after-read="onNativeAfterRead"
-    />
-  </div>
+  <van-uploader
+    ref="uploaderRef"
+    v-model="fileList"
+    v-bind="attrs"
+    :readonly="isRN()"
+    :after-read="onAfterRead"
+    @click-upload="onClickUpload"
+  >
+    <template v-for="(_, scopeSlotName) in slots" :key="scopeSlotName" #[scopeSlotName]="scope">
+      <slot :name="scopeSlotName" v-bind="scope" :loading="uploading" />
+    </template>
+  </van-uploader>
+  <NativeUploader
+    ref="sheetRef"
+    :maxlength="props.oneMaxCount"
+    :actions="props.actions"
+    :compressor="props.compressor"
+    @after-read="onAfterRead"
+  />
 </template>

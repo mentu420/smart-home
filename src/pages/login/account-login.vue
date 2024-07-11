@@ -7,7 +7,7 @@ import useLogin from '@/hooks/useLogin'
 import { mergeObjectIntoArray } from '@/utils/common'
 import { getStorage, setStorage } from '@/utils/storage.js'
 import { showDialog } from 'vant'
-import AgreementConceal from '@/components/common/AgreementConceal.vue'
+import AgreementConceal from './components/AgreementConceal.vue'
 
 defineOptions({ name: 'AccountLogin' })
 

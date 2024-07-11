@@ -7,7 +7,7 @@ import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, phoneReg, setFormFormat } from '@/hooks/useFormValidator.js'
 import useLogin from '@/hooks/useLogin'
 import { showDialog } from 'vant'
-import AgreementConceal from '@/components/common/AgreementConceal.vue'
+import AgreementConceal from './components/AgreementConceal.vue'
 
 defineOptions({ name: 'PhoneLogin' })
 

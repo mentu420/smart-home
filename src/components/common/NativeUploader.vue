@@ -1,7 +1,7 @@
 <script setup>
-import { computed, ref, useAttrs, watch } from 'vue'
+import { inject, watchEffect, ref, useAttrs, watch } from 'vue'
 import { getPhoto, takePhoto } from '@/utils/native/nativeApi'
-import { setNativeMethods } from '@/utils/native/fn'
+import { convertFiles } from '@/utils/dealImg'
 
 const attrs = useAttrs()
 const props = defineProps({
@@ -9,9 +9,33 @@ const props = defineProps({
   compressor: { type: String, default: '0' }, //是否压缩图片
   maxlength: { type: [String, Number], default: 0 },
 })
-const emits = defineEmits(['select', 'afterRead'])
+const emit = defineEmits(['select', 'afterRead'])
 
 const show = ref(false)
+
+const nativeFiles = inject('nativeFiles')
+
+watch(
+  () => nativeFiles.value,
+  async (val, oldVal) => {
+    if (val && val !== oldVal) {
+      try {
+        const files = await Promise.all(
+          val.map(async (base64) => {
+            const content = `data:image/jpeg;base64,${base64}`
+            const file = await convertFiles(content)
+            console.log('convertFiles', file.name)
+            return { content, file, message: '', status: 'uploading' }
+          })
+        )
+        console.log('files', files)
+        emit('afterRead', files)
+      } catch (error) {
+        console.error('Error processing files:', error)
+      }
+    }
+  }
+)
 
 const innerActions = [
   {
@@ -20,7 +44,7 @@ const innerActions = [
     type: 'onAppCamera',
     nativeCallback: (base64) => {
       console.log('相机结果', base64)
-      emits('afterRead', [base64])
+      emit('afterRead', [base64])
     },
   },
   {
@@ -29,20 +53,10 @@ const innerActions = [
     type: 'onAppAlbum',
     nativeCallback: (base64List) => {
       console.log('相册结果', base64List)
-      emits('afterRead', base64List)
+      emit('afterRead', base64List)
     },
   },
 ]
-
-/**
- * 3: this.onAppResume,
-        4: this.onAppPause,
-        5: this.onAppCamera,
-        6: this.onAppCamera
- * **/
-window.onMessage = (type, base64) => {
-  console.log(type, base64)
-}
 
 const sheetActions = ref(innerActions)
 
@@ -64,7 +78,7 @@ function open() {
 
 function onSelect(action, index) {
   if (action.disabled || action.loading) return
-  emits('select', action, index)
+  emit('select', action, index)
 
   if (action.type === 'onAppCamera') {
     // 调用原生相机
