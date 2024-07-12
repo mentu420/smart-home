@@ -15,7 +15,6 @@ const router = useRouter()
 const route = useRoute()
 const form = ref({})
 const checked = ref(true) // 是否记住账号密码
-const agree = ref(true)
 const formRef = ref(null)
 const loading = ref(false)
 
@@ -83,7 +82,7 @@ const onValidPhone = (value) => vaildPhone(value)
             />
           </template>
         </van-field>
-        <AgreementConceal v-model="agree" />
+        <AgreementConceal />
       </van-cell-group>
       <div class="my-4">
         <van-button round block type="success" native-type="submit"> 提交 </van-button>

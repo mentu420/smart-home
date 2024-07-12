@@ -119,7 +119,7 @@ const goOtherLogin = (type) => {
             </div>
           </template>
         </van-field>
-        <AgreementConceal v-model="agree" />
+        <AgreementConceal />
       </van-cell-group>
       <!-- <div class="ml-2 mt-10">
         <van-checkbox v-model="checked">记住密码</van-checkbox>

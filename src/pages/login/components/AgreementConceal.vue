@@ -1,26 +1,20 @@
 <script setup>
-import { computed, useAttrs } from 'vue'
+import { computed, useAttrs, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const attrs = useAttrs()
-const props = defineProps({
-  modelValue: { type: Boolean, default: false },
-})
 
 const emits = defineEmits(['update:modelValue'])
 
-const checked = computed({
-  get: () => props.modelValue,
-  set: (val) => emits('update:modelValue', val),
-})
+const checked = ref(false)
 </script>
 
 <template>
   <van-field
-    name="checked"
+    name="agree"
     :border="false"
-    :rules="[{ required: true, message: '请勾选《软件许可及服务协议》和《隐私政策》' }]"
+    :rules="[{ required: true, message: '请勾选《服务协议》和《隐私政策》' }]"
     v-bind="attrs"
   >
     <template #input>
