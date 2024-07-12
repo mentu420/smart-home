@@ -37,6 +37,7 @@ function onBackKeyForAndroid() {
  * 6: 相机相册
  * **/
 function onNativeMessage(type, data) {
+  console.log('原生回调onMessage ', type)
   if (type == 5 || type == 6) {
     nativeBase64List.value = data?.split(',')
   } else if (type == 4) {
