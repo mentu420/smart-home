@@ -1,10 +1,10 @@
 <script setup>
 import { inject, watchEffect, ref, useAttrs, watch, computed } from 'vue'
 import { getPhoto, takePhoto } from '@/utils/native/nativeApi'
-import { convertFiles } from '@/utils/dealImg'
+import { convertFiles, compressImage } from '@/utils/dealImg'
 import { filesUploader, controller } from '@/hooks/useUploader'
 import { showDialog } from 'vant'
-import { NATIVE_FILES } from '@/enums/nativeEnums'
+import { nativeBase64List } from '@/hooks/useNativeMethods'
 
 const attrs = useAttrs()
 const props = defineProps({
@@ -25,19 +25,19 @@ const visible = computed({
   get: () => props.show,
   set: (val) => emit('update:show', val),
 })
-const nativeFiles = inject(NATIVE_FILES)
 
 watch(
-  () => nativeFiles.value,
+  () => nativeBase64List.value,
   async (val, oldVal) => {
     if (val && val !== oldVal) {
       try {
-        // sheetActions.value = sheetActions.value.map((item) => ({ ...item, loading: true }))
+        sheetActions.value = sheetActions.value.map((item) => ({ ...item, loading: true }))
+
         const files = await Promise.all(
-          val.map(async (base64) => {
-            const content = `data:image/jpeg;base64,${base64}`
-            const file = await convertFiles(content)
-            return { content, file, message: '', status: 'uploading' }
+          val.map(async (str) => {
+            let base64 = `data:image/jpeg;base64,${str}`
+            if (props.compressor === '0') base64 = await compressImage(base64)
+            return { content: base64, file: convertFiles(base64), message: '', status: 'uploading' }
           })
         )
         emit('afterRead', files)
@@ -45,14 +45,13 @@ watch(
         const fileList = await filesUploader(files, props.uploadOptions, {
           accept: attrs.accept,
           oneMaxCount: props.oneMaxCount,
-          compressor: props.compressor,
           fileExtension: props.fileExtension,
         })
         emit('success', fileList)
       } catch (error) {
         console.error('Error processing files:', error)
       } finally {
-        // sheetActions.value = sheetActions.value.map((item) => ({ ...item, loading: false }))
+        sheetActions.value = sheetActions.value.map((item) => ({ ...item, loading: false }))
       }
     }
   }
@@ -79,10 +78,6 @@ const innerActions = [
 
 const sheetActions = ref(innerActions)
 
-// watchEffect(() => {
-//   sheetActions.value = [...(props.actions ?? []), ...sheetActions.value]
-// })
-
 const onBeforeClose = () => {
   if (sheetActions.value.some((action) => action.loading)) {
     showDialog({ title: '提示', message: '文件上传中...' })
@@ -92,7 +87,6 @@ const onBeforeClose = () => {
 }
 
 const onCancel = () => {
-  console.log('取消请求', attrs)
   controller.abort('Canceled')
 }
 </script>

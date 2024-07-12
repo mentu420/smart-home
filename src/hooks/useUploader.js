@@ -65,10 +65,10 @@ export const controller = new AbortController()
  * @files  可以是对象 单文件 数组 多文件
  * @uploadOptions  onUploadProgress  上传进度对象回调函数
  * @options {fastPass,accept,oneMaxCount,compressor,fileExtension}
- * fastPass 是否md5对比检查  accept 是input 标签的原生属性，检查文件类型 oneMaxCount 一次最多上传几张图片 compressor 是否压缩 0 不压缩 1 压缩 fileExtension 文件后缀 ['.pdf','.doc']
+ * fastPass 是否md5对比检查  accept 是input 标签的原生属性，检查文件类型 oneMaxCount 一次最多上传几张图片  fileExtension 文件后缀 ['.pdf','.doc']
  * **/
 export const filesUploader = async (files, uploadOptions = {}, options = {}) => {
-  const { accept, oneMaxCount = 1, compressor = '1', fileExtension = [] } = options
+  const { accept, oneMaxCount = 1, fileExtension = [] } = options
   const { onUploadProgress } = uploadOptions
   let fileMap = Array.isArray(files) ? files : [files]
   //判断文件类型只判断图片与视频
@@ -97,14 +97,6 @@ export const filesUploader = async (files, uploadOptions = {}, options = {}) => 
   return await Promise.all(
     fileMap.map(async (fileItem) => {
       let file = fileItem.file
-      // 是图片并且开启压缩并且不是原生环境才进行压缩
-      if (imageTypes.includes(file.type.split('/')[1]) && compressor === '0' && !isRN()) {
-        const blob = await compressorImage(fileItem.file)
-        file = new File([blob], file.name, {
-          type: blob.type, // 保持原有的媒体类型
-          lastModified: new Date().getTime(), // 可以使用当前时间作为文件的最后修改时间
-        })
-      }
       const { data = {} } = await uploadFile({
         params: { op: 1 },
         data: { file },

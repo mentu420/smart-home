@@ -17,6 +17,30 @@ export const getFileAttribute = (fileUrl) => {
   return { fileName, mime }
 }
 
+//压缩图片，file/base64
+export const compressImage = (input, type = 'image/jpeg', maxsize = 500 * 1024, maxLen = 1200) => {
+  return new Promise((resolve, reject) => {
+    let base64 = input
+    if (input instanceof File) {
+      // Convert file to base64 if input is a File object
+      const reader = new FileReader()
+      reader.readAsDataURL(input)
+      reader.onload = () => {
+        base64 = reader.result
+        compressBase64(base64, type, maxsize, maxLen).then((base64) =>
+          resolve(convertFiles(base64))
+        )
+      }
+      reader.onerror = (error) => reject(error)
+    } else if (typeof input === 'string') {
+      // Process base64 string directly
+      compressBase64(base64, type, maxsize, maxLen).then(resolve)
+    } else {
+      reject(new Error('Unsupported input type'))
+    }
+  })
+}
+
 //压缩base64    判断base64是否小于maxsize，是：直接上传，否：进行压缩后返回base64,只能一个一个参数穿进来压缩
 export const compressBase64 = (
   base64,
@@ -74,9 +98,7 @@ export const convertFiles = (dataurl, filename = 'base64tofile') => {
   filename = filename == 'base64tofile' ? filename + new Date().valueOf() : filename
   let arr = dataurl.split(',')
   let mime = arr[0].match(/:(.*?);/)[1]
-  console.log('mime', mime)
   let suffix = mime.split('/')[1]
-  console.log('suffix', suffix)
   let bstr = atob(arr[1])
   let n = bstr.length
   let u8arr = new Uint8Array(n)

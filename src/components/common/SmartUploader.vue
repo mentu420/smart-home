@@ -2,7 +2,6 @@
 import { ref, reactive, computed, useAttrs, useSlots } from 'vue'
 import { showConfirmDialog, showDialog, showToast } from 'vant'
 
-import { uploadFile } from '@/apis/commonApi'
 import { AUDIO_TYPES } from '@/enums/fileType'
 import {
   acceptFileValidate,
@@ -14,6 +13,7 @@ import {
 import NativeUploader from '@/components/common/NativeUploader.vue'
 import { isRN } from '@/utils/native/nativeApi'
 import { filesUploader, setError } from '@/hooks/useUploader'
+import { compressImage } from '@/utils/dealImg'
 
 const attrs = useAttrs()
 const slots = useSlots()
@@ -137,14 +137,28 @@ const getAcceptFileTypes = (accept) => {
   ]
 }
 
-const onAfterRead = async (files) => {
+const onAfterRead = async (res) => {
   try {
     uploading.value = true
+    console.log(res)
+    let files = Array.isArray(res) ? res : [res]
     if (props.autoUpload) {
+      // 是图片并且开启压缩并且不是原生环境才进行压缩
+      files = await Promise.all(
+        files.map(async (fileItem) => {
+          const { file } = fileItem
+          if (imageTypes.includes(file.type.split('/')[1]) && props.compressor === '0') {
+            const newFile = await compressImage(file)
+            console.log('newFile', newFile)
+            return { ...fileItem, file: newFile }
+          }
+          return fileItem
+        })
+      )
+      console.log('files', files)
       const fileList = await filesUploader(files, props.uploadOptions, {
         accept: attrs.accept,
         oneMaxCount: props.oneMaxCount,
-        compressor: props.compressor,
         fileExtension: props.fileExtension,
       })
       emit('success', fileList)
