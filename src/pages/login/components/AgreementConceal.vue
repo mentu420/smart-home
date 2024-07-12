@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const attrs = useAttrs()
 const props = defineProps({
-  modelValue: { type: Boolean, default: true },
+  modelValue: { type: Boolean, default: false },
 })
 
 const emits = defineEmits(['update:modelValue'])
@@ -28,7 +28,7 @@ const checked = computed({
         <span class="text-gray-500">
           同意并遵守
           <span class="text-origin" @click.stop.self="router.push({ path: '/me-agreement' })">
-            《软件许可及服务协议》
+            《服务协议》
           </span>
           和
           <span class="text-origin" @click.stop.self="router.push({ path: '/me-conceal' })">
