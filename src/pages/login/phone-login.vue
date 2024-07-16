@@ -1,16 +1,18 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { getSms, setUserConfig } from '@/apis/commonApi.js'
 import CountDown from '@/components/common/CountDown.vue'
 import { vaildPhone, phoneReg, setFormFormat } from '@/hooks/useFormValidator.js'
 import useLogin from '@/hooks/useLogin'
 import { showDialog } from 'vant'
+import AgreementConceal from './components/AgreementConceal.vue'
 
 defineOptions({ name: 'PhoneLogin' })
 
 const router = useRouter()
+const route = useRoute()
 const form = ref({})
 const checked = ref(true) // 是否记住账号密码
 const formRef = ref(null)
@@ -29,9 +31,9 @@ const onSubmit = async (value) => {
   try {
     loading.value = true
     await useLogin({ shoujihaoma: value.phone, mima: value.code })
-    router.replace({ path: '/tabbar/tabbar-house' })
+    router.replace({ path: '/tabbar' })
   } catch (error) {
-    showDialog({ title: '错误', message: error?.data?.des || JSON.stringify(error?.data) })
+    showDialog({ title: '错误', message: error?.data?.des || error.message })
   } finally {
     loading.value = false
   }
@@ -46,7 +48,7 @@ const onValidPhone = (value) => vaildPhone(value)
 
 <template>
   <div class="p-4 pt-safe-offset-4 h-screen">
-    <h1 class="mb-10 ml-2 mt-10">验证码登录</h1>
+    <h1 class="mb-10 ml-2 mt-10">{{ ['立即注册', '验证码登录'][route.query.type] }}</h1>
     <van-form ref="formRef" class="m-2" @submit="onSubmit">
       <van-cell-group>
         <van-field
@@ -80,10 +82,8 @@ const onValidPhone = (value) => vaildPhone(value)
             />
           </template>
         </van-field>
+        <AgreementConceal />
       </van-cell-group>
-      <div class="ml-2 mt-10">
-        <van-checkbox v-model="checked">记住密码</van-checkbox>
-      </div>
       <div class="my-4">
         <van-button round block type="success" native-type="submit"> 提交 </van-button>
       </div>

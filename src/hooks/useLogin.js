@@ -1,7 +1,6 @@
 import { setUserConfig } from '@/apis/commonApi.js'
 import userStore from '@/store/userStore'
 import DeviceInfo from '@/utils/deviceInfo.js'
-import * as nativeApi from '@/utils/native/nativeApi'
 
 const useLogin = async (loginData) => {
   const { useSetToken } = userStore()
@@ -21,7 +20,6 @@ const useLogin = async (loginData) => {
   )
   if (code != 0) throw new Error(des)
   useSetToken(data)
-  nativeApi.setKey('acessToken', data.acessToken)
 }
 
 export default useLogin

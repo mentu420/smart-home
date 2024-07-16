@@ -38,6 +38,7 @@ const loading = ref(false)
 const roomForm = ref({ checked: [] }) //记录新增、编辑房间表单
 const floorForm = ref({ op: 2, label: '' }) // 楼层数据表单
 const disabled = ref(true) //禁止编辑
+const dragDisabled = ref(true) // 是否拖拽
 const floorList = ref([])
 const { currentHouse } = storeToRefs(houseStore())
 
@@ -115,8 +116,8 @@ const onDelectRoom = async (roomItem) => {
 // 打开房间编辑表单
 const openRoomEdit = (roomItem = {}) => {
   roomForm.value = {
+    ...roomForm.value,
     id: roomItem?.id,
-    fId: roomItem?.fId,
     label: roomItem?.label,
     op: roomItem.op,
   }
@@ -162,7 +163,11 @@ const onSubmitRoomCustom = () => {
 
 const onEdit = async () => {
   disabled.value = !disabled.value
-  if (!disabled.value || floorList.value.length == 0) return
+}
+
+const onDragEnd = async () => {
+  dragDisabled.value = !dragDisabled.value
+  if (!dragDisabled.value || floorList.value.length == 0) return
 
   onAwaitLoad(async () => {
     //这里只需要更新排序
@@ -228,14 +233,37 @@ async function onRefresh() {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="房间管理">
       <template #right>
-        <van-button size="small" class="!border-none" :loading="loading" @click="onEdit">
+        <van-button
+          class="!px-4"
+          round
+          size="small"
+          :loading="loading"
+          :disabled="!dragDisabled"
+          @click="onEdit"
+        >
           {{ disabled ? '编辑' : '完成' }}
+        </van-button>
+        <van-button
+          class="!px-4 !ml-2"
+          round
+          size="small"
+          :loading="loading"
+          :disabled="!disabled"
+          @click="onDragEnd"
+        >
+          {{ dragDisabled ? '排序' : '完成' }}
         </van-button>
       </template>
     </HeaderNavbar>
 
-    <van-collapse v-if="floorList.length > 0" v-model="activeNames" class="p-4">
-      <draggable v-model="floorList" item-key="id" :disabled="disabled" group="floor">
+    <van-collapse
+      v-if="floorList.length > 0"
+      v-model="activeNames"
+      class="p-4"
+      :border="false"
+      :class="{ 'mr-8': !dragDisabled }"
+    >
+      <draggable v-model="floorList" item-key="id" :disabled="dragDisabled" group="floor">
         <template #item="{ element: floorItem }">
           <van-collapse-item
             :title="floorItem.label"
@@ -244,66 +272,74 @@ async function onRefresh() {
           >
             <template #title>
               <div class="flex items-center">
-                <van-icon v-if="!disabled" name="wap-nav" class="mr-2" />
+                <van-icon v-if="!dragDisabled" name="wap-nav" class="mr-2" />
 
                 <label>{{ floorItem.label }}</label>
               </div>
-            </template>
-            <template #value>
-              <div v-if="!disabled">
+              <div v-if="!disabled" class="space-x-4 my-2">
                 <van-button
                   round
-                  class="!mr-4"
+                  class="!px-4"
                   size="small"
                   icon="edit"
                   :loading="loading"
                   @click.stop="onEditFloor(floorItem)"
-                />
+                  >编辑</van-button
+                >
                 <van-button
                   v-if="!floorItem?.roomList?.some((item) => item.deviceCount > 0)"
                   round
-                  class="!mr-4"
+                  class="!px-4"
                   size="small"
                   type="danger"
                   icon="delete-o"
                   :loading="loading"
                   @click.stop="onDelFloor(floorItem)"
-                />
+                  >删除</van-button
+                >
               </div>
             </template>
 
             <draggable
               v-model="floorItem.roomList"
               item-key="id"
-              :disabled="disabled"
+              :disabled="dragDisabled"
               :group="floorItem.id"
             >
               <template #item="{ element: roomItem }">
-                <van-cell :border="false" :title="roomItem.label" center>
-                  <template v-if="!disabled" #icon>
-                    <van-icon name="wap-nav" class="mr-2" />
+                <van-cell :border="false" center>
+                  <template #title>
+                    <div class="flex items-center">
+                      <van-icon v-if="!dragDisabled" name="wap-nav" class="mr-2" />
+                      <label>{{ roomItem.label }}</label>
+                    </div>
                   </template>
-                  <template #value>
-                    <template v-if="!disabled">
+                  <template #label>
+                    <div v-if="!disabled" class="space-x-4">
                       <van-button
                         round
-                        class="!mr-4"
+                        class="!px-4"
                         size="small"
                         icon="edit"
                         :loading="loading"
                         @click.stop="openRoomEdit({ ...roomItem, op: 3 })"
-                      />
+                      >
+                        编辑
+                      </van-button>
                       <van-button
                         v-if="roomItem.shebeishu == 0 && roomItem.changjingshu == 0"
                         round
+                        class="!px-4"
                         size="small"
                         icon="delete-o"
                         type="danger"
                         :loading="loading"
                         @click="onDelectRoom(roomItem)"
-                      />
-                    </template>
-                    <div v-else class="space-x-2 text-xs">
+                      >
+                        删除
+                      </van-button>
+                    </div>
+                    <div v-if="disabled && dragDisabled" class="space-x-2 text-xs">
                       <label v-if="roomItem.shebeishu > 0"> {{ roomItem.shebeishu }}个设备 </label>
                       <label v-if="roomItem.changjingshu > 0">
                         {{ roomItem.changjingshu }}个场景
@@ -315,8 +351,9 @@ async function onRefresh() {
             </draggable>
 
             <van-button
-              v-if="disabled"
+              v-if="disabled & dragDisabled"
               round
+              class="!px-4"
               size="small"
               icon="add-o"
               :loading="loading"
@@ -329,7 +366,7 @@ async function onRefresh() {
       </draggable>
     </van-collapse>
 
-    <div v-if="disabled" class="p-4">
+    <div v-if="disabled && dragDisabled" class="p-4 pb-safe-offset-4">
       <van-button class="!px-4" round block :loading="loading" @click="addFloorItem">
         添加楼层
       </van-button>

@@ -4,6 +4,15 @@ import { getStorage, setStorage } from '@/utils/storage'
 
 defineOptions({ name: 'SmartImage' })
 
+const props = defineProps({
+  compressOptions: {
+    type: [Object, Boolean],
+    default: () => ({
+      quality: 0.7,
+    }),
+  },
+})
+
 const attrs = useAttrs()
 const materialImages = ref(getStorage('materialImages') ?? {})
 

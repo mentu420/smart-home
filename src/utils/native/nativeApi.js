@@ -13,7 +13,9 @@
 
 const userAgent = navigator.userAgent
 const _toString = Object.prototype.toString
-const noopInterface = { getVersion: () => 'pc' }
+
+const PC = 'PC'
+
 /**
  * webview 信息
  * */
@@ -30,11 +32,14 @@ function isFunction(val) {
   return typeStr === '[object Function]' || typeStr === '[object CallbackFunction]'
 }
 
+// 获取原生对象
 function getNativeInterface() {
-  if (browser.versions.ios) {
-    return window.jdwl || noopInterface
-  }
-  return window.AcematicCommon || noopInterface
+  return window.jdwl || { getVersion: () => PC }
+}
+
+export function isRN() {
+  const nativeInterface = getNativeInterface()
+  return nativeInterface?.getVersion() !== PC
 }
 
 /**
@@ -96,9 +101,9 @@ export function scanCode(callbackName = 'onScanCode') {
 /** 拍照
  * @param {string} original  1 返回原图、0返回压缩后的图
  * */
-export function takePhoto(original = '0') {
+export function takePhoto(original = '0', callbackName = 'onMessage') {
   return isNativeMethod('openCamera', (api, methodName) =>
-    browser.versions.ios ? api[methodName]() : api[methodName]('onMessage', original)
+    browser.versions.ios ? api[methodName]() : api[methodName](callbackName, original)
   )
 }
 

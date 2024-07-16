@@ -28,23 +28,33 @@ const onUnbindDevice = async (item) => {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="主机列表" />
     <van-cell-group inset class="!my-4">
-      <van-cell
-        v-for="hostItem in hostList"
-        :key="hostItem.ip"
-        :title="hostItem.mac"
-        :label="hostItem.ip"
-        center
-      >
-        <van-button
-          v-if="houseUserPower(currentHouse?.id) != 2"
-          v-loading-click="() => onUnbindDevice(hostItem)"
-          class="!px-6"
-          size="small"
-          plain
-          round
-        >
-          解绑
-        </van-button>
+      <van-cell v-for="hostItem in hostList" :key="hostItem.ip" :title="hostItem.mac" center>
+        <template #label>
+          <p
+            v-for="(hostLabel, hostKey) in {
+              mingcheng: '名称',
+              ip: 'IP',
+              model: '型号',
+              SWVersion: '软件版本',
+              HWVersion: '硬件版本',
+            }"
+            :key="hostKey"
+          >
+            {{ hostLabel }} : {{ hostItem[hostKey] }}
+          </p>
+        </template>
+        <template #extra>
+          <van-button
+            v-if="houseUserPower(currentHouse?.id) != 2"
+            v-loading-click="() => onUnbindDevice(hostItem)"
+            class="!px-6"
+            size="small"
+            plain
+            round
+          >
+            解绑
+          </van-button>
+        </template>
       </van-cell>
     </van-cell-group>
   </div>

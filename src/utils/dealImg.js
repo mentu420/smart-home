@@ -10,11 +10,35 @@ export const getFileAttribute = (fileUrl) => {
   let mime = acceptFileValidate(fileUrl, imageTypes)
     ? `image/*`
     : acceptFileValidate(fileUrl, videoTypes)
-    ? `video/*`
-    : FILE_TYPE['.' + type]
+      ? `video/*`
+      : FILE_TYPE['.' + type]
   if (!mime) mime = FILE_TYPE['']
 
   return { fileName, mime }
+}
+
+//压缩图片，file/base64
+export const compressImage = (input, type = 'image/jpeg', maxsize = 500 * 1024, maxLen = 1200) => {
+  return new Promise((resolve, reject) => {
+    let base64 = input
+    if (input instanceof File) {
+      // Convert file to base64 if input is a File object
+      const reader = new FileReader()
+      reader.readAsDataURL(input)
+      reader.onload = () => {
+        base64 = reader.result
+        compressBase64(base64, type, maxsize, maxLen).then((base64) =>
+          resolve(convertFiles(base64))
+        )
+      }
+      reader.onerror = (error) => reject(error)
+    } else if (typeof input === 'string') {
+      // Process base64 string directly
+      compressBase64(base64, type, maxsize, maxLen).then(resolve)
+    } else {
+      reject(new Error('Unsupported input type'))
+    }
+  })
 }
 
 //压缩base64    判断base64是否小于maxsize，是：直接上传，否：进行压缩后返回base64,只能一个一个参数穿进来压缩
@@ -71,6 +95,7 @@ export const compressBase64 = (
 
 //bse64转换为file
 export const convertFiles = (dataurl, filename = 'base64tofile') => {
+  filename = filename == 'base64tofile' ? filename + new Date().valueOf() : filename
   let arr = dataurl.split(',')
   let mime = arr[0].match(/:(.*?);/)[1]
   let suffix = mime.split('/')[1]
@@ -80,7 +105,8 @@ export const convertFiles = (dataurl, filename = 'base64tofile') => {
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n)
   }
-  return new File([u8arr], `${filename}.${suffix}`, { type: mime })
+  const blob = new Blob([u8arr], { type: mime })
+  return new File([blob], `${filename}.${suffix}`, { blob: blob.type })
 }
 
 //本地图片转换为base64

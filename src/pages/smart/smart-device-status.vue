@@ -12,6 +12,15 @@ defineOptions({ name: 'SmartDeviceStatus' })
 const route = useRoute()
 const router = useRouter()
 const { houseUserPower, currentHouse } = storeToRefs(houseStore())
+const { deviceList } = storeToRefs(deviceStore())
+
+const goConfig = () => {
+  const deviceItem = deviceList.value.find((item) => item.id == route.query.id)
+  router.push({
+    path: '/smart-device-info',
+    query: { ...route.query, rId: deviceItem.rId },
+  })
+}
 </script>
 
 <template>
@@ -22,12 +31,7 @@ const { houseUserPower, currentHouse } = storeToRefs(houseStore())
           v-if="houseUserPower(currentHouse?.id) != 2"
           class="text-xs text-gray-400"
           icon="more-round"
-          @click="
-            router.push({
-              path: '/smart-device-info',
-              query: { ...route.query, rId: deviceItem.rId },
-            })
-          "
+          @click="goConfig"
         />
       </template>
     </HeaderNavbar>

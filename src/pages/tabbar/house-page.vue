@@ -4,7 +4,7 @@ import { computed, nextTick, onActivated, onMounted, ref, watch, unref } from 'v
 import { useRoute, useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 
-import { getHouseList, setCollectSort } from '@/apis/houseApi.js'
+import { setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
 import socketStore from '@/store/socketStore'
 import DeviceCardItem from '@/pages/tabbar/components/DeviceCardItem.vue'
@@ -15,8 +15,8 @@ import houseStore from '@/store/houseStore'
 import smartStore from '@/store/smartStore'
 import userStore from '@/store/userStore'
 import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
-import { reloadStoreSync } from '@/store/utils'
-import { useScreenSafeArea, useWindowScroll } from '@vueuse/core'
+import { useScreenSafeArea } from '@vueuse/core'
+import { CLASSIFY_EXECL } from '@/enums/deviceEnums'
 
 defineOptions({ name: 'HousePage' })
 
@@ -32,18 +32,6 @@ const currentRoomId = ref('-1') //当前房间编号
 const tabsRef = ref(null)
 const currentFloorId = ref('') //当前楼层id
 const isTopFixed = ref(false) // top 吸顶
-// 当前楼层房间列表
-const roomFilterList = computed(() => {
-  return roomList.value
-    ?.filter((roomItem) => roomItem.fId == currentFloorId.value)
-    .map((roomItem) => {
-      return {
-        ...roomItem,
-        deviceList: deviceList.value?.filter((item) => item.rId == roomItem.id),
-        sceneList: sceneList.value?.filter((item) => item.rId == roomItem.id),
-      }
-    })
-})
 const collectList = ref([
   {
     text: '常用场景',
@@ -60,6 +48,29 @@ const dragOptions = ref({
   animation: 200,
   disabled: true, //是否可以拖拽排序
   ghostClass: 'ghost',
+})
+
+// 所有房间、设备、场景数据集合
+const roomTabs = ref([])
+function getRoomTabs() {
+  return roomList.value.map((roomItem) => {
+    const roomDeviceList = deviceList.value?.filter((item) => item.rId == roomItem.id)
+    return {
+      ...roomItem,
+      sceneList: sceneList.value?.filter((item) => item.rId == roomItem.id),
+      classifyDeviceList: CLASSIFY_EXECL.map((item) => {
+        return {
+          ...item,
+          deviceList: roomDeviceList.filter((deviceItem) => deviceItem.classify === item.classify),
+        }
+      }).filter((item) => item.deviceList.length > 0),
+    }
+  })
+}
+
+// 当前楼层房间列表
+const roomFilterList = computed(() => {
+  return roomTabs.value?.filter((roomItem) => roomItem.fId == currentFloorId.value)
 })
 
 watch(
@@ -81,7 +92,7 @@ const showDragBtn = computed(() => {
     return collectList.value.some((item) => item.list?.length > 1)
   } else {
     const roomItem = roomFilterList.value?.find((roomItem) => roomItem.id == currentRoomId.value)
-    return roomItem?.sceneList.length > 1 || roomItem?.deviceList?.length > 1
+    return roomItem?.sceneList.length > 1 || roomItem?.classifyDeviceList?.length > 1
   }
 })
 
@@ -110,6 +121,7 @@ const onReload = async (hId) => {
 
   const { setCurrentHouse } = houseStore()
   await setCurrentHouse(hId)
+  roomTabs.value = getRoomTabs()
 }
 
 const onDragCancel = () => {
@@ -133,17 +145,20 @@ const onDragEnd = async () => {
       })
     await setCollectSort({ params: { op: 13 }, data })
   } else {
-    const { deviceList, sceneList } = roomFilterList.value.find(
+    const { classifyDeviceList, sceneList } = roomFilterList.value.find(
       (item) => item.id == currentRoomId.value
     )
-    if (deviceList.length > 0) {
-      await setDeviceList({
-        params: { op: 7 },
-        data: deviceList.map((item, i) => ({
-          shebeibianhao: item.id,
-          paixu: i,
-        })),
-      })
+
+    if (classifyDeviceList.length > 0) {
+      for (const item of classifyDeviceList) {
+        await setDeviceList({
+          params: { op: 7 },
+          data: item.deviceList.map((item, i) => ({
+            shebeibianhao: item.id,
+            paixu: i,
+          })),
+        })
+      }
     }
     if (sceneList.length > 0) {
       await setSceneList({
@@ -192,7 +207,7 @@ const onRoomChange = (roomItem, roomIndex) => {
     behavior: 'smooth',
   })
 }
-
+// app 滑动到顶部
 const onAppScrollend = async () => {
   const { top } = useScreenSafeArea()
   setTimeout(() => {
@@ -237,7 +252,7 @@ onActivated(() => {
 watch(
   () => route.path,
   (to, from) => {
-    if (to == '/tabbar/tabbar-house' && ['/account-login', '/phone-login'].includes(from)) {
+    if (to == '/tabbar' && ['/account-login', '/phone-login'].includes(from)) {
       init()
     }
   }
@@ -270,7 +285,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
               <li
                 v-for="cardItem in 16"
                 :key="cardItem"
-                class="bg-gray-200 rounded-lg h-[104px]"
+                class="bg-gray-200 rounded-lg h-[124px]"
               ></li>
             </ol>
           </li>
@@ -449,45 +464,26 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 </template>
               </draggable>
 
-              <template v-if="roomItem.deviceList.length > 0">
-                <div class="flex items-center py-4">
-                  <h4 class="text-gray-600">照明</h4>
-                  <!-- <label class="ml-2 text-xs text-gray-400">
-                      {{
-                        roomItem.deviceList.filter((deviceItem) =>
-                          deviceItem.modeList?.filter(
-                            (modeItem) => modeItem?.use == 'switch' && modeItem?.useEn == 'on'
-                          )
-                        ).length
-                      }}个灯亮
-                    </label> -->
-                </div>
-                <!-- <div
-                    v-if="dragOptions.disabled"
-                    class="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4"
+              <template v-if="roomItem.classifyDeviceList.length > 0">
+                <div
+                  v-for="classifyItem in roomItem.classifyDeviceList"
+                  :key="classifyItem.classify"
+                >
+                  <div class="flex items-center py-4">
+                    <h4 class="text-gray-600">{{ classifyItem.classifyName }}</h4>
+                  </div>
+                  <draggable
+                    v-model="classifyItem.deviceList"
+                    item-key="id"
+                    group="device"
+                    v-bind="dragOptions"
+                    class="grid grid-cols-2 md:grid-cols-4 gap-4"
                   >
-                    <div
-                      v-for="(switchItem, switchIndex) in [
-                        { text: '全开', status: 'on' },
-                        { text: '全关', status: 'off' },
-                      ]"
-                      :key="switchIndex"
-                      v-clickable-active
-                      class="w-full flex items-center overflow-hidden rounded-lg bg-gray-300 h-[76px] relative"
-                      @click="onAllDeviceToggle(roomItem.deviceList, switchItem.status)"
-                    >
-                      <SmartImage
-                        class="w-full h-full"
-                        fit="cover"
-                        src="https://derucci-app-obs.iderucci.com/cloud-derucci-system/20230330/c21hcnQtYmctMS4xNjgwMTYzNzE5NzM2.jpg"
-                      />
-                      <div
-                        class="bg-black bg-opacity-50 p-3 absolute top-0 right-0 left-0 bottom-0 flex flex-row items-center text-white"
-                      >
-                        {{ switchItem.text }}
-                      </div>
-                    </div>
-                  </div> -->
+                    <template #item="{ element: deviceItem }">
+                      <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
+                    </template>
+                  </draggable>
+                </div>
               </template>
               <van-empty v-else image="search" description="暂无设备">
                 <van-button
@@ -501,18 +497,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   添加设备
                 </van-button>
               </van-empty>
-
-              <draggable
-                v-model="roomItem.deviceList"
-                item-key="id"
-                group="device"
-                v-bind="dragOptions"
-                class="grid grid-cols-2 md:grid-cols-4 gap-4"
-              >
-                <template #item="{ element: deviceItem }">
-                  <DeviceCardItem :id="deviceItem.id" :is-drag="!dragOptions.disabled" />
-                </template>
-              </draggable>
 
               <div v-if="showDragBtn" class="p-6 text-center">
                 <van-button class="!px-6" size="small" plain round @click="onDragCancel">

@@ -4,12 +4,13 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import smartStore from '@/store/smartStore'
+import { sceneGallery } from '@/enums/galleryEnums'
 
 defineOptions({ name: 'SmartSceneGallery' })
 
 const checkboxRefs = ref([])
 
-const { sceneGallery, createSmartItem } = storeToRefs(smartStore())
+const { createSmartItem } = storeToRefs(smartStore())
 
 const route = useRoute()
 const router = useRouter()
@@ -47,8 +48,8 @@ const onComfirm = () => {
         </li>
       </ul>
     </van-radio-group>
-    <div class="h-[80px]"></div>
-    <div class="fixed bottom-0 left-0 z-10 w-screen bg-white px-6 py-4">
+    <div class="h-[100px]"></div>
+    <div class="fixed bottom-0 left-0 z-10 w-screen bg-white px-6 py-4 pb-safe-offset-4">
       <van-button block round @click="onComfirm"> 确定 </van-button>
     </div>
   </div>

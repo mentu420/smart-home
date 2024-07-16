@@ -33,7 +33,7 @@ const onSubmit = async () => {
   try {
     loading.value = true
     const { phone, code } = route.query
-    await setUserConfig({
+    const res = await setUserConfig({
       params: { op: 5 },
       data: {
         mima: form.value.password,
@@ -41,6 +41,7 @@ const onSubmit = async () => {
         yanzhengma: code,
       },
     })
+    if (res.code != 0) return
     useLogout('密码修改成功，请使用新密码登录')
   } finally {
     loading.value = false
