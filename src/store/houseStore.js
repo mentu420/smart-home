@@ -34,8 +34,6 @@ export default defineStore(storeName, () => {
     currentHouse.value = storeRes?.currentHouse
   }
 
-  init()
-
   // 切换当前房屋
   const setCurrentHouse = async (id) => {
     try {
@@ -197,5 +195,6 @@ export default defineStore(storeName, () => {
     useGetFamilyListSync,
     setHouseList,
     reset,
+    init,
   }
 })

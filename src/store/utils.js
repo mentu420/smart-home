@@ -3,6 +3,13 @@ import smartStore from '@/store/smartStore'
 import houseStore from '@/store/houseStore'
 import userStore from './userStore'
 
+export const initStoreSync = async () => {
+  await userStore().init()
+  await houseStore().init()
+  await deviceStore().init()
+  await smartStore().init()
+}
+
 // 刷新所有数据
 export const reloadStoreSync = async () => {
   const { useGetHouseListSync, useGetRoomListSync, useGetFloorListSync, useGetFamilyListSync } =
