@@ -40,7 +40,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: '4679',
+    port: '4556',
     // proxy: {
     //   "^/api": {
     //     target: "https://atom.musiyoujia.com",

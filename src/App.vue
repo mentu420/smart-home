@@ -5,6 +5,9 @@ import { useRoute, useRouter } from 'vue-router'
 import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
 import '@/hooks/useNativeMethods'
+import routerStore from './store/routerStore'
+import { storeToRefs } from 'pinia'
+import { ROUTER_TRANSITION } from '@/enums/routerTransition'
 
 // if (import.meta.env.MODE === 'development') new VConsole()
 
@@ -15,7 +18,6 @@ const route = useRoute()
 const router = useRouter()
 const includeList = ref(['TabbarPage'])
 const theme = ref('light')
-const transitionName = ref('van-slide-left')
 const isNativeBack = ref(false)
 const themeVars = reactive({
   uploaderDeleteIconSize: '1.2rem',
@@ -23,12 +25,15 @@ const themeVars = reactive({
   navBarIconColor: '#333',
   checkboxCheckedIconColor: '#07c160',
 })
+const { transitionName } = storeToRefs(routerStore())
 
 watch(
   () => route.path,
   (to, from) => {
     if (!isNativeBack.value) {
-      transitionName.value = router.isBack === true ? 'van-slide-right' : 'van-slide-left'
+      // transitionName.value = router.isBack === true ? 'van-slide-right' : 'van-slide-left'
+      const { setRouterTrainsition } = routerStore()
+      setRouterTrainsition(router.isBack ? ROUTER_TRANSITION.REVERSE : ROUTER_TRANSITION.FORWARD)
       router.isBack = false
     }
     isNativeBack.value = false
@@ -83,5 +88,109 @@ html {
 
 #app::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
+}
+
+@mixin transition-active {
+  position: absolute !important;
+  height: 100%;
+  top: 0;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.fade-in-enter-active,
+.fade-in-leave-active,
+.pop-out-enter-active,
+.pop-out-leave-active,
+.pop-in-enter-active,
+.pop-in-leave-active {
+  @include transition-active;
+  transition: transform 220ms;
+}
+
+.fade-in-enter-active,
+.fade-in-leave-active {
+  @include transition-active;
+  transform-style: preserve-3d;
+  transition: all 500ms;
+}
+
+.pop-out-leave-to,
+.pop-in-enter {
+  z-index: 20;
+  transform: translate3d(100%, 0, 0);
+}
+
+.pop-out-enter,
+.pop-in-leave-to {
+  z-index: -1;
+  transform: translate3d(-15%, 0, 0);
+}
+
+.fade-in-enter {
+  opacity: 0;
+  transform: scaleX(0.95);
+}
+
+.fade-in-enter-to {
+  opacity: 1;
+}
+
+.fade-in-leave {
+  opacity: 0.5;
+}
+
+.fade-in-leave-to {
+  opacity: 0;
+  transform: scaleX(0.95);
+}
+
+.slider-out-enter-active,
+.slider-out-leave-active,
+.slider-in-enter-active,
+.slider-in-leave-active {
+  @include transition-active;
+  transition: transform 220ms;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.slider-out-leave-to,
+.slider-in-enter {
+  transform: translate3d(100%, 0, 0);
+}
+
+.slider-out-enter,
+.slider-in-leave-to {
+  transform: translate3d(-100%, 0, 0);
+}
+
+.rotate-out-enter-active,
+.rotate-out-leave-active,
+.rotate-in-enter-active,
+.rotate-in-leave-active {
+  @include transition-active;
+  transform-style: preserve-3d;
+  transition: transform 500ms;
+}
+
+/** 3d返回 **/
+.rotate-out-leave-to,
+    /** 3d进入 **/
+  .rotate-in-enter {
+  transform: translate3d(50%, 0, 0) rotateY(90deg);
+}
+
+/** 3d返回 **/
+.rotate-out-enter-to,
+    /** 3d进入 **/
+  .rotate-in-enter-to {
+  transform: rotateY(0deg);
+}
+
+/** 3d返回 **/
+.rotate-out-enter,
+    /** 3d进入 **/
+  .rotate-in-leave-to {
+  transform: translate3d(-50%, 0, 0) rotateY(-90deg);
 }
 </style>
