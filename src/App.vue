@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
 import '@/hooks/useNativeMethods'
-import routerStore from './store/routerStore'
+import routerStore from '@/store/routerStore'
 import { storeToRefs } from 'pinia'
 import { ROUTER_TRANSITION } from '@/enums/routerTransition'
 
@@ -25,15 +25,18 @@ const themeVars = reactive({
   navBarIconColor: '#333',
   checkboxCheckedIconColor: '#07c160',
 })
+const routerViewRef = ref(null)
 const { transitionName } = storeToRefs(routerStore())
+// const transitionName = ref('')
 
 watch(
   () => route.path,
   (to, from) => {
     if (!isNativeBack.value) {
       // transitionName.value = router.isBack === true ? 'van-slide-right' : 'van-slide-left'
-      const { setRouterTrainsition } = routerStore()
-      setRouterTrainsition(router.isBack ? ROUTER_TRANSITION.REVERSE : ROUTER_TRANSITION.FORWARD)
+      // const { setRouterTrainsition } = routerStore()
+      // transitionName.value = router.isBack ? 'page-out' : 'page-in'
+      console.log('transitionName', transitionName.value)
       router.isBack = false
     }
     isNativeBack.value = false
@@ -46,7 +49,7 @@ watch(
 
 <template>
   <van-config-provider :theme="theme" :theme-vars="themeVars" theme-vars-scope="global">
-    <router-view v-slot="{ Component }">
+    <router-view ref="routerViewRef" v-slot="{ Component }">
       <transition :name="transitionName">
         <keep-alive :include="includeList" :max="10">
           <component :is="Component" />
@@ -92,105 +95,51 @@ html {
 
 @mixin transition-active {
   position: absolute !important;
+  width: 100vw;
   height: 100%;
   top: 0;
   will-change: transform;
   backface-visibility: hidden;
+  // background-color: red;
 }
 
-.fade-in-enter-active,
-.fade-in-leave-active,
-.pop-out-enter-active,
-.pop-out-leave-active,
-.pop-in-enter-active,
-.pop-in-leave-active {
+.page-in-enter-active,
+.page-in-leave-active,
+.page-out-enter-active,
+.page-out-leave-active {
   @include transition-active;
-  transition: transform 220ms;
+  transition: transform 5000ms ease;
 }
 
-.fade-in-enter-active,
-.fade-in-leave-active {
-  @include transition-active;
-  transform-style: preserve-3d;
-  transition: all 500ms;
-}
-
-.pop-out-leave-to,
-.pop-in-enter {
+.page-out-leave-to {
   z-index: 20;
   transform: translate3d(100%, 0, 0);
+  background-color: #000;
 }
+// .page-out-enter-to {
+//   z-index: 20;
+//   transform: translate3d(100%, 0, 0);
+//   background-color: green;
+// }
+// .page-in-enter {
+//   z-index: 21;
+//   transform: translate3d(100%, 0, 0);
+//   background-color: orange;
+// }
 
-.pop-out-enter,
-.pop-in-leave-to {
-  z-index: -1;
-  transform: translate3d(-15%, 0, 0);
-}
-
-.fade-in-enter {
-  opacity: 0;
-  transform: scaleX(0.95);
-}
-
-.fade-in-enter-to {
-  opacity: 1;
-}
-
-.fade-in-leave {
-  opacity: 0.5;
-}
-
-.fade-in-leave-to {
-  opacity: 0;
-  transform: scaleX(0.95);
-}
-
-.slider-out-enter-active,
-.slider-out-leave-active,
-.slider-in-enter-active,
-.slider-in-leave-active {
-  @include transition-active;
-  transition: transform 220ms;
-  -webkit-font-smoothing: subpixel-antialiased;
-}
-
-.slider-out-leave-to,
-.slider-in-enter {
-  transform: translate3d(100%, 0, 0);
-}
-
-.slider-out-enter,
-.slider-in-leave-to {
+// .page-out-enter {
+//   z-index: 20;
+//   transform: translate3d(-100%, 0, 0);
+//   background-color: blue;
+// }
+.page-in-leave-to {
+  z-index: 22;
   transform: translate3d(-100%, 0, 0);
+  background-color: red;
 }
-
-.rotate-out-enter-active,
-.rotate-out-leave-active,
-.rotate-in-enter-active,
-.rotate-in-leave-active {
-  @include transition-active;
-  transform-style: preserve-3d;
-  transition: transform 500ms;
-}
-
-/** 3d返回 **/
-.rotate-out-leave-to,
-    /** 3d进入 **/
-  .rotate-in-enter {
-  transform: translate3d(50%, 0, 0) rotateY(90deg);
-}
-
-/** 3d返回 **/
-.rotate-out-enter-to,
-    /** 3d进入 **/
-  .rotate-in-enter-to {
-  transform: rotateY(0deg);
-}
-
-/** 3d返回 **/
-.rotate-out-enter,
-    /** 3d进入 **/
-  .rotate-in-leave-to {
-  transform: translate3d(-50%, 0, 0) rotateY(-90deg);
-}
+// .page-in-enter-to {
+//   z-index: 23;
+//   transform: translate3d(-100%, 0, 0);
+//   background-color: pink;
+// }
 </style>

@@ -99,7 +99,7 @@ Router.afterEach((to, from) => {
 
 Router.goBack = function (delta = -1) {
   const { setRouterTrainsition } = routerStore()
-  setRouterTrainsition(ROUTER_TRANSITION.REVERSE)
+  setRouterTrainsition('page-out')
   this.isBack = true //判断是否是返回操作
   Router.go(delta)
 }
