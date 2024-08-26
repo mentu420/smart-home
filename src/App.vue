@@ -33,10 +33,7 @@ watch(
   () => route.path,
   (to, from) => {
     if (!isNativeBack.value) {
-      // transitionName.value = router.isBack === true ? 'van-slide-right' : 'van-slide-left'
-      // const { setRouterTrainsition } = routerStore()
-      // transitionName.value = router.isBack ? 'page-out' : 'page-in'
-      console.log('transitionName', transitionName.value)
+      transitionName.value = from == '/' ? null : router.isBack ? 'page-out' : 'page-in'
       router.isBack = false
     }
     isNativeBack.value = false
@@ -94,13 +91,13 @@ html {
 }
 
 @mixin transition-active {
-  position: absolute !important;
+  position: fixed !important;
   width: 100vw;
-  height: 100%;
+  height: 100vh;
   top: 0;
   will-change: transform;
   backface-visibility: hidden;
-  // background-color: red;
+  background-color: #fff;
 }
 
 .page-in-enter-active,
@@ -108,38 +105,19 @@ html {
 .page-out-enter-active,
 .page-out-leave-active {
   @include transition-active;
-  transition: transform 5000ms ease;
+  transition: transform 220ms ease-in;
 }
 
-.page-out-leave-to {
+.page-out-leave-to,
+.page-in-enter {
   z-index: 20;
   transform: translate3d(100%, 0, 0);
-  background-color: #000;
 }
-// .page-out-enter-to {
-//   z-index: 20;
-//   transform: translate3d(100%, 0, 0);
-//   background-color: green;
-// }
-// .page-in-enter {
-//   z-index: 21;
-//   transform: translate3d(100%, 0, 0);
-//   background-color: orange;
-// }
 
-// .page-out-enter {
-//   z-index: 20;
-//   transform: translate3d(-100%, 0, 0);
-//   background-color: blue;
-// }
-.page-in-leave-to {
-  z-index: 22;
+.page-in-enter-to,
+.page-out-leave {
+  z-index: 20;
   transform: translate3d(-100%, 0, 0);
-  background-color: red;
+  left: 100%;
 }
-// .page-in-enter-to {
-//   z-index: 23;
-//   transform: translate3d(-100%, 0, 0);
-//   background-color: pink;
-// }
 </style>
