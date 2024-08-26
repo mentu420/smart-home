@@ -32,8 +32,6 @@ export default defineStore(storeName, () => {
     userInfo.value = storeRes?.userInfo
   }
 
-  init()
-
   const setUserInfo = (palyload) => (userInfo.value = { ...userInfo.value, ...palyload })
 
   /**
@@ -61,5 +59,6 @@ export default defineStore(storeName, () => {
     useSetToken,
     useRemoveToken,
     reset,
+    init,
   }
 })

@@ -93,7 +93,7 @@ defineExpose({ open })
     @select="onModeChange"
   />
 
-  <ColorPicker ref="colorPickerRef" @confirm="onColorPickerChange">
+  <ColorPicker ref="colorPickerRef" @change="onColorPickerChange">
     <template #default="{ ratio }">
       <label>{{ ratio }}K</label>
     </template>

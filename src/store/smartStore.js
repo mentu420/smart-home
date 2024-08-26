@@ -40,7 +40,6 @@ export default defineStore(storeName, () => {
     smartList.value = storeRes?.smartList
   }
 
-  init()
   // 获取重复时间
   const getRepeatTimeText = computed(() => ({ type = 3, value = [] }) => {
     const repeatItem = repeatActions.value.find((item) => item.id == type)
@@ -134,5 +133,6 @@ export default defineStore(storeName, () => {
     updateSceneList,
     setSceneLoading,
     reset,
+    init,
   }
 })

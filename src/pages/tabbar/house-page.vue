@@ -3,7 +3,6 @@ import { storeToRefs } from 'pinia'
 import { computed, nextTick, onActivated, onMounted, ref, watch, unref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
-
 import { setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
 import socketStore from '@/store/socketStore'
@@ -17,6 +16,7 @@ import userStore from '@/store/userStore'
 import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
 import { useScreenSafeArea } from '@vueuse/core'
 import { CLASSIFY_EXECL } from '@/enums/deviceEnums'
+import { initStoreSync } from '@/store/utils'
 
 defineOptions({ name: 'HousePage' })
 
@@ -53,7 +53,7 @@ const dragOptions = ref({
 // 所有房间、设备、场景数据集合
 const roomTabs = ref([])
 function getRoomTabs() {
-  return roomList.value.map((roomItem) => {
+  roomTabs.value = roomList.value.map((roomItem) => {
     const roomDeviceList = deviceList.value?.filter((item) => item.rId == roomItem.id)
     return {
       ...roomItem,
@@ -121,7 +121,7 @@ const onReload = async (hId) => {
 
   const { setCurrentHouse } = houseStore()
   await setCurrentHouse(hId)
-  roomTabs.value = getRoomTabs()
+  getRoomTabs()
 }
 
 const onDragCancel = () => {
@@ -221,11 +221,11 @@ const onAppScrollend = async () => {
   }, 350)
 }
 
-const init = async () => {
+const init = async (showSkeleton = true) => {
   const { useGetToken, useUserInfoSync } = userStore()
   try {
     loading.value = true
-    skeletonLoading.value = true
+    skeletonLoading.value = showSkeleton
     dragOptions.value.disabled = true
     const token = useGetToken()
     if (!token) return
@@ -240,7 +240,12 @@ const init = async () => {
   }
 }
 
-onMounted(init)
+onMounted(async () => {
+  await initStoreSync()
+  const noData = houseList.value?.length == 0
+  if (!noData) getRoomTabs()
+  setTimeout(() => init(noData), noData ? 4 : 5000)
+})
 
 onActivated(() => {
   dragOptions.value.disabled = true

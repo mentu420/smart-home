@@ -18,8 +18,6 @@ export default defineStore(storeName, () => {
     hostList.value = storeRes?.hostList ?? []
   }
 
-  init()
-
   // 获取设备图片
   const getDeviceIcon = (classify) => CLASSIFY_ICON[classify]
 
@@ -168,6 +166,7 @@ export default defineStore(storeName, () => {
     useGetDeviceItem,
     useDeviceMqttChange,
     reset,
+    init,
     setModeColumns,
     setDeviceLoading,
   }

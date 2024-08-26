@@ -154,7 +154,7 @@ const openColorPicker = () => {
         </template>
       </van-cell>
     </van-cell-group>
-    <ColorPicker ref="colorPickerRef" :range="colorTemperatureRange" @confirm="onColorPickerChange">
+    <ColorPicker ref="colorPickerRef" :range="colorTemperatureRange" @change="onColorPickerChange">
       <template #default="{ ratio }">
         <label>{{ ratio }}K</label>
       </template>
