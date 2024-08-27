@@ -36,8 +36,8 @@ export default defineStore(storeName, () => {
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
-    sceneList.value = storeRes?.sceneList
-    smartList.value = storeRes?.smartList
+    sceneList.value = storeRes?.sceneList ?? []
+    smartList.value = storeRes?.smartList ?? []
   }
 
   // 获取重复时间

@@ -27,11 +27,11 @@ export default defineStore(storeName, () => {
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
-    houseList.value = storeRes?.houseList
-    roomList.value = storeRes?.roomList
-    floorList.value = storeRes?.floorList
-    familyList.value = storeRes?.familyList
-    currentHouse.value = storeRes?.currentHouse
+    houseList.value = storeRes?.houseList ?? []
+    roomList.value = storeRes?.roomList ?? []
+    floorList.value = storeRes?.floorList ?? []
+    familyList.value = storeRes?.familyList ?? []
+    currentHouse.value = storeRes?.currentHouse ?? {}
   }
 
   // 切换当前房屋

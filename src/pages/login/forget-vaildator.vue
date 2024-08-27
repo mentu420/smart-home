@@ -26,7 +26,7 @@ const goOtherLogin = () => {
 </script>
 
 <template>
-  <div class="p-6 h-screen">
+  <div class="p-6 h-screen bg-white">
     <HeaderNavbar />
     <h1 class="mb-2 mt-8">验证码已发送至</h1>
     <div class="mb-8 flex justify-between">

@@ -5,11 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
 import '@/hooks/useNativeMethods'
-import routerStore from '@/store/routerStore'
-import { storeToRefs } from 'pinia'
-import { ROUTER_TRANSITION } from '@/enums/routerTransition'
 
-// if (import.meta.env.MODE === 'development') new VConsole()
+if (import.meta.env.MODE === 'development') new VConsole()
 
 socketStore()
 useSize()
@@ -18,25 +15,24 @@ const route = useRoute()
 const router = useRouter()
 const includeList = ref(['TabbarPage'])
 const theme = ref('light')
-const isNativeBack = ref(false)
+const transitionName = ref('')
 const themeVars = reactive({
   uploaderDeleteIconSize: '1.2rem',
   primaryColor: '#07c160',
   navBarIconColor: '#333',
   checkboxCheckedIconColor: '#07c160',
 })
-const routerViewRef = ref(null)
-const { transitionName } = storeToRefs(routerStore())
-// const transitionName = ref('')
+
+const ROUTER_TRANSITION = {
+  FORWARD: 'page-in',
+  REVERSE: 'page-out',
+}
 
 watch(
   () => route.path,
   (to, from) => {
-    if (!isNativeBack.value) {
-      transitionName.value = from == '/' ? null : router.isBack ? 'page-out' : 'page-in'
-      router.isBack = false
-    }
-    isNativeBack.value = false
+    transitionName.value = from == '/' ? null : router.isBack ? 'page-out' : 'page-in'
+    router.isBack = false
     //监听路由变化，把配置路由中keepAlive为true的name添加到include动态数组中
     if (includeList.value.includes(route.name)) return
     if (route.meta.keepAlive) includeList.value.push(route.name)
@@ -46,8 +42,8 @@ watch(
 
 <template>
   <van-config-provider :theme="theme" :theme-vars="themeVars" theme-vars-scope="global">
-    <router-view ref="routerViewRef" v-slot="{ Component }">
-      <transition :name="transitionName">
+    <router-view v-slot="{ Component }">
+      <transition :name="transitionName" appear>
         <keep-alive :include="includeList" :max="10">
           <component :is="Component" />
         </keep-alive>
@@ -91,13 +87,12 @@ html {
 }
 
 @mixin transition-active {
-  position: fixed !important;
-  width: 100vw;
+  position: absolute !important;
+  width: 200vw;
   height: 100vh;
   top: 0;
   will-change: transform;
   backface-visibility: hidden;
-  background-color: #fff;
 }
 
 .page-in-enter-active,
@@ -105,19 +100,25 @@ html {
 .page-out-enter-active,
 .page-out-leave-active {
   @include transition-active;
-  transition: transform 220ms ease-in;
+  transition: transform 10000ms ease-in;
 }
 
-.page-out-leave-to,
-.page-in-enter {
+.page-out-leave-to {
   z-index: 20;
   transform: translate3d(100%, 0, 0);
+  opacity: 1;
 }
-
-.page-in-enter-to,
-.page-out-leave {
+.page-in-enter-to {
   z-index: 20;
   transform: translate3d(-100%, 0, 0);
-  left: 100%;
+  // transform: translate3d(-100%, 0, 0); /* 从当前位置进入 */
+  opacity: 1;
+  left: 100vw;
+}
+
+.page-in-enter-form,
+.page-out-leave-from {
+  opacity: 0;
+  z-index: -1;
 }
 </style>

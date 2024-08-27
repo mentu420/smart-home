@@ -53,7 +53,7 @@ const dragOptions = ref({
 // 所有房间、设备、场景数据集合
 const roomTabs = ref([])
 function getRoomTabs() {
-  roomTabs.value = roomList.value.map((roomItem) => {
+  roomTabs.value = roomList.value?.map((roomItem) => {
     const roomDeviceList = deviceList.value?.filter((item) => item.rId == roomItem.id)
     return {
       ...roomItem,
@@ -243,7 +243,9 @@ const init = async (showSkeleton = true) => {
 onMounted(async () => {
   await initStoreSync()
   const noData = houseList.value?.length == 0
+  console.log('roomList', roomList.value)
   if (!noData) getRoomTabs()
+  console.log('noData', noData)
   setTimeout(() => init(noData), noData ? 4 : 5000)
 })
 

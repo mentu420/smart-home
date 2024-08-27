@@ -1,7 +1,6 @@
 <script setup>
-import { computed, useAttrs, ref } from 'vue'
+import { useAttrs, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import routerStore from '@/store/routerStore'
 
 const router = useRouter()
 const attrs = useAttrs()
@@ -10,11 +9,7 @@ const emits = defineEmits(['update:modelValue'])
 
 const checked = ref(false)
 
-const navigateTo = (args) => {
-  const { setRouterTrainsition } = routerStore()
-  setRouterTrainsition('page-in')
-  router.push(args)
-}
+const navigateTo = (args) => router.push(args)
 </script>
 
 <template>

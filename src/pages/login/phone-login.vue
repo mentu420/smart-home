@@ -47,7 +47,7 @@ const onValidPhone = (value) => vaildPhone(value)
 </script>
 
 <template>
-  <div class="p-4 pt-safe-offset-4 h-screen">
+  <div class="p-4 pt-safe-offset-4 h-screen bg-white">
     <h1 class="mb-10 ml-2 mt-10">{{ ['立即注册', '验证码登录'][route.query.type] }}</h1>
     <van-form ref="formRef" class="m-2" @submit="onSubmit">
       <van-cell-group>

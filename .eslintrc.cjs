@@ -55,5 +55,11 @@ module.exports = {
     'import/no-unresolved': 'off',
     'import/named': 'off',
     'import/order': 0, // 执行模块导入顺序中的约定
+    'at-rule-no-unknown': [
+      true,
+      {
+        ignoreAtRules: ['tailwind', 'apply', 'variants', 'responsive', 'screen'],
+      },
+    ],
   },
 }

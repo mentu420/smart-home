@@ -2,9 +2,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import routerStore from '@/store/routerStore.js'
-import { getStorage, setStorage, isObjectString } from '@/utils/storage'
-import { ROUTER_TRANSITION } from '@/enums/routerTransition'
+import { getStorage } from '@/utils/storage'
 import commonRouters from './modules/common.js'
 import houseRouters from './modules/house.js'
 import meRouters from './modules/me.js'
@@ -89,7 +87,6 @@ const Router = createRouter({
 NProgress.configure({ showSpinner: false })
 Router.beforeEach(async (to, from, next) => {
   NProgress.start()
-
   next()
 })
 
@@ -98,34 +95,8 @@ Router.afterEach((to, from) => {
 })
 
 Router.goBack = function (delta = -1) {
-  const { setRouterTrainsition } = routerStore()
-  setRouterTrainsition('page-out')
   this.isBack = true //判断是否是返回操作
   Router.go(delta)
 }
-
-// Router.push = function (rawLocation) {
-//   const { setRouterTrainsition } = routerStore()
-//   setRouterTrainsition(ROUTER_TRANSITION.FORWARD)
-//   Router.push(rawLocation)
-// }
-
-// Router.replace = function (rawLocation) {
-//   const { setRouterTrainsition } = routerStore()
-//   setRouterTrainsition(ROUTER_TRANSITION.FORWARD)
-//   Router.replace(rawLocation)
-// }
-
-// Router.go = function (n) {
-//   const { setRouterTrainsition } = routerStore()
-//   setRouterTrainsition(ROUTER_TRANSITION.REVERSE)
-//   Router.go(n)
-// }
-
-// Router.back = function () {
-//   const { setRouterTrainsition } = routerStore()
-//   setRouterTrainsition(ROUTER_TRANSITION.REVERSE)
-//   Router.back()
-// }
 
 export default Router

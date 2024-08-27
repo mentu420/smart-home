@@ -108,7 +108,7 @@ d) 非因焦点物联的原因而引起的与许可软件有关的其它损失�
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen bg-white">
     <HeaderNavbar title="软件许可及服务协议" />
     <div class="p-4 mb-safe">
       <p class="whitespace-pre-wrap text-[#363636]">{{ message }}</p>
