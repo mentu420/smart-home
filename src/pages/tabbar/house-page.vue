@@ -180,7 +180,7 @@ const onHouseSelect = async (action) => {
     const hId = action.id
     await onReload(hId)
   } finally {
-    currentFloorId.value = floorList.value[0]?.id
+    setDefaultCurrentFloorId()
     loading.value = false
   }
 }
@@ -234,25 +234,30 @@ const init = async (showSkeleton = true) => {
     console.warn(err)
   } finally {
     await useUserInfoSync()
-    currentFloorId.value = floorList.value[0]?.id
+    setDefaultCurrentFloorId()
     loading.value = false
     skeletonLoading.value = false
   }
 }
 
+function setDefaultCurrentFloorId() {
+  currentFloorId.value = floorList.value[0]?.id
+}
+
 onMounted(async () => {
   await initStoreSync()
   const noData = houseList.value?.length == 0
-  console.log('roomList', roomList.value)
-  if (!noData) getRoomTabs()
-  console.log('noData', noData)
+  if (!noData) {
+    setDefaultCurrentFloorId()
+    getRoomTabs()
+  }
   setTimeout(() => init(noData), noData ? 4 : 5000)
 })
 
 onActivated(() => {
   dragOptions.value.disabled = true
   if (!floorList.value.some((item) => item.id == currentFloorId.value)) {
-    currentFloorId.value = floorList.value[0]?.id
+    setDefaultCurrentFloorId()
   }
 })
 
@@ -365,7 +370,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
             <!--切换楼层-->
             <div class="shrink-0 pl-2 bg-page-gray">
               <div
-                class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4"
+                class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4 rounded-l-lg"
                 :class="{ 'bg-white': dragOptions.disabled }"
               >
                 <van-button
@@ -389,7 +394,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   placement="bottom-end"
                 >
                   <template #reference>
-                    <div class="flex items-center bg-white py-1 space-x-1">
+                    <div class="flex items-center py-1 space-x-1">
                       <p class="w-[40px] truncate text-xs shrink-0 text-center">
                         {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
                       </p>

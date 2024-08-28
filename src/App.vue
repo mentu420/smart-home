@@ -1,12 +1,12 @@
 <script setup>
 import VConsole from 'vconsole'
-import { ref, reactive, watch, provide } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
 import '@/hooks/useNativeMethods'
 
-if (import.meta.env.MODE === 'development') new VConsole()
+// if (import.meta.env.MODE === 'development') new VConsole()
 
 socketStore()
 useSize()
@@ -31,7 +31,13 @@ const ROUTER_TRANSITION = {
 watch(
   () => route.path,
   (to, from) => {
-    transitionName.value = from == '/' ? null : router.isBack ? 'page-out' : 'page-in'
+    if (from === '/') {
+      transitionName.value = null
+    } else if (router.isBack) {
+      transitionName.value = ROUTER_TRANSITION.REVERSE
+    } else {
+      transitionName.value = ROUTER_TRANSITION.FORWARD
+    }
     router.isBack = false
     //监听路由变化，把配置路由中keepAlive为true的name添加到include动态数组中
     if (includeList.value.includes(route.name)) return
@@ -43,7 +49,7 @@ watch(
 <template>
   <van-config-provider :theme="theme" :theme-vars="themeVars" theme-vars-scope="global">
     <router-view v-slot="{ Component }">
-      <transition :name="transitionName" appear>
+      <transition :name="transitionName">
         <keep-alive :include="includeList" :max="10">
           <component :is="Component" />
         </keep-alive>
@@ -86,39 +92,43 @@ html {
   display: none; /* Safari and Chrome */
 }
 
-@mixin transition-active {
-  position: absolute !important;
-  width: 200vw;
-  height: 100vh;
-  top: 0;
-  will-change: transform;
-  backface-visibility: hidden;
+@keyframes page-out {
+  0% {
+    transform: translate3d(0%, 0, 0);
+  }
+  100% {
+    transform: translate3d(100%, 0, 0);
+  }
 }
 
 .page-in-enter-active,
 .page-in-leave-active,
 .page-out-enter-active,
 .page-out-leave-active {
-  @include transition-active;
-  transition: transform 10000ms ease-in;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 300ms ease-in-out; /* 调整动画时长为500ms，更自然 */
+}
+
+.page-in-enter-from {
+  transform: translate3d(100%, 0, 0); /* 页面从右侧屏幕外开始 */
+}
+
+.page-in-enter-to {
+  transform: translate3d(0, 0, 0); /* 页面回到视图中 */
+}
+
+.page-out-leave-from {
+  transform: translate3d(0, 0, 0); /* 页面从视图中开始退出 */
+  z-index: 1;
 }
 
 .page-out-leave-to {
-  z-index: 20;
-  transform: translate3d(100%, 0, 0);
-  opacity: 1;
-}
-.page-in-enter-to {
-  z-index: 20;
-  transform: translate3d(-100%, 0, 0);
-  // transform: translate3d(-100%, 0, 0); /* 从当前位置进入 */
-  opacity: 1;
-  left: 100vw;
-}
-
-.page-in-enter-form,
-.page-out-leave-from {
-  opacity: 0;
-  z-index: -1;
+  transform: translate3d(100%, 0, 0); /* 页面向左退出视图 */
+  z-index: 1;
 }
 </style>
