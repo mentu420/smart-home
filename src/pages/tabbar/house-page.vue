@@ -338,7 +338,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   </template>
                 </HousePopover>
                 <div class="space-x-4 shrink-0">
-                  <van-icon size="20" name="bell" />
                   <van-icon
                     v-if="houseUserPower(currentHouse?.id) != 2"
                     size="20"
