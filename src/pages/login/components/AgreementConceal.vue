@@ -21,7 +21,7 @@ const navigateTo = (args) => router.push(args)
   >
     <template #input>
       <van-checkbox v-model="checked">
-        <span class="text-gray-500">
+        <span class="text-gray-500 text-xs">
           同意并遵守
           <span class="text-origin" @click.stop.self="navigateTo({ path: '/me-agreement' })">
             《服务协议》
