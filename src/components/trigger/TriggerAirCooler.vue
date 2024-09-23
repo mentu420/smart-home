@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
-
+import { debounce } from '@/utils/common'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
-
+import _ from 'lodash'
 import TriggerModePopover from './TriggerModePopover.vue'
 import {
   triggerControl,
@@ -61,9 +61,10 @@ const deviceItem = computed(() => useGetDeviceItem(props.id))
 const disabled = computed(() => isDisabled(config.value))
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList, columns } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     const [minValue, maxValue] = getModeRange(columns, TEMPERATURE)
     min.value = minValue
     max.value = maxValue
@@ -75,15 +76,13 @@ watch(
 const speedActions = computed(() => getModeActions(deviceItem.value, FAN))
 const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
-const setTemp = () => {
-  nextTick(() => {
-    config.value[TEMPERATURE] = {
-      useStatus: SETTEMPERATURE,
-      useValue: config.value[SETTEMPERATURE],
-    }
-    triggerControl({ use: TEMPERATURE, device: deviceItem.value, config: config.value })
-  })
-}
+const setTemp = debounce(() => {
+  config.value[TEMPERATURE] = {
+    useStatus: SETTEMPERATURE,
+    useValue: config.value[SETTEMPERATURE],
+  }
+  triggerControl({ use: TEMPERATURE, device: deviceItem.value, config: config.value })
+}, 1000)
 
 const onLower = () => {
   if (config.value[SETTEMPERATURE] == min.value || disabled.value) return

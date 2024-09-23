@@ -3,7 +3,6 @@ import { storeToRefs } from 'pinia'
 import { computed, nextTick, ref, useAttrs } from 'vue'
 import { TriggerAttrConfig, TriggerClassifyDetail } from '@/components/trigger/'
 import houseStore from '@/store/houseStore'
-import deviceStore from '@/store/deviceStore'
 import { useRect } from '@vant/use'
 
 defineOptions({ name: 'TriggerFloatBubble' })
@@ -15,8 +14,6 @@ const props = defineProps({
 })
 
 const { houseUserPower, currentHouse } = storeToRefs(houseStore())
-const { deviceList } = storeToRefs(deviceStore())
-const deviceItem = computed(() => deviceList.value.find((item) => item.id == props.id))
 const visible = ref(false)
 const active = ref(0) //0 显示设备触发器 1 显示设备配置
 const transitionName = computed(() => (active.value > 0 ? 'van-slide-left' : 'van-slide-right'))
