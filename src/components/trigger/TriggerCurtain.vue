@@ -1,9 +1,8 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
-import { debounce } from '@/utils/common'
+import _ from 'lodash'
 
 import { getModeColumns, triggerControl, onConfigFormat, getModeRange } from './useTrigger'
 
@@ -48,9 +47,10 @@ const config = ref({
 
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList, columns } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     const [minValue, maxValue] = getModeRange(columns, PERCENT)
     min.value = minValue
     max.value = maxValue

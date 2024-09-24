@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
-
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
+import _ from 'lodash'
 
 import TriggerModePopover from './TriggerModePopover.vue'
 import {
@@ -31,8 +31,6 @@ const props = defineProps({
 
 const emits = defineEmits(['change', 'update:modelValue'])
 
-const showSpeed = ref(false)
-const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
@@ -54,9 +52,10 @@ const deviceItem = computed(() => useGetDeviceItem(props.id))
 const disabled = computed(() => isDisabled(config.value))
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList = [] } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     config.value = onConfigFormat(config.value, modeStatusList)
   },
   { immediate: true }

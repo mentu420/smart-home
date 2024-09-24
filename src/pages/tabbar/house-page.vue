@@ -52,6 +52,7 @@ const dragOptions = ref({
 
 // 所有房间、设备、场景数据集合
 const roomTabs = ref([])
+
 function getRoomTabs() {
   roomTabs.value = roomList.value?.map((roomItem) => {
     const roomDeviceList = deviceList.value?.filter((item) => item.rId == roomItem.id)
@@ -67,6 +68,14 @@ function getRoomTabs() {
     }
   })
 }
+
+watch(
+  () => [roomList.value.length, deviceList.value.length, sceneList.value.length],
+  (val, old) => {
+    if (val.every((value, index) => value === old[index])) return
+    getRoomTabs()
+  }
+)
 
 // 当前楼层房间列表
 const roomFilterList = computed(() => {
@@ -329,7 +338,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   </template>
                 </HousePopover>
                 <div class="space-x-4 shrink-0">
-                  <van-icon size="20" name="bell" />
                   <van-icon
                     v-if="houseUserPower(currentHouse?.id) != 2"
                     size="20"

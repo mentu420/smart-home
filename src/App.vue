@@ -116,10 +116,12 @@ html {
 
 .page-in-enter-from {
   transform: translate3d(100%, 0, 0); /* 页面从右侧屏幕外开始 */
+  opacity: 0;
 }
 
 .page-in-enter-to {
   transform: translate3d(0, 0, 0); /* 页面回到视图中 */
+  opacity: 1;
 }
 
 .page-out-leave-from {

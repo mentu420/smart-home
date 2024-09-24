@@ -1,11 +1,9 @@
 <script setup>
-import { useRect } from '@vant/use'
-import { ref, computed, watch, nextTick } from 'vue'
-
+import { ref, computed, watch } from 'vue'
+import _ from 'lodash'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
-
 import TriggerModePopover from './TriggerModePopover.vue'
 import {
   getModeActions,
@@ -79,9 +77,10 @@ const sourceActions = computed(() => getModeActions(deviceItem.value, SOURCE))
 
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList, columns } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     const [minValue, maxValue] = getModeRange(columns, VOLUME)
     min.value = minValue ?? 0
     max.value = maxValue ?? 100
@@ -104,10 +103,10 @@ const onSrotChange = (useStatus) => {
   triggerControl({ use: CUTSONG, device: deviceItem.value, config: config.value })
 }
 
-const onVolumeChange = () => {
+const onVolumeChange = debounce(() => {
   config.value[VOLUME] = { useValue: config.value[VOLUME].useValue, useStatus: VOLUME }
   triggerControl({ use: VOLUME, device: deviceItem.value, config: config.value })
-}
+}, 1000)
 
 const onModeChange = (use) => {
   triggerControl({ use, device: deviceItem.value, config: config.value })
