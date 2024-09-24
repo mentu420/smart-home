@@ -1,6 +1,8 @@
 <script setup>
 import { computed, isRef, ref, useAttrs, useSlots, watch } from 'vue'
 import { getStorage, setStorage } from '@/utils/storage'
+import { storeToRefs } from 'pinia'
+import materialStore from '@/store/materialStore'
 
 defineOptions({ name: 'SmartImage' })
 
@@ -14,14 +16,14 @@ const props = defineProps({
 })
 
 const attrs = useAttrs()
-const materialImages = ref(getStorage('materialImages') ?? {})
+const { materialImages } = storeToRefs(materialStore())
 
 // 原生调用
 function getPhotolocalDone(ora, localUrl) {
   if (materialImages.value[ora]) return
-  // console.log('原生读取图片完成', ora, localUrl)
+  console.log('原生读取图片完成', ora, localUrl)
   materialImages.value = { ...materialImages.value, [ora]: localUrl }
-  setStorage('materialImages', materialImages.value)
+  console.log('更新静态资源库', materialImages.value)
 }
 // 原生方法挂载
 window.getPhotolocalDone = getPhotolocalDone
@@ -36,7 +38,7 @@ watch(
   () => attrs,
   (val) => {
     if (!val.src) return
-    // console.log('开始获取图片', val.src)
+    console.log('开始获取图片', val.src)
     onLoad(val.src)
   },
   { immediate: true }

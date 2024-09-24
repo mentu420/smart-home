@@ -77,6 +77,7 @@ useAxios.interceptors.response.use(
     return responseHandle(response)
   },
   (error) => {
+    console.log('请求失败', error)
     if (error.config.__retryCount == 2) {
       const messageReuslt = {
         ECONNABORTED: timeoutMessage,
