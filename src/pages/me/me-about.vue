@@ -55,7 +55,12 @@ init()
       </div>
     </div>
     <van-cell-group v-if="isDev" inset>
-      <van-cell title="开发者模式" is-link @click="router.push({ path: '/me-development' })" />
+      <van-cell
+        class="!py-4"
+        title="开发者模式"
+        is-link
+        @click="router.push({ path: '/me-development' })"
+      />
     </van-cell-group>
     <footer class="fixed bottom-6 w-full left-0 text-center text-[#6f6f6f] space-y-4">
       <p>
