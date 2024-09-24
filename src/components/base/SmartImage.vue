@@ -19,10 +19,10 @@ const attrs = useAttrs()
 const { materialImages } = storeToRefs(materialStore())
 
 // 原生调用
-function getPhotolocalDone(ora, localUrl) {
-  if (materialImages.value[ora]) return
-  console.log('原生读取图片完成', ora, localUrl)
-  materialImages.value = { ...materialImages.value, [ora]: localUrl }
+function getPhotolocalDone(localUrl) {
+  if (materialImages.value[localUrl]) return
+  console.log('原生读取图片完成', localUrl)
+  materialImages.value = { ...materialImages.value, [attrs.src]: localUrl }
   console.log('更新静态资源库', materialImages.value)
 }
 // 原生方法挂载
@@ -45,7 +45,9 @@ watch(
 )
 
 const src = computed(() => {
-  return materialImages.value[attrs?.src] || attrs?.src
+  const result = materialImages.value[attrs?.src] || attrs?.src
+  console.log('图片最终路径', result)
+  return result
 })
 </script>
 
