@@ -12,8 +12,8 @@ const router = useRouter()
 const navList = computed(() => {
   const list = [
     { path: '/me-house-list', text: '家庭管理', icon: 'wap-home-o' },
-    { path: '/me-setting', text: '设置', icon: 'setting-o' },
     { path: '/me-host-list', text: '主机', icon: 'desktop-o' },
+    { path: '/me-setting', text: '设置', icon: 'setting-o' },
   ]
   return list
 })
