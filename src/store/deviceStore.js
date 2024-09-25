@@ -61,8 +61,10 @@ export default defineStore(storeName, () => {
     if (!reload) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
     const { data: resourceData } = await getDeviceResource()
+
     const macList = data.filter((item) => item.daleixing === '000')
-    hostList.value = macList
+    hostList.value = macList.map((item) => ({ ...item, online: 0 }))
+
     deviceList.value = data
       .map((item) => {
         const columns = TYPE_VALUE_EXECL.filter(
@@ -105,6 +107,7 @@ export default defineStore(storeName, () => {
           // 记录设备操作状态数据
           modeStatusList: modeList.map(({ useColumns, ...statusItem }) => statusItem),
           loading: false, // 是否还在等待检查状态
+          online: 0, // 是否在线
         }
       })
       .sort((a, b) => a.sort - b.sort)
@@ -123,24 +126,19 @@ export default defineStore(storeName, () => {
     })
   }
 
-  // mqtt 改变设备状态
-  const useDeviceMqttChange = (json) => {
-    //{"bianhao":"9D3109E7-9236-4BE1-84B1-73B2A6FA4D5B","shuxing":"switch","shuxingzhuangtai":"on","shuxingzhi":""}
+  //mqtt 改变设备、网关在线状态 online
+  const useDeviceHostOnlineChange = (json) => {
     if (!json || !isObjectString(json)) return
-    const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi = '1' } = JSON.parse(json)
-    let deviceItem = deviceList.value.find((item) => item.id == bianhao)
-    if (!deviceItem) return
-    deviceItem = {
-      ...deviceItem,
-      modeList: deviceItem.modeList.map((modeItem) => {
-        if (modeItem.use == shuxing) {
-          return { ...modeItem, useValue: shuxingzhi || '1', useStatus: shuxingzhuangtai }
-        }
-        return modeItem
-      }),
+    //shifouwangguan 是否网关  zaixianzhuangtai 是否在线
+    const { bianhao, zaixianzhuangtai, shifouwangguan = 0 } = JSON.parse(json)
+    if (shifouwangguan) {
+      useDeviceItemChange({ id: bianhao, online: zaixianzhuangtai })
+    } else {
+      hostList.value = hostList.value.map((hostItem) => {
+        if (hostItem.id == bianhao) return { ...hostItem, online: zaixianzhuangtai }
+        return hostItem
+      })
     }
-
-    useDeviceItemChange(deviceItem)
   }
 
   const setDeviceLoading = (id, bool) => {
@@ -164,7 +162,7 @@ export default defineStore(storeName, () => {
     useGetDeviceListSync,
     useDeviceItemChange,
     useGetDeviceItem,
-    useDeviceMqttChange,
+    useDeviceHostOnlineChange,
     reset,
     init,
     setModeColumns,

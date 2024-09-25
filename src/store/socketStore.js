@@ -33,6 +33,7 @@ export default defineStore('socketStore', () => {
   const resultTopic = ref('') // 通用应答主推
   const heartTopic = ref('') // 心跳主图
   const deviceStateTopic = ref('') // 设备状态主题
+  const deviceOnlineTopic = ref('') // 设备/网关在线主题
   const isDisConnect = ref(false) // 是否主动断开链接
   const showLog = ref(getStorage(import.meta.env.VITE_APP_DEVELOPER) ?? false)
 
@@ -40,8 +41,6 @@ export default defineStore('socketStore', () => {
     console.log('useSetShowLog', value)
     showLog.value = value
   }
-
-  const isConnected = computed(() => mqClient?.isConnected()) // mqtt是否已经链接
 
   const getMsgid = (theme, id) => {
     return `${username.value}/${theme}/${id}/${getTimeStamp()}`
@@ -58,6 +57,8 @@ export default defineStore('socketStore', () => {
     heartTopic.value = `App/HeartBeat/${username.value}`
 
     deviceStateTopic.value = `Cloud/${DEVICE}/State/${username.value}`
+
+    deviceOnlineTopic.value = `App/Online/${username.value}`
 
     initClient()
   }
@@ -77,7 +78,9 @@ export default defineStore('socketStore', () => {
       const data = JSON.parse(payloadString)
 
       if (topic == deviceStateTopic.value) {
-        onDeviceSubscribe(data)
+        onDeviceStatusSubscribe(data)
+      } else if (topic === deviceOnlineTopic.value) {
+        onDeviceOnlineSubscribe(data)
       } else if (topic == resultTopic.value) {
         onResponesSubscribe(data)
       } else {
@@ -98,6 +101,11 @@ export default defineStore('socketStore', () => {
     mqClient?.subscribe(deviceStateTopic.value, {
       onSuccess: () => {
         console.log('订阅设备状态主题成功')
+      },
+    })
+    mqClient?.subscribe(deviceOnlineTopic.value, {
+      onSuccess: () => {
+        console.log('订阅设备在线主题成功')
       },
     })
     mqClient?.subscribe(resultTopic.value, {
@@ -240,7 +248,7 @@ export default defineStore('socketStore', () => {
    * 当设备的状态发生改变，云端或者网关会主动推送设备状态给App； 云端/网关->App
    * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
    * **/
-  function onDeviceSubscribe(data) {
+  function onDeviceStatusSubscribe(data) {
     if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
 
     const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = data
@@ -261,6 +269,13 @@ export default defineStore('socketStore', () => {
       }
       return item
     })
+  }
+
+  /***
+   * 设备、网关在线状态改变订阅 online
+   * ***/
+  function onDeviceOnlineSubscribe(data) {
+    if (showLog.value) console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
   }
 
   /**
