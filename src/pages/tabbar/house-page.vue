@@ -203,9 +203,9 @@ function onAllDeviceToggle(deviceList, status) {
 
 // 自定义 tabs 滚动事件
 const scrollContainerRef = ref(null)
-const onRoomChange = (roomItem, roomIndex) => {
+const onRoomChange = (id, roomIndex) => {
   if (!dragOptions.value.disabled) return
-  currentRoomId.value = roomItem.id
+  currentRoomId.value = id
   const item = scrollContainerRef.value.children[roomIndex]
   const containerWidth = scrollContainerRef.value.offsetWidth
   const itemWidth = item.offsetWidth
@@ -216,6 +216,13 @@ const onRoomChange = (roomItem, roomIndex) => {
     behavior: 'smooth',
   })
 }
+
+const onRoomSwipeChange = () => {
+  let roomIndex = roomFilterList.value.findIndex((item) => item.id === currentRoomId.value) + 1
+  roomIndex === -1 ? 0 : roomIndex + 1
+  onRoomChange(currentRoomId.value, roomIndex)
+}
+
 // app 滑动到顶部
 const onAppScrollend = async () => {
   const { top } = useScreenSafeArea()
@@ -370,7 +377,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 :key="roomIndex"
                 class="relative flex-none leading-[44px] flex px-2 transition-all"
                 :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
-                @click="onRoomChange(roomItem, roomIndex)"
+                @click="onRoomChange(roomItem.id, roomIndex)"
               >
                 {{ roomItem.label }}
               </li>
@@ -425,6 +432,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           line-width="0"
           animated
           :swipeable="dragOptions.disabled"
+          @change="onRoomSwipeChange"
         >
           <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
             <section class="p-4 min-h-[85vh]">
