@@ -276,7 +276,7 @@ export default defineStore('socketStore', () => {
    * 设备、网关在线状态改变订阅 online
    * ***/
   function onDeviceOnlineSubscribe(data) {
-    console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
+    if (showLog.value) console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
     const { bianhao, shifouwangguan, zaixianzhuangtai } = data
     const { deviceList, hostList } = storeToRefs(deviceStore())
     if (shifouwangguan) {
