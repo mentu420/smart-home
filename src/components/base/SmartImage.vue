@@ -21,9 +21,7 @@ const { materialImages } = storeToRefs(materialStore())
 // 原生调用
 function getPhotolocalDone(localUrl) {
   if (materialImages.value[localUrl]) return
-  console.log('原生读取图片完成', localUrl)
   materialImages.value = { ...materialImages.value, [attrs.src]: localUrl }
-  console.log('更新静态资源库', materialImages.value)
 }
 // 原生方法挂载
 window.getPhotolocalDone = getPhotolocalDone
@@ -38,7 +36,6 @@ watch(
   () => attrs,
   (val) => {
     if (!val.src) return
-    console.log('开始获取图片', val.src)
     onLoad(val.src)
   },
   { immediate: true }

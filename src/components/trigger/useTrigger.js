@@ -5,6 +5,7 @@ import { TYPE_VALUE_EXECL, USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import socketStore from '@/store/socketStore'
 import { throttle, stringToArray, debounce } from '@/utils/common'
+import { showToast } from 'vant'
 
 //设备是否禁用 适用['100', '101', '102', '103', '104']
 export const isDisabled = (config) => config?.switch?.useStatus == 'off'
@@ -102,7 +103,7 @@ export const onDeviceStatusRefresh = debounce((id) => {
 
 // 设备模块控制
 export const triggerControl = throttle(({ use, device, config }) => {
-  const { modeStatusList, id } = device
+  const { modeStatusList, online, id } = device
   const newModeList = modeStatusList.map((modeItem) => {
     const modeConfig = config[modeItem.use]
     return { ...modeItem, ...modeConfig }

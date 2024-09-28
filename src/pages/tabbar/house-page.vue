@@ -5,7 +5,6 @@ import { useRoute, useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 import { setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
-import socketStore from '@/store/socketStore'
 import DeviceCardItem from '@/pages/tabbar/components/DeviceCardItem.vue'
 import HousePopover from '@/pages/tabbar/components/HousePopover.vue'
 import ScenenCardItem from '@/pages/tabbar/components/ScenenCardItem.vue'
@@ -105,21 +104,6 @@ const showDragBtn = computed(() => {
   }
 })
 
-// 控制设备
-const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
-  const { mqttDevicePublish } = socketStore()
-  const switchMode = modeList.find((item) => ['switch'].includes(item.use))
-  if (switchMode) {
-    const useStatus = status || switchMode.useStatus == 'on' ? 'off' : 'on'
-    mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
-  } else {
-    if (status) return
-    const playMode = modeList.find((item) => ['playControl'].includes(item.use))
-    const useStatus = playMode.useStatus == 'play' ? 'pause' : 'play'
-    mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
-  }
-}
-
 // 初始化数据 hId 初始化房屋id
 // 请求完所有数据后设置当前房屋数据
 const onReload = async (hId) => {
@@ -194,18 +178,11 @@ const onHouseSelect = async (action) => {
   }
 }
 
-// 设备全开全关
-function onAllDeviceToggle(deviceList, status) {
-  deviceList.forEach((deviceItem) => {
-    onSwitchDeviceItem(deviceItem, status)
-  })
-}
-
 // 自定义 tabs 滚动事件
 const scrollContainerRef = ref(null)
-const onRoomChange = (roomItem, roomIndex) => {
+const onRoomChange = (id, roomIndex) => {
   if (!dragOptions.value.disabled) return
-  currentRoomId.value = roomItem.id
+  currentRoomId.value = id
   const item = scrollContainerRef.value.children[roomIndex]
   const containerWidth = scrollContainerRef.value.offsetWidth
   const itemWidth = item.offsetWidth
@@ -216,6 +193,13 @@ const onRoomChange = (roomItem, roomIndex) => {
     behavior: 'smooth',
   })
 }
+
+const onRoomSwipeChange = () => {
+  let roomIndex = roomFilterList.value.findIndex((item) => item.id === currentRoomId.value) + 1
+  roomIndex === -1 ? 0 : roomIndex + 1
+  onRoomChange(currentRoomId.value, roomIndex)
+}
+
 // app 滑动到顶部
 const onAppScrollend = async () => {
   const { top } = useScreenSafeArea()
@@ -370,7 +354,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 :key="roomIndex"
                 class="relative flex-none leading-[44px] flex px-2 transition-all"
                 :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
-                @click="onRoomChange(roomItem, roomIndex)"
+                @click="onRoomChange(roomItem.id, roomIndex)"
               >
                 {{ roomItem.label }}
               </li>
@@ -425,6 +409,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           line-width="0"
           animated
           :swipeable="dragOptions.disabled"
+          @change="onRoomSwipeChange"
         >
           <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
             <section class="p-4 min-h-[85vh]">

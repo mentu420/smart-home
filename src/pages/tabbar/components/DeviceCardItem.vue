@@ -9,6 +9,7 @@ import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 import { onDeviceStatusChange, onDeviceStatusRefresh } from '@/components/trigger/useTrigger'
 import { TriggerFloatBubble } from '@/components/trigger/'
+import { showToast } from 'vant'
 
 const props = defineProps({
   isDrag: {
@@ -36,21 +37,28 @@ const showStatus = computed(() => ['100', '102', '103', '104'].includes(deviceIt
 // 获取设备状态
 const getDeviceStatus = computed(() => {
   if (!deviceItem.value) return 0
-  const { modeStatusList = [], classify } = deviceItem.value
+  const { modeStatusList = [], classify, online } = deviceItem.value
   if (['100', '101', '102', '103', '104'].includes(classify)) {
-    return modeStatusList.some((modeItem) => modeItem?.use == SWITCH && modeItem?.useStatus == ON)
-      ? 1
-      : 0
+    return !online
+      ? 2
+      : modeStatusList.some((modeItem) => modeItem?.use == SWITCH && modeItem?.useStatus == ON)
+        ? 1
+        : 0
   } else {
     const payModeItem = modeStatusList.find((item) => item.use == PLAYCONTROL) || {
       useStatus: PLAY,
     }
-    return payModeItem.useStatus == PLAY ? 1 : 0
+    return !online ? 2 : payModeItem.useStatus == PLAY ? 1 : 0
   }
 })
 
 // 设备开关触发
 const onSwitchChanage = throttle(async () => {
+  if (!deviceItem.value.online) {
+    console.log(showToast)
+    showToast('设备不在线！')
+    return
+  }
   const { mqttDevicePublish } = socketStore()
   const { modeStatusList = [], id } = deviceItem.value
   const switchMode = modeStatusList.find((item) => [SWITCH].includes(item.use))
@@ -104,7 +112,10 @@ const openDeviceConfig = () => {
       <li class="flex justify-between px-3">
         <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
           <template #error>
-            <IconFont class="text-origin" :icon="deviceItem.icon" />
+            <IconFont
+              :class="getDeviceStatus == 2 ? 'text-gray-400' : 'text-origin'"
+              :icon="deviceItem.icon"
+            />
           </template>
         </SmartImage>
         <van-icon class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
@@ -123,33 +134,6 @@ const openDeviceConfig = () => {
       <p class="flex-1 truncate">{{ deviceItem?.label }}</p>
       <van-icon class="!text-[20px] flex-shrink-0" name="wap-nav" />
     </div>
-    <!-- <ul class="flex justify-between cursor-pointer" @click.stop="openDevice">
-      <li class="space-y-2 p-3">
-        <template v-if="!props.isDrag">
-          <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
-            <template #error>
-              <IconFont class="text-origin" :icon="deviceItem.icon" />
-            </template>
-          </SmartImage>
-        </template>
-
-        <p class="break-all">{{ deviceItem?.label }}</p>
-        <p v-if="!props.isDrag && showStatus" class="text-xs text-gray-400">
-          {{ ['关', '开', '离线'][getDeviceStatus] }}
-        </p>
-      </li>
-      <li v-if="props.isDrag" class="p-3">
-        <van-icon class="!text-[20px]" name="wap-nav" />
-      </li>
-      <li v-else class="flex flex-col justify-between text-gray-400">
-        <div class="text-right p-3">
-          <van-icon class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
-        </div>
-        <div v-if="showStatus" class="p-3" @click.stop="onSwitchChanage">
-          <IconFont :class="{ 'text-origin': getDeviceStatus == 1 }" icon="switch" />
-        </div>
-      </li>
-    </ul> -->
     <TriggerFloatBubble :id="props.id" ref="triggerRef" :title="deviceItem?.label" :scope="scope" />
   </div>
 </template>

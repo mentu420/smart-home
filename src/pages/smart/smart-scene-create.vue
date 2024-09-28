@@ -164,6 +164,10 @@ const onDelectSceneItem = async (sceneItem) => {
 async function onActionSelect(action, actionItem, modeItem) {
   if (action.id == 0) {
     if (modeItem) {
+      if (!actionItem.online) {
+        showToast('设备不在线')
+        return
+      }
       socketStore().mqttDevicePublish({ id: actionItem.id, ...modeItem })
     } else {
       onScenePublishDebounce(actionItem.id)

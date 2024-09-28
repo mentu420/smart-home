@@ -4,6 +4,8 @@ import _ from 'lodash'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
+import { showToast } from 'vant'
+
 import TriggerModePopover from './TriggerModePopover.vue'
 import {
   getModeActions,
@@ -90,6 +92,10 @@ watch(
 )
 
 const onStatusChange = () => {
+  if (!deviceItem.value.online) {
+    showToast('设备不在线')
+    return
+  }
   const useStatus = config.value[PLAYCONTROL].useStatus == PLAY ? PAUSE : PLAY
   config.value = {
     ...config.value,
@@ -99,21 +105,29 @@ const onStatusChange = () => {
 }
 
 const onSrotChange = (useStatus) => {
+  if (!deviceItem.value.online) {
+    showToast('设备不在线')
+    return
+  }
   config.value[CUTSONG] = { useValue: '1', useStatus }
   triggerControl({ use: CUTSONG, device: deviceItem.value, config: config.value })
 }
 
 const onVolumeChange = debounce(() => {
+  if (!deviceItem.value.online) {
+    showToast('设备不在线')
+    return
+  }
   config.value[VOLUME] = { useValue: config.value[VOLUME].useValue, useStatus: VOLUME }
   triggerControl({ use: VOLUME, device: deviceItem.value, config: config.value })
 }, 1000)
 
 const onModeChange = (use) => {
+  if (!deviceItem.value.online) {
+    showToast('设备不在线')
+    return
+  }
   triggerControl({ use, device: deviceItem.value, config: config.value })
-}
-
-const onProcessChange = () => {
-  triggerControl({ use: PROCESS, device: deviceItem.value, config: config.value })
 }
 </script>
 
