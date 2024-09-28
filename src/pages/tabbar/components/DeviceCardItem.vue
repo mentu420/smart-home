@@ -55,7 +55,6 @@ const getDeviceStatus = computed(() => {
 // 设备开关触发
 const onSwitchChanage = throttle(async () => {
   if (!deviceItem.value.online) {
-    console.log(showToast)
     showToast('设备不在线！')
     return
   }

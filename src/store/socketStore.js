@@ -73,7 +73,6 @@ export default defineStore('socketStore', () => {
       console.log('断开连接--------------------', err)
     }
     mqClient.onMessageArrived = (message) => {
-      console.log('onMessageArrived', message)
       const { payloadString, topic } = message
       if (!payloadString || !isObjectString(payloadString)) return
       const data = JSON.parse(payloadString)
