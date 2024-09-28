@@ -5,7 +5,6 @@ import { useRoute, useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 import { setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
-import socketStore from '@/store/socketStore'
 import DeviceCardItem from '@/pages/tabbar/components/DeviceCardItem.vue'
 import HousePopover from '@/pages/tabbar/components/HousePopover.vue'
 import ScenenCardItem from '@/pages/tabbar/components/ScenenCardItem.vue'
@@ -105,21 +104,6 @@ const showDragBtn = computed(() => {
   }
 })
 
-// 控制设备
-const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
-  const { mqttDevicePublish } = socketStore()
-  const switchMode = modeList.find((item) => ['switch'].includes(item.use))
-  if (switchMode) {
-    const useStatus = status || switchMode.useStatus == 'on' ? 'off' : 'on'
-    mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
-  } else {
-    if (status) return
-    const playMode = modeList.find((item) => ['playControl'].includes(item.use))
-    const useStatus = playMode.useStatus == 'play' ? 'pause' : 'play'
-    mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
-  }
-}
-
 // 初始化数据 hId 初始化房屋id
 // 请求完所有数据后设置当前房屋数据
 const onReload = async (hId) => {
@@ -192,13 +176,6 @@ const onHouseSelect = async (action) => {
     setDefaultCurrentFloorId()
     loading.value = false
   }
-}
-
-// 设备全开全关
-function onAllDeviceToggle(deviceList, status) {
-  deviceList.forEach((deviceItem) => {
-    onSwitchDeviceItem(deviceItem, status)
-  })
 }
 
 // 自定义 tabs 滚动事件

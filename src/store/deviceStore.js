@@ -126,21 +126,6 @@ export default defineStore(storeName, () => {
     })
   }
 
-  //mqtt 改变设备、网关在线状态 online
-  const useDeviceHostOnlineChange = (json) => {
-    if (!json || !isObjectString(json)) return
-    //shifouwangguan 是否网关  zaixianzhuangtai 是否在线
-    const { bianhao, zaixianzhuangtai, shifouwangguan = 0 } = JSON.parse(json)
-    if (shifouwangguan) {
-      useDeviceItemChange({ id: bianhao, online: zaixianzhuangtai })
-    } else {
-      hostList.value = hostList.value.map((hostItem) => {
-        if (hostItem.id == bianhao) return { ...hostItem, online: zaixianzhuangtai }
-        return hostItem
-      })
-    }
-  }
-
   const setDeviceLoading = (id, bool) => {
     deviceList.value = deviceList.value.map((deviceItem) => {
       if (deviceItem.id == id) {
@@ -162,7 +147,6 @@ export default defineStore(storeName, () => {
     useGetDeviceListSync,
     useDeviceItemChange,
     useGetDeviceItem,
-    useDeviceHostOnlineChange,
     reset,
     init,
     setModeColumns,

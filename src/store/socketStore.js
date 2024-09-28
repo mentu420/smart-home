@@ -73,6 +73,7 @@ export default defineStore('socketStore', () => {
       console.log('断开连接--------------------', err)
     }
     mqClient.onMessageArrived = (message) => {
+      console.log('onMessageArrived', message)
       const { payloadString, topic } = message
       if (!payloadString || !isObjectString(payloadString)) return
       const data = JSON.parse(payloadString)
@@ -275,7 +276,20 @@ export default defineStore('socketStore', () => {
    * 设备、网关在线状态改变订阅 online
    * ***/
   function onDeviceOnlineSubscribe(data) {
-    if (showLog.value) console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
+    console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
+    const { bianhao, shifouwangguan, zaixianzhuangtai } = data
+    const { deviceList, hostList } = storeToRefs(deviceStore())
+    if (shifouwangguan) {
+      hostList.value = hostList.value.map((item) => ({
+        ...item,
+        online: bianhao == item.id ? zaixianzhuangtai : Number(item.online),
+      }))
+    } else {
+      deviceList.value = deviceList.value.map((item) => ({
+        ...item,
+        online: bianhao == item.id ? zaixianzhuangtai : Number(item.online),
+      }))
+    }
   }
 
   /**

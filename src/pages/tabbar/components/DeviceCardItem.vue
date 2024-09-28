@@ -9,6 +9,7 @@ import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
 import { onDeviceStatusChange, onDeviceStatusRefresh } from '@/components/trigger/useTrigger'
 import { TriggerFloatBubble } from '@/components/trigger/'
+import { showToast } from 'vant'
 
 const props = defineProps({
   isDrag: {
@@ -36,21 +37,28 @@ const showStatus = computed(() => ['100', '102', '103', '104'].includes(deviceIt
 // 获取设备状态
 const getDeviceStatus = computed(() => {
   if (!deviceItem.value) return 0
-  const { modeStatusList = [], classify } = deviceItem.value
+  const { modeStatusList = [], classify, online } = deviceItem.value
   if (['100', '101', '102', '103', '104'].includes(classify)) {
-    return modeStatusList.some((modeItem) => modeItem?.use == SWITCH && modeItem?.useStatus == ON)
-      ? 1
-      : 0
+    return !online
+      ? 2
+      : modeStatusList.some((modeItem) => modeItem?.use == SWITCH && modeItem?.useStatus == ON)
+        ? 1
+        : 0
   } else {
     const payModeItem = modeStatusList.find((item) => item.use == PLAYCONTROL) || {
       useStatus: PLAY,
     }
-    return payModeItem.useStatus == PLAY ? 1 : 0
+    return !online ? 2 : payModeItem.useStatus == PLAY ? 1 : 0
   }
 })
 
 // 设备开关触发
 const onSwitchChanage = throttle(async () => {
+  if (!deviceItem.value.online) {
+    console.log(showToast)
+    showToast('设备不在线！')
+    return
+  }
   const { mqttDevicePublish } = socketStore()
   const { modeStatusList = [], id } = deviceItem.value
   const switchMode = modeStatusList.find((item) => [SWITCH].includes(item.use))
@@ -104,7 +112,10 @@ const openDeviceConfig = () => {
       <li class="flex justify-between px-3">
         <SmartImage class="w-[28px] h-[28px]" :src="deviceItem?.iconUrl">
           <template #error>
-            <IconFont class="text-origin" :icon="deviceItem.icon" />
+            <IconFont
+              :class="getDeviceStatus == 2 ? 'text-gray-400' : 'text-origin'"
+              :icon="deviceItem.icon"
+            />
           </template>
         </SmartImage>
         <van-icon class="!text-[20px]" name="ellipsis" @click.stop="openDeviceConfig" />
