@@ -92,7 +92,7 @@ export default defineStore('socketStore', () => {
       }
     }
     mqClient.onMessageDelivered = (message) => {
-      console.log('发送信息--------------------', message)
+      if (showLog.value) console.log('发送信息--------------------', message)
     }
   }
 
@@ -278,16 +278,16 @@ export default defineStore('socketStore', () => {
     console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
     const { bianhao, shifouwangguan, zaixianzhuangtai } = data
     const { deviceList, hostList } = storeToRefs(deviceStore())
-    if (shifouwangguan) {
-      hostList.value = hostList.value.map((item) => ({
-        ...item,
-        online: bianhao == item.id ? zaixianzhuangtai : Number(item.online),
-      }))
+    if (shifouwangguan === '1') {
+      hostList.value = hostList.value.map((item) => {
+        if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
+        return item
+      })
     } else {
-      deviceList.value = deviceList.value.map((item) => ({
-        ...item,
-        online: bianhao == item.id ? zaixianzhuangtai : Number(item.online),
-      }))
+      deviceList.value = deviceList.value.map((item) => {
+        if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
+        return item
+      })
     }
   }
 
