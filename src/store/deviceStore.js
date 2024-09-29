@@ -56,14 +56,34 @@ export default defineStore(storeName, () => {
     })
   }
 
+  const updateHostList = (newHostList) => {
+    if (!hostList.value.length) {
+      hostList.value = newHostList
+    } else {
+      hostList.value = hostList.value.reduce((acc, host) => {
+        const newHost = newHostList.find((newHost) => newHost.id === host.id)
+
+        if (newHost) {
+          // 合并属性
+          acc.push({
+            ...host,
+            ...newHost,
+            online: host.online,
+          })
+        }
+
+        return acc
+      }, [])
+    }
+  }
+
   //异步获取设备列表
   const useGetDeviceListSync = async (reload = false) => {
     if (!reload && !deviceList.value.length) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
     const { data: resourceData } = await getDeviceResource()
 
-    const macList = data.filter((item) => item.daleixing === '000')
-    hostList.value = macList.map((item) => ({ ...item, online: 0 }))
+    updateHostList(data.filter((item) => item.daleixing === '000'))
 
     const newDeviceList = data
       .map((item) => {

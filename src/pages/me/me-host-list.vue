@@ -27,35 +27,44 @@ const onUnbindDevice = async (item) => {
 <template>
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="主机列表" />
-    <van-cell-group inset class="!my-4">
-      <van-cell v-for="hostItem in hostList" :key="hostItem.ip" :title="hostItem.mac" center>
-        <template #label>
+    <ul class="p-4">
+      <li v-for="hostItem in hostList" :key="hostItem.ip" class="bg-white rounded-lg p-4">
+        <div class="flex justify-between items-center">
+          <p>{{ hostItem.mac }}</p>
           <p
-            v-for="(hostLabel, hostKey) in {
-              mingcheng: '名称',
-              ip: 'IP',
-              model: '型号',
-              SWVersion: '软件版本',
-              HWVersion: '硬件版本',
-            }"
-            :key="hostKey"
+            class="text-xs rounded-full px-6 py-2"
+            :class="hostItem.online ? 'bg-primary text-white' : 'bg-gray-300 text-[#666]'"
           >
-            {{ hostLabel }} : {{ hostItem[hostKey] }}
+            {{ hostItem.online ? '在线' : '离线' }}
           </p>
-        </template>
-        <template #extra>
-          <van-button
-            v-if="houseUserPower(currentHouse?.id) != 2"
-            v-loading-click="() => onUnbindDevice(hostItem)"
-            class="!px-6"
-            size="small"
-            plain
-            round
-          >
-            解绑
-          </van-button>
-        </template>
-      </van-cell>
-    </van-cell-group>
+        </div>
+        <div class="my-4">
+          <div class="text-[12px] text-gray-400 space-y-2">
+            <p
+              v-for="(hostLabel, hostKey) in {
+                mingcheng: '名称',
+                ip: 'IP',
+                model: '型号',
+                SWVersion: '软件版本',
+                HWVersion: '硬件版本',
+              }"
+              :key="hostKey"
+            >
+              {{ hostLabel }} : {{ hostItem[hostKey] }}
+            </p>
+          </div>
+        </div>
+        <van-button
+          v-if="houseUserPower(currentHouse?.id) != 2"
+          v-loading-click="() => onUnbindDevice(hostItem)"
+          class="!px-6"
+          plain
+          round
+          block
+        >
+          解绑
+        </van-button>
+      </li>
+    </ul>
   </div>
 </template>
