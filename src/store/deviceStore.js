@@ -1,7 +1,7 @@
 import localforage from 'localforage'
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
-
+import _ from 'lodash'
 import { getDeviceList, getDeviceResource } from '@/apis/smartApi'
 import { CLASSIFY_ICON, USE_KEY, TYPE_VALUE_EXECL } from '@/enums/deviceEnums'
 import { isObjectString, stringToArray } from '@/utils/common'
@@ -58,14 +58,14 @@ export default defineStore(storeName, () => {
 
   //异步获取设备列表
   const useGetDeviceListSync = async (reload = false) => {
-    if (!reload) return deviceList.value
+    if (!reload && !deviceList.value.length) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
     const { data: resourceData } = await getDeviceResource()
 
     const macList = data.filter((item) => item.daleixing === '000')
     hostList.value = macList.map((item) => ({ ...item, online: 0 }))
 
-    deviceList.value = data
+    const newDeviceList = data
       .map((item) => {
         const columns = TYPE_VALUE_EXECL.filter(
           (typeItem) => typeItem.category == item.xiaoleixing
@@ -111,6 +111,27 @@ export default defineStore(storeName, () => {
         }
       })
       .sort((a, b) => a.sort - b.sort)
+
+    if (!deviceList.value.length) {
+      deviceList.value = newDeviceList
+    } else {
+      deviceList.value = deviceList.value.reduce((acc, device) => {
+        const newDevice = newDeviceList.find((newDevice) => newDevice.id === device.id)
+
+        if (newDevice) {
+          // 合并属性
+          acc.push({
+            ...device,
+            ...newDevice,
+            online: device.online,
+            modeStatusList: device.modeStatusList,
+          })
+        }
+
+        return acc
+      }, [])
+    }
+
     return deviceList.value
   }
 
