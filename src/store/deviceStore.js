@@ -107,7 +107,7 @@ export default defineStore(storeName, () => {
           // 记录设备操作状态数据
           modeStatusList: modeList.map(({ useColumns, ...statusItem }) => statusItem),
           loading: false, // 是否还在等待检查状态
-          online: 0, // 是否在线
+          online: false, // 是否在线
         }
       })
       .sort((a, b) => a.sort - b.sort)
