@@ -57,8 +57,9 @@ export default defineStore(storeName, () => {
   }
 
   const updateHostList = (newHostList) => {
-    if (!hostList.value.length) {
-      hostList.value = newHostList
+    console.log('updateHostList', !hostList.value.length)
+    if (hostList.value.length == 0) {
+      hostList.value = newHostList.map((item) => ({ ...item, online: false }))
     } else {
       hostList.value = hostList.value.reduce((acc, host) => {
         const newHost = newHostList.find((newHost) => newHost.id === host.id)
@@ -68,7 +69,7 @@ export default defineStore(storeName, () => {
           acc.push({
             ...host,
             ...newHost,
-            online: host.online,
+            online: host.online ?? false,
           })
         }
 
@@ -132,7 +133,7 @@ export default defineStore(storeName, () => {
       })
       .sort((a, b) => a.sort - b.sort)
 
-    if (!deviceList.value.length) {
+    if (deviceList.value.length == 0) {
       deviceList.value = newDeviceList
     } else {
       deviceList.value = deviceList.value.reduce((acc, device) => {

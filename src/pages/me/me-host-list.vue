@@ -31,12 +31,6 @@ const onUnbindDevice = async (item) => {
       <li v-for="hostItem in hostList" :key="hostItem.ip" class="bg-white rounded-lg p-4">
         <div class="flex justify-between items-center">
           <p>{{ hostItem.mac }}</p>
-          <p
-            class="text-xs rounded-full px-6 py-2"
-            :class="hostItem.online ? 'bg-primary text-white' : 'bg-gray-300 text-[#666]'"
-          >
-            {{ hostItem.online ? '在线' : '离线' }}
-          </p>
         </div>
         <div class="my-4">
           <div class="text-[12px] text-gray-400 space-y-2">
@@ -52,6 +46,7 @@ const onUnbindDevice = async (item) => {
             >
               {{ hostLabel }} : {{ hostItem[hostKey] }}
             </p>
+            <p>是否在线：{{ hostItem.online ? '在线' : '离线' }}</p>
           </div>
         </div>
         <van-button

@@ -280,9 +280,11 @@ export default defineStore('socketStore', () => {
     const { deviceList, hostList } = storeToRefs(deviceStore())
     if (shifouwangguan === '1') {
       hostList.value = hostList.value.map((item) => {
+        console.log('online', zaixianzhuangtai === '1')
         if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
         return item
       })
+      console.log(hostList.value)
     } else {
       deviceList.value = deviceList.value.map((item) => {
         if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
@@ -336,20 +338,15 @@ export default defineStore('socketStore', () => {
     useMqttPublish(SENCE, message)
   }
 
-  watch(
-    () => onLine.value,
-    (val) => {
-      console.log('在线状态变化', val)
-      if (val) {
-        init()
-        waitConnected()
-      } else {
-        closeUdpService()
-        disReconnect()
-      }
-    },
-    { immediate: true }
-  )
+  const closeMqtt = () => {
+    closeUdpService()
+    disReconnect()
+  }
 
-  return { mqttScenePublish, mqttDevicePublish, useSetShowLog }
+  const openMqtt = () => {
+    init()
+    waitConnected()
+  }
+
+  return { mqttScenePublish, mqttDevicePublish, useSetShowLog, closeMqtt, openMqtt }
 })
