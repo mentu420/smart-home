@@ -10,12 +10,10 @@ const storeName = 'deviceStore'
 
 export default defineStore(storeName, () => {
   const deviceList = ref([]) //设备列表
-  const hostList = ref([]) //网关列表
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
     deviceList.value = storeRes?.deviceList ?? []
-    hostList.value = storeRes?.hostList ?? []
   }
 
   // 获取设备图片
@@ -56,35 +54,11 @@ export default defineStore(storeName, () => {
     })
   }
 
-  const updateHostList = (newHostList) => {
-    console.log('updateHostList', !hostList.value.length)
-    if (hostList.value.length == 0) {
-      hostList.value = newHostList.map((item) => ({ ...item, online: false }))
-    } else {
-      hostList.value = hostList.value.reduce((acc, host) => {
-        const newHost = newHostList.find((newHost) => newHost.id === host.id)
-
-        if (newHost) {
-          // 合并属性
-          acc.push({
-            ...host,
-            ...newHost,
-            online: host.online ?? false,
-          })
-        }
-
-        return acc
-      }, [])
-    }
-  }
-
   //异步获取设备列表
   const useGetDeviceListSync = async (reload = false) => {
     if (!reload && !deviceList.value.length) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
     const { data: resourceData } = await getDeviceResource()
-
-    updateHostList(data.filter((item) => item.daleixing === '000'))
 
     const newDeviceList = data
       .map((item) => {
@@ -177,14 +151,16 @@ export default defineStore(storeName, () => {
     })
   }
 
+  const getHostList = computed(() => deviceList.value.filter((item) => item.daleixing === '000'))
+
   const reset = () => {
     deviceList.value = []
   }
 
   return {
     deviceList,
-    hostList,
     includesUse,
+    getHostList,
     getDeviceIcon,
     useGetDeviceListSync,
     useDeviceItemChange,

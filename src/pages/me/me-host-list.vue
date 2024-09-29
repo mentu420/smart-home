@@ -11,7 +11,7 @@ const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 
 defineOptions({ name: 'MeHostList' })
 
-const { hostList } = storeToRefs(deviceStore())
+const { getHostList } = storeToRefs(deviceStore())
 
 const onUnbindDevice = async (item) => {
   try {
@@ -28,7 +28,7 @@ const onUnbindDevice = async (item) => {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="主机列表" />
     <ul class="p-4">
-      <li v-for="hostItem in hostList" :key="hostItem.ip" class="bg-white rounded-lg p-4">
+      <li v-for="hostItem in getHostList" :key="hostItem.ip" class="bg-white rounded-lg p-4">
         <div class="flex justify-between items-center">
           <p>{{ hostItem.mac }}</p>
         </div>

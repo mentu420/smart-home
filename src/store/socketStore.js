@@ -277,20 +277,11 @@ export default defineStore('socketStore', () => {
   function onDeviceOnlineSubscribe(data) {
     console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
     const { bianhao, shifouwangguan, zaixianzhuangtai } = data
-    const { deviceList, hostList } = storeToRefs(deviceStore())
-    if (shifouwangguan === '1') {
-      hostList.value = hostList.value.map((item) => {
-        console.log('online', zaixianzhuangtai === '1')
-        if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
-        return item
-      })
-      console.log(hostList.value)
-    } else {
-      deviceList.value = deviceList.value.map((item) => {
-        if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
-        return item
-      })
-    }
+    const { deviceList } = storeToRefs(deviceStore())
+    deviceList.value = deviceList.value.map((item) => {
+      if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
+      return item
+    })
   }
 
   /**
