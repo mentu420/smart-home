@@ -1,5 +1,5 @@
 import { useRect } from '@vant/use'
-import { computed } from 'vue'
+import { computed, unref } from 'vue'
 
 import { TYPE_VALUE_EXECL, USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
@@ -103,7 +103,7 @@ export const onDeviceStatusRefresh = debounce((id) => {
 
 // 设备模块控制
 export const triggerControl = throttle(({ use, device, config }) => {
-  const { modeStatusList, online, id } = device
+  const { modeStatusList, id } = device
   const newModeList = modeStatusList.map((modeItem) => {
     const modeConfig = config[modeItem.use]
     return { ...modeItem, ...modeConfig }
@@ -114,3 +114,9 @@ export const triggerControl = throttle(({ use, device, config }) => {
   onDeviceStatusChange(publishRes)
   onDeviceStatusRefresh(id)
 }, 500)
+
+export const isOfflineDevice = (device) => {
+  const { online = false } = unref(device)
+  if (!online) showToast({ message: '设备不在线！', position: 'bottom' })
+  return !online
+}

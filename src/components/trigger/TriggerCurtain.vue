@@ -3,9 +3,14 @@ import { ref, computed, watch } from 'vue'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import _ from 'lodash'
-import { showToast } from 'vant'
 
-import { getModeColumns, triggerControl, onConfigFormat, getModeRange } from './useTrigger'
+import {
+  getModeColumns,
+  triggerControl,
+  isOfflineDevice,
+  onConfigFormat,
+  getModeRange,
+} from './useTrigger'
 
 const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
 
@@ -61,27 +66,19 @@ watch(
 )
 
 const onStopToggle = () => {
-  if (!deviceItem.value.online) {
-    showToast('设备不在线')
-    return
-  }
+  if (isOfflineDevice(deviceItem)) return
+
   triggerControl({ use: STOP, device: deviceItem.value, config: config.value })
 }
 
 const onSwitch = (useValue) => {
-  if (!deviceItem.value.online) {
-    showToast('设备不在线')
-    return
-  }
+  if (isOfflineDevice(deviceItem)) return
   config.value[SWITCH] = { useStatus: useValue == '0' ? 'off' : 'on', useValue }
   triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })
 }
 
 const onPercentChange = () => {
-  if (!deviceItem.value.online) {
-    showToast('设备不在线')
-    return
-  }
+  if (isOfflineDevice(deviceItem)) return
   triggerControl({ use: PERCENT, device: deviceItem.value, config: config.value })
 }
 </script>
