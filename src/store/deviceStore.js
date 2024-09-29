@@ -130,7 +130,7 @@ export default defineStore(storeName, () => {
     return deviceList.value
   }
 
-  const useGetDeviceItem = (id) => deviceList.value.find((item) => item.id == id)
+  const useGetDeviceItem = (id) => deviceList.value.find((item) => item.id == id) ?? {}
 
   // 变更单设备数据
   const useDeviceItemChange = (payload) => {

@@ -7,7 +7,6 @@ import { getHouseList, getRoomList, getFloorList, getFamily } from '@/apis/house
 import deviceStore from './deviceStore'
 import smartStore from './smartStore'
 import userStore from './userStore'
-import socketStore from './socketStore'
 import { reloadStoreSync } from './utils'
 
 const storeName = 'houseStore'
@@ -25,7 +24,6 @@ export default defineStore(storeName, () => {
   const { sceneList } = storeToRefs(smartStore())
   const { userInfo } = storeToRefs(userStore())
   const { useGetToken, useSetToken } = userStore()
-  const { closeMqtt, openMqtt } = socketStore()
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
@@ -40,11 +38,9 @@ export default defineStore(storeName, () => {
   const setCurrentHouse = async (id) => {
     try {
       await getHouseList({ op: 5, fangwubianhao: id })
-      closeMqtt()
       currentHouse.value = houseList.value.find((item) => item.bianhao == id)
       useSetToken({ ...useGetToken(), fangwubianhao: id })
       await reloadStoreSync()
-      openMqtt()
     } catch (error) {
       await useGetHouseListSync(true)
       if (houseList.value.length == 0) return

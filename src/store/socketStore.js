@@ -17,9 +17,8 @@ const getLogStyle = (color) => {
 const getTimeStamp = () => new Date().valueOf()
 
 export default defineStore('socketStore', () => {
-  const { onLine } = storeToRefs(userStore())
   const { sceneList } = storeToRefs(smartStore())
-
+  const { onLine } = storeToRefs(userStore())
   let heartTimer = null
   let mqClient = null
   const heartDuration = 10 * 1000
@@ -338,6 +337,21 @@ export default defineStore('socketStore', () => {
     init()
     waitConnected()
   }
+
+  watch(
+    () => onLine.value,
+    (val) => {
+      if (val) {
+        openMqtt()
+      } else {
+        closeMqtt()
+      }
+    },
+    {
+      immediate: true,
+      deep: true,
+    }
+  )
 
   return { mqttScenePublish, mqttDevicePublish, useSetShowLog, closeMqtt, openMqtt }
 })
