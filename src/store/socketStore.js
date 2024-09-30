@@ -36,6 +36,14 @@ export default defineStore('socketStore', () => {
   const isDisConnect = ref(false) // 是否主动断开链接
   const showLog = ref(getStorage(import.meta.env.VITE_APP_DEVELOPER) ?? false)
 
+  watch(
+    () => onLine.value,
+    (val) => {
+      if (!val) disReconnect()
+    },
+    { deep: true, immediate: true }
+  )
+
   const useSetShowLog = (value) => {
     console.log('useSetShowLog', value)
     showLog.value = value
@@ -60,7 +68,7 @@ export default defineStore('socketStore', () => {
     deviceOnlineTopic.value = `App/Online/${username.value}`
 
     initClient()
-    waitConnected()
+    onClientConnecte()
   }
 
   function initClient() {

@@ -16,6 +16,7 @@ import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
 import { useScreenSafeArea } from '@vueuse/core'
 import { CLASSIFY_EXECL } from '@/enums/deviceEnums'
 import { initStoreSync } from '@/store/utils'
+import socketStore from '@/store/socketStore'
 
 defineOptions({ name: 'HousePage' })
 
@@ -106,14 +107,14 @@ const showDragBtn = computed(() => {
 
 // 初始化数据 hId 初始化房屋id
 // 请求完所有数据后设置当前房屋数据
-const onReload = async (hId, reload) => {
+const onReload = async (hId) => {
   // 防止token中的默认房屋被删除
   if (houseList.value.length > 0 && !houseList.value.some((item) => item.id == hId)) {
     hId = houseList.value[0].id
   }
 
   const { setCurrentHouse } = houseStore()
-  await setCurrentHouse(hId, reload)
+  await setCurrentHouse(hId)
   getRoomTabs()
 }
 
@@ -171,7 +172,10 @@ const onHouseSelect = async (action) => {
   try {
     loading.value = true
     const hId = action.id
-    await onReload(hId, true)
+    const { disReconnect, waitConnected } = socketStore()
+    disReconnect()
+    await onReload(hId)
+    waitConnected()
   } finally {
     setDefaultCurrentFloorId()
     loading.value = false
@@ -244,6 +248,7 @@ onMounted(async () => {
     setDefaultCurrentFloorId()
     getRoomTabs()
   }
+  socketStore().init()
   setTimeout(() => init(noData), noData ? 4 : 5000)
 })
 
@@ -258,6 +263,7 @@ watch(
   () => route.path,
   (to, from) => {
     if (to == '/tabbar' && ['/account-login', '/phone-login'].includes(from)) {
+      socketStore().init()
       init()
     }
   }

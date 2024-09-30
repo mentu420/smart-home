@@ -11,7 +11,6 @@ export const initStoreSync = async () => {
   await deviceStore().init()
   await smartStore().init()
   await materialStore().init()
-  socketStore().init()
 }
 
 // 刷新所有数据
