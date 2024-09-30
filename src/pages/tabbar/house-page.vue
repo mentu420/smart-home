@@ -106,14 +106,14 @@ const showDragBtn = computed(() => {
 
 // 初始化数据 hId 初始化房屋id
 // 请求完所有数据后设置当前房屋数据
-const onReload = async (hId) => {
+const onReload = async (hId, reload) => {
   // 防止token中的默认房屋被删除
   if (houseList.value.length > 0 && !houseList.value.some((item) => item.id == hId)) {
     hId = houseList.value[0].id
   }
 
   const { setCurrentHouse } = houseStore()
-  await setCurrentHouse(hId)
+  await setCurrentHouse(hId, reload)
   getRoomTabs()
 }
 
@@ -171,7 +171,7 @@ const onHouseSelect = async (action) => {
   try {
     loading.value = true
     const hId = action.id
-    await onReload(hId)
+    await onReload(hId, true)
   } finally {
     setDefaultCurrentFloorId()
     loading.value = false

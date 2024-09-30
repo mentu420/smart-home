@@ -20,8 +20,6 @@ export const reloadStoreSync = async () => {
     houseStore()
   const { useGetDeviceListSync } = deviceStore()
   const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-  const { waitConnected, disReconnect } = socketStore()
-  disReconnect()
   await Promise.all([
     useGetHouseListSync(true),
     useGetRoomListSync(true),
@@ -31,7 +29,6 @@ export const reloadStoreSync = async () => {
     useGetSmartListSync(true),
     useGetFamilyListSync(true),
   ])
-  waitConnected()
 }
 
 export const storeReset = () => {

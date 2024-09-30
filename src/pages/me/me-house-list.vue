@@ -23,7 +23,7 @@ const onSelect = async ({ id }) => {
   try {
     loading.value = true
     const { setCurrentHouse } = houseStore()
-    await setCurrentHouse(id)
+    await setCurrentHouse(id, true)
   } finally {
     loading.value = false
   }

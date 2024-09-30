@@ -3,7 +3,6 @@ import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import deviceStore from '@/store/deviceStore'
 import { setDeviceList } from '@/apis/smartApi'
-import { reloadStoreSync } from '@/store/utils'
 import houseStore from '@/store/houseStore'
 import { showConfirmDialog } from 'vant'
 
@@ -11,13 +10,13 @@ const { houseUserPower, currentHouse } = storeToRefs(houseStore())
 
 defineOptions({ name: 'MeHostList' })
 
-const { getHostList } = storeToRefs(deviceStore())
+const { getHostList, deviceList } = storeToRefs(deviceStore())
 
 const onUnbindDevice = async (item) => {
   try {
     await showConfirmDialog({ title: '提示', message: '是否解绑？' })
     await setDeviceList({ params: { op: 11, shebeibianhao: item.bianhao } })
-    await reloadStoreSync()
+    deviceList.value = deviceList.value.filter((item) => item.id != item.bianhao)
   } catch (error) {
     //
   }
