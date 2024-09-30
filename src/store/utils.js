@@ -11,6 +11,7 @@ export const initStoreSync = async () => {
   await deviceStore().init()
   await smartStore().init()
   await materialStore().init()
+  socketStore().init()
 }
 
 // 刷新所有数据
@@ -19,8 +20,8 @@ export const reloadStoreSync = async () => {
     houseStore()
   const { useGetDeviceListSync } = deviceStore()
   const { useGetSceneListSync, useGetSmartListSync } = smartStore()
-  const { openMqtt, closeMqtt } = socketStore()
-  closeMqtt()
+  const { waitConnected, disReconnect } = socketStore()
+  disReconnect()
   await Promise.all([
     useGetHouseListSync(true),
     useGetRoomListSync(true),
@@ -30,7 +31,7 @@ export const reloadStoreSync = async () => {
     useGetSmartListSync(true),
     useGetFamilyListSync(true),
   ])
-  openMqtt()
+  waitConnected()
 }
 
 export const storeReset = () => {

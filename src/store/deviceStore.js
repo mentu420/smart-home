@@ -106,8 +106,7 @@ export default defineStore(storeName, () => {
         }
       })
       .sort((a, b) => a.sort - b.sort)
-
-    if (deviceList.value.length == 0) {
+    if (deviceList.value.length == 0 || reload) {
       deviceList.value = newDeviceList
     } else {
       deviceList.value = deviceList.value.reduce((acc, device) => {

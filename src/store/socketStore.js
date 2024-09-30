@@ -60,6 +60,7 @@ export default defineStore('socketStore', () => {
     deviceOnlineTopic.value = `App/Online/${username.value}`
 
     initClient()
+    waitConnected()
   }
 
   function initClient() {
@@ -328,30 +329,5 @@ export default defineStore('socketStore', () => {
     useMqttPublish(SENCE, message)
   }
 
-  const closeMqtt = () => {
-    closeUdpService()
-    disReconnect()
-  }
-
-  const openMqtt = () => {
-    init()
-    waitConnected()
-  }
-
-  watch(
-    () => onLine.value,
-    (val) => {
-      if (val) {
-        openMqtt()
-      } else {
-        closeMqtt()
-      }
-    },
-    {
-      immediate: true,
-      deep: true,
-    }
-  )
-
-  return { mqttScenePublish, mqttDevicePublish, useSetShowLog, closeMqtt, openMqtt }
+  return { mqttScenePublish, mqttDevicePublish, useSetShowLog, disReconnect, waitConnected, init }
 })
