@@ -54,77 +54,85 @@ export default defineStore(storeName, () => {
     })
   }
 
+  function mergedDeviceList(newDeviceList, oldDeviceList) {
+    let mergedList = [...oldDeviceList]
+
+    // 遍历 newDeviceList 以合并相同的设备并添加不同的设备
+    newDeviceList.forEach((newDevice) => {
+      // 查找 oldDeviceList 中是否有相同 id 的设备
+      const existingDeviceIndex = mergedList.findIndex((oldDevice) => oldDevice.id === newDevice.id)
+
+      if (existingDeviceIndex !== -1) {
+        // 如果找到相同的设备，合并数据（可以自定义合并逻辑）
+        mergedList[existingDeviceIndex] = {
+          ...mergedList[existingDeviceIndex],
+          ...newDevice,
+          online: mergedList[existingDeviceIndex].online,
+          modeStatusList: mergedList[existingDeviceIndex].modeStatusList,
+        }
+      } else {
+        // 如果没有找到相同的设备，则将新设备追加到 mergedList 中
+        mergedList.push(newDevice)
+      }
+    })
+    mergedList = mergedList.filter((device) => {
+      return newDeviceList.some((newDevice) => newDevice.id === device.id)
+    })
+    return mergedList.sort((a, b) => a.sort - b.sort)
+  }
+
   //异步获取设备列表
   const useGetDeviceListSync = async (reload = false) => {
     if (!reload && !deviceList.value.length) return deviceList.value
     const { data } = await getDeviceList({ op: 1 })
     const { data: resourceData } = await getDeviceResource()
 
-    const newDeviceList = data
-      .map((item) => {
-        const columns = TYPE_VALUE_EXECL.filter(
-          (typeItem) => typeItem.category == item.xiaoleixing
-        ).map((typeItem) => {
-          // 重置开关属性值
-          if (['valueSwitch', 'switch'].includes(typeItem.use) && typeItem.useEn === 'on') {
-            return { ...typeItem, useValue: '1' }
-          }
-          return typeItem
-        })
-        const modeNames = Object.assign(
-          {},
-          ...columns.map((columnItem) => ({
-            [`${columnItem.use}-${columnItem.useEn}`]: columnItem.useCn,
-          }))
-        )
-
-        const modeList = setModeColumns(columns)
-        const resourceItem = resourceData.find(
-          (resourceItem) => resourceItem.leixing == item.daleixing
-        )
-        return {
-          ...item,
-          modeNames,
-          label: item.mingcheng,
-          id: item.bianhao,
-          rId: item.fangjianbianhao, //房间编号
-          classify: item.daleixing,
-          sort: item.paixu,
-          collect: item.shouye == 1, // 首页是否收藏
-          category: item.xiaoleixing,
-          icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
-          iconUrl: resourceItem?.xiaotubiao,
-          imageUrl: resourceItem?.tupian,
-          columns, // 记录设备原始值
-          // 记录当前设备模块控制值
-          // mqtt 对应关系 {use:shuxing, useValue:shuxingzhi, useStatus:shuxingzhuangtai}
-          modeList,
-          // 记录设备操作状态数据
-          modeStatusList: modeList.map(({ useColumns, ...statusItem }) => statusItem),
-          loading: false, // 是否还在等待检查状态
-          online: false, // 是否在线
+    let newDeviceList = data.map((item) => {
+      const columns = TYPE_VALUE_EXECL.filter(
+        (typeItem) => typeItem.category == item.xiaoleixing
+      ).map((typeItem) => {
+        // 重置开关属性值
+        if (['valueSwitch', 'switch'].includes(typeItem.use) && typeItem.useEn === 'on') {
+          return { ...typeItem, useValue: '1' }
         }
+        return typeItem
       })
-      .sort((a, b) => a.sort - b.sort)
-    if (deviceList.value.length == 0 || reload) {
-      deviceList.value = newDeviceList
-    } else {
-      deviceList.value = deviceList.value.reduce((acc, device) => {
-        const newDevice = newDeviceList.find((newDevice) => newDevice.id === device.id)
+      const modeNames = Object.assign(
+        {},
+        ...columns.map((columnItem) => ({
+          [`${columnItem.use}-${columnItem.useEn}`]: columnItem.useCn,
+        }))
+      )
 
-        if (newDevice) {
-          // 合并属性
-          acc.push({
-            ...device,
-            ...newDevice,
-            online: device.online,
-            modeStatusList: device.modeStatusList,
-          })
-        }
+      const modeList = setModeColumns(columns)
+      const resourceItem = resourceData.find(
+        (resourceItem) => resourceItem.leixing == item.daleixing
+      )
+      return {
+        ...item,
+        modeNames,
+        label: item.mingcheng,
+        id: item.bianhao,
+        rId: item.fangjianbianhao, //房间编号
+        classify: item.daleixing,
+        sort: item.paixu,
+        collect: item.shouye == 1, // 首页是否收藏
+        category: item.xiaoleixing,
+        icon: getDeviceIcon(item.xiaoleixing.slice(0, 3)),
+        iconUrl: resourceItem?.xiaotubiao,
+        imageUrl: resourceItem?.tupian,
+        columns, // 记录设备原始值
+        // 记录当前设备模块控制值
+        // mqtt 对应关系 {use:shuxing, useValue:shuxingzhi, useStatus:shuxingzhuangtai}
+        modeList,
+        // 记录设备操作状态数据
+        modeStatusList: modeList.map(({ useColumns, ...statusItem }) => statusItem),
+        loading: false, // 是否还在等待检查状态
+        online: false, // 是否在线
+      }
+    })
 
-        return acc
-      }, [])
-    }
+    deviceList.value = mergedDeviceList(newDeviceList, deviceList.value)
 
     return deviceList.value
   }

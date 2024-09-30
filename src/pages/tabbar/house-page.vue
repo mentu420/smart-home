@@ -176,6 +176,8 @@ const onHouseSelect = async (action) => {
     disReconnect()
     await onReload(hId)
     waitConnected()
+  } catch (err) {
+    console.log(err)
   } finally {
     setDefaultCurrentFloorId()
     loading.value = false
