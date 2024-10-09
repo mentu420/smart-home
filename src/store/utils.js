@@ -3,7 +3,6 @@ import smartStore from '@/store/smartStore'
 import houseStore from '@/store/houseStore'
 import userStore from './userStore'
 import materialStore from './materialStore'
-import socketStore from './socketStore'
 
 export const initStoreSync = async () => {
   await userStore().init()

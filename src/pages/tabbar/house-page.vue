@@ -220,7 +220,8 @@ const onAppScrollend = async () => {
   }, 350)
 }
 
-const init = async (showSkeleton = true) => {
+// 重新加载数据
+const reload = async (showSkeleton = true) => {
   const { useGetToken, useUserInfoSync } = userStore()
   try {
     loading.value = true
@@ -243,16 +244,26 @@ function setDefaultCurrentFloorId() {
   currentFloorId.value = floorList.value[0]?.id
 }
 
-onMounted(async () => {
+// 数据初始化
+async function init() {
   await initStoreSync()
   const noData = houseList.value?.length == 0
+  console.log('没有缓存数据', noData)
   if (!noData) {
     setDefaultCurrentFloorId()
     getRoomTabs()
+    socketStore().init()
   }
-  socketStore().init()
-  setTimeout(() => init(noData), noData ? 4 : 5000)
-})
+  setTimeout(
+    async () => {
+      await reload(noData)
+      if (noData) socketStore().init()
+    },
+    noData ? 4 : 5000
+  )
+}
+
+onMounted(init)
 
 onActivated(() => {
   dragOptions.value.disabled = true
@@ -265,7 +276,6 @@ watch(
   () => route.path,
   (to, from) => {
     if (to == '/tabbar' && ['/account-login', '/phone-login'].includes(from)) {
-      socketStore().init()
       init()
     }
   }
