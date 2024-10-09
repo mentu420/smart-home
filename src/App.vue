@@ -6,7 +6,7 @@ import socketStore from '@/store/socketStore'
 import useSize from '@/utils/flexible/useRem.js'
 import '@/hooks/useNativeMethods'
 
-if (import.meta.env.MODE === 'development') new VConsole()
+// if (import.meta.env.MODE === 'development') new VConsole()
 
 socketStore()
 useSize()
