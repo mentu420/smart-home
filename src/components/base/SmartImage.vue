@@ -20,6 +20,7 @@ const { materialImages } = storeToRefs(materialStore())
 
 // 原生调用
 function getPhotolocalDone(localUrl) {
+  console.log('getPhotolocalDone', localUrl)
   if (materialImages.value[localUrl]) return
   materialImages.value = { ...materialImages.value, [attrs.src]: localUrl }
 }
@@ -28,7 +29,8 @@ window.getPhotolocalDone = getPhotolocalDone
 
 // 先获取缓存本地资源路径，没有就下载图片
 const onLoad = (key) => {
-  if (materialImages.value[key]) return
+  const dir = materialImages.value[key]
+  if (dir && !dir.includes('http')) return
   window?.jdwl?.getPhotolocal(key, key)
 }
 
