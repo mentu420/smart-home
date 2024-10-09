@@ -17,9 +17,8 @@ const getLogStyle = (color) => {
 const getTimeStamp = () => new Date().valueOf()
 
 export default defineStore('socketStore', () => {
-  const { onLine } = storeToRefs(userStore())
   const { sceneList } = storeToRefs(smartStore())
-
+  const { onLine } = storeToRefs(userStore())
   let heartTimer = null
   let mqClient = null
   const heartDuration = 10 * 1000
@@ -36,6 +35,14 @@ export default defineStore('socketStore', () => {
   const deviceOnlineTopic = ref('') // 设备/网关在线主题
   const isDisConnect = ref(false) // 是否主动断开链接
   const showLog = ref(getStorage(import.meta.env.VITE_APP_DEVELOPER) ?? false)
+
+  watch(
+    () => onLine.value,
+    (val) => {
+      if (!val) disReconnect()
+    },
+    { deep: true, immediate: true }
+  )
 
   const useSetShowLog = (value) => {
     console.log('useSetShowLog', value)
@@ -61,6 +68,7 @@ export default defineStore('socketStore', () => {
     deviceOnlineTopic.value = `App/Online/${username.value}`
 
     initClient()
+    onClientConnecte()
   }
 
   function initClient() {
@@ -73,7 +81,6 @@ export default defineStore('socketStore', () => {
       console.log('断开连接--------------------', err)
     }
     mqClient.onMessageArrived = (message) => {
-      console.log('onMessageArrived', message)
       const { payloadString, topic } = message
       if (!payloadString || !isObjectString(payloadString)) return
       const data = JSON.parse(payloadString)
@@ -93,7 +100,7 @@ export default defineStore('socketStore', () => {
       }
     }
     mqClient.onMessageDelivered = (message) => {
-      console.log('发送信息--------------------', message)
+      if (showLog.value) console.log('发送信息--------------------', message)
     }
   }
 
@@ -278,18 +285,11 @@ export default defineStore('socketStore', () => {
   function onDeviceOnlineSubscribe(data) {
     if (showLog.value) console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
     const { bianhao, shifouwangguan, zaixianzhuangtai } = data
-    const { deviceList, hostList } = storeToRefs(deviceStore())
-    if (shifouwangguan) {
-      hostList.value = hostList.value.map((item) => ({
-        ...item,
-        online: bianhao == item.id ? zaixianzhuangtai : Number(item.online),
-      }))
-    } else {
-      deviceList.value = deviceList.value.map((item) => ({
-        ...item,
-        online: bianhao == item.id ? zaixianzhuangtai : Number(item.online),
-      }))
-    }
+    const { deviceList } = storeToRefs(deviceStore())
+    deviceList.value = deviceList.value.map((item) => {
+      if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
+      return item
+    })
   }
 
   /**
@@ -337,20 +337,5 @@ export default defineStore('socketStore', () => {
     useMqttPublish(SENCE, message)
   }
 
-  watch(
-    () => onLine.value,
-    (val) => {
-      console.log('在线状态变化', val)
-      if (val) {
-        init()
-        waitConnected()
-      } else {
-        closeUdpService()
-        disReconnect()
-      }
-    },
-    { immediate: true }
-  )
-
-  return { mqttScenePublish, mqttDevicePublish, useSetShowLog }
+  return { mqttScenePublish, mqttDevicePublish, useSetShowLog, disReconnect, waitConnected, init }
 })

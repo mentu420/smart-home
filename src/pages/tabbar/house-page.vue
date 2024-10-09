@@ -16,6 +16,7 @@ import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
 import { useScreenSafeArea } from '@vueuse/core'
 import { CLASSIFY_EXECL } from '@/enums/deviceEnums'
 import { initStoreSync } from '@/store/utils'
+import socketStore from '@/store/socketStore'
 
 defineOptions({ name: 'HousePage' })
 
@@ -171,7 +172,12 @@ const onHouseSelect = async (action) => {
   try {
     loading.value = true
     const hId = action.id
+    const { disReconnect, waitConnected } = socketStore()
+    disReconnect()
     await onReload(hId)
+    waitConnected()
+  } catch (err) {
+    console.log(err)
   } finally {
     setDefaultCurrentFloorId()
     loading.value = false
@@ -214,7 +220,8 @@ const onAppScrollend = async () => {
   }, 350)
 }
 
-const init = async (showSkeleton = true) => {
+// 重新加载数据
+const reload = async (showSkeleton = true) => {
   const { useGetToken, useUserInfoSync } = userStore()
   try {
     loading.value = true
@@ -237,15 +244,26 @@ function setDefaultCurrentFloorId() {
   currentFloorId.value = floorList.value[0]?.id
 }
 
-onMounted(async () => {
+// 数据初始化
+async function init() {
   await initStoreSync()
   const noData = houseList.value?.length == 0
+  console.log('没有缓存数据', noData)
   if (!noData) {
     setDefaultCurrentFloorId()
     getRoomTabs()
+    socketStore().init()
   }
-  setTimeout(() => init(noData), noData ? 4 : 5000)
-})
+  setTimeout(
+    async () => {
+      await reload(noData)
+      if (noData) socketStore().init()
+    },
+    noData ? 4 : 5000
+  )
+}
+
+onMounted(init)
 
 onActivated(() => {
   dragOptions.value.disabled = true

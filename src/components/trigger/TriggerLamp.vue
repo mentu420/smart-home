@@ -6,10 +6,10 @@ import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { stringToArray } from '@/utils/common'
 import _ from 'lodash'
-import { showToast } from 'vant'
 
 import {
   triggerControl,
+  isOfflineDevice,
   disabledClass,
   isDisabled,
   onConfigFormat,
@@ -77,10 +77,7 @@ const colorTemperatureRange = computed(() => {
 
 // 开关
 const toggle = () => {
-  if (!deviceItem.value.online) {
-    showToast('设备不在线')
-    return
-  }
+  if (isOfflineDevice(deviceItem)) return
   const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
   triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })

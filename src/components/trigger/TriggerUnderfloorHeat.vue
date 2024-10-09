@@ -4,10 +4,10 @@ import _ from 'lodash'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
-import { showToast } from 'vant'
 import TriggerModePopover from './TriggerModePopover.vue'
 import {
   triggerControl,
+  isOfflineDevice,
   isDisabled,
   disabledClass,
   onConfigFormat,
@@ -110,10 +110,7 @@ const onValveChange = (value) => {
 }
 
 const toggle = () => {
-  if (!deviceItem.value.online) {
-    showToast('设备不在线')
-    return
-  }
+  if (isOfflineDevice(deviceItem)) return
   const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
   triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })

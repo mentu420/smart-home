@@ -5,9 +5,9 @@ import { useRouter } from 'vue-router'
 
 import { getHouseList } from '@/apis/houseApi'
 import houseStore from '@/store/houseStore'
-import userStore from '@/store/userStore'
 import { reloadStoreSync } from '@/store/utils'
 import { showConfirmDialog, showDialog } from 'vant'
+import socketStore from '@/store/socketStore'
 
 defineOptions({ name: 'MeHouse' })
 
@@ -21,9 +21,12 @@ const familyLength = computed(
 
 const onSelect = async ({ id }) => {
   try {
+    const { disReconnect, waitConnected } = socketStore()
     loading.value = true
     const { setCurrentHouse } = houseStore()
+    disReconnect()
     await setCurrentHouse(id)
+    waitConnected()
   } finally {
     loading.value = false
   }

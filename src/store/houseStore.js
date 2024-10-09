@@ -34,18 +34,12 @@ export default defineStore(storeName, () => {
     currentHouse.value = storeRes?.currentHouse ?? {}
   }
 
-  // 切换当前房屋
+  // 切换当前房屋 reload 是否重新加载数据
   const setCurrentHouse = async (id) => {
-    try {
-      await getHouseList({ op: 5, fangwubianhao: id })
-      currentHouse.value = houseList.value.find((item) => item.bianhao == id)
-      useSetToken({ ...useGetToken(), fangwubianhao: id })
-      await reloadStoreSync()
-    } catch (error) {
-      await useGetHouseListSync(true)
-      if (houseList.value.length == 0) return
-      await setCurrentHouse(houseList.value[0].id)
-    }
+    await getHouseList({ op: 5, fangwubianhao: id })
+    currentHouse.value = houseList.value.find((item) => item.bianhao == id)
+    useSetToken({ ...useGetToken(), fangwubianhao: id })
+    await reloadStoreSync()
   }
 
   const setHouseList = (payload) => {

@@ -16,7 +16,6 @@ import {
 import { getNetworkType, sendUdpData } from '@/utils/native/nativeApi'
 import dayjs from 'dayjs'
 import { isObjectString } from '@/utils/common'
-import deviceStore from '@/store/deviceStore'
 import { openUdpService, closeUdpService, updServiceTimeout } from '@/utils/native/udpService'
 import { useRouter } from 'vue-router'
 import { reloadStoreSync } from '@/store/utils'

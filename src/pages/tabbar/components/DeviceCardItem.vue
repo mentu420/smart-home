@@ -7,9 +7,12 @@ import { USE_KEY } from '@/enums/deviceEnums'
 import socketStore from '@/store/socketStore'
 import deviceStore from '@/store/deviceStore'
 import { throttle } from '@/utils/common'
-import { onDeviceStatusChange, onDeviceStatusRefresh } from '@/components/trigger/useTrigger'
+import {
+  onDeviceStatusChange,
+  onDeviceStatusRefresh,
+  isOfflineDevice,
+} from '@/components/trigger/useTrigger'
 import { TriggerFloatBubble } from '@/components/trigger/'
-import { showToast } from 'vant'
 
 const props = defineProps({
   isDrag: {
@@ -54,11 +57,7 @@ const getDeviceStatus = computed(() => {
 
 // 设备开关触发
 const onSwitchChanage = throttle(async () => {
-  if (!deviceItem.value.online) {
-    console.log(showToast)
-    showToast('设备不在线！')
-    return
-  }
+  if (isOfflineDevice(deviceItem)) return
   const { mqttDevicePublish } = socketStore()
   const { modeStatusList = [], id } = deviceItem.value
   const switchMode = modeStatusList.find((item) => [SWITCH].includes(item.use))

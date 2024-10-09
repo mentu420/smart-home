@@ -16,6 +16,7 @@ import { transformKeys, mergeObjectIntoArray, getWebUrlName } from '@/utils/comm
 import { onScenePublishDebounce } from '@/hooks/useSmart'
 import { showConfirmDialog, showToast } from 'vant'
 import { sceneGallery } from '@/enums/galleryEnums'
+import { isOfflineDevice } from '@/components/trigger/useTrigger'
 
 import SmartCondtionList from './components/SmartCondtionList.vue'
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
@@ -164,10 +165,7 @@ const onDelectSceneItem = async (sceneItem) => {
 async function onActionSelect(action, actionItem, modeItem) {
   if (action.id == 0) {
     if (modeItem) {
-      if (!actionItem.online) {
-        showToast('设备不在线')
-        return
-      }
+      if (isOfflineDevice(actionItem)) return
       socketStore().mqttDevicePublish({ id: actionItem.id, ...modeItem })
     } else {
       onScenePublishDebounce(actionItem.id)
