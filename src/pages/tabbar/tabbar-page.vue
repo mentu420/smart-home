@@ -66,12 +66,6 @@ watch(
 )
 </script>
 
-<script>
-export default {
-  name: 'TabbarPage',
-}
-</script>
-
 <template>
   <div class="bg-page-gray min-h-screen">
     <div
