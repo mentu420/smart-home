@@ -80,7 +80,9 @@ function onColorPickerChange({ ratio, angle }, scopeData) {
 }
 
 function onSliderPickerChange(useValue, scopeData) {
-  onModeChange({ selectedOptions: [{ useValue, useEn: scopeData.modeItem.use }] }, scopeData)
+  const { TEMPERATURE, SETTEMPERATURE } = USE_KEY
+  const useEn = scopeData.modeItem.use == TEMPERATURE ? SETTEMPERATURE : scopeData.modeItem.use
+  onModeChange({ selectedOptions: [{ useValue, useEn }] }, scopeData)
 }
 
 defineExpose({ open })

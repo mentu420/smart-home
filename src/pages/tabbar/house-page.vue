@@ -285,7 +285,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 </script>
 
 <template>
-  <div v-touch:swipe.top="onAppScrollend">
+  <div>
     <van-skeleton :loading="skeletonLoading">
       <template #template>
         <ul class="h-screen w-full mt-safe overflow-hidden">

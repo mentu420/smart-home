@@ -655,20 +655,20 @@ function goEventConfig() {
       <!--条件列表-->
       <ul v-if="createSmartItem?.events?.length">
         <li
-          v-for="(eventItem, eventIndex) in createSmartItem?.events"
+          v-for="(eventItem, eventIndex) in createSmartItem.events"
           :key="eventIndex"
           class="mb-3 flex min-h-16 items-center justify-between rounded-lg bg-white p-4"
         >
           <div class="break-words">
             <span class="mr-3">{{ eventIndex == 0 ? '当' : '或' }}</span>
-            <span v-if="eventItem.leixing == 0">点击此{{ pageName }}卡片</span>
+            <span v-if="eventItem?.leixing == 0">点击此{{ pageName }}卡片</span>
             <template v-else>
               <SmartCondtionList
                 :item="eventItem"
                 @open-time="openExecutionTime(eventItem, eventIndex)"
                 @open-mode="(modeItem) => openEventDeviceMode(modeItem, eventItem, eventIndex)"
               />
-              <template v-if="eventItem.fujiatiaojian">
+              <template v-if="eventItem?.fujiatiaojian?.length">
                 <span class="mx-2">且</span>
                 <template
                   v-for="(extendItem, extendIndex) in eventItem.fujiatiaojian"
@@ -690,7 +690,7 @@ function goEventConfig() {
           <div class="shrink-0 ml-2">
             <van-popover
               :actions="
-                eventItem.leixing == 0
+                eventItem?.leixing == 0
                   ? [{ text: '删除', id: 2 }]
                   : [
                       { text: '附加生效条件', id: 0 },
