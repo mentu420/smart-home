@@ -286,7 +286,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 
 <template>
   <div>
-    123
     <van-skeleton :loading="skeletonLoading">
       <template #template>
         <ul class="h-screen w-full mt-safe overflow-hidden">
