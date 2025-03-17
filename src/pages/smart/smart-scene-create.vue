@@ -110,9 +110,15 @@ const openEventDeviceMode = (modeItem, eventItem, eventIndex, type) => {
 // 选择附加条件
 const selectEventMoreItem = (action, eventItem, eventIndex) => {
   const { events } = createSmartItem.value
+  console.log('eventItem', eventItem)
   switch (action.id) {
     case 0:
-      goConditionConfig({ eventIndex, extend: 'fujiatiaojian', leixing: eventItem.leixing })
+      goConditionConfig({
+        eventIndex,
+        extend: 'fujiatiaojian',
+        leixing: eventItem.leixing,
+        pageTitle: action.text,
+      })
       break
     case 1:
       createSmartItem.value = {

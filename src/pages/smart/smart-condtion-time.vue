@@ -18,6 +18,8 @@ const columsType = ref(['hour', 'minute'])
 const currentTime = ref(dayjs().format('HH:ss').split(':'))
 const conditionTimeList = ref([])
 const timePickerRef = ref(null)
+const timeRangeType = ref(0) //0 全天 1 时间范围
+const timeRange = ref([])
 
 const timeRepeat = ref({})
 
@@ -85,22 +87,49 @@ const addTime = () => {
   <div class="min-h-screen bg-page-gray">
     <HeaderNavbar title="时间日期" />
     <section class="space-y-4 p-4">
-      <van-cell class="rounded-lg" title="添加时间" is-link @click="addTime" />
-      <van-swipe-cell
-        v-for="(timeItem, timeIndex) in conditionTimeList"
-        :key="timeIndex"
-        class="overflow-hidden rounded-lg"
-      >
-        <van-cell
-          :border="false"
-          title="指定时间"
-          :value="timeItem.join(':')"
-          @click="timePickerRef.open({ index: timeIndex, modelValue: timeItem })"
-        />
-        <template #right>
-          <van-button square type="danger" text="删除" @click="delTimeItem(timeIndex)" />
-        </template>
-      </van-swipe-cell>
+      <template v-if="!route.query.extend">
+        <van-cell class="rounded-lg" title="添加时间" is-link @click="addTime" />
+        <van-swipe-cell
+          v-for="(timeItem, timeIndex) in conditionTimeList"
+          :key="timeIndex"
+          class="overflow-hidden rounded-lg"
+        >
+          <van-cell
+            :border="false"
+            title="指定时间"
+            :value="timeItem.join(':')"
+            @click="timePickerRef.open({ index: timeIndex, modelValue: timeItem })"
+          />
+          <template #right>
+            <van-button square type="danger" text="删除" @click="delTimeItem(timeIndex)" />
+          </template>
+        </van-swipe-cell>
+      </template>
+      <div class="rounded-lg overflow-hidden">
+        <van-radio-group v-model="timeRangeType">
+          <van-cell
+            v-for="(typeItem, typeIndex) in ['全天有效', '部分时段生效']"
+            :key="typeIndex"
+            :title="typeItem"
+            clickable
+            @click="timeRangeType = typeIndex"
+          >
+            <template #right-icon>
+              <van-radio :name="typeIndex" />
+            </template>
+          </van-cell>
+        </van-radio-group>
+        <div class="pl-4 bg-white">
+          <van-cell
+            v-for="(rangeItem, rangeIndex) in ['开始', '结束']"
+            :key="rangeIndex"
+            :title="rangeItem"
+            is-link
+            clickable
+          >
+          </van-cell>
+        </div>
+      </div>
       <DateRepeatSheet v-model="timeRepeat" />
     </section>
     <div class="p-6">

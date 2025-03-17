@@ -12,7 +12,7 @@ const route = useRoute()
 
 const { createSmartItem } = storeToRefs(smartStore())
 
-const isExtendTime = computed(() => route.query.leixing == 1 && route.query.extend)
+const disabledTime = computed(() => route.query.leixing == 1 && route.query.extend)
 
 const addPressEvent = () => {
   const { events = [] } = createSmartItem.value
@@ -38,7 +38,7 @@ const goDevice = () => {
 
 <template>
   <div class="min-h-screen bg-page-gray">
-    <HeaderNavbar title="添加条件" />
+    <HeaderNavbar :title="route.query.pageTitle || '添加条件'" />
     <div class="px-6 py-4">
       <h4>触发事件</h4>
       <p>满足所触发条件时，自动化将会执行</p>
@@ -64,10 +64,10 @@ const goDevice = () => {
       <li
         v-clickable-active
         class="flex w-full items-center rounded-lg bg-white p-3 active:opacity-50"
-        :class="{ 'opacity-50': isExtendTime }"
+        :class="{ 'opacity-50': disabledTime }"
         @click="
           () => {
-            if (!isExtendTime) router.push({ path: '/smart-condtion-time', query: route.query })
+            if (!disabledTime) router.push({ path: '/smart-condtion-time', query: route.query })
           }
         "
       >
@@ -76,7 +76,13 @@ const goDevice = () => {
         </div>
         <div class="ml-3 text-left">
           <p>时间日程</p>
-          <p class="text-sm text-gray-500">如：“每天8点时”</p>
+          <p class="text-sm text-gray-500">
+            {{
+              route.query.extend == 'fujiatiaojian'
+                ? '生效时间 如处理早上8点-晚上6点'
+                : '如：每天8点时'
+            }}
+          </p>
         </div>
       </li>
       <li
