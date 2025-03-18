@@ -17,6 +17,7 @@ import { onScenePublishDebounce } from '@/hooks/useSmart'
 import { showConfirmDialog, showToast } from 'vant'
 import { sceneGallery } from '@/enums/galleryEnums'
 import { isOfflineDevice } from '@/components/trigger/useTrigger'
+import _ from 'lodash'
 
 import SmartCondtionList from './components/SmartCondtionList.vue'
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
@@ -47,6 +48,32 @@ const pageName = computed(() => (route.query.fenlei == 2 ? '自动化' : '场景
 
 const dealyFormat = computed(() => (dealy) => `${Math.floor(dealy / 60)}分${dealy % 60}秒`)
 
+//计算事件项更多操作
+const getEventActions = computed(() => (eventItem) => {
+  // 如果 eventItem 不存在或者 leixing 为 0，直接返回删除操作
+  if (!eventItem || eventItem.leixing === 0) {
+    return [{ text: '删除', id: 2 }]
+  }
+
+  const conditionLength = eventItem.fujiatiaojian?.length || 0
+  const actions = []
+
+  // 如果附加条件数量小于 5，添加“附加生效条件”操作
+  if (conditionLength < 5) {
+    actions.push({ text: '附加生效条件', id: 0 })
+  }
+
+  // 如果附加条件数量大于 0，添加“清除生效条件”操作
+  if (conditionLength > 0) {
+    actions.push({ text: '清除生效条件', id: 1 })
+  }
+
+  // 始终添加“删除”操作
+  actions.push({ text: '删除', id: 2 })
+
+  return actions
+})
+
 // 打开房间选择
 function openRoomPicker() {
   const { useGetFloorTree } = houseStore()
@@ -65,25 +92,39 @@ function onSelectRoomItem({ selectedValues }) {
  * 修改自动化events中leixing=1的tiaojian或fujiantioajian的重复时间
  * **/
 const openExecutionTime = (item, i, type) => {
+  console.log('openExecutionTime', item)
+  repeatTimeRef.value?.setProps({ type: item.tiaojian.shijian ? 'time' : 'timeRange' })
   repeatTimeRef.value?.open({
     timeRepeat: {
       type: item.tiaojian.chongfuleixing,
       value: item.tiaojian.chongfuzhi,
     },
-    time: item.tiaojian.shijian.split(':'),
+    time: item.tiaojian?.shijian?.split(':'),
+    timeRange: [item.tiaojian?.kaishishijian, item.tiaojian?.jieshushijian],
     eventIndex: i,
     type: type,
   })
 }
 // 确认修改执行时间
-const onExecutionTimeConfirm = ({ time, timeRepeat }, { eventIndex, type }) => {
+const onExecutionTimeConfirm = ({ time, timerange, timeRepeat }, { eventIndex, type }) => {
   const { events } = createSmartItem.value
-  const tiaojian = { chongfuzhi: timeRepeat.value, chongfuleixing: timeRepeat.type, shijian: time }
+  const [kaishishijian, jieshushijian] = timerange
+  const tiaojian = _.pickBy(
+    {
+      chongfuzhi: timeRepeat.value,
+      chongfuleixing: timeRepeat.type,
+      shijian: time,
+      kaishishijian,
+      jieshushijian,
+    },
+    (value) => value !== null && value != ''
+  )
+  console.log('events', eventIndex, type)
   const newEvents = events.map((item, i) => {
     if (type) {
       return {
         ...item,
-        [type]: item[type].map((option, index) => {
+        [type]: item[type]?.map((option, index) => {
           if (index == eventIndex) return { ...option, tiaojian }
           return option
         }),
@@ -695,15 +736,7 @@ function goEventConfig() {
           </div>
           <div class="shrink-0 ml-2">
             <van-popover
-              :actions="
-                eventItem?.leixing == 0
-                  ? [{ text: '删除', id: 2 }]
-                  : [
-                      { text: '附加生效条件', id: 0 },
-                      { text: '清除生效条件', id: 1 },
-                      { text: '删除', id: 2 },
-                    ]
-              "
+              :actions="getEventActions(eventItem)"
               placement="left"
               @select="(action) => selectEventMoreItem(action, eventItem, eventIndex)"
             >

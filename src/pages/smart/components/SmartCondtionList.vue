@@ -28,7 +28,11 @@ const selectMode = (modeItem, item) => emits('openMode', modeItem, item)
         value: props.item.tiaojian.chongfuzhi,
       })
     }}</span>
-    <span class="ml-2">{{ props.item.tiaojian.shijian }}</span>
+    <span class="ml-2">{{
+      props.item.tiaojian?.shijian
+        ? props.item.tiaojian?.shijian
+        : `${props.item.tiaojian?.kaishishijian}至${props.item.tiaojian?.jieshushijian}`
+    }}</span>
   </span>
   <template v-else>
     <span
