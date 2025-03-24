@@ -22,17 +22,21 @@ const selectMode = (modeItem, item) => emits('openMode', modeItem, item)
     class="van-haptics-feedback leading-[40px] rounded-full bg-gray-100 px-4 py-1"
     @click.stop="selectTime(props.item)"
   >
-    <span>{{
-      getRepeatTimeText({
-        type: props.item?.tiaojian.chongfuleixing,
-        value: props.item?.tiaojian.chongfuzhi,
-      })
-    }}</span>
-    <span class="ml-2">{{
-      props.item?.tiaojian?.shijian
-        ? props.item?.tiaojian?.shijian
-        : `${props.item?.tiaojian?.kaishishijian}至${props.item?.tiaojian?.jieshushijian}`
-    }}</span>
+    <span>
+      {{
+        getRepeatTimeText({
+          type: props.item?.tiaojian.chongfuleixing,
+          value: props.item?.tiaojian.chongfuzhi,
+        })
+      }}
+    </span>
+    <span class="ml-2">
+      {{
+        props.item?.tiaojian?.shijian
+          ? props.item?.tiaojian?.shijian
+          : `${props.item?.tiaojian?.kaishishijian}至${props.item?.tiaojian?.jieshushijian}`
+      }}
+    </span>
   </span>
   <template v-else>
     <span

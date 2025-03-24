@@ -90,9 +90,10 @@ function onSelectRoomItem({ selectedValues }) {
 
 /**
  * 修改自动化events中leixing=1的tiaojian或fujiantioajian的重复时间
+ * i 事件索引/附加事件索引
+ * type 事件类型 tiaojian 或 fujiatiaojian 修改tiaojian 的是不存在
  * **/
 const openExecutionTime = (item, i, type) => {
-  console.log('openExecutionTime', item)
   repeatTimeRef.value?.setProps({ type: item.tiaojian.shijian ? 'time' : 'timeRange' })
   repeatTimeRef.value?.open({
     timeRepeat: {
@@ -105,7 +106,14 @@ const openExecutionTime = (item, i, type) => {
     type: type,
   })
 }
-// 确认修改执行时间
+/**
+ * 确认修改执行时间
+ * time 时间 leixing = 1 事件为时间时有值
+ * timerange 时间范围 leixing = 1 事件为时间范围时有值 必定是附件条件
+ * timeRepeat 重复时间日期 leixing = 1 事件为时间或时间范围时有值
+ * eventIndex 事件索引/附件条件索引
+ * type 事件类型 tiaojian 或 fujiatiaojian 修改tiaojian 的是不存在
+ * **/
 const onExecutionTimeConfirm = ({ time, timerange, timeRepeat }, { eventIndex, type }) => {
   const { events } = createSmartItem.value
   const [kaishishijian, jieshushijian] = timerange
@@ -117,16 +125,15 @@ const onExecutionTimeConfirm = ({ time, timerange, timeRepeat }, { eventIndex, t
       kaishishijian,
       jieshushijian,
     },
-    (value) => value !== null && value != ''
+    (value) => Boolean
   )
-  console.log('events', eventIndex, type)
   const newEvents = events.map((item, i) => {
     if (type) {
       return {
         ...item,
-        [type]: item[type]?.map((option, index) => {
-          if (index == eventIndex) return { ...option, tiaojian }
-          return option
+        [type]: item[type]?.map((exntedItem, index) => {
+          if (index == eventIndex && exntedItem.leixing == 1) return { ...exntedItem, tiaojian }
+          return exntedItem
         }),
       }
     } else if (i == eventIndex) {
@@ -151,7 +158,6 @@ const openEventDeviceMode = (modeItem, eventItem, eventIndex, type) => {
 // 选择附加条件
 const selectEventMoreItem = (action, eventItem, eventIndex) => {
   const { events } = createSmartItem.value
-  console.log('eventItem', eventItem)
   switch (action.id) {
     case 0:
       goConditionConfig({
@@ -497,7 +503,6 @@ const getTaskConverActions = (actions) => {
       }
     } else {
       const actionModeIitem = actionModeList.find((action) => action.id == id)
-      console.log('actionModeIitem', actionModeIitem)
       return {
         ...sceneList.value.find((sceneItem) => sceneItem.id == id),
         ...actionModeIitem,
@@ -593,7 +598,6 @@ const init = () => {
    * 1：自动化比场景多一个events，自动化有两个智能设备actions
    * **/
   createSmartItem.value = { ...createSmartItem.value, fenlei: route.query.fenlei }
-  console.log('init', createSmartItem.value)
 }
 
 onMounted(init)

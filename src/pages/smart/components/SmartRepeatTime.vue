@@ -17,6 +17,7 @@ const scopeData = ref({})
 const startTime = ref(['12', '00'])
 const endTime = ref(['12', '00'])
 const innderProps = ref({})
+const activeTab = ref(0)
 
 const getProps = computed(() => ({ ...props, ...innderProps.value }))
 
@@ -31,6 +32,7 @@ const open = (data) => {
     startTime.value = data.timeRange[0]?.split(':')
     endTime.value = data.timeRange[1]?.split(':')
   }
+  if (data.activeTab) activeTab.value = data.activeTab
   if (data.timeRepeat) timeRepeat.value = data.timeRepeat
   show.value = true
 }
@@ -40,9 +42,7 @@ const close = () => (show.value = false)
 const onConfirm = (values = {}) => {
   close()
   const { selectedValues } = values
-  console.log(startTime.value, endTime.value)
   const timerange = sortTimeArrayWithDayjs([startTime.value?.join(':'), endTime.value?.join(':')])
-  console.log('timerange', timerange)
   emits(
     'change',
     { time: selectedValues?.join(':'), timerange, timeRepeat: timeRepeat.value },
@@ -64,8 +64,10 @@ defineExpose({ open, setProps })
       />
       <van-picker-group
         v-else
+        v-model:active-tab="activeTab"
         title="预约时间"
         :tabs="['开始时间', '结束时间']"
+        next-step-text="下一步"
         @confirm="onConfirm"
         @cancel="close"
       >
