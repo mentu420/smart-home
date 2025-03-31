@@ -18,21 +18,29 @@ const selectMode = (modeItem, item) => emits('openMode', modeItem, item)
 
 <template>
   <span
-    v-if="props.item.leixing == 1"
+    v-if="props.item?.leixing == 1"
     class="van-haptics-feedback leading-[40px] rounded-full bg-gray-100 px-4 py-1"
     @click.stop="selectTime(props.item)"
   >
-    <span>{{
-      getRepeatTimeText({
-        type: props.item.tiaojian.chongfuleixing,
-        value: props.item.tiaojian.chongfuzhi,
-      })
-    }}</span>
-    <span class="ml-2">{{ props.item.tiaojian.shijian }}</span>
+    <span>
+      {{
+        getRepeatTimeText({
+          type: props.item?.tiaojian.chongfuleixing,
+          value: props.item?.tiaojian.chongfuzhi,
+        })
+      }}
+    </span>
+    <span class="ml-2">
+      {{
+        props.item?.tiaojian?.shijian
+          ? props.item?.tiaojian?.shijian
+          : `${props.item?.tiaojian?.kaishishijian}至${props.item?.tiaojian?.jieshushijian}`
+      }}
+    </span>
   </span>
   <template v-else>
     <span
-      v-for="(modeItem, modeIndex) in props.item.tiaojian.modeList"
+      v-for="(modeItem, modeIndex) in props.item?.tiaojian?.modeList"
       :key="modeItem.id"
       class="break-all"
     >
@@ -40,7 +48,7 @@ const selectMode = (modeItem, item) => emits('openMode', modeItem, item)
       <span
         class="van-haptics-feedback leading-[40px] rounded-full bg-gray-100 px-4 py-1 break-all mr-2"
       >
-        {{ props.item.tiaojian.label }}
+        {{ props.item?.tiaojian?.label }}
       </span>
       <span
         class="van-haptics-feedback leading-[40px] rounded-full bg-gray-100 px-4 py-1 break-all mr-2"
@@ -50,7 +58,7 @@ const selectMode = (modeItem, item) => emits('openMode', modeItem, item)
         {{
           modeItem.valueIsNum
             ? modeItem.useValue
-            : props.item.tiaojian.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
+            : props.item?.tiaojian?.modeNames[`${modeItem.use}-${modeItem.useStatus}`]
         }}
       </span>
     </span>

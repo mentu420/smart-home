@@ -112,6 +112,7 @@ html {
   will-change: transform;
   backface-visibility: hidden;
   transition: transform 300ms ease-in-out; /* 调整动画时长为500ms，更自然 */
+  transition-delay: 100ms; /* 添加延迟以确保旧页面在动画结束前不会被移除 */
 }
 
 .page-in-enter-from {
