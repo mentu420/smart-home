@@ -17,9 +17,8 @@ const getLogStyle = (color) => {
 const getTimeStamp = () => new Date().valueOf()
 
 export default defineStore('socketStore', () => {
-  const { onLine } = storeToRefs(userStore())
   const { sceneList } = storeToRefs(smartStore())
-
+  const { onLine } = storeToRefs(userStore())
   let heartTimer = null
   let mqClient = null
   const heartDuration = 10 * 1000
@@ -33,15 +32,22 @@ export default defineStore('socketStore', () => {
   const resultTopic = ref('') // 通用应答主推
   const heartTopic = ref('') // 心跳主图
   const deviceStateTopic = ref('') // 设备状态主题
+  const deviceOnlineTopic = ref('') // 设备/网关在线主题
   const isDisConnect = ref(false) // 是否主动断开链接
   const showLog = ref(getStorage(import.meta.env.VITE_APP_DEVELOPER) ?? false)
+
+  watch(
+    () => onLine.value,
+    (val) => {
+      if (!val) disReconnect()
+    },
+    { deep: true, immediate: true }
+  )
 
   const useSetShowLog = (value) => {
     console.log('useSetShowLog', value)
     showLog.value = value
   }
-
-  const isConnected = computed(() => mqClient?.isConnected()) // mqtt是否已经链接
 
   const getMsgid = (theme, id) => {
     return `${username.value}/${theme}/${id}/${getTimeStamp()}`
@@ -59,7 +65,10 @@ export default defineStore('socketStore', () => {
 
     deviceStateTopic.value = `Cloud/${DEVICE}/State/${username.value}`
 
+    deviceOnlineTopic.value = `App/Online/${username.value}`
+
     initClient()
+    onClientConnecte()
   }
 
   function initClient() {
@@ -77,7 +86,9 @@ export default defineStore('socketStore', () => {
       const data = JSON.parse(payloadString)
 
       if (topic == deviceStateTopic.value) {
-        onDeviceSubscribe(data)
+        onDeviceStatusSubscribe(data)
+      } else if (topic === deviceOnlineTopic.value) {
+        onDeviceOnlineSubscribe(data)
       } else if (topic == resultTopic.value) {
         onResponesSubscribe(data)
       } else {
@@ -89,7 +100,7 @@ export default defineStore('socketStore', () => {
       }
     }
     mqClient.onMessageDelivered = (message) => {
-      console.log('发送信息--------------------', message)
+      if (showLog.value) console.log('发送信息--------------------', message)
     }
   }
 
@@ -98,6 +109,11 @@ export default defineStore('socketStore', () => {
     mqClient?.subscribe(deviceStateTopic.value, {
       onSuccess: () => {
         console.log('订阅设备状态主题成功')
+      },
+    })
+    mqClient?.subscribe(deviceOnlineTopic.value, {
+      onSuccess: () => {
+        console.log('订阅设备在线主题成功')
       },
     })
     mqClient?.subscribe(resultTopic.value, {
@@ -240,7 +256,7 @@ export default defineStore('socketStore', () => {
    * 当设备的状态发生改变，云端或者网关会主动推送设备状态给App； 云端/网关->App
    * @data {bianhao:'设备编号 ',shuxing:'状态变化设备的物模型属性',shuxingzhuangtai:'状态变化设备的物模型属性状态',shuxingzhi:'状态变化设备的物模型属性值'}
    * **/
-  function onDeviceSubscribe(data) {
+  function onDeviceStatusSubscribe(data) {
     if (showLog.value) console.log('%c设备状态接收主题', getLogStyle('blue'), data)
 
     const { bianhao, shuxing, shuxingzhuangtai, shuxingzhi } = data
@@ -259,6 +275,19 @@ export default defineStore('socketStore', () => {
           modeStatusList: newModeList.map(({ useColumns, ...statusItem }) => statusItem),
         }
       }
+      return item
+    })
+  }
+
+  /***
+   * 设备、网关在线状态改变订阅 online
+   * ***/
+  function onDeviceOnlineSubscribe(data) {
+    console.log('%c设备/网关在线接收主题', getLogStyle('blue'), data)
+    const { bianhao, shifouwangguan, zaixianzhuangtai } = data
+    const { deviceList } = storeToRefs(deviceStore())
+    deviceList.value = deviceList.value.map((item) => {
+      if (item.id === bianhao) return { ...item, online: zaixianzhuangtai === '1' }
       return item
     })
   }
@@ -308,20 +337,5 @@ export default defineStore('socketStore', () => {
     useMqttPublish(SENCE, message)
   }
 
-  watch(
-    () => onLine.value,
-    (val) => {
-      console.log('在线状态变化', val)
-      if (val) {
-        init()
-        waitConnected()
-      } else {
-        closeUdpService()
-        disReconnect()
-      }
-    },
-    { immediate: true }
-  )
-
-  return { mqttScenePublish, mqttDevicePublish, useSetShowLog }
+  return { mqttScenePublish, mqttDevicePublish, useSetShowLog, disReconnect, waitConnected, init }
 })

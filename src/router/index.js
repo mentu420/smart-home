@@ -2,9 +2,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import userStore from '@/store/userStore.js'
-import { getStorage, setStorage, isObjectString } from '@/utils/storage.js'
-
+import { getStorage } from '@/utils/storage'
 import commonRouters from './modules/common.js'
 import houseRouters from './modules/house.js'
 import meRouters from './modules/me.js'
@@ -89,7 +87,6 @@ const Router = createRouter({
 NProgress.configure({ showSpinner: false })
 Router.beforeEach(async (to, from, next) => {
   NProgress.start()
-
   next()
 })
 
@@ -99,7 +96,7 @@ Router.afterEach((to, from) => {
 
 Router.goBack = function (delta = -1) {
   this.isBack = true //判断是否是返回操作
-  window.history.go(delta)
+  Router.go(delta)
 }
 
 export default Router

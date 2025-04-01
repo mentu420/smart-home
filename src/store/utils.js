@@ -2,6 +2,15 @@ import deviceStore from '@/store/deviceStore'
 import smartStore from '@/store/smartStore'
 import houseStore from '@/store/houseStore'
 import userStore from './userStore'
+import materialStore from './materialStore'
+
+export const initStoreSync = async () => {
+  await userStore().init()
+  await houseStore().init()
+  await deviceStore().init()
+  await smartStore().init()
+  await materialStore().init()
+}
 
 // 刷新所有数据
 export const reloadStoreSync = async () => {
@@ -25,4 +34,5 @@ export const storeReset = () => {
   smartStore().reset()
   deviceStore().reset()
   userStore().reset()
+  materialStore().reset()
 }

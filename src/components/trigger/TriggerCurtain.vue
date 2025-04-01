@@ -1,11 +1,16 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
-import { debounce } from '@/utils/common'
+import _ from 'lodash'
 
-import { getModeColumns, triggerControl, onConfigFormat, getModeRange } from './useTrigger'
+import {
+  getModeColumns,
+  triggerControl,
+  isOfflineDevice,
+  onConfigFormat,
+  getModeRange,
+} from './useTrigger'
 
 const { useGetDeviceItem, includesUse, useDeviceItemChange } = deviceStore()
 
@@ -48,9 +53,10 @@ const config = ref({
 
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList, columns } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     const [minValue, maxValue] = getModeRange(columns, PERCENT)
     min.value = minValue
     max.value = maxValue
@@ -60,19 +66,20 @@ watch(
 )
 
 const onStopToggle = () => {
+  if (isOfflineDevice(deviceItem)) return
+
   triggerControl({ use: STOP, device: deviceItem.value, config: config.value })
 }
 
 const onSwitch = (useValue) => {
+  if (isOfflineDevice(deviceItem)) return
   config.value[SWITCH] = { useStatus: useValue == '0' ? 'off' : 'on', useValue }
   triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })
 }
 
 const onPercentChange = () => {
+  if (isOfflineDevice(deviceItem)) return
   triggerControl({ use: PERCENT, device: deviceItem.value, config: config.value })
-}
-const onAngleChange = () => {
-  triggerControl({ use: ANGLE, device: deviceItem.value, config: config.value })
 }
 </script>
 

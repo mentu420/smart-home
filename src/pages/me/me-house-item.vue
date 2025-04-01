@@ -111,14 +111,6 @@ const addHouseItem = () => {
         is-link
         @click="editHouseName"
       />
-      <van-cell
-        center
-        clickable
-        title="家庭位置"
-        :value="houseItem?.dizhi"
-        is-link
-        @click="editHouseAddress"
-      />
       <van-cell center clickable title="家庭图片" is-link>
         <SmartUploader
           accept="image/*"

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, useAttrs, ref } from 'vue'
+import { useAttrs, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -8,6 +8,8 @@ const attrs = useAttrs()
 const emits = defineEmits(['update:modelValue'])
 
 const checked = ref(false)
+
+const navigateTo = (args) => router.push(args)
 </script>
 
 <template>
@@ -19,13 +21,13 @@ const checked = ref(false)
   >
     <template #input>
       <van-checkbox v-model="checked">
-        <span class="text-gray-500">
+        <span class="text-gray-500 text-xs">
           同意并遵守
-          <span class="text-origin" @click.stop.self="router.push({ path: '/me-agreement' })">
+          <span class="text-origin" @click.stop.self="navigateTo({ path: '/me-agreement' })">
             《服务协议》
           </span>
           和
-          <span class="text-origin" @click.stop.self="router.push({ path: '/me-conceal' })">
+          <span class="text-origin" @click.stop.self="navigateTo({ path: '/me-conceal' })">
             《隐私政策》
           </span>
         </span>

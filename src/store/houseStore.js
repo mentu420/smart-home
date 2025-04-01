@@ -27,27 +27,19 @@ export default defineStore(storeName, () => {
 
   const init = async () => {
     const storeRes = JSON.parse(await localforage.getItem(storeName))
-    houseList.value = storeRes?.houseList
-    roomList.value = storeRes?.roomList
-    floorList.value = storeRes?.floorList
-    familyList.value = storeRes?.familyList
-    currentHouse.value = storeRes?.currentHouse
+    houseList.value = storeRes?.houseList ?? []
+    roomList.value = storeRes?.roomList ?? []
+    floorList.value = storeRes?.floorList ?? []
+    familyList.value = storeRes?.familyList ?? []
+    currentHouse.value = storeRes?.currentHouse ?? {}
   }
 
-  init()
-
-  // 切换当前房屋
+  // 切换当前房屋 reload 是否重新加载数据
   const setCurrentHouse = async (id) => {
-    try {
-      await getHouseList({ op: 5, fangwubianhao: id })
-      currentHouse.value = houseList.value.find((item) => item.bianhao == id)
-      useSetToken({ ...useGetToken(), fangwubianhao: id })
-      await reloadStoreSync()
-    } catch (error) {
-      await useGetHouseListSync(true)
-      if (houseList.value.length == 0) return
-      await setCurrentHouse(houseList.value[0].id)
-    }
+    await getHouseList({ op: 5, fangwubianhao: id })
+    currentHouse.value = houseList.value.find((item) => item.bianhao == id)
+    useSetToken({ ...useGetToken(), fangwubianhao: id })
+    await reloadStoreSync()
   }
 
   const setHouseList = (payload) => {
@@ -197,5 +189,6 @@ export default defineStore(storeName, () => {
     useGetFamilyListSync,
     setHouseList,
     reset,
+    init,
   }
 })

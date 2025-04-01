@@ -13,7 +13,9 @@ export default defineStore(storeName, () => {
     console.log('静态资源初始化完成', materialImages.value)
   }
 
-  init()
+  const reset = () => {
+    materialImages.value = {}
+  }
 
-  return { materialImages }
+  return { materialImages, init, reset }
 })

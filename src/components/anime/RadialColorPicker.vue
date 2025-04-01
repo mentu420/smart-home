@@ -197,8 +197,7 @@ const onInput = () => {
 }
 
 const onChange = debounce(() => {
-  const values = { angle: angle.value, ratio: ratio.value, color: color.value }
-  emits('change', values)
+  emits('change', { ratio: ratio.value, color: color.value, angle: angle.value }, scopeData.value)
 }, 350)
 
 watch(
@@ -324,7 +323,7 @@ defineExpose({ open, close })
   <van-popup v-model:show="show" round teleport="body" position="bottom">
     <van-cell title="色温">
       <template #right-icon>
-        <van-icon name="success" size="26" @click="onConfirm" />
+        <van-icon name="clear" size="26" @click="show = false" />
       </template>
     </van-cell>
     <div class="flex items-center justify-center p-8">

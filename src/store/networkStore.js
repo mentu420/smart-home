@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 export default defineStore('network', () => {
   const isOnline = ref(navigator.onLine)
@@ -19,6 +19,8 @@ export default defineStore('network', () => {
   }
 
   onMounted(onInit)
+
+  onUnmounted(onReset)
 
   return { isOnline }
 })

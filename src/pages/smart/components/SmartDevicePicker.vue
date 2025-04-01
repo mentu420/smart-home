@@ -80,7 +80,9 @@ function onColorPickerChange({ ratio, angle }, scopeData) {
 }
 
 function onSliderPickerChange(useValue, scopeData) {
-  onModeChange({ selectedOptions: [{ useValue, useEn: scopeData.modeItem.use }] }, scopeData)
+  const { TEMPERATURE, SETTEMPERATURE } = USE_KEY
+  const useEn = scopeData.modeItem.use == TEMPERATURE ? SETTEMPERATURE : scopeData.modeItem.use
+  onModeChange({ selectedOptions: [{ useValue, useEn }] }, scopeData)
 }
 
 defineExpose({ open })
@@ -93,7 +95,7 @@ defineExpose({ open })
     @select="onModeChange"
   />
 
-  <ColorPicker ref="colorPickerRef" @confirm="onColorPickerChange">
+  <ColorPicker ref="colorPickerRef" @change="onColorPickerChange">
     <template #default="{ ratio }">
       <label>{{ ratio }}K</label>
     </template>

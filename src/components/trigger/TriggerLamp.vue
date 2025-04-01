@@ -5,9 +5,11 @@ import ColorPicker from '@/components/anime/RadialColorPicker.vue'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { stringToArray } from '@/utils/common'
+import _ from 'lodash'
 
 import {
   triggerControl,
+  isOfflineDevice,
   disabledClass,
   isDisabled,
   onConfigFormat,
@@ -55,9 +57,10 @@ const isOff = computed(() => config.value[SWITCH]?.useStatus == 'off')
 
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList = [] } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     config.value = onConfigFormat(config.value, modeStatusList)
   },
   {
@@ -74,6 +77,7 @@ const colorTemperatureRange = computed(() => {
 
 // 开关
 const toggle = () => {
+  if (isOfflineDevice(deviceItem)) return
   const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
   triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })
@@ -154,7 +158,7 @@ const openColorPicker = () => {
         </template>
       </van-cell>
     </van-cell-group>
-    <ColorPicker ref="colorPickerRef" :range="colorTemperatureRange" @confirm="onColorPickerChange">
+    <ColorPicker ref="colorPickerRef" :range="colorTemperatureRange" @change="onColorPickerChange">
       <template #default="{ ratio }">
         <label>{{ ratio }}K</label>
       </template>

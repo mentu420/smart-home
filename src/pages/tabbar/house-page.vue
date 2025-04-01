@@ -3,10 +3,8 @@ import { storeToRefs } from 'pinia'
 import { computed, nextTick, onActivated, onMounted, ref, watch, unref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
-
 import { setCollectSort } from '@/apis/houseApi.js'
 import { setDeviceList, setSceneList } from '@/apis/smartApi'
-import socketStore from '@/store/socketStore'
 import DeviceCardItem from '@/pages/tabbar/components/DeviceCardItem.vue'
 import HousePopover from '@/pages/tabbar/components/HousePopover.vue'
 import ScenenCardItem from '@/pages/tabbar/components/ScenenCardItem.vue'
@@ -17,6 +15,8 @@ import userStore from '@/store/userStore'
 import collectEmptyImage from '@/assets/images/empty/custom-empty-image.png'
 import { useScreenSafeArea } from '@vueuse/core'
 import { CLASSIFY_EXECL } from '@/enums/deviceEnums'
+import { initStoreSync } from '@/store/utils'
+import socketStore from '@/store/socketStore'
 
 defineOptions({ name: 'HousePage' })
 
@@ -52,8 +52,9 @@ const dragOptions = ref({
 
 // 所有房间、设备、场景数据集合
 const roomTabs = ref([])
+
 function getRoomTabs() {
-  return roomList.value.map((roomItem) => {
+  roomTabs.value = roomList.value?.map((roomItem) => {
     const roomDeviceList = deviceList.value?.filter((item) => item.rId == roomItem.id)
     return {
       ...roomItem,
@@ -67,6 +68,14 @@ function getRoomTabs() {
     }
   })
 }
+
+watch(
+  () => [roomList.value.length, deviceList.value.length, sceneList.value.length],
+  (val, old) => {
+    if (val.every((value, index) => value === old[index])) return
+    getRoomTabs()
+  }
+)
 
 // 当前楼层房间列表
 const roomFilterList = computed(() => {
@@ -96,21 +105,6 @@ const showDragBtn = computed(() => {
   }
 })
 
-// 控制设备
-const onSwitchDeviceItem = ({ modeList, id }, status = null) => {
-  const { mqttDevicePublish } = socketStore()
-  const switchMode = modeList.find((item) => ['switch'].includes(item.use))
-  if (switchMode) {
-    const useStatus = status || switchMode.useStatus == 'on' ? 'off' : 'on'
-    mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
-  } else {
-    if (status) return
-    const playMode = modeList.find((item) => ['playControl'].includes(item.use))
-    const useStatus = playMode.useStatus == 'play' ? 'pause' : 'play'
-    mqttDevicePublish({ id, ...switchMode, useStatus, useValue: '1' })
-  }
-}
-
 // 初始化数据 hId 初始化房屋id
 // 请求完所有数据后设置当前房屋数据
 const onReload = async (hId) => {
@@ -121,7 +115,7 @@ const onReload = async (hId) => {
 
   const { setCurrentHouse } = houseStore()
   await setCurrentHouse(hId)
-  roomTabs.value = getRoomTabs()
+  getRoomTabs()
 }
 
 const onDragCancel = () => {
@@ -178,25 +172,23 @@ const onHouseSelect = async (action) => {
   try {
     loading.value = true
     const hId = action.id
+    const { disReconnect, waitConnected } = socketStore()
+    disReconnect()
     await onReload(hId)
+    waitConnected()
+  } catch (err) {
+    console.log(err)
   } finally {
-    currentFloorId.value = floorList.value[0]?.id
+    setDefaultCurrentFloorId()
     loading.value = false
   }
 }
 
-// 设备全开全关
-function onAllDeviceToggle(deviceList, status) {
-  deviceList.forEach((deviceItem) => {
-    onSwitchDeviceItem(deviceItem, status)
-  })
-}
-
 // 自定义 tabs 滚动事件
 const scrollContainerRef = ref(null)
-const onRoomChange = (roomItem, roomIndex) => {
+const onRoomChange = (id, roomIndex) => {
   if (!dragOptions.value.disabled) return
-  currentRoomId.value = roomItem.id
+  currentRoomId.value = id
   const item = scrollContainerRef.value.children[roomIndex]
   const containerWidth = scrollContainerRef.value.offsetWidth
   const itemWidth = item.offsetWidth
@@ -207,6 +199,13 @@ const onRoomChange = (roomItem, roomIndex) => {
     behavior: 'smooth',
   })
 }
+
+const onRoomSwipeChange = () => {
+  let roomIndex = roomFilterList.value.findIndex((item) => item.id === currentRoomId.value) + 1
+  roomIndex === -1 ? 0 : roomIndex + 1
+  onRoomChange(currentRoomId.value, roomIndex)
+}
+
 // app 滑动到顶部
 const onAppScrollend = async () => {
   const { top } = useScreenSafeArea()
@@ -221,11 +220,12 @@ const onAppScrollend = async () => {
   }, 350)
 }
 
-const init = async () => {
+// 重新加载数据
+const reload = async (showSkeleton = true) => {
   const { useGetToken, useUserInfoSync } = userStore()
   try {
     loading.value = true
-    skeletonLoading.value = true
+    skeletonLoading.value = showSkeleton
     dragOptions.value.disabled = true
     const token = useGetToken()
     if (!token) return
@@ -234,10 +234,33 @@ const init = async () => {
     console.warn(err)
   } finally {
     await useUserInfoSync()
-    currentFloorId.value = floorList.value[0]?.id
+    setDefaultCurrentFloorId()
     loading.value = false
     skeletonLoading.value = false
   }
+}
+
+function setDefaultCurrentFloorId() {
+  currentFloorId.value = floorList.value[0]?.id
+}
+
+// 数据初始化
+async function init() {
+  await initStoreSync()
+  const noData = houseList.value?.length == 0
+  console.log('没有缓存数据', noData)
+  if (!noData) {
+    setDefaultCurrentFloorId()
+    getRoomTabs()
+    socketStore().init()
+  }
+  setTimeout(
+    async () => {
+      await reload(noData)
+      if (noData) socketStore().init()
+    },
+    noData ? 4 : 5000
+  )
 }
 
 onMounted(init)
@@ -245,7 +268,7 @@ onMounted(init)
 onActivated(() => {
   dragOptions.value.disabled = true
   if (!floorList.value.some((item) => item.id == currentFloorId.value)) {
-    currentFloorId.value = floorList.value[0]?.id
+    setDefaultCurrentFloorId()
   }
 })
 
@@ -262,7 +285,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
 </script>
 
 <template>
-  <div v-touch:swipe.top="onAppScrollend">
+  <div>
     <van-skeleton :loading="skeletonLoading">
       <template #template>
         <ul class="h-screen w-full mt-safe overflow-hidden">
@@ -317,7 +340,6 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   </template>
                 </HousePopover>
                 <div class="space-x-4 shrink-0">
-                  <van-icon size="20" name="bell" />
                   <van-icon
                     v-if="houseUserPower(currentHouse?.id) != 2"
                     size="20"
@@ -350,7 +372,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                 :key="roomIndex"
                 class="relative flex-none leading-[44px] flex px-2 transition-all"
                 :class="{ 'text-black font-bold': currentRoomId === roomItem.id }"
-                @click="onRoomChange(roomItem, roomIndex)"
+                @click="onRoomChange(roomItem.id, roomIndex)"
               >
                 {{ roomItem.label }}
               </li>
@@ -358,7 +380,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
             <!--切换楼层-->
             <div class="shrink-0 pl-2 bg-page-gray">
               <div
-                class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4"
+                class="flex h-[28px] my-[8px] w-[78px] flex-auto items-center justify-center space-x-4 rounded-l-lg"
                 :class="{ 'bg-white': dragOptions.disabled }"
               >
                 <van-button
@@ -382,7 +404,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
                   placement="bottom-end"
                 >
                   <template #reference>
-                    <div class="flex items-center bg-white py-1 space-x-1">
+                    <div class="flex items-center py-1 space-x-1">
                       <p class="w-[40px] truncate text-xs shrink-0 text-center">
                         {{ floorList?.find((floorItem) => floorItem.id == currentFloorId)?.label }}
                       </p>
@@ -405,6 +427,7 @@ const goAddDevice = () => router.push({ path: '/house-add-device' })
           line-width="0"
           animated
           :swipeable="dragOptions.disabled"
+          @change="onRoomSwipeChange"
         >
           <van-tab title="全屋" :disabled="!dragOptions.disabled" name="-1">
             <section class="p-4 min-h-[85vh]">

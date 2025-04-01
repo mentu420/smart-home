@@ -82,13 +82,6 @@ const onFloorSelectRoom = (fId) => {
 const onRefresh = async () => {
   try {
     loading.value = true
-    const { useGetRoomListSync, useGetFloorListSync } = houseStore()
-    const { useGetDeviceListSync } = deviceStore()
-    await Promise.all([
-      useGetRoomListSync(true),
-      useGetFloorListSync(true),
-      useGetDeviceListSync(true),
-    ])
     init()
   } finally {
     loading.value = false

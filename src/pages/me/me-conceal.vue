@@ -226,7 +226,7 @@ f）响应您的上述请求
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen bg-white">
     <HeaderNavbar title="隐私政策" />
     <div class="p-4 mb-safe">
       <p class="whitespace-pre-wrap text-[#363636]">{{ message }}</p>

@@ -1,10 +1,11 @@
 import { useRect } from '@vant/use'
-import { computed } from 'vue'
+import { computed, unref } from 'vue'
 
 import { TYPE_VALUE_EXECL, USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import socketStore from '@/store/socketStore'
 import { throttle, stringToArray, debounce } from '@/utils/common'
+import { showToast } from 'vant'
 
 //设备是否禁用 适用['100', '101', '102', '103', '104']
 export const isDisabled = (config) => config?.switch?.useStatus == 'off'
@@ -113,3 +114,9 @@ export const triggerControl = throttle(({ use, device, config }) => {
   onDeviceStatusChange(publishRes)
   onDeviceStatusRefresh(id)
 }, 500)
+
+export const isOfflineDevice = (device) => {
+  const { online = false } = unref(device)
+  if (!online) showToast({ message: '设备不在线！', position: 'bottom' })
+  return !online
+}

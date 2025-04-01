@@ -63,7 +63,7 @@ const goOtherLogin = (type) => {
 </script>
 
 <template>
-  <div class="p-4 pt-safe-offset-4 h-screen">
+  <div class="p-4 pt-safe-offset-4 h-screen bg-white">
     <h1 class="mb-10 ml-2 mt-10">密码登录</h1>
     <van-form class="m-2" @submit="onSubmit">
       <van-cell-group>

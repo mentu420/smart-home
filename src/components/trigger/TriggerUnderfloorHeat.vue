@@ -1,12 +1,13 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
-
+import _ from 'lodash'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
-
+import { debounce } from '@/utils/common'
 import TriggerModePopover from './TriggerModePopover.vue'
 import {
   triggerControl,
+  isOfflineDevice,
   isDisabled,
   disabledClass,
   onConfigFormat,
@@ -33,7 +34,6 @@ const emits = defineEmits(['change', 'update:modelValue'])
 const max = ref(32)
 const min = ref(16)
 const checked = ref(false)
-const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
@@ -64,9 +64,10 @@ const modeActions = computed(() => getModeActions(deviceItem.value, MODE))
 
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList, columns } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     const [minValue, maxValue] = getModeRange(columns, TEMPERATURE)
     min.value = minValue
     max.value = maxValue
@@ -76,15 +77,14 @@ watch(
   { immediate: true }
 )
 
-const setTemp = () => {
-  nextTick(() => {
-    config.value[TEMPERATURE] = {
-      useStatus: SETTEMPERATURE,
-      useValue: config.value[SETTEMPERATURE],
-    }
-    triggerControl({ use: TEMPERATURE, device: deviceItem.value, config: config.value })
-  })
-}
+const setTemp = debounce(() => {
+  config.value[TEMPERATURE] = {
+    useStatus: SETTEMPERATURE,
+    useValue: config.value[SETTEMPERATURE],
+  }
+  console.log('debounce', config.value)
+  triggerControl({ use: TEMPERATURE, device: deviceItem.value, config: config.value })
+}, 1000)
 
 const onLower = () => {
   if (config.value[SETTEMPERATURE] == min.value || disabled.value) return
@@ -110,6 +110,7 @@ const onValveChange = (value) => {
 }
 
 const toggle = () => {
+  if (isOfflineDevice(deviceItem)) return
   const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
   triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })

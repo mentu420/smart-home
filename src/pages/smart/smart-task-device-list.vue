@@ -60,62 +60,6 @@ const mergeEventsArray = (origin, newArr) => {
   return [...origin, ...newArr.filter((item) => !alreadyIds.includes(item.id))]
 }
 
-const onSave = async () => {
-  const { useGetDeviceListSync, setModeColumns } = deviceStore()
-
-  const deviceList = await useGetDeviceListSync()
-
-  //ziyuanleixing 资源类型 1，设备；2，场景
-  const checkList = deviceList
-    .filter((deviceItem) => checkedDevice.value.includes(deviceItem.id))
-    .map((checkItem) => ({
-      ...checkItem,
-      ziyuanleixing: 1,
-      modeList: setModeColumns(checkItem.columns),
-    }))
-
-  const { smartType, fenlei, eventIndex, extend } = route.query
-  if (smartType == 'actions') {
-    const smartDeviceList = createSmartItem.value[smartType] || []
-
-    const newDeviceList =
-      smartDeviceList.length > 0
-        ? [
-            ...smartDeviceList.filter((item) => !checkedDevice.value.includes(item.id)),
-            ...checkList,
-          ]
-        : checkList
-
-    createSmartItem.value = {
-      ...createSmartItem.value,
-      [smartType]: newDeviceList,
-    }
-  } else {
-    const newEvents = checkList.map((checkItem) => ({ leixing: 2, tiaojian: checkItem }))
-    const orginEvents = createSmartItem.value[smartType] || []
-    let mergeEvents = []
-    if (extend) {
-      //附加条件
-      const fujiatiaojian = orginEvents.find((item, i) => i == eventIndex)[extend] || []
-      mergeEvents = mergeEventsArray(fujiatiaojian, newEvents)
-    } else {
-      mergeEvents = mergeEventsArray(orginEvents, newEvents)
-    }
-
-    createSmartItem.value = {
-      ...createSmartItem.value,
-      [smartType]: !extend
-        ? mergeEvents
-        : orginEvents.map((item, i) => {
-            if (i == eventIndex) return { ...item, fujiatiaojian: mergeEvents }
-            return item
-          }),
-    }
-  }
-
-  router.goBack(smartType == 'actions' ? -3 : -4)
-}
-
 const init = () => {
   const { useGetFloorTree } = houseStore()
   const { smartType, extend, eventIndex } = route.query

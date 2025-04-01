@@ -16,6 +16,8 @@ import { transformKeys, mergeObjectIntoArray, getWebUrlName } from '@/utils/comm
 import { onScenePublishDebounce } from '@/hooks/useSmart'
 import { showConfirmDialog, showToast } from 'vant'
 import { sceneGallery } from '@/enums/galleryEnums'
+import { isOfflineDevice } from '@/components/trigger/useTrigger'
+import _ from 'lodash'
 
 import SmartCondtionList from './components/SmartCondtionList.vue'
 import SmartDevicePicker from './components/SmartDevicePicker.vue'
@@ -46,6 +48,32 @@ const pageName = computed(() => (route.query.fenlei == 2 ? '自动化' : '场景
 
 const dealyFormat = computed(() => (dealy) => `${Math.floor(dealy / 60)}分${dealy % 60}秒`)
 
+//计算事件项更多操作
+const getEventActions = computed(() => (eventItem) => {
+  // 如果 eventItem 不存在或者 leixing 为 0，直接返回删除操作
+  if (!eventItem || eventItem.leixing === 0) {
+    return [{ text: '删除', id: 2 }]
+  }
+
+  const conditionLength = eventItem.fujiatiaojian?.length || 0
+  const actions = []
+
+  // 如果附加条件数量小于 5，添加“附加生效条件”操作
+  if (conditionLength < 5) {
+    actions.push({ text: '附加生效条件', id: 0 })
+  }
+
+  // 如果附加条件数量大于 0，添加“清除生效条件”操作
+  if (conditionLength > 0) {
+    actions.push({ text: '清除生效条件', id: 1 })
+  }
+
+  // 始终添加“删除”操作
+  actions.push({ text: '删除', id: 2 })
+
+  return actions
+})
+
 // 打开房间选择
 function openRoomPicker() {
   const { useGetFloorTree } = houseStore()
@@ -62,29 +90,50 @@ function onSelectRoomItem({ selectedValues }) {
 
 /**
  * 修改自动化events中leixing=1的tiaojian或fujiantioajian的重复时间
+ * i 事件索引/附加事件索引
+ * type 事件类型 tiaojian 或 fujiatiaojian 修改tiaojian 的是不存在
  * **/
 const openExecutionTime = (item, i, type) => {
+  repeatTimeRef.value?.setProps({ type: item.tiaojian.shijian ? 'time' : 'timeRange' })
   repeatTimeRef.value?.open({
     timeRepeat: {
       type: item.tiaojian.chongfuleixing,
       value: item.tiaojian.chongfuzhi,
     },
-    time: item.tiaojian.shijian.split(':'),
+    time: item.tiaojian?.shijian?.split(':'),
+    timeRange: [item.tiaojian?.kaishishijian, item.tiaojian?.jieshushijian],
     eventIndex: i,
     type: type,
   })
 }
-// 确认修改执行时间
-const onExecutionTimeConfirm = ({ time, timeRepeat }, { eventIndex, type }) => {
+/**
+ * 确认修改执行时间
+ * time 时间 leixing = 1 事件为时间时有值
+ * timerange 时间范围 leixing = 1 事件为时间范围时有值 必定是附件条件
+ * timeRepeat 重复时间日期 leixing = 1 事件为时间或时间范围时有值
+ * eventIndex 事件索引/附件条件索引
+ * type 事件类型 tiaojian 或 fujiatiaojian 修改tiaojian 的是不存在
+ * **/
+const onExecutionTimeConfirm = ({ time, timerange, timeRepeat }, { eventIndex, type }) => {
   const { events } = createSmartItem.value
-  const tiaojian = { chongfuzhi: timeRepeat.value, chongfuleixing: timeRepeat.type, shijian: time }
+  const [kaishishijian, jieshushijian] = timerange
+  const tiaojian = _.pickBy(
+    {
+      chongfuzhi: timeRepeat.value,
+      chongfuleixing: timeRepeat.type,
+      shijian: time,
+      kaishishijian,
+      jieshushijian,
+    },
+    (value) => Boolean
+  )
   const newEvents = events.map((item, i) => {
     if (type) {
       return {
         ...item,
-        [type]: item[type].map((option, index) => {
-          if (index == eventIndex) return { ...option, tiaojian }
-          return option
+        [type]: item[type]?.map((exntedItem, index) => {
+          if (index == eventIndex && exntedItem.leixing == 1) return { ...exntedItem, tiaojian }
+          return exntedItem
         }),
       }
     } else if (i == eventIndex) {
@@ -111,7 +160,12 @@ const selectEventMoreItem = (action, eventItem, eventIndex) => {
   const { events } = createSmartItem.value
   switch (action.id) {
     case 0:
-      goConditionConfig({ eventIndex, extend: 'fujiatiaojian', leixing: eventItem.leixing })
+      goConditionConfig({
+        eventIndex,
+        extend: 'fujiatiaojian',
+        leixing: eventItem.leixing,
+        pageTitle: action.text,
+      })
       break
     case 1:
       createSmartItem.value = {
@@ -164,6 +218,7 @@ const onDelectSceneItem = async (sceneItem) => {
 async function onActionSelect(action, actionItem, modeItem) {
   if (action.id == 0) {
     if (modeItem) {
+      if (isOfflineDevice(actionItem)) return
       socketStore().mqttDevicePublish({ id: actionItem.id, ...modeItem })
     } else {
       onScenePublishDebounce(actionItem.id)
@@ -448,7 +503,6 @@ const getTaskConverActions = (actions) => {
       }
     } else {
       const actionModeIitem = actionModeList.find((action) => action.id == id)
-      console.log('actionModeIitem', actionModeIitem)
       return {
         ...sceneList.value.find((sceneItem) => sceneItem.id == id),
         ...actionModeIitem,
@@ -544,7 +598,6 @@ const init = () => {
    * 1：自动化比场景多一个events，自动化有两个智能设备actions
    * **/
   createSmartItem.value = { ...createSmartItem.value, fenlei: route.query.fenlei }
-  console.log('init', createSmartItem.value)
 }
 
 onMounted(init)
@@ -653,20 +706,20 @@ function goEventConfig() {
       <!--条件列表-->
       <ul v-if="createSmartItem?.events?.length">
         <li
-          v-for="(eventItem, eventIndex) in createSmartItem?.events"
+          v-for="(eventItem, eventIndex) in createSmartItem.events"
           :key="eventIndex"
           class="mb-3 flex min-h-16 items-center justify-between rounded-lg bg-white p-4"
         >
           <div class="break-words">
             <span class="mr-3">{{ eventIndex == 0 ? '当' : '或' }}</span>
-            <span v-if="eventItem.leixing == 0">点击此{{ pageName }}卡片</span>
+            <span v-if="eventItem?.leixing == 0">点击此{{ pageName }}卡片</span>
             <template v-else>
               <SmartCondtionList
                 :item="eventItem"
                 @open-time="openExecutionTime(eventItem, eventIndex)"
                 @open-mode="(modeItem) => openEventDeviceMode(modeItem, eventItem, eventIndex)"
               />
-              <template v-if="eventItem.fujiatiaojian">
+              <template v-if="eventItem?.fujiatiaojian?.length">
                 <span class="mx-2">且</span>
                 <template
                   v-for="(extendItem, extendIndex) in eventItem.fujiatiaojian"
@@ -687,15 +740,7 @@ function goEventConfig() {
           </div>
           <div class="shrink-0 ml-2">
             <van-popover
-              :actions="
-                eventItem.leixing == 0
-                  ? [{ text: '删除', id: 2 }]
-                  : [
-                      { text: '附加生效条件', id: 0 },
-                      { text: '清除生效条件', id: 1 },
-                      { text: '删除', id: 2 },
-                    ]
-              "
+              :actions="getEventActions(eventItem)"
               placement="left"
               @select="(action) => selectEventMoreItem(action, eventItem, eventIndex)"
             >

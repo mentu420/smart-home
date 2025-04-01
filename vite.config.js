@@ -39,8 +39,9 @@ export default defineConfig({
     },
   },
   server: {
+    hmr: true, // 确保热更新开启
     host: '0.0.0.0',
-    port: '4679',
+    port: '4556',
     // proxy: {
     //   "^/api": {
     //     target: "https://atom.musiyoujia.com",

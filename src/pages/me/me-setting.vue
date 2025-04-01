@@ -21,6 +21,7 @@ const navList = ref([
         :icon="navItem.icon"
         is-link
         clickable
+        class="!py-4"
         @click="
           () => {
             if (navItem.path != '') router.push(navItem.path)

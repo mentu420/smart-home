@@ -1,12 +1,13 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
-
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
+import _ from 'lodash'
 
 import TriggerModePopover from './TriggerModePopover.vue'
 import {
   triggerControl,
+  isOfflineDevice,
   disabledClass,
   isDisabled,
   getModeActions,
@@ -31,8 +32,6 @@ const props = defineProps({
 
 const emits = defineEmits(['change', 'update:modelValue'])
 
-const showSpeed = ref(false)
-const showMode = ref(false)
 const modeRef = ref(null)
 
 //温度、风俗、模式
@@ -54,9 +53,10 @@ const deviceItem = computed(() => useGetDeviceItem(props.id))
 const disabled = computed(() => isDisabled(config.value))
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList = [] } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     config.value = onConfigFormat(config.value, modeStatusList)
   },
   { immediate: true }
@@ -71,6 +71,7 @@ const onModeChange = (use) => {
 }
 
 const toggle = () => {
+  if (isOfflineDevice(deviceItem)) return
   const useStatus = config.value[SWITCH].useStatus == 'off' ? 'on' : 'off'
   config.value[SWITCH] = { useStatus, useValue: useStatus == 'off' ? '0' : '1' }
   triggerControl({ use: SWITCH, device: deviceItem.value, config: config.value })

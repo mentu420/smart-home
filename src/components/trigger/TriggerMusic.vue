@@ -1,7 +1,6 @@
 <script setup>
-import { useRect } from '@vant/use'
-import { ref, computed, watch, nextTick } from 'vue'
-
+import { ref, computed, watch } from 'vue'
+import _ from 'lodash'
 import { USE_KEY } from '@/enums/deviceEnums'
 import deviceStore from '@/store/deviceStore'
 import { debounce } from '@/utils/common'
@@ -12,6 +11,7 @@ import {
   getPlacement,
   isDisabled,
   triggerControl,
+  isOfflineDevice,
   onConfigFormat,
   getModeRange,
 } from './useTrigger'
@@ -79,9 +79,10 @@ const sourceActions = computed(() => getModeActions(deviceItem.value, SOURCE))
 
 watch(
   () => deviceItem.value,
-  (val) => {
+  (val, old) => {
     if (!val) return
     const { modeStatusList, columns } = val
+    if (_.isEqual(modeStatusList, old?.modeStatusList)) return
     const [minValue, maxValue] = getModeRange(columns, VOLUME)
     min.value = minValue ?? 0
     max.value = maxValue ?? 100
@@ -91,6 +92,7 @@ watch(
 )
 
 const onStatusChange = () => {
+  if (isOfflineDevice(deviceItem)) return
   const useStatus = config.value[PLAYCONTROL].useStatus == PLAY ? PAUSE : PLAY
   config.value = {
     ...config.value,
@@ -100,21 +102,20 @@ const onStatusChange = () => {
 }
 
 const onSrotChange = (useStatus) => {
+  if (isOfflineDevice(deviceItem)) return
   config.value[CUTSONG] = { useValue: '1', useStatus }
   triggerControl({ use: CUTSONG, device: deviceItem.value, config: config.value })
 }
 
-const onVolumeChange = () => {
+const onVolumeChange = debounce(() => {
+  if (isOfflineDevice(deviceItem)) return
   config.value[VOLUME] = { useValue: config.value[VOLUME].useValue, useStatus: VOLUME }
   triggerControl({ use: VOLUME, device: deviceItem.value, config: config.value })
-}
+}, 1000)
 
 const onModeChange = (use) => {
+  if (isOfflineDevice(deviceItem)) return
   triggerControl({ use, device: deviceItem.value, config: config.value })
-}
-
-const onProcessChange = () => {
-  triggerControl({ use: PROCESS, device: deviceItem.value, config: config.value })
 }
 </script>
 
